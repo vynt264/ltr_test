@@ -17,15 +17,14 @@ const configService = new ConfigService();
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
-      name: "read",
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: async (confService: ConfigService) => ({
         type: "mysql",
-        host: configService.get("DB_READ_HOST"),
-        port: configService.get("DB_READ_PORT"),
-        username: configService.get("DB_READ_USERNAME"),
-        password: configService.get("DB_READ_PASSWORD"),
-        database: configService.get("DB_READ_DATABASE"),
+        host: confService.get("DB_WRITE_HOST"),
+        port: confService.get("DB_WRITE_PORT"),
+        username: confService.get("DB_WRITE_USERNAME"),
+        password: confService.get("DB_WRITE_PASSWORD"),
+        database: confService.get("DB_WRITE_DATABASE"),
         entities: ["dist/components/**/*.entity.{js,ts}"],
         extra: {
           charset: "utf8mb4_unicode_ci",
