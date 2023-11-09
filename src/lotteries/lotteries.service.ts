@@ -14,7 +14,20 @@ import {
   MAX_ORDERS_LO2SO1K,
 } from '../system/constants';
 import { OrderDto } from './dto/order.dto';
-import { BaCangType, BaoLoType, BonCangType, CategoryLotteryType, DanhDeType, DauDuoiType, Lo2SoGiaiDacBietType, LoTruocType, LoXienType, OddBet, PricePerScore, TroChoiThuViType } from '../system/enums/lotteries';
+import {
+  BaCangType,
+  BaoLoType,
+  BonCangType,
+  CategoryLotteryType,
+  DanhDeType,
+  DauDuoiType,
+  Lo2SoGiaiDacBietType,
+  LoTruocType,
+  LoXienType,
+  OddBet,
+  PricePerScore,
+  TroChoiThuViType,
+} from '../system/enums/lotteries';
 
 @Injectable()
 export class LotteriesService {
@@ -444,7 +457,6 @@ export class LotteriesService {
     return arrayOf9999Numbers;
   }
 
-
   calcPayoutOrders2So({
     ordersLo2So,
     arrayOf9999Numbers,
@@ -715,7 +727,7 @@ export class LotteriesService {
       });
     }
 
-    result = result.filter((prize: any) => (prize.payOut < totalBetAmount));
+    // result = result.filter((prize: any) => (prize.payOut < totalBetAmount && prize.payOut != 0));
     result.sort((a: any, b: any) => a.payOut - b.payOut);
 
     return result;
@@ -867,7 +879,7 @@ export class LotteriesService {
       });
     }
 
-    result = result.filter((prize: any) => (prize.payOut < totalBetAmount));
+    // result = result.filter((prize: any) => (prize.payOut < totalBetAmount && prize.payOut != 0));
     result.sort((a: any, b: any) => a.payOut - b.payOut);
 
     return result;
@@ -1363,16 +1375,16 @@ export class LotteriesService {
       if (limit === 0) break;
 
       if (limit !== 5) {
-        tempPrizesSpecial = tempPrizesSpecial.filter((prize: any) => (prize.payOut !== 0));
+        // tempPrizesSpecial = tempPrizesSpecial.filter((prize: any) => (prize.payOut !== 0));
         tempPrizesSpecial.sort(this.compareRandom);
 
-        tempPrize8 = tempPrize8.filter((prize: any) => (prize.payOut !== 0));
+        // tempPrize8 = tempPrize8.filter((prize: any) => (prize.payOut !== 0));
         tempPrize8.sort(this.compareRandom);
 
-        tempPrize7 = tempPrize7.filter((prize: any) => (prize.payOut !== 0));
+        // tempPrize7 = tempPrize7.filter((prize: any) => (prize.payOut !== 0));
         tempPrize7.sort(this.compareRandom);
 
-        tempRemainPrizes = tempRemainPrizes.filter((prize: any) => (prize.payOut !== 0));
+        // tempRemainPrizes = tempRemainPrizes.filter((prize: any) => (prize.payOut !== 0));
         tempRemainPrizes.sort(this.compareRandom);
       }
 
