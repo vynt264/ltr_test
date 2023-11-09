@@ -1,0 +1,21 @@
+node_modules/
+build/
+dist/
+package-lock.json
+# don't ever lint node_modules
+node_modules
+
+# don't lint build output (make sure it's set to your correct build folder name)
+build
+
+# don't lint nyc coverage output
+coverage
+
+.eslintrc.js
+
+.babel.config.js
+telegram.service.ts
+src/**/telegram.service.ts
+src/**/ticket3.service.ts
+src/**/ticket2.service.ts
+src/**/sys.config.service.ts

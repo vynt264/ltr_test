@@ -1,0 +1,69 @@
+{
+  "taskDefinitionArn": "arn:aws:ecs:ap-southeast-1:632882742924:task-definition/dev-be-lottery-task:11",
+  "containerDefinitions": [
+      {
+          "name": "dev-be-lottery-ecr",
+          "image": "632882742924.dkr.ecr.ap-southeast-1.amazonaws.com/dev-be-lottery-ecr",
+          "cpu": 0,
+          "portMappings": [
+              {
+                  "name": "dev-be-lottery-ecr-3001-tcp",
+                  "containerPort": 3001,
+                  "hostPort": 3001,
+                  "protocol": "tcp"
+              }
+          ],
+          "essential": true,
+          "environment": [],
+          "mountPoints": [],
+          "volumesFrom": [],
+          "logConfiguration": {
+              "logDriver": "awslogs",
+              "options": {
+                  "awslogs-group": "/ecs/dev-be-lottery-task",
+                  "awslogs-region": "ap-southeast-1",
+                  "awslogs-stream-prefix": "ecs"
+              }
+          }
+      }
+  ],
+  "family": "dev-be-lottery-task",
+  "taskRoleArn": "arn:aws:iam::632882742924:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::632882742924:role/ecsTaskExecutionRole",
+  "networkMode": "bridge",
+  "revision": 11,
+  "volumes": [],
+  "status": "ACTIVE",
+  "requiresAttributes": [
+      {
+          "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+      },
+      {
+          "name": "ecs.capability.execution-role-awslogs"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.ecr-auth"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.task-iam-role"
+      },
+      {
+          "name": "ecs.capability.execution-role-ecr-pull"
+      }
+  ],
+  "placementConstraints": [],
+  "compatibilities": [
+      "EC2"
+  ],
+  "requiresCompatibilities": [
+      "EC2"
+  ],
+  "cpu": "2048",
+  "memory": "800",
+  "registeredAt": "2023-09-23T10:32:30.171Z",
+  "registeredBy": "arn:aws:iam::632882742924:user/github-action-ecs-ecr",
+  "tags": []
+}

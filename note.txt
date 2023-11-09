@@ -1,0 +1,9 @@
+1,Ticket1
+column scratchedIndex
+ -1: checkin lượt mở vé hiện tại
+ 0: pick vé, giật vé
+ 1: cào vé 1 phát
+ 2: cào vé 2 phát
+ 3: cào vé 3 phát
+ 4: cào vé 4 phát
+ 5: cào vé 5 phát
