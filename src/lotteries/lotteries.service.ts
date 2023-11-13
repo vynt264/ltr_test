@@ -98,7 +98,8 @@ export class LotteriesService {
       // mergeNumbers,
       // prizesFinal,
       // totalAmount
-      finalResult
+      totalBetAmount,
+      finalResult,
     };
   }
 
@@ -638,7 +639,7 @@ export class LotteriesService {
     return arrayOf9999Numbers;
   }
 
-  generatePrizeSpecial({
+  generatePrizesSpecial({
     totalBetAmount,
     ordersLo2So,
     ordersLo2So1k,
@@ -719,21 +720,33 @@ export class LotteriesService {
       arrayOf9999Numbers[key] += (payOutLo2SoGiaiDacBiet);
     }
 
-    let result = [];
-    for (const key of Object.keys(arrayOf9999Numbers)) {
-      result.push({
-        number: key,
-        payOut: arrayOf9999Numbers[key]
-      });
-    }
+    // Chuyển đối tượng thành Map
+    const prizeMap = new Map(Object.entries(arrayOf9999Numbers));
 
-    // result = result.filter((prize: any) => (prize.payOut < totalBetAmount && prize.payOut != 0));
-    result.sort((a: any, b: any) => a.payOut - b.payOut);
+    // Sắp xếp Map theo giá trị
+    const sortedPrizeMap = new Map([...prizeMap.entries()].sort((a: any, b: any) => a[1] - b[1]));
 
-    return result;
+    // Chuyển Map về đối tượng
+    // const sortedPrize = Object.fromEntries(sortedPrizeMap);
+
+    return sortedPrizeMap;
+
+
+    // let result = [];
+    // for (const key of Object.keys(arrayOf9999Numbers)) {
+    //   result.push({
+    //     number: key,
+    //     payOut: arrayOf9999Numbers[key]
+    //   });
+    // }
+
+    // // result = result.filter((prize: any) => (prize.payOut < totalBetAmount && prize.payOut != 0));
+    // result.sort((a: any, b: any) => a.payOut - b.payOut);
+
+    // return result;
   }
 
-  generatePrize8({
+  generatePrizes8({
     totalBetAmount,
     ordersLo2So,
     ordersLo2So1k,
@@ -768,20 +781,31 @@ export class LotteriesService {
       arrayOf99Numbers[order.number] += pricePerOrder;
     }
 
-    let result = [];
-    for (const key of Object.keys(arrayOf99Numbers)) {
-      result.push({
-        number: key,
-        payOut: arrayOf99Numbers[key]
-      });
-    }
+    // Chuyển đối tượng thành Map
+    const prizeMap = new Map(Object.entries(arrayOf99Numbers));
 
-    result.sort((a: any, b: any) => a.payOut - b.payOut);
+    // Sắp xếp Map theo giá trị
+    const sortedPrizeMap = new Map([...prizeMap.entries()].sort((a: any, b: any) => a[1] - b[1]));
 
-    return result;
+    // Chuyển Map về đối tượng
+    // const sortedPrize = Object.fromEntries(sortedPrizeMap);
+
+    return sortedPrizeMap;
+
+    // let result = [];
+    // for (const key of Object.keys(arrayOf99Numbers)) {
+    //   result.push({
+    //     number: key,
+    //     payOut: arrayOf99Numbers[key]
+    //   });
+    // }
+
+    // result.sort((a: any, b: any) => a.payOut - b.payOut);
+
+    // return result;
   }
 
-  generatePrize7({
+  generatePrizes7({
     totalBetAmount,
     ordersLo2So,
     ordersLo2So1k,
@@ -827,17 +851,28 @@ export class LotteriesService {
       arrayOf999Numbers[order?.number] += pricePerOrder;
     }
 
-    let result = [];
-    for (const key of Object.keys(arrayOf999Numbers)) {
-      result.push({
-        number: key,
-        payOut: arrayOf999Numbers[key]
-      });
-    }
+    // Chuyển đối tượng thành Map
+    const prizeMap = new Map(Object.entries(arrayOf999Numbers));
 
-    result.sort((a: any, b: any) => a.payOut - b.payOut);
+    // Sắp xếp Map theo giá trị
+    const sortedPrizeMap = new Map([...prizeMap.entries()].sort((a: any, b: any) => a[1] - b[1]));
 
-    return result;
+    // Chuyển Map về đối tượng
+    // const sortedPrize = Object.fromEntries(sortedPrizeMap);
+
+    return sortedPrizeMap;
+
+    // let result = [];
+    // for (const key of Object.keys(arrayOf999Numbers)) {
+    //   result.push({
+    //     number: key,
+    //     payOut: arrayOf999Numbers[key]
+    //   });
+    // }
+
+    // result.sort((a: any, b: any) => a.payOut - b.payOut);
+
+    // return result;
   }
 
   generateRemainPrizes({
@@ -871,18 +906,29 @@ export class LotteriesService {
       arrayOf9999Numbers,
     });
 
-    let result = [];
-    for (const key of Object.keys(arrayOf9999Numbers)) {
-      result.push({
-        number: key,
-        payOut: arrayOf9999Numbers[key]
-      });
-    }
+    // Chuyển đối tượng thành Map
+    const prizeMap = new Map(Object.entries(arrayOf9999Numbers));
 
-    // result = result.filter((prize: any) => (prize.payOut < totalBetAmount && prize.payOut != 0));
-    result.sort((a: any, b: any) => a.payOut - b.payOut);
+    // Sắp xếp Map theo giá trị
+    const sortedPrizeMap = new Map([...prizeMap.entries()].sort((a: any, b: any) => a[1] - b[1]));
 
-    return result;
+    // Chuyển Map về đối tượng
+    // const sortedPrize = Object.fromEntries(sortedPrizeMap);
+
+    return sortedPrizeMap;
+
+    // let result = [];
+    // for (const key of Object.keys(arrayOf9999Numbers)) {
+    //   result.push({
+    //     number: key,
+    //     payOut: arrayOf9999Numbers[key]
+    //   });
+    // }
+
+    // // result = result.filter((prize: any) => (prize.payOut < totalBetAmount && prize.payOut != 0));
+    // result.sort((a: any, b: any) => a.payOut - b.payOut);
+
+    // return result;
   }
 
   checkXien({
@@ -996,12 +1042,27 @@ export class LotteriesService {
     for (const orders of ordersTruotXien4) {
       const firstItem = orders.number[0];
       const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
-      for (const prize of prizes) {
-        const exist = prize?.number?.endsWith(firstItem);
-        if (exist && !hasInFinalResult) {
-          prize.payOut -= ((orders.score || 0) * (OddBet.XienTruot4 * 1000));
+
+      for (let i = 0; i <= 99; i++) {
+        let key;
+        if (i.toString().length === 1) {
+          key = `0${i}`;
+        }
+        key = `${key}${firstItem}`;
+
+        if (prizes.has(key) && !hasInFinalResult) {
+          let payOut = prizes.get(key);
+          payOut -= ((orders.score || 0) * (OddBet.XienTruot4 * 1000));
+          prizes.set(key, payOut);
         }
       }
+
+      // for (const prize of prizes) {
+      //   const exist = prize?.number?.endsWith(firstItem);
+      //   if (exist && !hasInFinalResult) {
+      //     prize.payOut -= ((orders.score || 0) * (OddBet.XienTruot4 * 1000));
+      //   }
+      // }
     }
 
     //
@@ -1026,10 +1087,24 @@ export class LotteriesService {
     for (const orders of ordersTruotXien8) {
       const firstItem = orders.number[0];
       const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
-      for (const prize of prizes) {
-        const exist = prize?.number?.endsWith(firstItem);
-        if (exist && !hasInFinalResult) {
-          prize.payOut -= ((orders.score || 0) * (OddBet.XienTruot8 * 1000));
+      // for (const prize of prizes) {
+      //   const exist = prize?.number?.endsWith(firstItem);
+      //   if (exist && !hasInFinalResult) {
+      //     prize.payOut -= ((orders.score || 0) * (OddBet.XienTruot8 * 1000));
+      //   }
+      // }
+
+      for (let i = 0; i <= 99; i++) {
+        let key;
+        if (i.toString().length === 1) {
+          key = `0${i}`;
+        }
+        key = `${key}${firstItem}`;
+
+        if (prizes.has(key) && !hasInFinalResult) {
+          let payOut = prizes.get(key);
+          payOut -= ((orders.score || 0) * (OddBet.XienTruot4 * 1000));
+          prizes.set(key, payOut);
         }
       }
     }
@@ -1055,22 +1130,316 @@ export class LotteriesService {
     for (const orders of ordersTruotXien10) {
       const firstItem = orders.number[0];
       const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
-      for (const prize of prizes) {
-        const exist = prize?.number?.endsWith(firstItem);
-        if (exist && !hasInFinalResult) {
-          prize.payOut -= ((orders.score || 0) * (OddBet.XienTruot10 * 1000));
+      // for (const prize of prizes) {
+      //   const exist = prize?.number?.endsWith(firstItem);
+      //   if (exist && !hasInFinalResult) {
+      //     prize.payOut -= ((orders.score || 0) * (OddBet.XienTruot10 * 1000));
+      //   }
+      // }
+
+      for (let i = 0; i <= 99; i++) {
+        let key;
+        if (i.toString().length === 1) {
+          key = `0${i}`;
+        }
+        key = `${key}${firstItem}`;
+
+        if (prizes.has(key) && !hasInFinalResult) {
+          let payOut = prizes.get(key);
+          payOut -= ((orders.score || 0) * (OddBet.XienTruot4 * 1000));
+          prizes.set(key, payOut);
         }
       }
     }
 
-    prizes.sort((a: any, b: any) => a.payOut - b.payOut);
+    let result: any = [];
+    prizes.forEach((value: any, key: any) => {
+      result.push({
+        number: key,
+        payOut: value
+      });
+    });
+
+    // prizes.sort((a: any, b: any) => a.payOut - b.payOut);
 
     return {
       totalBetAmount,
       ordersTruotXien4,
       ordersTruotXien8,
       ordersTruotXien10,
-      prizes,
+      prizes: result,
+    };
+  }
+
+  getPrize7({
+    totalBetAmount,
+    ordersTruotXien4,
+    ordersTruotXien8,
+    ordersTruotXien10,
+    prizesSpecialAnd8,
+    prizes7,
+    ordersXien2,
+    ordersXien3,
+    ordersXien4,
+  }: any) {
+    let resultLoTruotOfPrize7;
+    ({
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizes: resultLoTruotOfPrize7,
+    } = this.checkLoTruot({
+      totalBetAmount,
+      finalResult: prizesSpecialAnd8,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizes: prizes7,
+    }));
+
+    // transform data
+    const tempResultLoTruotOfPrize7 = resultLoTruotOfPrize7.reduce((init: any, currentValue: any) => {
+      if (!currentValue.payOut || currentValue.payOut === 0) {
+        init.resultHavePayout0.push(currentValue);
+      } else {
+        init.resultNotHavePayout0.push(currentValue);
+      }
+
+      return init;
+    }, { resultHavePayout0: [], resultNotHavePayout0: [] });
+    resultLoTruotOfPrize7 = [...tempResultLoTruotOfPrize7.resultNotHavePayout0, ...tempResultLoTruotOfPrize7.resultHavePayout0];
+
+    resultLoTruotOfPrize7 = [...prizesSpecialAnd8, ...resultLoTruotOfPrize7];
+    let count1 = 0;
+    const prizesSpecialAnd8And7 = [];
+    let totalPayout = 0;
+    for (const order of resultLoTruotOfPrize7) {
+      if (count1 === 3) break;
+
+      if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+        continue;
+      }
+
+      let lastTwoDigits = order?.number.slice(-2);
+      prizesSpecialAnd8And7.push(order);
+      count1++;
+      totalPayout += order?.payOut;
+
+      this.checkXien({
+        ordersXien2,
+        ordersXien3,
+        ordersXien4,
+        prizesFinal: prizesSpecialAnd8And7,
+        mergeResult: resultLoTruotOfPrize7,
+        number: lastTwoDigits,
+      });
+    }
+
+    return {
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizesSpecialAnd8And7,
+    };
+  }
+
+  getPrizeRemains({
+    totalBetAmount,
+    ordersTruotXien4,
+    ordersTruotXien8,
+    ordersTruotXien10,
+    prizesSpecialAnd8And7,
+    remainPrizes,
+    ordersXien2,
+    ordersXien3,
+    ordersXien4,
+  }: any) {
+    let resultLoTruotOfRemainSpecial;
+    ({
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizes: resultLoTruotOfRemainSpecial,
+    } = this.checkLoTruot({
+      totalBetAmount,
+      finalResult: prizesSpecialAnd8And7,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizes: remainPrizes,
+    }));
+
+    // transform data
+    const tempResultLoTruotOfRemainSpecial = resultLoTruotOfRemainSpecial.reduce((init: any, currentValue: any) => {
+      if (!currentValue.payOut || currentValue.payOut === 0) {
+        init.resultHavePayout0.push(currentValue);
+      } else {
+        init.resultNotHavePayout0.push(currentValue);
+      }
+
+      return init;
+    }, { resultHavePayout0: [], resultNotHavePayout0: [] });
+    resultLoTruotOfRemainSpecial = [...tempResultLoTruotOfRemainSpecial.resultNotHavePayout0, ...tempResultLoTruotOfRemainSpecial.resultHavePayout0];
+    resultLoTruotOfRemainSpecial = [...prizesSpecialAnd8And7, ...resultLoTruotOfRemainSpecial];
+    let count2 = 0;
+    const allPrizes = [];
+
+    let totalPayout = 0;
+    for (const order of resultLoTruotOfRemainSpecial) {
+      if (count2 === 18) break;
+
+      if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+        continue;
+      }
+
+      let lastTwoDigits = order?.number.slice(-2);
+      allPrizes.push(order);
+      count2++;
+      totalPayout += order?.payOut;
+
+      this.checkXien({
+        ordersXien2,
+        ordersXien3,
+        ordersXien4,
+        prizesFinal: allPrizes,
+        mergeResult: resultLoTruotOfRemainSpecial,
+        number: lastTwoDigits,
+      });
+    }
+
+    return {
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      allPrizes,
+    };
+  }
+
+  getPrize8({
+    totalBetAmount,
+    ordersTruotXien4,
+    ordersTruotXien8,
+    ordersTruotXien10,
+    prizes8,
+    finalPrizeSpecial,
+    ordersXien2,
+    ordersXien3,
+    ordersXien4,
+  }: any) {
+    let resultLoTruotOfPrize8;
+    ({
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizes: resultLoTruotOfPrize8,
+    } = this.checkLoTruot({
+      totalBetAmount,
+      finalResult: finalPrizeSpecial,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizes: prizes8,
+    }));
+
+    let count = 0;
+    const prizesSpecialAnd8 = [];
+
+    // transform data
+    const tempResultLoTruotOfPrize8 = resultLoTruotOfPrize8.reduce((init: any, currentValue: any) => {
+      if (!currentValue.payOut || currentValue.payOut === 0) {
+        init.resultHavePayout0.push(currentValue);
+      } else {
+        init.resultNotHavePayout0.push(currentValue);
+      }
+
+      return init;
+    }, { resultHavePayout0: [], resultNotHavePayout0: [] });
+    resultLoTruotOfPrize8 = [...tempResultLoTruotOfPrize8.resultNotHavePayout0, ...tempResultLoTruotOfPrize8.resultHavePayout0];
+
+    resultLoTruotOfPrize8 = [...finalPrizeSpecial, ...resultLoTruotOfPrize8];
+    let totalPayout = 0;
+    for (const order of resultLoTruotOfPrize8) {
+      if (count === 2) break;
+
+      if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+        continue;
+      }
+
+      let lastTwoDigits = order?.number.slice(-2);
+      prizesSpecialAnd8.push(order);
+      count++;
+      totalPayout += order?.payOut;
+
+      this.checkXien({
+        ordersXien2,
+        ordersXien3,
+        ordersXien4,
+        prizesFinal: prizesSpecialAnd8,
+        mergeResult: resultLoTruotOfPrize8,
+        number: lastTwoDigits,
+      });
+    }
+
+    return {
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizesSpecialAnd8,
+    };
+  }
+
+  getPrizeSpecial({
+    totalBetAmount,
+    ordersTruotXien4,
+    ordersTruotXien8,
+    ordersTruotXien10,
+    prizesSpecial,
+  }: any) {
+    let totalPayout = 0;
+    let finalPrizeSpecial: any = [];
+    let resultLoTruotOfPrizeSpecial;
+    ({
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizes: resultLoTruotOfPrizeSpecial,
+    } = this.checkLoTruot({
+      totalBetAmount,
+      finalResult: finalPrizeSpecial,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizes: prizesSpecial,
+    }));
+
+    // transform data
+    const tempResult = resultLoTruotOfPrizeSpecial.reduce((init: any, currentValue: any) => {
+      if (!currentValue.payOut || currentValue.payOut === 0) {
+        init.resultHavePayout0.push(currentValue);
+      } else {
+        init.resultNotHavePayout0.push(currentValue);
+      }
+
+      return init;
+    }, { resultHavePayout0: [], resultNotHavePayout0: [] });
+    resultLoTruotOfPrizeSpecial = [...tempResult.resultNotHavePayout0, ...tempResult.resultHavePayout0];
+
+    // get 1 prize special
+    finalPrizeSpecial = [resultLoTruotOfPrizeSpecial[0]];
+
+    return {
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      finalPrizeSpecial,
     };
   }
 
@@ -1088,16 +1457,105 @@ export class LotteriesService {
     ordersXien4,
   }: any) {
 
-    // get prize special
-    let totalPayout = 0;
-    let finalPrizeSpecial: any = [];
-    let prizesSpecial1;
+    let finalPrizeSpecial;
     ({
       totalBetAmount,
       ordersTruotXien4,
       ordersTruotXien8,
       ordersTruotXien10,
-      prizes: prizesSpecial1,
+      finalPrizeSpecial,
+    } = this.getPrizeSpecial({
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizesSpecial,
+    }));
+
+    let prizesSpecialAnd8;
+    ({
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizesSpecialAnd8,
+    } = this.getPrize8({
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizes8,
+      finalPrizeSpecial,
+      ordersXien2,
+      ordersXien3,
+      ordersXien4,
+    }));
+
+    let prizesSpecialAnd8And7;
+    ({
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizesSpecialAnd8And7,
+    } = this.getPrize7({
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizesSpecialAnd8,
+      prizes7,
+      ordersXien2,
+      ordersXien3,
+      ordersXien4,
+    }));
+
+    let allPrizes;
+    ({
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      allPrizes,
+    } = this.getPrizeRemains({
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      remainPrizes,
+      prizesSpecialAnd8And7,
+      ordersXien2,
+      ordersXien3,
+      ordersXien4,
+    }));
+
+    return allPrizes;
+  }
+
+  getFinalPrize2({
+    prizesSpecial,
+    prizes8,
+    prizes7,
+    remainPrizes,
+    totalBetAmount,
+    ordersTruotXien4,
+    ordersTruotXien8,
+    ordersTruotXien10,
+    ordersXien2,
+    ordersXien3,
+    ordersXien4,
+  }: any) {
+
+    // get prize special
+    let totalPayout = 0;
+    let finalPrizeSpecial: any = [];
+    let resultLoTruotOfPrizeSpecial;
+    ({
+      totalBetAmount,
+      ordersTruotXien4,
+      ordersTruotXien8,
+      ordersTruotXien10,
+      prizes: resultLoTruotOfPrizeSpecial,
     } = this.checkLoTruot({
       totalBetAmount,
       finalResult: finalPrizeSpecial,
@@ -1106,17 +1564,31 @@ export class LotteriesService {
       ordersTruotXien10,
       prizes: prizesSpecial,
     }));
-    finalPrizeSpecial = [prizesSpecial1[0]];
+
+    // transform data
+    const tempResult = resultLoTruotOfPrizeSpecial.reduce((init: any, currentValue: any) => {
+      if (!currentValue.payOut || currentValue.payOut === 0) {
+        init.resultHavePayout0.push(currentValue);
+      } else {
+        init.resultNotHavePayout0.push(currentValue);
+      }
+
+      return init;
+    }, { resultHavePayout0: [], resultNotHavePayout0: [] });
+    resultLoTruotOfPrizeSpecial = [...tempResult.resultNotHavePayout0, ...tempResult.resultHavePayout0];
+
+    // get 1 prize special
+    finalPrizeSpecial = [resultLoTruotOfPrizeSpecial[0]];
     totalPayout += finalPrizeSpecial[0].payOut;
 
     // get prize 8
-    let prizes81;
+    let resultLoTruotOfPrize8;
     ({
       totalBetAmount,
       ordersTruotXien4,
       ordersTruotXien8,
       ordersTruotXien10,
-      prizes: prizes81,
+      prizes: resultLoTruotOfPrize8,
     } = this.checkLoTruot({
       totalBetAmount,
       finalResult: finalPrizeSpecial,
@@ -1128,8 +1600,21 @@ export class LotteriesService {
 
     let count = 0;
     const prizesSpecialAnd8 = [];
-    prizes81 = [...finalPrizeSpecial, ...prizes81];
-    for (const order of prizes81) {
+
+    // transform data
+    const tempResultLoTruotOfPrize8 = resultLoTruotOfPrize8.reduce((init: any, currentValue: any) => {
+      if (!currentValue.payOut || currentValue.payOut === 0) {
+        init.resultHavePayout0.push(currentValue);
+      } else {
+        init.resultNotHavePayout0.push(currentValue);
+      }
+
+      return init;
+    }, { resultHavePayout0: [], resultNotHavePayout0: [] });
+    resultLoTruotOfPrize8 = [...tempResultLoTruotOfPrize8.resultNotHavePayout0, ...tempResultLoTruotOfPrize8.resultHavePayout0];
+
+    resultLoTruotOfPrize8 = [...finalPrizeSpecial, ...resultLoTruotOfPrize8];
+    for (const order of resultLoTruotOfPrize8) {
       if (count === 2) break;
 
       if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
@@ -1146,20 +1631,19 @@ export class LotteriesService {
         ordersXien3,
         ordersXien4,
         prizesFinal: prizesSpecialAnd8,
-        mergeResult: prizes81,
+        mergeResult: resultLoTruotOfPrize8,
         number: lastTwoDigits,
       });
     }
 
-
     // get prize 7
-    let prizes71;
+    let resultLoTruotOfPrize7;
     ({
       totalBetAmount,
       ordersTruotXien4,
       ordersTruotXien8,
       ordersTruotXien10,
-      prizes: prizes71,
+      prizes: resultLoTruotOfPrize7,
     } = this.checkLoTruot({
       totalBetAmount,
       finalResult: prizesSpecialAnd8,
@@ -1169,10 +1653,22 @@ export class LotteriesService {
       prizes: prizes7,
     }));
 
-    prizes71 = [...prizesSpecialAnd8, ...prizes71];
+    // transform data
+    const tempResultLoTruotOfPrize7 = resultLoTruotOfPrize7.reduce((init: any, currentValue: any) => {
+      if (!currentValue.payOut || currentValue.payOut === 0) {
+        init.resultHavePayout0.push(currentValue);
+      } else {
+        init.resultNotHavePayout0.push(currentValue);
+      }
+
+      return init;
+    }, { resultHavePayout0: [], resultNotHavePayout0: [] });
+    resultLoTruotOfPrize7 = [...tempResultLoTruotOfPrize7.resultNotHavePayout0, ...tempResultLoTruotOfPrize7.resultHavePayout0];
+
+    resultLoTruotOfPrize7 = [...prizesSpecialAnd8, ...resultLoTruotOfPrize7];
     let count1 = 0;
     const prizesSpecialAnd8And7 = [];
-    for (const order of prizes71) {
+    for (const order of resultLoTruotOfPrize7) {
       if (count1 === 3) break;
 
       if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
@@ -1189,19 +1685,19 @@ export class LotteriesService {
         ordersXien3,
         ordersXien4,
         prizesFinal: prizesSpecialAnd8And7,
-        mergeResult: prizes71,
+        mergeResult: resultLoTruotOfPrize7,
         number: lastTwoDigits,
       });
     }
 
     // get remain prizes
-    let remainPrizes1;
+    let resultLoTruotOfRemainSpecial;
     ({
       totalBetAmount,
       ordersTruotXien4,
       ordersTruotXien8,
       ordersTruotXien10,
-      prizes: remainPrizes1,
+      prizes: resultLoTruotOfRemainSpecial,
     } = this.checkLoTruot({
       totalBetAmount,
       finalResult: prizesSpecialAnd8And7,
@@ -1211,11 +1707,23 @@ export class LotteriesService {
       prizes: remainPrizes,
     }));
 
-    remainPrizes1 = [...prizesSpecialAnd8And7, ...remainPrizes1];
+    // transform data
+    const tempResultLoTruotOfRemainSpecial = resultLoTruotOfRemainSpecial.reduce((init: any, currentValue: any) => {
+      if (!currentValue.payOut || currentValue.payOut === 0) {
+        init.resultHavePayout0.push(currentValue);
+      } else {
+        init.resultNotHavePayout0.push(currentValue);
+      }
+
+      return init;
+    }, { resultHavePayout0: [], resultNotHavePayout0: [] });
+    resultLoTruotOfRemainSpecial = [...tempResultLoTruotOfRemainSpecial.resultNotHavePayout0, ...tempResultLoTruotOfRemainSpecial.resultHavePayout0];
+
+    resultLoTruotOfRemainSpecial = [...prizesSpecialAnd8And7, ...resultLoTruotOfRemainSpecial];
     let count2 = 0;
     const allPrizes = [];
 
-    for (const order of remainPrizes1) {
+    for (const order of resultLoTruotOfRemainSpecial) {
       if (count2 === 18) break;
 
       if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
@@ -1232,7 +1740,7 @@ export class LotteriesService {
         ordersXien3,
         ordersXien4,
         prizesFinal: allPrizes,
-        mergeResult: remainPrizes1,
+        mergeResult: resultLoTruotOfRemainSpecial,
         number: lastTwoDigits,
       });
     }
@@ -1263,7 +1771,6 @@ export class LotteriesService {
     ordersDuoi,
     ordersLo2SoGiaiDacBiet,
   }: any) {
-    let finalResult: any = [];
     const totalAmountLoXienTruot = this.getTotalAmountLoXienTruot({
       ordersTruotXien4,
       ordersTruotXien8,
@@ -1271,7 +1778,7 @@ export class LotteriesService {
     });
     totalBetAmount = totalBetAmount - totalAmountLoXienTruot;
 
-    let prizesSpecial = this.generatePrizeSpecial({
+    let prizesSpecial = this.generatePrizesSpecial({
       totalBetAmount,
       totalAmountLoXienTruot,
       ordersLo2So,
@@ -1290,10 +1797,8 @@ export class LotteriesService {
       ordersTruotXien8,
       ordersTruotXien10,
     });
-    // prizesSpecial = prizesSpecial.filter((prize: any) => (prize.payOut !== 0));
 
-    let prizes8 = this.generatePrize8({
-      finalResult,
+    let prizes8 = this.generatePrizes8({
       totalBetAmount,
       ordersLo2So,
       ordersLo2So1k,
@@ -1306,10 +1811,8 @@ export class LotteriesService {
       ordersXien3,
       ordersXien4,
     });
-    // prizes8 = prizes8.filter((prize: any) => (prize.payOut !== 0));
 
-    let prizes7 = this.generatePrize7({
-      finalResult,
+    let prizes7 = this.generatePrizes7({
       totalBetAmount,
       ordersLo2So,
       ordersLo2So1k,
@@ -1323,10 +1826,8 @@ export class LotteriesService {
       ordersXien3,
       ordersXien4,
     });
-    // prizes7 = prizes7.filter((prize: any) => (prize.payOut !== 0));
 
     let remainPrizes = this.generateRemainPrizes({
-      finalResult,
       totalBetAmount,
       ordersLo2So,
       ordersLo2So1k,
@@ -1339,10 +1840,8 @@ export class LotteriesService {
       ordersXien3,
       ordersXien4,
     });
-    // remainPrizes = remainPrizes.filter((prize: any) => (prize.payOut !== 0));
 
-
-    // finalResult = this.getFinalPrize({
+    // finalResult = this.getFinalPrize1({
     //   prizesSpecial,
     //   prizes8,
     //   prizes7,
@@ -1356,15 +1855,43 @@ export class LotteriesService {
     //   ordersXien4,
     // });
 
+    // return finalResult;
+
     let limit = 5;
     let count = 1;
     const result: any = [];
 
     while (true) {
-      let tempPrizesSpecial = JSON.parse(JSON.stringify(prizesSpecial));
-      let tempPrize8 = JSON.parse(JSON.stringify(prizes8));
-      let tempPrize7 = JSON.parse(JSON.stringify(prizes7));
-      let tempRemainPrizes = JSON.parse(JSON.stringify(remainPrizes));
+      // let tempPrizesSpecial = JSON.parse(JSON.stringify(prizesSpecial));
+      let tempPrizesSpecial = new Map(
+        JSON.parse(
+          JSON.stringify(Array.from(prizesSpecial))
+        )
+      );
+
+      // let tempPrize8 = JSON.parse(JSON.stringify(prizes8));
+      let tempPrize8 = new Map(
+        JSON.parse(
+          JSON.stringify(Array.from(prizes8))
+        )
+      );
+
+      // let tempPrize7 = JSON.parse(JSON.stringify(prizes7));
+      let tempPrize7 = new Map(
+        JSON.parse(
+          JSON.stringify(Array.from(prizes7))
+        )
+      );
+
+      // let tempRemainPrizes = JSON.parse(JSON.stringify(remainPrizes));
+      let tempRemainPrizes = new Map(
+        JSON.parse(
+          JSON.stringify(Array.from(remainPrizes))
+        )
+      );
+
+
+
       let tempOrdersTruotXien4 = JSON.parse(JSON.stringify(ordersTruotXien4));
       let tempOrdersTruotXien8 = JSON.parse(JSON.stringify(ordersTruotXien8));
       let tempOrdersTruotXien10 = JSON.parse(JSON.stringify(ordersTruotXien10));
@@ -1374,21 +1901,30 @@ export class LotteriesService {
 
       if (limit === 0) break;
 
-      if (limit !== 5) {
-        // tempPrizesSpecial = tempPrizesSpecial.filter((prize: any) => (prize.payOut !== 0));
-        tempPrizesSpecial.sort(this.compareRandom);
+      // if (limit !== 5) {
+        let mapArray = Array.from(tempPrizesSpecial);
+        const tempPrizesSpecial1 = mapArray.sort(() => Math.random() - 0.5);
+        tempPrizesSpecial = new Map(tempPrizesSpecial1);
 
-        // tempPrize8 = tempPrize8.filter((prize: any) => (prize.payOut !== 0));
-        tempPrize8.sort(this.compareRandom);
+        let mapArray1 = Array.from(tempPrize8);
+        const tempPrize81 = mapArray1.sort(() => Math.random() - 0.5);
+        tempPrize8 = new Map(tempPrize81);
 
-        // tempPrize7 = tempPrize7.filter((prize: any) => (prize.payOut !== 0));
-        tempPrize7.sort(this.compareRandom);
+        let mapArray2 = Array.from(tempPrize7);
+        const tempPrize71 = mapArray2.sort(() => Math.random() - 0.5);
+        tempPrize7 = new Map(tempPrize71);
 
-        // tempRemainPrizes = tempRemainPrizes.filter((prize: any) => (prize.payOut !== 0));
-        tempRemainPrizes.sort(this.compareRandom);
-      }
+        let mapArray3 = Array.from(tempRemainPrizes);
+        const tempRemainPrizes1 = mapArray3.sort(() => Math.random() - 0.5);
+        tempRemainPrizes = new Map(tempRemainPrizes1);
 
-      finalResult = this.getFinalPrize({
+        // tempPrizesSpecial.sort(this.compareRandom);
+        // tempPrize8.sort(this.compareRandom);
+        // tempPrize7.sort(this.compareRandom);
+        // tempRemainPrizes.sort(this.compareRandom);
+      // }
+
+      const finalResult = this.getFinalPrize({
         prizesSpecial: tempPrizesSpecial,
         prizes8: tempPrize8,
         prizes7: tempPrize7,
@@ -1426,7 +1962,7 @@ export class LotteriesService {
       return res;
     }, []);
 
-    return result1;
+    return result1.sort((a: any, b: any) => b.totalPayout - a.totalPayout)[0];
   }
 
   checkXien2(ordersXien2: any, prizesFinal: any, currentNumber: any) {
