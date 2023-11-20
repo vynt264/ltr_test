@@ -2807,7 +2807,7 @@ export class LotteriesService {
       return res;
     }, []);
 
-    return result1.sort((a: any, b: any) => b.totalPayout - a.totalPayout);
+    return result1.sort((a: any, b: any) => b.totalPayout - a.totalPayout)[0];
   }
 
   checkXien2(ordersXien2: any, prizesFinal: any, currentNumber: any) {
