@@ -1629,10 +1629,12 @@ export class LotteriesService {
     let map2: Map<string, number> = new Map();
 
     prizes7.forEach((value: number, key: string) => {
-      if (!value) {
-        map2.set(key, value);
-      } else {
-        map1.set(key, value);
+      if (value < (totalBetAmount * 95) / 100) {
+        if (!value) {
+          map2.set(key, value);
+        } else {
+          map1.set(key, value);
+        }
       }
     });
 
@@ -2033,10 +2035,12 @@ export class LotteriesService {
     let map2: Map<string, number> = new Map();
 
     prizes8.forEach((value: number, key: string) => {
-      if (!value) {
-        map2.set(key, value);
-      } else {
-        map1.set(key, value);
+      if (value < (totalBetAmount * 95) / 100) {
+        if (!value) {
+          map2.set(key, value);
+        } else {
+          map1.set(key, value);
+        }
       }
     });
 
@@ -2255,10 +2259,12 @@ export class LotteriesService {
     let map2: Map<string, number> = new Map();
 
     prizesSpecial.forEach((value: number, key: string) => {
-      if (!value) {
-        map2.set(key, value);
-      } else {
-        map1.set(key, value);
+      if (value < (totalBetAmount * 95) / 100) {
+        if (!value) {
+          map2.set(key, value);
+        } else {
+          map1.set(key, value);
+        }
       }
     });
 
@@ -2747,21 +2753,21 @@ export class LotteriesService {
       if (limit === 0) break;
 
       // if (limit !== 2) {
-        let mapArray = Array.from(tempPrizesSpecial);
-        const tempPrizesSpecial1 = mapArray.sort(() => Math.random() - 0.5);
-        tempPrizesSpecial = new Map(tempPrizesSpecial1);
+      let mapArray = Array.from(tempPrizesSpecial);
+      const tempPrizesSpecial1 = mapArray.sort(() => Math.random() - 0.5);
+      tempPrizesSpecial = new Map(tempPrizesSpecial1);
 
-        let mapArray1 = Array.from(tempPrize8);
-        const tempPrize81 = mapArray1.sort(() => Math.random() - 0.5);
-        tempPrize8 = new Map(tempPrize81);
+      let mapArray1 = Array.from(tempPrize8);
+      const tempPrize81 = mapArray1.sort(() => Math.random() - 0.5);
+      tempPrize8 = new Map(tempPrize81);
 
-        let mapArray2 = Array.from(tempPrize7);
-        const tempPrize71 = mapArray2.sort(() => Math.random() - 0.5);
-        tempPrize7 = new Map(tempPrize71);
+      let mapArray2 = Array.from(tempPrize7);
+      const tempPrize71 = mapArray2.sort(() => Math.random() - 0.5);
+      tempPrize7 = new Map(tempPrize71);
 
-        let mapArray3 = Array.from(tempRemainPrizes);
-        const tempRemainPrizes1 = mapArray3.sort(() => Math.random() - 0.5);
-        tempRemainPrizes = new Map(tempRemainPrizes1);
+      let mapArray3 = Array.from(tempRemainPrizes);
+      const tempRemainPrizes1 = mapArray3.sort(() => Math.random() - 0.5);
+      tempRemainPrizes = new Map(tempRemainPrizes1);
       // }
       const finalResult = this.getFinalPrize({
         prizesSpecial: tempPrizesSpecial,
@@ -2801,7 +2807,7 @@ export class LotteriesService {
       return res;
     }, []);
 
-    return result1.sort((a: any, b: any) => b.totalPayout - a.totalPayout)[0];
+    return result1.sort((a: any, b: any) => b.totalPayout - a.totalPayout);
   }
 
   checkXien2(ordersXien2: any, prizesFinal: any, currentNumber: any) {
