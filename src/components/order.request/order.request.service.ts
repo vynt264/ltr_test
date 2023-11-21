@@ -329,80 +329,82 @@ export class OrderRequestService {
   async cancel(cancelRequestDto: CancelOrderRequestDto, member: User): Promise<BaseResponse> {
     // TODO lock user cancel
     // TODO xóa check từng loại xổ số theo thời gian
-    try {
-      const { error, user } = await this.verifyUser(member.id);
-      if (error) return error;
+    // try {
+    //   const { error, user } = await this.verifyUser(member.id);
+    //   if (error) return error;
 
-      const orderFound = await this.orderRequestRepository.findOneBy({ id: cancelRequestDto.id, user: { id: user.id } });
+    //   const orderFound = await this.orderRequestRepository.findOneBy({ id: cancelRequestDto.id, user: { id: user.id } });
 
-      if (!orderFound) {
-        return new ErrorResponse(
-          STATUSCODE.COMMON_NOT_FOUND,
-          `order id ${cancelRequestDto.id} not found`,
-          ERROR.NOT_FOUND,
-        );
-      }
+    //   if (!orderFound) {
+    //     return new ErrorResponse(
+    //       STATUSCODE.COMMON_NOT_FOUND,
+    //       `order id ${cancelRequestDto.id} not found`,
+    //       ERROR.NOT_FOUND,
+    //     );
+    //   }
 
-      const turnIndex = this.getTurnIndex(orderFound.type, new Date());
+    //   const turnIndex = this.getTurnIndex(orderFound.type, new Date());
 
-      if (orderFound.turnIndex != turnIndex) {
-        return new ErrorResponse(
-          STATUSCODE.TURN_INDEX_INVALID,
-          `turnIndex invalid`,
-          ERROR.CREATE_FAILED
-        );
-      }
-      // TODO lock
-      if (orderFound.status != +StatusOrderRequest.INIT_SUCCESS || orderFound.isExpired) {
-        return new ErrorResponse(
-          STATUSCODE.ORDER_STATUS_INVALID,
-          `order status ${orderFound.status} invalid`,
-          ERROR.NOT_FOUND,
-        );
-      }
+    //   if (orderFound.turnIndex != turnIndex) {
+    //     return new ErrorResponse(
+    //       STATUSCODE.TURN_INDEX_INVALID,
+    //       `turnIndex invalid`,
+    //       ERROR.CREATE_FAILED
+    //     );
+    //   }
+    //   // TODO lock
+    //   if (orderFound.status != +StatusOrderRequest.INIT_SUCCESS || orderFound.isExpired) {
+    //     return new ErrorResponse(
+    //       STATUSCODE.ORDER_STATUS_INVALID,
+    //       `order status ${orderFound.status} invalid`,
+    //       ERROR.NOT_FOUND,
+    //     );
+    //   }
 
-      orderFound.status = +StatusOrderRequest.CANCEL_DRAFT;
-      await this.orderRequestRepository.save(orderFound);
-      await this.orderRequestHisRepository.save({ ...orderFound, user: { id: user.id } });
+    //   orderFound.status = +StatusOrderRequest.CANCEL_DRAFT;
+    //   await this.orderRequestRepository.save(orderFound);
+    //   await this.orderRequestHisRepository.save({ ...orderFound, user: { id: user.id } });
 
-      const paymentRequest: PaymentRequestDto = {
-        amount: orderFound.revenue,
-        gameCode: null,
-        username: user.username,
-        transType: `${TransactionType.REFUND}`,
-        method: `${RefundMethod.WALLET_REFUND}`,
-        note: `${orderFound.type}-${orderFound.turnIndex}-${orderFound.betType}`,
-        signature: '',
-        transRef1: orderFound.orderCode,
-      }
-      const listOrderRequest = [];
-      const listPaymentRequest = [];
+    //   const paymentRequest: PaymentRequestDto = {
+    //     amount: orderFound.revenue,
+    //     gameCode: null,
+    //     username: user.username,
+    //     transType: `${TransactionType.REFUND}`,
+    //     method: `${RefundMethod.WALLET_REFUND}`,
+    //     note: `${orderFound.type}-${orderFound.turnIndex}-${orderFound.betType}`,
+    //     signature: '',
+    //     transRef1: orderFound.orderCode,
+    //   }
+    //   const listOrderRequest = [];
+    //   const listPaymentRequest = [];
 
-      listOrderRequest.push(orderFound);
-      listPaymentRequest.push(paymentRequest);
-      const userPaymentRequest: ListPaymentRequestDto = {
-        payments: listPaymentRequest,
-        // TODO init signature
-        signature: '',
-      }
+    //   listOrderRequest.push(orderFound);
+    //   listPaymentRequest.push(paymentRequest);
+    //   const userPaymentRequest: ListPaymentRequestDto = {
+    //     payments: listPaymentRequest,
+    //     // TODO init signature
+    //     signature: '',
+    //   }
 
-      await this.processPaymentsFake(listOrderRequest, userPaymentRequest, +StatusOrderRequest.CANCEL_SUCCESS, +StatusOrderRequest.CANCEL_ERROR);
+    //   await this.processPaymentsFake(listOrderRequest, userPaymentRequest, +StatusOrderRequest.CANCEL_SUCCESS, +StatusOrderRequest.CANCEL_ERROR);
 
-      return new SuccessResponse(
-        STATUSCODE.COMMON_UPDATE_SUCCESS,
-        cancelRequestDto,
-        MESSAGE.UPDATE_SUCCESS
-      );
-    } catch (error) {
-      this.logger.debug(
-        `${OrderRequestService.name} is Logging error: ${JSON.stringify(error)}`
-      );
-      return new ErrorResponse(
-        STATUSCODE.COMMON_FAILED,
-        error,
-        ERROR.CREATE_FAILED
-      );
-    }
+    //   return new SuccessResponse(
+    //     STATUSCODE.COMMON_UPDATE_SUCCESS,
+    //     cancelRequestDto,
+    //     MESSAGE.UPDATE_SUCCESS
+    //   );
+    // } catch (error) {
+    //   this.logger.debug(
+    //     `${OrderRequestService.name} is Logging error: ${JSON.stringify(error)}`
+    //   );
+    //   return new ErrorResponse(
+    //     STATUSCODE.COMMON_FAILED,
+    //     error,
+    //     ERROR.CREATE_FAILED
+    //   );
+    // }
+
+    return;
   }
 
   async processEarnListFake(orders: OrderRequest[]) {
@@ -590,6 +592,7 @@ export class OrderRequestService {
           revenue,
           type: `${TypeLotteryRequest.XSMB_45_S}`,
           turnIndex,
+          childBetType: '',
         }
         listOrderRequestDto.listOrder.push(requestOrder)
       }

@@ -11,6 +11,7 @@ import { UserModule } from "./user/user.module";
 import { LotteryRequestModule } from "./lottery.request/lottery.request.module";
 import { GameModule } from "./game/game.module";
 import { NewQueryModule } from "./new.query/new.quey.module";
+import { OrdersModule } from './orders/orders.module';
 @Module({
   imports: [
     AuthModule,
@@ -24,7 +25,8 @@ import { NewQueryModule } from "./new.query/new.quey.module";
     LotteryAwardModule,
     LotteryRequestModule,
     GameModule,
-    NewQueryModule
+    NewQueryModule,
+    OrdersModule
   ],
 })
 export class MainModule {}

@@ -29,6 +29,10 @@ export class CreateOrderRequestDto {
   @IsString()
   @IsNotEmpty()
   betType: string;
+
+  @IsString()
+  @IsNotEmpty()
+  childBetType: string;
   
   @ApiProperty({
     description: "A type of lottery",
@@ -48,5 +52,4 @@ export class CreateOrderRequestDto {
     type: Number,
   })
   revenue: number;
-
 }

@@ -43,13 +43,13 @@ export class AuthController {
       username,
     };
 
-    if (isAdmin) {
-      await this.authService.valiRole(username, isAdmin);
-    } else if (isAuth) {
-      await this.authService.isNotAdmin(username);
-    } else {
-      await this.authService.isNotAuth(username);
-    }
+    // if (isAdmin) {
+    //   await this.authService.valiRole(username, isAdmin);
+    // } else if (isAuth) {
+    //   await this.authService.isNotAdmin(username);
+    // } else {
+    //   await this.authService.isNotAuth(username);
+    // }
 
     return this.authService.generateToken(user, isAuth);
   }
