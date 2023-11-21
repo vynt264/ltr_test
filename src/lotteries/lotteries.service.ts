@@ -1629,10 +1629,10 @@ export class LotteriesService {
     let map2: Map<string, number> = new Map();
 
     prizes7.forEach((value: number, key: string) => {
-      if (value < (totalBetAmount * 95) / 100) {
-        if (!value) {
-          map2.set(key, value);
-        } else {
+      if (!value) {
+        map2.set(key, value);
+      } else {
+        if (value < (totalBetAmount * 95) / 100) {
           map1.set(key, value);
         }
       }
@@ -2035,10 +2035,10 @@ export class LotteriesService {
     let map2: Map<string, number> = new Map();
 
     prizes8.forEach((value: number, key: string) => {
-      if (value < (totalBetAmount * 95) / 100) {
-        if (!value) {
-          map2.set(key, value);
-        } else {
+      if (!value) {
+        map2.set(key, value);
+      } else {
+        if (value < (totalBetAmount * 95) / 100) {
           map1.set(key, value);
         }
       }
@@ -2259,10 +2259,10 @@ export class LotteriesService {
     let map2: Map<string, number> = new Map();
 
     prizesSpecial.forEach((value: number, key: string) => {
-      if (value < (totalBetAmount * 95) / 100) {
-        if (!value) {
-          map2.set(key, value);
-        } else {
+      if (!value) {
+        map2.set(key, value);
+      } else {
+        if (value < (totalBetAmount * 95) / 100) {
           map1.set(key, value);
         }
       }
