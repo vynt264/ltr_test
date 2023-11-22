@@ -13,7 +13,6 @@ export class CreateOrderDto {
     multiple: number;
 
     @ApiProperty({
-        description: "A type of lottery",
         default: "xsmb",
         type: String,
     })
@@ -22,7 +21,6 @@ export class CreateOrderDto {
     type: string;
 
     @ApiProperty({
-        description: "A turn index",
         default: "28/08/2023-0271",
         type: String,
     })
@@ -31,7 +29,6 @@ export class CreateOrderDto {
     turnIndex: string;
 
     @ApiProperty({
-        description: "A type of lottery",
         default: "De_Dau",
         type: String,
     })
@@ -40,11 +37,16 @@ export class CreateOrderDto {
     betType: string;
 
     @IsString()
+    betTypeName: string;
+
+    @IsString()
     @IsNotEmpty()
     childBetType: string;
 
+    @IsString()
+    childBetTypeName: string;
+
     @ApiProperty({
-        description: "A type of lottery",
         default: "De_Dau",
         type: String,
     })
@@ -61,4 +63,7 @@ export class CreateOrderDto {
         type: Number,
     })
     revenue: number;
+
+    @IsNumber()
+    numberOfBets: number;
 }

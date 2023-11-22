@@ -27,7 +27,7 @@ export class Order extends BaseEntity {
     @Column({ type: 'varchar', length: 31, nullable: true })
     numericalOrder: string;
 
-    @Column()
+    @Column({ nullable: true })
     multiple: number;
 
     @Column({ type: 'varchar', length: 31, nullable: true })
@@ -42,8 +42,14 @@ export class Order extends BaseEntity {
     @Column({ type: 'varchar', length: 31, nullable: true })
     betType: string;
 
+    @Column({ type: 'varchar', length: 50, nullable: true })
+    betTypeName: string;
+
     @Column({ type: 'varchar', length: 31, nullable: true })
     childBetType: string;
+
+    @Column({ type: 'varchar', length: 50, nullable: true })
+    childBetTypeName: string;
 
     @Column({ type: 'varchar', length: 255, nullable: true })
 
@@ -59,4 +65,7 @@ export class Order extends BaseEntity {
         default: OrderStatus.pending,
     })
     status: string;
+
+    @Column({ nullable: true })
+    numberOfBets: number;
 }

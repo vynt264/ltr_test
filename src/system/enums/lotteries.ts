@@ -1,12 +1,23 @@
 export enum CategoryLotteryType {
-    BaoLo = 'bao-lo',
-    LoXien = 'lo-xien',
-    DanhDe = 'danh-de',
-    DauDuoi = 'dau-duoi',
-    Lo3Cang = '3-cang',
-    Lo4Cang = '4-cang',
-    LoTruot = 'lo-truot',
-    TroChoiThuVi = 'tro-choi-thu-vi',
+    BaoLo = 'Bao_Lo',
+    LoXien = 'Lo_Xien',
+    DanhDe = 'Danh_De',
+    DauDuoi = 'Dau_Duoi',
+    Lo3Cang = '3_Cang',
+    Lo4Cang = '4_Cang',
+    LoTruot = 'Lo_Truot',
+    TroChoiThuVi = 'Tro_Choi_Dac_Biet',
+};
+
+export enum CategoryLotteryTypeName {
+    BaoLo = 'Bao Lô',
+    LoXien = 'Lô Xiên',
+    DanhDe = 'Đánh Đề',
+    DauDuoi = 'Đầu Đuôi',
+    Lo3Cang = 'Lô 3 Càng',
+    Lo4Cang = 'Lô 4 Càng',
+    LoTruot = 'Lô Trượt',
+    TroChoiThuVi = 'Trò Chơi Thú Vị',
 };
 
 export enum TroChoiThuViType {
@@ -44,43 +55,65 @@ export enum Lo2SoGiaiDacBietType {
 }
 
 export enum BaoLoType {
-    Lo2So = 'lo-2-so',
-    Lo2So1k = 'lo-2-so-1k',
-    Lo3So = 'lo-3-so',
-    Lo4So = 'lo-4-so',
+    Lo2So = 'Lo_2_So',
+    Lo2So1k = 'Lo_2_So_1k',
+    Lo3So = 'Lo_3_So',
+    Lo4So = 'Lo_4_So',
 };
 
 export enum LoXienType {
-    Xien2 = 'xien-2',
-    Xien3 = 'xien-3',
-    Xien4 = 'xien-4',
+    Xien2 = 'Xien_2',
+    Xien3 = 'Xien_3',
+    Xien4 = 'Xien_4',
 };
 
 export enum DanhDeType {
-    DeDau = 'de-dau',
-    DeDacBiet = 'de-dac-biet',
-    DeDauDuoi = 'de-dau-duoi',
+    DeDau = 'De_Giai_8',
+    DeDacBiet = 'De_Dac_Biet',
+    DeDauDuoi = 'De_Dau_Duoi',
 };
 
 export enum DauDuoiType {
-    Dau = 'dau',
-    Duoi = 'duoi',
+    Dau = 'Dau_Duoi_Dau',
+    Duoi = 'Dau_Duoi_Duoi',
 };
 
 export enum BaCangType {
-    BaCangDau = '3-cang-dau',
-    BaCangDacBiet = '3-cang-dac-biet',
-    BaCangDauDuoi = '3-cang-dau-duoi',
+    BaCangDau = 'C3_Cang_Giai_7',
+    BaCangDacBiet = 'C3_Cang_Dac_Biet',
+    BaCangDauDuoi = 'C3_Cang_Dau_Duoi',
 };
 
 export enum BonCangType {
-    BonCangDacBiet = '4-cang-dac-biet',
+    BonCangDacBiet = 'C4_Cang_Dac_Biet',
 };
 
 export enum LoTruocType {
-    TruotXien4 = 'truot-xien-4',
-    TruotXien8 = 'truot-xien-8',
-    TruotXien10 = 'truot-xien-10',
+    TruotXien4 = 'Xien_Truot_4',
+    TruotXien8 = 'Xien_Truot_8',
+    TruotXien10 = 'Xien_Truot_10',
+};
+
+export enum BetTypeName {
+    Lo2So = 'Lô 2 Số',
+    Lo2So1k = 'Lô 2 Số 1k',
+    Lo3So = 'Lô 3 Số',
+    Lo4So = 'Lô 4 Số',
+    Xien2 = 'Xiên 2',
+    Xien3 = 'Xiên 3',
+    Xien4 = 'Xiên 4',
+    DeDau = 'Đề Đầu',
+    DeDacBiet = 'Đề Đặc Biệt',
+    DeDauDuoi = 'Đề Đầu Đuôi',
+    Dau = 'Đầu',
+    Duoi = 'Đuôi',
+    BaCangDau = 'Ba Càng Đầu',
+    BaCangDacBiet = 'Ba Càng Đặc Biệt',
+    BaCangDauDuoi = 'Ba Càng Đầu Đuôi',
+    BonCangDacBiet = 'Bốn Càng Đặc Biệt',
+    TruotXien4 = 'Trượt Xiên 4',
+    TruotXien8 = 'Trượt Xiên 8',
+    TruotXien10 = 'Trượt Xiên 10',
 };
 
 export enum OddBet {
