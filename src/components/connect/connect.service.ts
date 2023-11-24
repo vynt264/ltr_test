@@ -229,25 +229,25 @@ export class ConnectService {
   }
 
   async update(userName = "", awardAmount = 0, multiple = 0) {
-    const paginationQueryDto: PaginationQueryDto = {
-      take: 1,
-      skip: 1,
-      order: Order.DESC,
-      keyword: null,
-    };
-    const event = await this.eventTimeService.getAll(paginationQueryDto);
+    // const paginationQueryDto: PaginationQueryDto = {
+    //   take: 1,
+    //   skip: 1,
+    //   order: Order.DESC,
+    //   keyword: null,
+    // };
+    // const event = await this.eventTimeService.getAll(paginationQueryDto);
 
-    if (event.length >= 1) {
-      const today = new Date(event[0]?.result?.start);
-      this.setRemark(`LUCKYTICKET_${Helper.convertTime(today)}`);
-    } else {
-      const today = new Date();
-      this.setRemark(`LUCKYTICKET_${Helper.convertTime(today)}`);
-    }
+    // if (event.length >= 1) {
+    //   const today = new Date(event[0]?.result?.start);
+    //   this.setRemark(`LUCKYTICKET_${Helper.convertTime(today)}`);
+    // } else {
+    //   const today = new Date();
+    //   this.setRemark(`LUCKYTICKET_${Helper.convertTime(today)}`);
+    // }
 
-    await this.compose(ConectEnum.UPDATE);
-    await this.bodyUpdate(userName, awardAmount, multiple);
-    return this.connect();
+    // await this.compose(ConectEnum.UPDATE);
+    // await this.bodyUpdate(userName, awardAmount, multiple);
+    // return this.connect();
   }
 
   async logIn(userName = ""): Promise<any> {

@@ -17,4 +17,8 @@ export class PaginationDto {
     @IsOptional()
     @IsString()
     order: Order;
+    
+    @IsOptional()
+    @IsString()
+    status: string;
 }

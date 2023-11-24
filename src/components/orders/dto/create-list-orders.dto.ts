@@ -5,7 +5,7 @@ import { Type } from "class-transformer";
 export class CreateListOrdersDto {
     // @IsNotEmpty()
     @IsArray()
-    // @ValidateNested({ each: true })
+    @ValidateNested({ each: true })
     @Type(() => CreateOrderDto)
     orders: CreateOrderDto[];
 }

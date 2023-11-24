@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNumberString, IsOptional, IsString } from "class-validator";
+import { IsDate, IsNumberString, IsOptional, IsString } from "class-validator";
 import { Paging } from "../../system/interfaces";
 import { Order } from "../../system/constants/index";
 
@@ -26,4 +26,12 @@ export class PaginationQueryDto implements Paging {
       '{"username":"testvxmm3","startDate":"2023-03-27", "endDate": "2023-12-27"}',
   })
   keyword: string;
+
+  @IsOptional()
+  @IsString()
+  status: string;
+
+  @IsOptional()
+  @IsString()
+  date: string;
 }

@@ -22,20 +22,20 @@ import { json, urlencoded } from "express";
   app.use(json({ limit: "10mb" }));
   app.use(urlencoded({ extended: true, limit: "10mb" }));
   SwaggerModule.setup("api/v1", app, createDocument(app));
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      exceptionFactory: (validationErrors: ValidationError[] = []) => {
-        return new BadRequestException(
-          validationErrors.map((error) => ({
-            property: error.property,
-            validators: error.constraints,
-          }))
-        );
-      },
-    })
-  );
+  // app.useGlobalPipes(
+  //   new ValidationPipe({
+  //     whitelist: true,
+  //     transform: true,
+  //     exceptionFactory: (validationErrors: ValidationError[] = []) => {
+  //       return new BadRequestException(
+  //         validationErrors.map((error) => ({
+  //           property: error.property,
+  //           validators: error.constraints,
+  //         }))
+  //       );
+  //     },
+  //   })
+  // );
 
   app.enableCors();
   await app.listen(process.env.APP_PORT || 3000, () => {

@@ -27,7 +27,7 @@ export class Order extends BaseEntity {
     @Column({ type: 'varchar', length: 31, nullable: true })
     numericalOrder: string;
 
-    @Column({ nullable: true })
+    @Column({ type: 'numeric' })
     multiple: number;
 
     @Column({ type: 'varchar', length: 31, nullable: true })

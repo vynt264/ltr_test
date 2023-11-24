@@ -8,6 +8,7 @@ import { RateLimitGuard } from '../auth/rate.guard/rate.limit.guard';
 import { ListOrderRequestDto } from '../order.request/dto/create.list.dto';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
+import { ValidationPipe } from './validations/validation.pipe';
 
 @Controller('api/v1/orders')
 export class OrdersController {
@@ -15,7 +16,7 @@ export class OrdersController {
 
   @Post()
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  create(@Body() orders: CreateListOrdersDto, @Request() req: any) {
+  create(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
     return this.ordersService.create(orders, req.user);
   }
 

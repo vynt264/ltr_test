@@ -2,14 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
 
 export class CreateOrderDto {
-    @ApiProperty()
-    @IsString()
-    @IsNotEmpty()
     numericalOrder: string;
-
-    @ApiProperty()
-    @IsNumber()
-    @IsNotEmpty()
     multiple: number;
 
     @ApiProperty({
@@ -36,14 +29,12 @@ export class CreateOrderDto {
     @IsNotEmpty()
     betType: string;
 
-    @IsString()
     betTypeName: string;
 
     @IsString()
     @IsNotEmpty()
     childBetType: string;
 
-    @IsString()
     childBetTypeName: string;
 
     @ApiProperty({
@@ -64,6 +55,5 @@ export class CreateOrderDto {
     })
     revenue: number;
 
-    @IsNumber()
     numberOfBets: number;
 }

@@ -1847,33 +1847,41 @@ export class LotteriesService {
 
       const mang0: any = [];
       const mangKhac0: any = [];
+      const prizes: any = [];
 
       remainPrizes.forEach((value: number, key: string) => {
-        if (value == 0) {
-          mang0.push({
+        // if (value == 0) {
+        //   mang0.push({
+        //     number: key,
+        //     payOut: value,
+        //   });
+        // } else {
+        //   if ((totalPayout - (item.payOut || 0) + value) < ((totalBetAmount * 95) / 100)) {
+        //     mangKhac0.push({
+        //       number: key,
+        //       payOut: value,
+        //     });
+        //   }
+        // }
+
+        if ((totalPayout - (item.payOut || 0) + value) < ((totalBetAmount * 95) / 100)) {
+          prizes.push({
             number: key,
             payOut: value,
           });
-        } else {
-          if ((totalPayout - (item.payOut || 0) + value) < ((totalBetAmount * 95) / 100)) {
-            mangKhac0.push({
-              number: key,
-              payOut: value,
-            });
-          }
         }
       });
 
-      let index;
-      let order;
+      let index = (Math.floor(Math.random() * prizes.length)).toString();
+      let order = prizes[index];
 
-      if (mangKhac0.length > 0) {
-        index = (Math.floor(Math.random() * mangKhac0.length)).toString();
-        order = mangKhac0[index];
-      } else {
-        index = (Math.floor(Math.random() * mang0.length)).toString();
-        order = mang0[index];
-      }
+      // if (mangKhac0.length > 0) {
+      //   index = (Math.floor(Math.random() * mangKhac0.length)).toString();
+      //   order = mangKhac0[index];
+      // } else {
+      //   index = (Math.floor(Math.random() * mang0.length)).toString();
+      //   order = mang0[index];
+      // }
 
       if (order) {
         prizesSpecialAnd8And7 = prizesSpecialAnd8And7.filter((prize: any) => {
@@ -3812,111 +3820,111 @@ export class LotteriesService {
                 for (const order of ordersOfTroChoiThuVi?.data) {
                   switch (order.number) {
                     case Lo2SoGiaiDacBietType.Tai:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tai * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Xiu:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Xiu * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Chan:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Chan * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Le:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Le * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong0:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong0 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong1:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong1 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong2:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong2 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong3:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong3 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong4:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong4 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong5:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong5 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong6:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong6 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong7:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong7 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong8:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong8 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong9:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong9 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong10:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong10 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong11:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong11 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong12:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong12 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong13:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong13 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong14:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong14 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong15:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong15 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong16:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong16 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong17:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong17 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong18:
-                      totalBetAmount += (order?.score || 0) * (OddBet.Tong18 * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.TongTai:
-                      totalBetAmount += (order?.score || 0) * (OddBet.TongTai * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.TongXiu:
-                      totalBetAmount += (order?.score || 0) * (OddBet.TongXiu * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.TongChan:
-                      totalBetAmount += (order?.score || 0) * (OddBet.TongChan * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.TongLe:
-                      totalBetAmount += (order?.score || 0) * (OddBet.TongLe * 1000);
+                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     default:

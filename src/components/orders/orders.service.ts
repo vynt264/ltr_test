@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import { endOfDay, startOfDay } from "date-fns";
+
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { User } from '../user/user.entity';
 import { ListOrderRequestDto } from '../order.request/dto/create.list.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderRequest } from '../order.request/order.request.entity';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
@@ -63,7 +65,21 @@ export class OrdersService {
       page = 1;
     }
     const skip = +perPage * +page - +perPage;
+
+    const fromDate = startOfDay(new Date(paginationDto.date))
+    const toDate = endOfDay(new Date(paginationDto.date));
+    const condition: any = {};
+
+    if (paginationDto.status) {
+      condition.status = paginationDto.status;
+    }
+
+    if (paginationDto.date) {
+      condition.createdAt = Between(fromDate, toDate);
+    }
+
     const [orders, total] = await this.orderRequestRepository.findAndCount({
+      where: condition,
       order: { id: order },
       take: perPage,
       skip: skip,
@@ -74,12 +90,12 @@ export class OrdersService {
     const prevPage = page - 1 < 1 ? null : page - 1;
 
     return {
-      data: orders,
       total,
-      currentPage: page,
       nextPage,
       prevPage,
       lastPage,
+      data: orders,
+      currentPage: page,
     }
   }
 
