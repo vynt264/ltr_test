@@ -13,6 +13,8 @@ export class CreateOrderDto {
     @IsNotEmpty()
     type: string;
 
+    seconds: number;
+
     @ApiProperty({
         default: "28/08/2023-0271",
         type: String,

@@ -13,6 +13,7 @@ import { PaginationQueryDto } from 'src/common/common.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, LoTruocType, LoXienType } from 'src/system/enums/lotteries';
+import { TypeLottery } from 'src/system/constants';
 
 @Injectable()
 export class OrdersService {
@@ -24,17 +25,15 @@ export class OrdersService {
   async create(data: CreateListOrdersDto, member: User) {
     let result: any;
     let promises = [];
-    const turnIndex = "28/08/2023-0271";
+    const turnIndex = this.getTurnIndex();
 
-    let count = 0;
     for (const order of data.orders) {
-      count++;
-
       order.turnIndex = turnIndex;
-      order.numericalOrder = count.toString();
+      order.numericalOrder = this.getRandomTradingCode();
       order.betTypeName = this.getCategoryLotteryTypeName(order.betType);
       order.childBetTypeName = this.getBetTypeName(order.childBetType);
-      order.numberOfBets = 100;
+      order.seconds = this.getPlayingTimeByType(order.type);
+      order.numberOfBets = this.getNumberOfBets(order.childBetType, order.detail);
 
       promises.push(this.orderRequestRepository.save(order));
 
@@ -53,13 +52,14 @@ export class OrdersService {
   }
 
   async findAll(paginationDto: PaginationQueryDto) {
-    let { take: perPage, skip: page, order } = paginationDto;
+    let { take: perPage, skip: page, order, type, seconds } = paginationDto;
 
     if (!perPage || perPage <= 0) {
       perPage = 10
     }
 
     page = Number(page) || 1;
+    seconds = Number(seconds) || 0;
 
     if (!page || page <= 0) {
       page = 1;
@@ -73,9 +73,14 @@ export class OrdersService {
     if (paginationDto.status) {
       condition.status = paginationDto.status;
     }
-
     if (paginationDto.date) {
       condition.createdAt = Between(fromDate, toDate);
+    }
+    if (paginationDto.seconds) {
+      condition.seconds = paginationDto.seconds;
+    }
+    if (paginationDto.type) {
+      condition.type = paginationDto.type;
     }
 
     const [orders, total] = await this.orderRequestRepository.findAndCount({
@@ -242,5 +247,100 @@ export class OrdersService {
     }
 
     return typeName;
+  }
+
+  getPlayingTimeByType(type: String) {
+
+    let seconds = 0;
+    switch (type) {
+      case TypeLottery.XSMB_1S:
+      case TypeLottery.XSMN_1S:
+      case TypeLottery.XSSPL_1S:
+        seconds = 1;
+        break;
+
+      case TypeLottery.XSMB_45S:
+      case TypeLottery.XSMN_45S:
+      case TypeLottery.XSSPL_45S:
+        seconds = 45;
+        break;
+
+      case TypeLottery.XSMB_180S:
+      case TypeLottery.XSMT_180S:
+        seconds = 180;
+        break;
+
+      default:
+        break;
+    }
+
+    return seconds;
+  }
+
+  getTurnIndex() {
+    const fromDate = startOfDay(new Date()).getTime();
+    const toDate = (new Date()).getTime();
+    const times = Math.floor(((toDate - fromDate) / 1000) / 45);
+
+    return `${(new Date()).toLocaleDateString()} - ${times}`;
+  }
+
+  getRandomTradingCode() {
+    let result = 'B';
+    for (let i = 0; i < 20; i++) {
+      result += Math.floor(Math.random() * 10);
+    }
+
+    return result;
+  }
+
+  getNumberOfBets(childBetType: string, ordersDetail: string): number {
+    if (!childBetType || !ordersDetail) return 0;
+
+    let numberOfBets = 0;
+    let dozens;
+    let numbersDozens;
+    let unitRow;
+    let numbersUnitRow;
+    let hundreds;
+
+    switch (childBetType) {
+      case BaoLoType.Lo2So:
+        try {
+          if ((ordersDetail.split('|').length - 1) === 1) {
+            dozens = ordersDetail.split('|')[0];
+            numbersDozens = dozens.split(',');
+            unitRow = ordersDetail.split('|')[1];
+            numbersUnitRow = unitRow.split(',');
+            numberOfBets = numbersDozens.length * numbersUnitRow.length;
+          } else {
+            const numbers = ordersDetail.split(',');
+            numberOfBets = numbers.length;
+          }
+        } catch (err) {
+          numberOfBets = 0;
+        }
+
+        break;
+
+      case BaoLoType.Lo3So:
+        if ((ordersDetail.split('|').length - 1) === 2) {
+          dozens = ordersDetail.split('|')[0];
+          numbersDozens = dozens.split(',');
+          unitRow = ordersDetail.split('|')[1];
+          numbersUnitRow = unitRow.split(',');
+          hundreds = ordersDetail.split('|')[2];
+          numberOfBets = numbersDozens.length * numbersUnitRow.length * hundreds.length;
+        } else {
+          const numbers = ordersDetail.split(',');
+          numberOfBets = numbers.length;
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    return numberOfBets;
   }
 }

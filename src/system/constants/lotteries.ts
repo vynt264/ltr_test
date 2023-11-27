@@ -21,3 +21,28 @@ export const MAX_ORDERS_LO4SO = 10000;
 export const MAX_NUMBER_PRIZES_OF_LO2SO = 18;
 export const MAX_NUMBER_PRIZES_OF_LO3SO = 17;
 export const MAX_NUMBER_PRIZES_OF_LO4SO = 16;
+
+export enum TypeLottery {
+    // mien bac
+    XSMB_1S = "xsmb1s",
+    XSMB_45S = "xsmb45s",
+    XSMB_180S = "xsmb180s",
+
+    // mien trung
+    XSMT_1S = "xsmt1s",
+    XSMT_45S = "xsmt45s",
+    XSMT_180S = "xsmt180s",
+
+    // mien nam
+    XSMN_1S = "xsmn1s",
+    XSMN_45S = "xsmn45s",
+    XSMN_180S = "xsmn180s",
+
+    // supper rick lottery
+    XSSPL_1S = "xsspl1s",
+    XSSPL_45S = "xsspl45s",
+    XSSPL_60S = "xsspl60s",
+    XSSPL_90S = "xsspl90s",
+    XSSPL_120S = "xsspl120s",
+    XSSPL_360S = "xsspl360s",
+};

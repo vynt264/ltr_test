@@ -33,6 +33,9 @@ export class Order extends BaseEntity {
     @Column({ type: 'varchar', length: 31, nullable: true })
     type: string;
 
+    @Column({ type: 'numeric' })
+    seconds: number;
+
     @Column({ type: 'varchar', length: 31, nullable: true })
     turnIndex: string;
 
@@ -68,4 +71,7 @@ export class Order extends BaseEntity {
 
     @Column({ nullable: true })
     numberOfBets: number;
+
+    @Column({ type: 'varchar' })
+    detail: string;
 }
