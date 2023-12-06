@@ -9,10 +9,17 @@ import { ListOrderRequestDto } from '../order.request/dto/create.list.dto';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import { ValidationPipe } from './validations/validation.pipe';
+import { Interval, SchedulerRegistry } from '@nestjs/schedule';
+import { SocketGatewayService } from '../gateway/gateway.service';
+import { CronJob } from 'cron';
 
 @Controller('api/v1/orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly socketGateway: SocketGatewayService,
+    private schedulerRegistry: SchedulerRegistry
+  ) { }
 
   @Post()
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
@@ -24,6 +31,12 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   findAll(@Query() paginationDto: PaginationQueryDto): Promise<any> {
     return this.ordersService.findAll(paginationDto);
+  }
+
+  @Get('get-turn-index')
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  getCurrentTurnIndex(@Query() query: { seconds: string }) {
+    return this.ordersService.getCurrentTurnIndex(query);
   }
 
   @Get(':id')

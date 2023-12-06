@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { endOfDay, startOfDay } from "date-fns";
+import { endOfDay, startOfDay, addHours } from "date-fns";
 
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -14,18 +14,25 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, LoTruocType, LoXienType } from 'src/system/enums/lotteries';
 import { TypeLottery } from 'src/system/constants';
+import { RedisCacheService } from 'src/system/redis/redis.service';
+import { Interval } from '@nestjs/schedule';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order)
-    private orderRequestRepository: Repository<Order>
+    private orderRequestRepository: Repository<Order>,
+    private readonly redisService: RedisCacheService,
   ) { }
 
   async create(data: CreateListOrdersDto, member: User) {
+    const fromDate = startOfDay(new Date()).getTime();
+    const toDate = (new Date()).getTime();
     let result: any;
     let promises = [];
     const turnIndex = this.getTurnIndex();
+
+    this.saveRedis(data.orders);
 
     for (const order of data.orders) {
       order.turnIndex = turnIndex;
@@ -55,7 +62,7 @@ export class OrdersService {
     let { take: perPage, skip: page, order, type, seconds } = paginationDto;
 
     if (!perPage || perPage <= 0) {
-      perPage = 10
+      perPage = 10;
     }
 
     page = Number(page) || 1;
@@ -66,7 +73,7 @@ export class OrdersService {
     }
     const skip = +perPage * +page - +perPage;
 
-    const fromDate = startOfDay(new Date(paginationDto.date))
+    const fromDate = startOfDay(new Date(paginationDto.date));
     const toDate = endOfDay(new Date(paginationDto.date));
     const condition: any = {};
 
@@ -118,6 +125,23 @@ export class OrdersService {
 
   remove(id: number) {
     return this.orderRequestRepository.delete(id);
+  }
+
+  getCurrentTurnIndex(query: { seconds: string }) {
+    if (!query.seconds) {
+      return {};
+    }
+    const startOf7AM = startOfDay(new Date());
+    const fromDate = addHours(startOf7AM, 7).getTime();
+
+    const toDate = (new Date()).getTime();
+    const times = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
+    const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
+
+    return {
+      currentTurnIndex: `${(new Date()).toLocaleDateString()} - ${times}`,
+      currentSeconds: secondsInCurrentRound,
+    };
   }
 
   getCategoryLotteryTypeName(type: String) {
@@ -343,4 +367,269 @@ export class OrdersService {
 
     return numberOfBets;
   }
+
+  async saveRedis(orders: any) {
+    if (!orders || orders.length === 0) return;
+
+    const key = orders[0]?.type;
+    const initData = await this.initData(key);
+
+    for (const order of orders) {
+      switch (order.betType) {
+        case CategoryLotteryType.BaoLo:
+          this.getOrdersBaoLo(order, initData);
+          break;
+
+        case CategoryLotteryType.DanhDe:
+          break;
+
+        case CategoryLotteryType.DauDuoi:
+          break;
+
+        case CategoryLotteryType.Lo3Cang:
+          break;
+
+        case CategoryLotteryType.Lo4Cang:
+          break;
+
+        case CategoryLotteryType.LoTruot:
+          break;
+
+        case CategoryLotteryType.LoXien:
+          break;
+
+        case CategoryLotteryType.TroChoiThuVi:
+          break;
+
+        default:
+          break;
+      }
+    }
+
+    // save data to redis
+    await this.redisService.set(key, initData);
+  }
+
+  getOrdersBaoLo(order: any, initData: any) {
+    if (!order) return initData;
+
+    let str1;
+    let numbers1;
+    let str2;
+    let numbers2;
+    let str3;
+    let numbers3;
+    let str4;
+    let numbers4;
+
+    try {
+      str1 = order.detail.split('|')[0];
+      numbers1 = str1.split(',');
+      str2 = order.detail.split('|')[1];
+      numbers2 = str2.split(',');
+      str3 = order.detail.split('|')[2];
+      numbers3 = str3.split(',');
+      str4 = order.detail.split('|')[3];
+      numbers4 = str4.split(',');
+    } catch (error) { }
+
+    switch (order.childBetType) {
+      case BaoLoType.Lo2So:
+        if ((order.detail.split('|').length - 1) === 1) {
+          for (const n1 of numbers1) {
+            for (const n2 of numbers2) {
+              let number = `${n1.toString()}${n2.toString()}`;
+              this.addOrder({
+                typeBet: order.betType,
+                childBetType: order.childBetType,
+                multiple: order.multiple,
+                number,
+                initData,
+              });
+            }
+          }
+        } else {
+          const numbers = order.detail.split(',');
+          for (const number of numbers) {
+            this.addOrder({
+              typeBet: order.betType,
+              childBetType: order.childBetType,
+              multiple: order.multiple,
+              number,
+              initData,
+            });
+          }
+        }
+        break;
+
+      case BaoLoType.Lo2So1k:
+        if ((order.detail.split('|').length - 1) === 1) {
+          for (const n1 of numbers1) {
+            for (const n2 of numbers2) {
+              let number = `${n1.toString()}${n2.toString()}`;
+              this.addOrder({
+                typeBet: order.betType,
+                childBetType: order.childBetType,
+                multiple: order.multiple,
+                number,
+                initData,
+              });
+            }
+          }
+
+        } else {
+          const numbers = order.detail.split(',');
+          for (const number of numbers) {
+            this.addOrder({
+              typeBet: order.betType,
+              childBetType: order.childBetType,
+              multiple: order.multiple,
+              number,
+              initData,
+            });
+          }
+        }
+        break;
+
+      case BaoLoType.Lo3So:
+        if ((order.detail.split('|').length - 1) === 2) {
+          for (const n1 of numbers1) {
+            for (const n2 of numbers2) {
+              for (const n3 of numbers3) {
+                let number = `${n1.toString()}${n2.toString()}${n3.toString()}`;
+                this.addOrder({
+                  typeBet: order.betType,
+                  childBetType: order.childBetType,
+                  multiple: order.multiple,
+                  number,
+                  initData,
+                });
+              }
+            }
+          }
+        } else {
+          const numbers = order.detail.split(',');
+          for (const number of numbers) {
+            this.addOrder({
+              typeBet: order.betType,
+              childBetType: order.childBetType,
+              multiple: order.multiple,
+              number,
+              initData,
+            });
+          }
+        }
+        break;
+
+      case BaoLoType.Lo4So:
+        if ((order.detail.split('|').length - 1) === 3) {
+          for (const n1 of numbers1) {
+            for (const n2 of numbers2) {
+              for (const n3 of numbers3) {
+                for (const n4 of numbers4) {
+                  let number = `${n1.toString()}${n2.toString()}${n3.toString()}${n4.toString()}`;
+                  this.addOrder({
+                    typeBet: order.betType,
+                    childBetType: order.childBetType,
+                    multiple: order.multiple,
+                    number,
+                    initData,
+                  });
+                }
+              }
+            }
+          }
+        } else {
+          const numbers = order.detail.split(',');
+          for (const number of numbers) {
+            this.addOrder({
+              typeBet: order.betType,
+              childBetType: order.childBetType,
+              multiple: order.multiple,
+              number,
+              initData,
+            });
+          }
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    return initData;
+  }
+
+  addOrder({ typeBet, childBetType, number, multiple, initData }: any) {
+    let multipleTemp;
+    if (initData[typeBet][childBetType][number]) {
+      multipleTemp = initData[typeBet][childBetType][number] + multiple;
+      initData[typeBet][childBetType][number] = multipleTemp;
+    } else {
+      multipleTemp = multiple;
+    }
+
+    initData[typeBet][childBetType][number] = multipleTemp;
+  }
+
+  async initData(key: string) {
+    let data = await this.redisService.get(key);
+
+    if (!data) {
+      data = {
+        [CategoryLotteryType.BaoLo]: {
+          [BaoLoType.Lo2So]: {
+
+          } as any,
+          [BaoLoType.Lo2So1k]: {
+
+          } as any,
+          [BaoLoType.Lo3So]: {
+
+          } as any,
+          [BaoLoType.Lo4So]: {
+
+          } as any,
+        },
+        [CategoryLotteryType.DanhDe]: {
+          [DanhDeType.DeDacBiet]: {
+
+          } as any,
+          [DanhDeType.DeDauDuoi]: {
+
+          } as any,
+          [DanhDeType.DeDau]: {
+
+          } as any,
+        },
+        [CategoryLotteryType.DauDuoi]: {
+          [DauDuoiType.Dau]: {
+
+          } as any,
+          [DauDuoiType.Duoi]: {
+
+          } as any,
+        },
+        [CategoryLotteryType.Lo4Cang]: {
+          [BonCangType.BonCangDacBiet]: {
+
+          } as any,
+        },
+        [CategoryLotteryType.Lo3Cang]: {
+          [BaCangType.BaCangDacBiet]: {
+
+          } as any,
+          [BaCangType.BaCangDau]: {
+
+          } as any,
+          [BaCangType.BaCangDauDuoi]: {
+
+          } as any,
+        },
+      };
+    }
+
+    return data;
+  }
+  
 }

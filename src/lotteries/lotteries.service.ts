@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import * as _ from "lodash";
 import { CreateLotteryDto } from './dto/create-lottery.dto';
 import { UpdateLotteryDto } from './dto/update-lottery.dto';
 import {
@@ -32,7 +33,7 @@ import {
 @Injectable()
 export class LotteriesService {
 
-  generatePrizes(orders: OrderDto[]) {
+  generatePrizes(orders: any) {
     const {
       ordersLo2So,
       ordersLo2So1k,
@@ -56,15 +57,8 @@ export class LotteriesService {
       ordersLo2SoGiaiDacBiet,
     } = this.transformOrdersNumber(orders);
 
-    // const whiteList = this.generateWhiteList({
-    //   ordersLo2So,
-    //   ordersLo2So1k,
-    //   ordersLo3So,
-    //   ordersLo4So,
-    // });
-
     const totalBetAmount = this.getTotalBetAmount(orders);
-    console.log("Tong tien users dat cuoc", totalBetAmount);
+    // console.log("Tong tien users dat cuoc", totalBetAmount);
 
     const finalResult = this.getPrizes({
       ordersLo2So,
@@ -2963,84 +2957,6 @@ export class LotteriesService {
     return totalAmountLoXienTruot;
   }
 
-  randomPrizes({ matricPrizes, numbers }: any) {
-
-    const prize8 = [];
-    const prize7 = [];
-    const prize6 = [];
-    const prize5 = [];
-    const prize4 = [];
-    const prize3 = [];
-    const prize2 = [];
-    const prize1 = [];
-    const specialPrize = [];
-
-    for (const n of numbers) {
-      if (prize8.length === 0) {
-        if (n.length === 2) {
-          prize8.push(n);
-          continue;
-        }
-      }
-
-      if (prize7.length === 0) {
-        if (n.length === 3) {
-          prize7.push(n);
-          continue;
-        }
-      }
-
-      if (prize6.length < 3) {
-        prize6.push(n);
-        continue;
-      }
-
-      if (prize5.length === 0) {
-        prize5.push(n);
-        continue;
-      }
-
-      if (prize4.length < 7) {
-        prize4.push(n);
-        continue;
-      }
-
-      if (prize3.length < 2) {
-        prize3.push(n);
-        continue;
-      }
-
-      if (prize2.length === 0) {
-        prize2.push(n);
-        continue;
-      }
-
-      if (prize1.length === 0) {
-        prize1.push(n);
-        continue;
-      }
-
-      if (specialPrize.length === 0) {
-        specialPrize.push(n);
-        continue;
-      }
-    }
-
-    console.log("random prizes success.");
-
-    return {
-      [PRIZES.SPECIAL_PRIZE]: specialPrize,
-      [PRIZES.PRIZE_1]: prize1,
-      [PRIZES.PRIZE_2]: prize2,
-      [PRIZES.PRIZE_3]: prize3,
-      [PRIZES.PRIZE_4]: prize4,
-      [PRIZES.PRIZE_5]: prize5,
-      [PRIZES.PRIZE_6]: prize6,
-      [PRIZES.PRIZE_7]: prize7,
-      [PRIZES.PRIZE_8]: prize8,
-    };
-  }
-
   getOrderEndsWith(number: any, orders: any) {
     if (!number || !orders || orders.length === 0) return;
 
@@ -3063,73 +2979,6 @@ export class LotteriesService {
     }
 
     return;
-  }
-
-  generateWhiteList({
-    ordersLo2So,
-    ordersLo2So1k,
-    ordersLo3So,
-    ordersLo4So,
-  }: any): any {
-
-    const whiteList = {
-      [BaoLoType.Lo4So]: [],
-      [BaoLoType.Lo3So]: [],
-      [BaoLoType.Lo2So]: [],
-    } as any;
-
-    for (let i = 0; i < MAX_ORDERS_LO4SO; i++) {
-      let tempNum = i.toString();
-      if (tempNum.length < 4) {
-        const tempLength = 4 - tempNum.length;
-        for (let i = 0; i < tempLength; i++) {
-          tempNum = '0' + tempNum;
-        }
-      }
-
-      const hasInDataLo4So = ordersLo4So.some((n: any) => tempNum.endsWith(n?.number));
-      const hasInDataLo3So = ordersLo3So.some((n: any) => tempNum.endsWith(n?.number));
-      const hasInDataLo2So = ordersLo2So.some((n: any) => tempNum.endsWith(n?.number));
-      const hasInDataLo2So1k = ordersLo2So1k.some((n: any) => tempNum.endsWith(n?.number));
-
-      if (!hasInDataLo4So && !hasInDataLo3So && !hasInDataLo2So && !hasInDataLo2So1k) {
-        whiteList?.[BaoLoType.Lo4So].push(tempNum);
-      }
-    }
-
-    for (let i = 0; i < MAX_ORDERS_LO3SO; i++) {
-      let tempNum = i.toString();
-      if (tempNum.length < 3) {
-        const tempLength = 3 - tempNum.length;
-        for (let i = 0; i < tempLength; i++) {
-          tempNum = '0' + tempNum;
-        }
-      }
-
-      const hasInDataLo3So = ordersLo3So.some((n: any) => tempNum.endsWith(n?.number));
-      const hasInDataLo2So = ordersLo2So.some((n: any) => tempNum.endsWith(n?.number));
-      const hasInDataLo2So1k = ordersLo2So1k.some((n: any) => tempNum.endsWith(n?.number));
-
-      if (!hasInDataLo3So && !hasInDataLo2So && !hasInDataLo2So1k) {
-        whiteList?.[BaoLoType.Lo3So].push(tempNum);
-      }
-    }
-
-    for (let i = 0; i < MAX_ORDERS_LO2SO; i++) {
-      let tempNum = i.toString();
-      if (tempNum.length === 1) {
-        tempNum = `0${tempNum}`;
-      }
-
-      const hasInDataLo2So = ordersLo2So.some((n: any) => n?.number === tempNum);
-      const hasInDataLo2So1k = ordersLo2So1k.some((n: any) => n?.number === tempNum);
-
-      if (!hasInDataLo2So && !hasInDataLo2So1k) {
-        whiteList?.[BaoLoType.Lo2So].push(tempNum);
-      }
-    }
-
-    return whiteList;
   }
 
   generate2DigitNumbers(order: any) {
@@ -3169,8 +3018,6 @@ export class LotteriesService {
   }
 
   transformOrdersNumber(orders: any): any {
-    if (!orders || orders.length === 0) return [];
-
     let ordersLo2So: any = [];
     let ordersLo2So1k: any = [];
     let ordersLo3So: any = [];
@@ -3963,5 +3810,73 @@ export class LotteriesService {
       accumulator.push(currentValue.number.toString());
       return accumulator;
     }, []);
+  }
+
+  randomPrizes(prizes: any) {
+    if (!prizes) return {};
+
+    const values = _.get(prizes, 'finalResult.values', []);
+    const specialPrize: string[] = [this.generateDigitsPrize(values[0].number, 6)];
+    const prize8: string[] = [this.generateDigitsPrize(values[1].number, 2)];
+    const prize7: string[] = [this.generateDigitsPrize(values[2].number, 3)];
+    const prize6: string[] = [
+      this.generateDigitsPrize(values[3].number, 4),
+      this.generateDigitsPrize(values[4].number, 4), 
+      this.generateDigitsPrize(values[5].number, 4),
+    ];
+    const prize5: string[] = [
+      this.generateDigitsPrize(values[6].number, 4),
+    ];
+    const prize4: string[] = [
+      this.generateDigitsPrize(values[7].number, 5),
+      this.generateDigitsPrize(values[8].number, 5),
+      this.generateDigitsPrize(values[9].number, 5),
+      this.generateDigitsPrize(values[10].number, 5),
+      this.generateDigitsPrize(values[11].number, 5),
+      this.generateDigitsPrize(values[12].number, 5),
+      this.generateDigitsPrize(values[13].number, 5),
+    ];
+    const prize3: string[] = [
+      this.generateDigitsPrize(values[14].number, 5),
+      this.generateDigitsPrize(values[15].number, 5),
+    ];
+    const prize2: string[] = [
+      this.generateDigitsPrize(values[16].number, 5),
+    ];
+    const prize1: string[] = [
+      this.generateDigitsPrize(values[17].number, 5),
+    ];
+
+    return {
+      [PRIZES.SPECIAL_PRIZE]: specialPrize,
+      [PRIZES.PRIZE_1]: prize1,
+      [PRIZES.PRIZE_2]: prize2,
+      [PRIZES.PRIZE_3]: prize3,
+      [PRIZES.PRIZE_4]: prize4,
+      [PRIZES.PRIZE_5]: prize5,
+      [PRIZES.PRIZE_6]: prize6,
+      [PRIZES.PRIZE_7]: prize7,
+      [PRIZES.PRIZE_8]: prize8,
+    };
+  }
+
+  generateDigitsPrize(number: string, length: number) {
+    if (!length) return number;
+
+    const tempLength = length - number.length;
+    if (tempLength <= 0) return number;
+
+    let numberAdded;
+    if (tempLength === 1) {
+      numberAdded = Math.floor(Math.random() * 1);
+    } else if (tempLength === 2) {
+      numberAdded = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
+    } else if (tempLength === 3) {
+      numberAdded = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
+    } else if (tempLength === 4) {
+      numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+    }
+
+    return `${numberAdded}${number}`;
   }
 }

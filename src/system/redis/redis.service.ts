@@ -6,11 +6,11 @@ export class RedisCacheService {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
   public async get(key: string) {
-    return this.cacheManager.get(key);
+    return await this.cacheManager.get(key);
   }
 
   public async set(key: string, value: any) {
-    await this.cacheManager.set(key, value);
+    return await this.cacheManager.set(key, value);
   }
 
   public async del(key: any) {

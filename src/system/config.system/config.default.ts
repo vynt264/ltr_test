@@ -6,3 +6,6 @@ export const DEFAULT_CONFIG: ConfigData = {
   logLevel: "info",
   gatekeeperServiceUrl: undefined,
 };
+
+
+export const FE_URL = 'http://localhost:3000';

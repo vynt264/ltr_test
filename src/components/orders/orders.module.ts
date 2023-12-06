@@ -12,6 +12,8 @@ import { UserModule } from '../user/user.module';
 import { SysConfigsModule } from '../sys.config/sys.config.module';
 import { ConnectModule } from '../connect/connect.module';
 import { Order } from './entities/order.entity';
+import { RedisCacheModule } from 'src/system/redis/redis.module';
+import { GatewayModule } from '../gateway/gateway.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { Order } from './entities/order.entity';
     UserModule,
     SysConfigsModule,
     ConnectModule,
+    RedisCacheModule,
+    GatewayModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService]
