@@ -8,11 +8,14 @@ import { Connection } from "typeorm";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { config } from "dotenv";
 import { LotteriesModule } from './lotteries/lotteries.module';
+import { RedisCacheModule } from "./system/redis/redis.module";
+
 config();
 const configService = new ConfigService();
 @Module({
   imports: [
     ConfigSystemModule,
+    RedisCacheModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
