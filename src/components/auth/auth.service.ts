@@ -20,14 +20,26 @@ import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
 import { CreateUserDto } from "../user/dto";
 import appConfig from "../../system/config.system/app.config";
+import { InjectRepository } from "@nestjs/typeorm";
+import { User } from "../user/user.entity";
+import { Repository } from "typeorm";
+import { ConfigSys } from "../../common/helper/config";
+import { UserInfo } from "../user.info/user.info.entity";
+import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
     private userService: UserService,
     private jwtService: JwtService,
     private backlistService: BacklistService,
     private readonly userHistoryService: UserHistoryService,
-    private readonly connectService: ConnectService
+    private readonly connectService: ConnectService,
+    @InjectRepository(UserInfo)
+    private userInfoRepository: Repository<UserInfo>,
+    @InjectRepository(CoinWallet)
+    private coinWalletRepository: Repository<CoinWallet>,
   ) {}
 
   async validateUserCreds(username: string, password: string): Promise<any> {
@@ -42,9 +54,53 @@ export class AuthService {
   }
 
   async generateToken(
-    user: UserInterface & DeviceInterface, isAuth = true
+    user: UserInterface & DeviceInterface
   ): Promise<JWTResult> {
-    const userFInd = await this.userService.getByUsername(user.username, false, isAuth);
+    const jwtPayload: JwtPayload = {
+      sub: user.id,
+      username: user.username,
+      role: user.role,
+      isAuth: true,
+    };
+
+    let userHistoryDto = new CreateUserHistoryDto();
+    userHistoryDto = {
+      mac: user.mac,
+      ip: user.ip,
+      userId: user.id,
+      action: ConectEnum.LOGIN,
+      note: "",
+    };
+
+    await this.userHistoryService.create(userHistoryDto);
+
+    const [at, rt] = await Promise.all([
+      this.jwtService.signAsync(jwtPayload, {
+        secret: appConfig().atSecret,
+        expiresIn: "1d",
+      }),
+      this.jwtService.signAsync(jwtPayload, {
+        secret: appConfig().rtSecret,
+        expiresIn: "7d",
+      }),
+    ]);
+    await this.updateRtHash(user.id, rt);
+    await this.updateBacklist(user.id, at);
+
+    return {
+      access_token: at,
+      refresh_token: rt,
+      user: jwtPayload,
+    };
+  }
+
+  async guestgenerateToken(
+    user: UserInterface & DeviceInterface
+  ): Promise<JWTResult> {
+    const userFInd = await this.userService.guestGetByUsername(
+      user.username,
+      user.usernameReal
+    );
     user.id = userFInd.id;
     user.role = userFInd.role;
 
@@ -142,12 +198,50 @@ export class AuthService {
     return true;
   }
 
-  async isNotAdmin(username: string) {
-    await this.connectService.logIn(username);
+  async isNotAdmin(username: string, sign: string) {
+    await this.connectService.logIn(username, sign);
+    const passwordDf = ConfigSys.config().password;
+    return this.checkUser(username, passwordDf);
   }
 
-  async isNotAuth(username: string) {
-    await this.connectService.isNotAuth(username);
+  async checkUser(username: string, password: string) {
+    let user = await this.userService.getByUsername(username);
+
+    if (user && !user?.role.includes(UserRoles.MEMBER)) {
+      throw new ForbiddenException("Access Denied");
+    }
+
+    if (!user) {
+      const createUser = {
+        username,
+        role: UserRoles.MEMBER,
+        password,
+      };
+      const createdUser = await this.userRepository.create(createUser);
+      user = await this.userRepository.save(createdUser);
+      await this.userService.createWallet(user);
+      const userInfoDt: any = {
+        avatar: null,
+        user: { id: user.id },
+        sumBet: 0,
+        sumOrder: 0,
+        sumOrderWin: 0,
+        sumOrderLose: 0,
+        favoriteGame: null,
+      }
+      const userInfoCreate = await this.userInfoRepository.create(userInfoDt);
+      await this.userInfoRepository.save(userInfoCreate);
+      const coinWalletDto: any = {
+        user: { id: user.id },
+        balance: 0,
+      }
+      const coinWalletCreate = await this.coinWalletRepository.create(
+        coinWalletDto
+      );
+      await this.coinWalletRepository.save(coinWalletCreate);
+    }
+
+    return user
   }
 
   async valiRole(username: string, isAdmin = false) {
@@ -158,5 +252,7 @@ export class AuthService {
     if (user?.role.includes(UserRoles.MEMBER)) {
       throw new ForbiddenException("Access Denied");
     }
+
+    return user;
   }
 }

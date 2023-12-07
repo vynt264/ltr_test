@@ -110,3 +110,9 @@ export {
   getCalculateRate,
   SysTtemCodeEnum as SysTtemCodeEnum,
 };
+
+export function genRandom(min: number, max: number): number {
+  const randomDecimal = Math.random();
+  const randomNumber = Math.floor(randomDecimal * (max - min + 1)) + min;
+  return randomNumber;
+}

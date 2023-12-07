@@ -16,7 +16,9 @@ enum UserRoles {
   APPROVE_TOP_UP = "approve_top_up",
   TRANSACTION_VIEW = "transaction_view",
   WALLET_VIEW = "wallet_view",
+  WALLET_VIEW_UDPATE = "wallet_view_update",
   SUB_WALLET_VIEW = "sub_wallet_view",
+  SUB_WALLET_UPDATE = "sub_wallet_update",
 }
 
 export { UserRoles };

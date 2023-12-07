@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Backlist } from "./backlist.entity";
-import { Repository } from "typeorm";
+import { LessThan, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
@@ -50,6 +50,28 @@ export class BacklistService {
       };
 
       await this.backlistRepository.save(foundBacklist);
+    }
+  }
+
+  async deleteBacklist() {
+    const currentDate = new Date();
+    const yesterday = new Date(currentDate);
+    // yesterday.setDate(currentDate.getDate() - 1);
+    yesterday.setHours(currentDate.getHours() - 2);
+    // yesterday.setMinutes(59);
+    // yesterday.setSeconds(59);
+    // delete lotery request
+    const data = await this.backlistRepository.find(
+      {
+        where: {
+          createdAt: LessThan(yesterday)
+        }
+      }
+    );
+    if (data?.length > 0) {
+      data.map(async (item) => {
+        await this.backlistRepository.delete(item?.id)
+      })
     }
   }
 }

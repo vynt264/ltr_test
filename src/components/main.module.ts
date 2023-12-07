@@ -14,6 +14,17 @@ import { NewQueryModule } from "./new.query/new.quey.module";
 import { OrdersModule } from './orders/orders.module';
 import { GatewayModule } from './gateway/gateway.module';
 import { ScheduleModule } from './schedule/schedule.module';
+import { GameTextModule } from "./game.text/game.text.module";
+import { CommonModule } from "./common/common.module";
+import { QaModule } from "./qa/qa.module";
+import { BookMakerModule } from "./bookmaker/bookmaker.module";
+import { WalletModule } from "./wallet/wallet.module";
+import { SubWalletModule } from "./subwallet/sub.wallet.module";
+import { UserInfoModule } from "./user.info/user.info.module";
+import { PromotionModule } from "./promotion/promotion.module";
+import { PromotionHistoriesModule } from "./promotion.history/promotion.history.module";
+import { CoinWalletModule } from "./coin.wallet/coin.wallet.module";
+import { CoinWalletHistoryModule } from "./coin.wallet.history/coin.wallet.history.module";
 @Module({
   imports: [
     AuthModule,
@@ -31,6 +42,17 @@ import { ScheduleModule } from './schedule/schedule.module';
     OrdersModule,
     GatewayModule,
     ScheduleModule,
+    GameTextModule,
+    CommonModule,
+    QaModule,
+    BookMakerModule,
+    WalletModule,
+    SubWalletModule,
+    UserInfoModule,
+    PromotionModule,
+    PromotionHistoriesModule,
+    CoinWalletModule,
+    CoinWalletHistoryModule,
   ],
 })
 export class MainModule {}

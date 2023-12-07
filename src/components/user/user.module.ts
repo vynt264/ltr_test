@@ -4,11 +4,14 @@ import { Module } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "./user.entity";
-import { ConnectModule } from "../connect/connect.module";
+import { Wallet } from "../wallet/wallet.entity";
+import { WalletHistory } from "../wallet/wallet.history.entity";
+import { WalletCodeQueue } from "../wallet/wallet.code.queue";
+import { UserInfo } from "../user.info/user.info.entity";
 @Module({
   imports: [
     BacklistModule,
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Wallet, WalletHistory, WalletCodeQueue, UserInfo]),
   ],
   providers: [UserService],
   controllers: [UserController],

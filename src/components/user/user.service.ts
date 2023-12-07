@@ -1,17 +1,21 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { endOfDay, startOfDay } from "date-fns";
-import { Between, Like, Repository } from "typeorm";
-import { Logger } from "winston";
 import { PaginationQueryDto } from "../../common/common.dto";
 import {
   ErrorResponse,
   SuccessResponse,
 } from "../../system/BaseResponse/index";
 import { ERROR, MESSAGE, STATUSCODE } from "../../system/constants";
+import { Between, Like, Repository } from "typeorm";
+import { Logger } from "winston";
 import { CreateUserDto, UpdateUserDto } from "./dto/index";
 import PermissionUserDto from "./dto/permission.dto";
 import { User } from "./user.entity";
+import { Wallet } from "../wallet/wallet.entity";
+import { WalletHistory } from "../wallet/wallet.history.entity";
+import { WalletCodeQueue } from "../wallet/wallet.code.queue";
+import { PrefixEnum } from "../sys.config/enums/sys.config.enum";
 @Injectable()
 export class UserService {
   private username = "username";
@@ -21,11 +25,17 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Wallet)
+    private walletRepository: Repository<Wallet>,
+    @InjectRepository(WalletHistory)
+    private walletHisotryRepository: Repository<WalletHistory>,
+    @InjectRepository(WalletCodeQueue)
+    private walletCodeQueueRepository: Repository<WalletCodeQueue>,
     @Inject("winston")
     private readonly logger: Logger
   ) { }
 
-  async getByUsername(username: string, isAdmin = false, isAuth = true) {
+  async getByUsername(username: string, isAdmin = false) {
     let user = await this.userRepository.findOne({
       select: {
         id: true,
@@ -39,14 +49,83 @@ export class UserService {
       },
     });
 
+    // if (!user && !isAdmin) {
+    //   const userDto = {
+    //     username,
+    //     password: process.env.USER_PASSWORD,
+    //     isAuth: true,
+    //   };
+    //   const createdUser = this.userRepository.create(userDto);
+    //   user = await this.userRepository.save(createdUser);
+    //   const wlCodeQueue = await this.walletCodeQueueRepository.save({});
+    //   const walletCode = PrefixEnum.WALLET_CODE + wlCodeQueue.id;
+    //   // TODO lam torng so
+    //   const walletDto = {
+    //     walletCode: walletCode,
+    //     user: { id: user.id },
+    //     createdBy: user.username,
+    //   };
+    //   const walletCreate = this.walletRepository.create(walletDto);
+    //   const wallet = await this.walletRepository.save(walletCreate);
+    //   await this.walletHisotryRepository.save(wallet);
+    // }
+
+    return user;
+  }
+
+  async createWallet(user: User) {
+      const wlCodeQueue = await this.walletCodeQueueRepository.save({});
+      const walletCode = PrefixEnum.WALLET_CODE + wlCodeQueue.id;
+      // TODO lam torng so
+      const walletDto = {
+        walletCode: walletCode,
+        user: { id: user.id },
+        createdBy: user.username,
+      };
+      const walletCreate = this.walletRepository.create(walletDto);
+      const wallet = await this.walletRepository.save(walletCreate);
+      await this.walletHisotryRepository.save(wallet);
+  }
+
+  async guestGetByUsername(
+    username: string,
+    usernameReal: string,
+    isAdmin = false
+  ) {
+    let user = await this.userRepository.findOne({
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        role: true,
+      },
+      where: {
+        username,
+      },
+    });
+
     if (!user && !isAdmin) {
       const userDto = {
         username,
         password: process.env.USER_PASSWORD,
-        isAuth,
+        isAuth: false,
+        usernameReal
       };
       const createdUser = this.userRepository.create(userDto);
       user = await this.userRepository.save(createdUser);
+      const wlCodeQueue = await this.walletCodeQueueRepository.save({});
+      const walletCode = PrefixEnum.WALLET_CODE + wlCodeQueue.id;
+      // TODO lam torng so
+      const walletDto = {
+        walletCode: walletCode,
+        user: { id: user.id },
+        createdBy: user.username,
+        availableBalance: 20000000,
+        balance: 20000000,
+      };
+      const walletCreate = this.walletRepository.create(walletDto);
+      const wallet = await this.walletRepository.save(walletCreate);
+      await this.walletHisotryRepository.save(wallet);
     }
 
     return user;
@@ -157,7 +236,6 @@ export class UserService {
           name: true,
           username: true,
           option: true,
-          isAuth: true,
         },
         where: {
           id: id,
@@ -182,8 +260,6 @@ export class UserService {
       );
     }
   }
-
-  
 
   async create(userDto: CreateUserDto): Promise<any> {
     try {

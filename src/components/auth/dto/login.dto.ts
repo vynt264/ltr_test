@@ -43,10 +43,10 @@ export class LoginDto {
   is_admin: boolean;
 
   @ApiProperty({
-    description: "If the admin is logging or not",
-    default: true,
+    description: "Sign username",
+    example: "sadcsxcascsds",
   })
   @IsNotEmpty()
-  @IsBoolean()
-  isAuth: boolean;
+  @IsString()
+  sign: string;
 }

@@ -97,7 +97,7 @@ export class UserController {
   async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.userService.getAll(paginationQuery);
   }
-  
+
   @Get(":id")
   @ApiOperation({
     description: "Get user by id",

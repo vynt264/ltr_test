@@ -8,6 +8,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, "local") {
     super();
   }
 
+  // TODO check login 2 lần
   async validate(username: string, password: string) {
     const user = await this.authService.validateUserCreds(username, password);
     if (!user) throw new UnauthorizedException();

@@ -10,8 +10,14 @@ import { UserModule } from "../user/user.module";
 import { PassportModule } from "@nestjs/passport";
 import { JwtModule } from "@nestjs/jwt";
 import { JwtStrategy } from "./jwt/jwt.strategy";
+import { User } from "src/components/user/user.entity";
+import { TypeOrmModule } from "@nestjs/typeorm";
+// import { UserInfoModule } from "../user.info/user.info.module";
+import { UserInfo } from "../user.info/user.info.entity";
+import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
 @Module({
   imports: [
+    TypeOrmModule.forFeature([User, UserInfo, CoinWallet]),
     UserHistoryModule,
     UserModule,
     BacklistModule,
