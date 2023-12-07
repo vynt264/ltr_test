@@ -140,7 +140,7 @@ export class OrdersService {
 
     return {
       currentTurnIndex: `${(new Date()).toLocaleDateString()} - ${times}`,
-      currentSeconds: secondsInCurrentRound,
+      currentSeconds: Math.round(secondsInCurrentRound),
     };
   }
 
