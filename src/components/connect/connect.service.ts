@@ -250,7 +250,18 @@ export class ConnectService {
     // return this.connect();
   }
 
-  async logIn(userName = ""): Promise<any> {
+  async logIn(userName = "", sign = ""): Promise<any> {
+    const signLocal = Helper.endCodeUsername(userName);
+    if (sign != signLocal) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          message: `Sign not correct`,
+        },
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
     await this.compose(ConectEnum.LOGIN);
 
     const gameType = this.getGameType();

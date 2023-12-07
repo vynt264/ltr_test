@@ -14,6 +14,7 @@ export class ConfigSys {
         condition: process.env.SCORE_MIN || 15000,
         deposit: process.env.DEPOSIT || 500,
         sign: process.env.SIGN_8B_DEV || "",
+        signUserName: process.env.SIGN_USERNAME_DEV || "",
       };
     }
 
@@ -27,6 +28,7 @@ export class ConfigSys {
         condition: process.env.SCORE_MIN || 15000,
         deposit: process.env.DEPOSIT || 500,
         sign: process.env.SIGN_8B_PRO || "",
+        signUserName: process.env.SIGN_USERNAME_DEV || "",
       };
     }
 

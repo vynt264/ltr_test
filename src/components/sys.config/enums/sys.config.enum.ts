@@ -6,6 +6,7 @@ enum SysModuleEnum {
   TICKET_3 = "TICKET3",
   CONDITION = "CONDITION",
   GAME_CODE = "GAME_CODE",
+  NOTI = "NOTI",
 }
 
 enum SysItemEnum {
@@ -39,6 +40,10 @@ enum SysItemEnum {
   CONDITION_DEPOSIT = "condition_deposit",
   MINI_GAME_LUCKY_TICKET = "mini_game_lucky_ticket",
   MINI_GAME_LUCKY_WHEEL = "mini_game_lucky_wheel",
+  NOTI_TRAFFIC_LIGHT = "traffic_light",
+  LOCK_EARN = "lock_earn",
+  LOCK_TRANSFER = "lock_transfer",
+  LOCK_PLAY = "lock_play",
 }
 
 interface ValueRate {

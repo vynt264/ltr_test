@@ -55,6 +55,10 @@ export class Helper {
     return Md5.init(`${str}|${ConfigSys.config().sign}`);
   }
 
+  static endCodeUsername(str: string) {
+    return Md5.init(`${str}|${ConfigSys.config().signUserName}`);
+  }
+
   static getDate() {
     const today = new Date();
     return {
