@@ -198,8 +198,8 @@ export class AuthService {
     return true;
   }
 
-  async isNotAdmin(username: string, sign: string) {
-    await this.connectService.logIn(username, sign);
+  async isNotAdmin(username: string, sign: string, isFake: boolean) {
+    if (!isFake) await this.connectService.logIn(username, sign);
     const passwordDf = ConfigSys.config().password;
     return this.checkUser(username, passwordDf);
   }

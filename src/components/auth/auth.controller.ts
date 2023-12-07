@@ -40,12 +40,12 @@ export class AuthController {
     @Request() req: any,
     @Body() loginDto: LoginDto
   ): Promise<JWTResult> {
-    const { ip, mac, is_admin: isAdmin, username, sign } = loginDto;
+    const { ip, mac, is_admin: isAdmin, username, sign, is_fake: isFake } = loginDto;
     let user;
     if (isAdmin) {
       user = await this.authService.valiRole(username, isAdmin);
     } else {
-      user = await this.authService.isNotAdmin(username, sign);
+      user = await this.authService.isNotAdmin(username, sign, isFake);
     }
     
     user = {

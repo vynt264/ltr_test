@@ -49,4 +49,12 @@ export class LoginDto {
   @IsNotEmpty()
   @IsString()
   sign: string;
+
+  @ApiProperty({
+    description: "If the user fake is logging or not",
+    default: false,
+  })
+  @IsNotEmpty()
+  @IsBoolean()
+  is_fake: boolean;
 }
