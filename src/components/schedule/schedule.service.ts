@@ -90,7 +90,7 @@ export class ScheduleService implements OnModuleInit {
         const prizes = this.lotteriesService.generatePrizes(dataTransform);
         const finalResult = this.lotteriesService.randomPrizes(prizes);
 
-        this.socketGateway.sendEventToClient('send-prizes-xsspl45s', {
+        this.socketGateway.sendEventToClient('xsspl45s-receive-prizes', {
             content: finalResult,
         });
     }
