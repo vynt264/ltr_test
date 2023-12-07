@@ -9,7 +9,7 @@ import { ListOrderRequestDto } from '../order.request/dto/create.list.dto';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import { ValidationPipe } from './validations/validation.pipe';
-import { Interval, SchedulerRegistry } from '@nestjs/schedule';
+import { Cron, Interval, SchedulerRegistry } from '@nestjs/schedule';
 import { SocketGatewayService } from '../gateway/gateway.service';
 import { CronJob } from 'cron';
 
@@ -18,7 +18,7 @@ export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
     private readonly socketGateway: SocketGatewayService,
-    private schedulerRegistry: SchedulerRegistry
+    private readonly schedulerRegistry: SchedulerRegistry,
   ) { }
 
   @Post()

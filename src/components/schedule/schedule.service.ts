@@ -1,10 +1,11 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { SchedulerRegistry } from '@nestjs/schedule';
+import { Cron, SchedulerRegistry } from '@nestjs/schedule';
 
 import { CronJob } from 'cron';
 import { LotteriesService } from 'src/lotteries/lotteries.service';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { SocketGatewayService } from '../gateway/gateway.service';
+import { addDays, addMinutes, startOfDay } from 'date-fns';
 
 
 @Injectable()
@@ -15,29 +16,45 @@ export class ScheduleService implements OnModuleInit {
         private readonly lotteriesService: LotteriesService,
         private readonly socketGateway: SocketGatewayService,
     ) { }
+
     onModuleInit() {
         console.log("init schedule");
-        this.initJob();
+        this.initJobs();
     }
 
-    initJob() {
+    initJobs() {
+        this.deleteAllJob();
         this.createJobs(45);
     }
 
     createJobs(seconds: number) {
         const time = `${(new Date()).toLocaleDateString()}, 07:00 AM`;
-        const numberOfTurns = (17 * 60 * 60) / 45;
+        const numberOfTurns = (17 * 60 * 60) / seconds;
         let date = new Date(time).getTime();
         let count = 0;
         for (let i = 0; i < numberOfTurns; i++) {
             date = date + (seconds * 1000);
             if (date > (new Date()).getTime()) {
                 count++;
-                let turn = `${(new Date()).toLocaleDateString()}-${count}`;
+                const turn = `${(new Date()).toLocaleDateString()}-${count}`;
                 this.addCronJob(turn, seconds, date);
             }
         }
+
+        const tomorrow = startOfDay(addDays(new Date(), 1));
+        const toDate = addMinutes(tomorrow, 6 * 60 + 40);
+        const numberOfTurnsTomorrow = Math.round(((toDate.getTime() - tomorrow.getTime()) / 1000) / seconds);
+
+        let tomorrowSeconds = tomorrow.getTime();
+        let countOfNextDay = 0;
+        for (let i = 0; i < numberOfTurnsTomorrow; i++) {
+            countOfNextDay++;
+            tomorrowSeconds = tomorrowSeconds + (seconds * 1000);
+            const turn = `${(tomorrow).toLocaleDateString()}-${countOfNextDay}`;
+            this.addCronJob(turn, seconds, tomorrowSeconds);
+        }
     }
+
     addCronJob(name: string, seconds: number, time: any) {
         const job = new CronJob(new Date((time)), () => {
             this.callbackFunc(name, seconds);
@@ -73,7 +90,7 @@ export class ScheduleService implements OnModuleInit {
         const prizes = this.lotteriesService.generatePrizes(dataTransform);
         const finalResult = this.lotteriesService.randomPrizes(prizes);
 
-        this.socketGateway.sendEventToClient('send-prizes-xsspl45s', {
+        this.socketGateway.sendEventToClient('xsspl45s-receive-prizes', {
             content: finalResult,
         });
     }
@@ -110,5 +127,17 @@ export class ScheduleService implements OnModuleInit {
     deleteCron(name: string) {
         this.schedulerRegistry.deleteCronJob(name);
         console.log(`job ${name} deleted!`);
+    }
+
+    deleteAllJob() {
+        const jobs = this.schedulerRegistry.getCronJobs();
+        jobs.forEach((value, key, map) => {
+            this.schedulerRegistry.deleteCronJob(key);
+        });
+    }
+
+    @Cron('40 6 * * * ')
+    cronJob() {
+        this.initJobs();
     }
 }
