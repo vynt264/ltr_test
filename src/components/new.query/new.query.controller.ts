@@ -44,8 +44,8 @@ export class NewQueryController {
   })
   // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
   // @Roles(UserRoles.SUPPER)
-  async UserWin(): Promise<any> {
-    return this.newQueryService.getListUserWin();
+  async UserWin(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
+    return this.newQueryService.getListUserWin(paginationQuery);
   }
 
   @Get("userPlaying")
@@ -57,8 +57,10 @@ export class NewQueryController {
   })
   // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
   // @Roles(UserRoles.SUPPER)
-  async UserPlaying(): Promise<any> {
-    return this.newQueryService.getListUserPlaying();
+  async UserPlaying(
+    @Query() paginationQuery: PaginationQueryDto
+  ): Promise<any> {
+    return this.newQueryService.getListUserPlaying(paginationQuery);
   }
 
   @Get("favoriteGame")
@@ -70,7 +72,9 @@ export class NewQueryController {
   })
   // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
   // @Roles(UserRoles.SUPPER)
-  async FavoriteGame(): Promise<any> {
-    return this.newQueryService.getListFavoriteGame();
+  async FavoriteGame(
+    @Query() paginationQuery: PaginationQueryDto
+  ): Promise<any> {
+    return this.newQueryService.getListFavoriteGame(paginationQuery);
   }
 }
