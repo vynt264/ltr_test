@@ -16,6 +16,7 @@ import { Transaction } from "./transaction.entity";
 import { TransFtQueue } from "./transaction.ft.queue";
 import { TransactionService } from "./transaction.service";
 import { LockModule } from "src/system/lock/lock.module";
+import { OrderRequestModule } from "../order.request/order.request.module";
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { LockModule } from "src/system/lock/lock.module";
     SysConfigsModule,
     ConnectModule,
     LockModule,
+    OrderRequestModule,
   ],
   controllers: [TransactionController],
   providers: [TransactionService],

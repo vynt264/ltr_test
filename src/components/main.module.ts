@@ -25,6 +25,7 @@ import { PromotionModule } from "./promotion/promotion.module";
 import { PromotionHistoriesModule } from "./promotion.history/promotion.history.module";
 import { CoinWalletModule } from "./coin.wallet/coin.wallet.module";
 import { CoinWalletHistoryModule } from "./coin.wallet.history/coin.wallet.history.module";
+import { TransactionModule } from "./transaction/transaction.module";
 @Module({
   imports: [
     AuthModule,
@@ -53,6 +54,7 @@ import { CoinWalletHistoryModule } from "./coin.wallet.history/coin.wallet.histo
     PromotionHistoriesModule,
     CoinWalletModule,
     CoinWalletHistoryModule,
+    TransactionModule,
   ],
 })
 export class MainModule {}
