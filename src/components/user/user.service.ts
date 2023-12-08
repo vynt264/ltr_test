@@ -115,7 +115,7 @@ export class UserService {
       user = await this.userRepository.save(createdUser);
       const wlCodeQueue = await this.walletCodeQueueRepository.save({});
       const walletCode = PrefixEnum.WALLET_CODE + wlCodeQueue.id;
-      // TODO lam torng so
+
       const walletDto = {
         walletCode: walletCode,
         user: { id: user.id },
@@ -159,6 +159,7 @@ export class UserService {
     }
     const skip = +perPage * +page - +perPage;
     const searching = await this.userRepository.findAndCount({
+      relations: ["bookmaker"],
       select: {
         id: true,
         username: true,
@@ -167,7 +168,10 @@ export class UserService {
         password: true,
         hashedRt: true,
         isBlocked: true,
-        // TODO test
+        bookmaker: {
+          id: true,
+          name: true,
+        }
       },
       where: this.holdQuery(user),
       take: +perPage,
@@ -263,7 +267,12 @@ export class UserService {
 
   async create(userDto: CreateUserDto): Promise<any> {
     try {
-      const createdUser = await this.userRepository.create(userDto);
+      const newUserReq = {
+        bookmaker: { id: userDto?.bookmakerId },
+        username: userDto?.username,
+        password: userDto?.password,
+      }
+      const createdUser = await this.userRepository.create(newUserReq);
       const user = await this.userRepository.save(createdUser);
       const { id } = user;
       return new SuccessResponse(
