@@ -57,20 +57,20 @@ export class ScheduleService implements OnModuleInit {
 
     addCronJob(name: string, seconds: number, time: any) {
         const job = new CronJob(new Date((time)), () => {
-            this.callbackFunc(name, seconds);
+            this.callbackFunc(name, seconds, time);
         });
 
         this.schedulerRegistry.addCronJob(name, job);
         job.start();
     }
 
-    async callbackFunc(jobName: string, seconds: number) {
+    async callbackFunc(jobName: string, seconds: number, time: number) {
         let data;
         switch (seconds) {
             case 45:
                 data = await this.redisService.get("xsspl45s");
                 await this.redisService.del("xsspl45s");
-                this.handleXsspl45s(data, jobName);
+                this.handleXsspl45s(data, jobName, time);
                 break;
 
             case 90:
@@ -81,7 +81,7 @@ export class ScheduleService implements OnModuleInit {
         }
     }
 
-    handleXsspl45s(data: any, jobName: string) {
+    handleXsspl45s(data: any, jobName: string, time: number) {
         this.deleteCron(jobName);
         if (!data) {
             data = [];
@@ -91,7 +91,12 @@ export class ScheduleService implements OnModuleInit {
         const finalResult = this.lotteriesService.randomPrizes(prizes);
 
         this.socketGateway.sendEventToClient('xsspl45s-receive-prizes', {
-            content: finalResult,
+            type: 'xsspl45s',
+            awardDetail: finalResult,
+            openTime: time,
+            turnIndex: "08/12/2023-312",
+            nextTime: 1702024740000,
+            nextTurnIndex: "08/12/2023-313",
         });
     }
 

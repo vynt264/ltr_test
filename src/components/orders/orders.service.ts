@@ -32,7 +32,8 @@ export class OrdersService {
     let promises = [];
     const turnIndex = this.getTurnIndex();
 
-    this.saveRedis(data.orders);
+    const bookmakerId = '1';
+    this.saveRedis(data.orders, bookmakerId);
 
     for (const order of data.orders) {
       order.turnIndex = turnIndex;
@@ -368,49 +369,21 @@ export class OrdersService {
     return numberOfBets;
   }
 
-  async saveRedis(orders: any) {
+  async saveRedis(orders: any, bookmakerId: string) {
     if (!orders || orders.length === 0) return;
 
-    const key = orders[0]?.type;
+    const key = `${orders[0]?.type}`;
     const initData = await this.initData(key);
 
     for (const order of orders) {
-      switch (order.betType) {
-        case CategoryLotteryType.BaoLo:
-          this.getOrdersBaoLo(order, initData);
-          break;
-
-        case CategoryLotteryType.DanhDe:
-          break;
-
-        case CategoryLotteryType.DauDuoi:
-          break;
-
-        case CategoryLotteryType.Lo3Cang:
-          break;
-
-        case CategoryLotteryType.Lo4Cang:
-          break;
-
-        case CategoryLotteryType.LoTruot:
-          break;
-
-        case CategoryLotteryType.LoXien:
-          break;
-
-        case CategoryLotteryType.TroChoiThuVi:
-          break;
-
-        default:
-          break;
-      }
+      this.handleOrders(order, initData);
     }
 
     // save data to redis
     await this.redisService.set(key, initData);
   }
 
-  getOrdersBaoLo(order: any, initData: any) {
+  handleOrders(order: any, initData: any) {
     if (!order) return initData;
 
     let str1;
@@ -421,6 +394,7 @@ export class OrdersService {
     let numbers3;
     let str4;
     let numbers4;
+    let numbers: string[] = [];
 
     try {
       str1 = order.detail.split('|')[0];
@@ -435,121 +409,87 @@ export class OrdersService {
 
     switch (order.childBetType) {
       case BaoLoType.Lo2So:
-        if ((order.detail.split('|').length - 1) === 1) {
-          for (const n1 of numbers1) {
-            for (const n2 of numbers2) {
-              let number = `${n1.toString()}${n2.toString()}`;
-              this.addOrder({
-                typeBet: order.betType,
-                childBetType: order.childBetType,
-                multiple: order.multiple,
-                number,
-                initData,
-              });
-            }
-          }
-        } else {
-          const numbers = order.detail.split(',');
-          for (const number of numbers) {
-            this.addOrder({
-              typeBet: order.betType,
-              childBetType: order.childBetType,
-              multiple: order.multiple,
-              number,
-              initData,
-            });
-          }
-        }
-        break;
-
       case BaoLoType.Lo2So1k:
+      case DanhDeType.DeDau:
+      case DanhDeType.DeDacBiet:
+      case DanhDeType.DeDauDuoi:
+        numbers = [];
         if ((order.detail.split('|').length - 1) === 1) {
           for (const n1 of numbers1) {
             for (const n2 of numbers2) {
-              let number = `${n1.toString()}${n2.toString()}`;
-              this.addOrder({
-                typeBet: order.betType,
-                childBetType: order.childBetType,
-                multiple: order.multiple,
-                number,
-                initData,
-              });
+              const number = `${n1.toString()}${n2.toString()}`;
+              numbers.push(number);
             }
           }
-
         } else {
-          const numbers = order.detail.split(',');
-          for (const number of numbers) {
-            this.addOrder({
-              typeBet: order.betType,
-              childBetType: order.childBetType,
-              multiple: order.multiple,
-              number,
-              initData,
-            });
-          }
+          numbers = order.detail.split(',');
+        }
+
+        for (const number of numbers) {
+          this.addOrder({
+            typeBet: order.betType,
+            childBetType: order.childBetType,
+            multiple: order.multiple,
+            number,
+            initData,
+          });
         }
         break;
 
       case BaoLoType.Lo3So:
+      case BaCangType.BaCangDau:
+      case BaCangType.BaCangDacBiet:
+      case BaCangType.BaCangDauDuoi:
+        numbers = [];
         if ((order.detail.split('|').length - 1) === 2) {
           for (const n1 of numbers1) {
             for (const n2 of numbers2) {
               for (const n3 of numbers3) {
-                let number = `${n1.toString()}${n2.toString()}${n3.toString()}`;
-                this.addOrder({
-                  typeBet: order.betType,
-                  childBetType: order.childBetType,
-                  multiple: order.multiple,
-                  number,
-                  initData,
-                });
+                const number = `${n1.toString()}${n2.toString()}${n3.toString()}`;
+                numbers.push(number);
               }
             }
           }
         } else {
-          const numbers = order.detail.split(',');
-          for (const number of numbers) {
-            this.addOrder({
-              typeBet: order.betType,
-              childBetType: order.childBetType,
-              multiple: order.multiple,
-              number,
-              initData,
-            });
-          }
+          numbers = order.detail.split(',');
+        }
+
+        for (const number of numbers) {
+          this.addOrder({
+            typeBet: order.betType,
+            childBetType: order.childBetType,
+            multiple: order.multiple,
+            number,
+            initData,
+          });
         }
         break;
 
       case BaoLoType.Lo4So:
+      case BonCangType.BonCangDacBiet:
+        numbers = [];
         if ((order.detail.split('|').length - 1) === 3) {
           for (const n1 of numbers1) {
             for (const n2 of numbers2) {
               for (const n3 of numbers3) {
                 for (const n4 of numbers4) {
-                  let number = `${n1.toString()}${n2.toString()}${n3.toString()}${n4.toString()}`;
-                  this.addOrder({
-                    typeBet: order.betType,
-                    childBetType: order.childBetType,
-                    multiple: order.multiple,
-                    number,
-                    initData,
-                  });
+                  const number = `${n1.toString()}${n2.toString()}${n3.toString()}${n4.toString()}`;
+                  numbers.push(number);
                 }
               }
             }
           }
         } else {
-          const numbers = order.detail.split(',');
-          for (const number of numbers) {
-            this.addOrder({
-              typeBet: order.betType,
-              childBetType: order.childBetType,
-              multiple: order.multiple,
-              number,
-              initData,
-            });
-          }
+          numbers = order.detail.split(',');
+        }
+        for (const number of numbers) {
+          this.addOrder({
+            typeBet: order.betType,
+            childBetType: order.childBetType,
+            multiple: order.multiple,
+            number,
+            initData,
+          });
         }
         break;
 
@@ -631,5 +571,5 @@ export class OrdersService {
 
     return data;
   }
-  
+
 }
