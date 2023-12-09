@@ -41,6 +41,7 @@ export class OrdersService {
       order.betTypeName = this.getCategoryLotteryTypeName(order.betType);
       order.childBetTypeName = this.getBetTypeName(order.childBetType);
       order.seconds = this.getPlayingTimeByType(order.type);
+      order.type = this.getTypeLottery(order.type);
       order.numberOfBets = this.getNumberOfBets(order.childBetType, order.detail);
 
       promises.push(this.orderRequestRepository.save(order));
@@ -300,6 +301,25 @@ export class OrdersService {
     }
 
     return seconds;
+  }
+
+  getTypeLottery(type: string) {
+    let typeLottery;
+    switch (type) {
+      case TypeLottery.XSMB_1S:
+      case TypeLottery.XSMB_45S:
+      case TypeLottery.XSMB_180S:
+        typeLottery = 'xsmb';
+        break;
+
+      case TypeLottery.XSMT_1S:
+      case TypeLottery.XSMT_45S:
+      case TypeLottery.XSMT_180S:
+        typeLottery = 'xsmt';
+        break;
+    }
+
+    return typeLottery;
   }
 
   getTurnIndex() {
