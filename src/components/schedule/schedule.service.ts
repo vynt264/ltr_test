@@ -30,14 +30,17 @@ export class ScheduleService implements OnModuleInit {
     createJobs(seconds: number) {
         const time = `${(new Date()).toLocaleDateString()}, 07:00 AM`;
         const numberOfTurns = (17 * 60 * 60) / seconds;
-        let date = new Date(time).getTime();
+        let timeRunJob = new Date(time).getTime();
         let count = 0;
         for (let i = 0; i < numberOfTurns; i++) {
-            date = date + (seconds * 1000);
-            if (date > (new Date()).getTime()) {
+            timeRunJob = timeRunJob + (seconds * 1000);
+            if (timeRunJob > (new Date()).getTime()) {
                 count++;
-                const turn = `${(new Date()).toLocaleDateString()}-${count}`;
-                this.addCronJob(turn, seconds, date);
+                const jobName = `${(new Date()).toLocaleDateString()}-${count}`;
+                const turnIndex = `${(new Date()).toLocaleDateString()}-${count}`;
+                const nextTurnIndex = `${(new Date()).toLocaleDateString()}-${count + 1}`;
+                const nextTime = (timeRunJob + (seconds * 1000));
+                this.addCronJob(jobName, seconds, timeRunJob, turnIndex, nextTurnIndex, nextTime);
             }
         }
 
@@ -50,27 +53,30 @@ export class ScheduleService implements OnModuleInit {
         for (let i = 0; i < numberOfTurnsTomorrow; i++) {
             countOfNextDay++;
             tomorrowSeconds = tomorrowSeconds + (seconds * 1000);
-            const turn = `${(tomorrow).toLocaleDateString()}-${countOfNextDay}`;
-            this.addCronJob(turn, seconds, tomorrowSeconds);
+            const jobName = `${(tomorrow).toLocaleDateString()}-${countOfNextDay}`;
+            const turnIndex = `${(new Date()).toLocaleDateString()}-${countOfNextDay}`;
+            const nextTurnIndex = `${(new Date()).toLocaleDateString()}-${countOfNextDay + 1}`;
+            const nextTime = (timeRunJob + (seconds * 1000));
+            this.addCronJob(jobName, seconds, tomorrowSeconds, turnIndex, nextTurnIndex, nextTime);
         }
     }
 
-    addCronJob(name: string, seconds: number, time: any) {
+    addCronJob(name: string, seconds: number, time: any, turnIndex: string, nextTurnIndex: string, nextTime: number) {
         const job = new CronJob(new Date((time)), () => {
-            this.callbackFunc(name, seconds, time);
+            this.callbackFunc(name, seconds, time, turnIndex, nextTurnIndex, nextTime);
         });
 
         this.schedulerRegistry.addCronJob(name, job);
         job.start();
     }
 
-    async callbackFunc(jobName: string, seconds: number, time: number) {
+    async callbackFunc(jobName: string, seconds: number, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
         let data;
         switch (seconds) {
             case 45:
                 data = await this.redisService.get("xsspl45s");
                 await this.redisService.del("xsspl45s");
-                this.handleXsspl45s(data, jobName, time);
+                this.handleXsspl45s(data, jobName, time, turnIndex, nextTurnIndex, nextTime);
                 break;
 
             case 90:
@@ -81,7 +87,7 @@ export class ScheduleService implements OnModuleInit {
         }
     }
 
-    handleXsspl45s(data: any, jobName: string, time: number) {
+    handleXsspl45s(data: any, jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
         this.deleteCron(jobName);
         if (!data) {
             data = [];
@@ -92,11 +98,11 @@ export class ScheduleService implements OnModuleInit {
 
         this.socketGateway.sendEventToClient('xsspl45s-receive-prizes', {
             type: 'xsspl45s',
-            awardDetail: finalResult,
+            turnIndex,
+            nextTime,
+            nextTurnIndex,
             openTime: time,
-            turnIndex: "08/12/2023-312",
-            nextTime: 1702024740000,
-            nextTurnIndex: "08/12/2023-313",
+            awardDetail: finalResult,
         });
     }
 
