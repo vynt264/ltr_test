@@ -7,7 +7,7 @@ import { User } from '../user/user.entity';
 import { ListOrderRequestDto } from '../order.request/dto/create.list.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderRequest } from '../order.request/order.request.entity';
-import { Between, Repository } from 'typeorm';
+import { Between, LessThanOrEqual, MoreThan, Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
@@ -26,8 +26,6 @@ export class OrdersService {
   ) { }
 
   async create(data: CreateListOrdersDto, member: User) {
-    const fromDate = startOfDay(new Date()).getTime();
-    const toDate = (new Date()).getTime();
     let result: any;
     let promises = [];
     const turnIndex = this.getTurnIndex();
@@ -61,7 +59,17 @@ export class OrdersService {
   }
 
   async findAll(paginationDto: PaginationQueryDto) {
-    let { take: perPage, skip: page, order, type, seconds } = paginationDto;
+    let {
+      take: perPage,
+      skip: page,
+      order,
+      type,
+      seconds,
+      date,
+      status,
+      fromDate,
+      toDate,
+    } = paginationDto;
 
     if (!perPage || perPage <= 0) {
       perPage = 10;
@@ -73,23 +81,44 @@ export class OrdersService {
     if (!page || page <= 0) {
       page = 1;
     }
+
     const skip = +perPage * +page - +perPage;
+    let fromD = startOfDay(new Date(date));
+    let toD = endOfDay(new Date(date));
 
-    const fromDate = startOfDay(new Date(paginationDto.date));
-    const toDate = endOfDay(new Date(paginationDto.date));
+    if (date) {
+      fromD = startOfDay(new Date(date));
+      toD = endOfDay(new Date(date));
+    } else {
+      if (fromDate) {
+        fromD = startOfDay(new Date(fromDate));
+      }
+      if (toDate) {
+        toD = endOfDay(new Date(toDate));
+      }
+    }
+
     const condition: any = {};
+    if (status) {
+      condition.status = status;
+    }
 
-    if (paginationDto.status) {
-      condition.status = paginationDto.status;
+    if (fromDate && toDate) {
+      condition.createdAt = Between(fromD, toD);
+    } else {
+      if (fromD) {
+        condition.createdAt = MoreThan(fromD);
+      }
+      if (toD) {
+        condition.createdAt = LessThanOrEqual(fromD);
+      }
     }
-    if (paginationDto.date) {
-      condition.createdAt = Between(fromDate, toDate);
+
+    if (seconds) {
+      condition.seconds = seconds;
     }
-    if (paginationDto.seconds) {
-      condition.seconds = paginationDto.seconds;
-    }
-    if (paginationDto.type) {
-      condition.type = paginationDto.type;
+    if (type) {
+      condition.type = type;
     }
 
     const [orders, total] = await this.orderRequestRepository.findAndCount({
