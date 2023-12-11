@@ -41,6 +41,7 @@ export class OrdersService {
       order.seconds = this.getPlayingTimeByType(order.type);
       order.type = this.getTypeLottery(order.type);
       order.numberOfBets = this.getNumberOfBets(order.childBetType, order.detail);
+      order.user = member;
 
       promises.push(this.orderRequestRepository.save(order));
 
@@ -83,19 +84,12 @@ export class OrdersService {
     }
 
     const skip = +perPage * +page - +perPage;
-    let fromD = startOfDay(new Date(date));
-    let toD = endOfDay(new Date(date));
+    let fromD;
+    let toD;
 
     if (date) {
       fromD = startOfDay(new Date(date));
       toD = endOfDay(new Date(date));
-    } else {
-      if (fromDate) {
-        fromD = startOfDay(new Date(fromDate));
-      }
-      if (toDate) {
-        toD = endOfDay(new Date(toDate));
-      }
     }
 
     const condition: any = {};
@@ -103,15 +97,8 @@ export class OrdersService {
       condition.status = status;
     }
 
-    if (fromDate && toDate) {
+    if (fromD && toD) {
       condition.createdAt = Between(fromD, toD);
-    } else {
-      if (fromD) {
-        condition.createdAt = MoreThan(fromD);
-      }
-      if (toD) {
-        condition.createdAt = LessThanOrEqual(fromD);
-      }
     }
 
     if (seconds) {
@@ -345,6 +332,21 @@ export class OrdersService {
       case TypeLottery.XSMT_45S:
       case TypeLottery.XSMT_180S:
         typeLottery = 'xsmt';
+        break;
+
+      case TypeLottery.XSMN_1S:
+      case TypeLottery.XSMN_45S:
+      case TypeLottery.XSMN_180S:
+        typeLottery = 'xsmn';
+        break;
+
+      case TypeLottery.XSSPL_1S:
+      case TypeLottery.XSSPL_45S:
+      case TypeLottery.XSSPL_60S:
+      case TypeLottery.XSSPL_90S:
+      case TypeLottery.XSSPL_120S:
+      case TypeLottery.XSSPL_360S:
+        typeLottery = 'xsspl';
         break;
     }
 
