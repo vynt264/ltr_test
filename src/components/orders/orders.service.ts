@@ -59,7 +59,7 @@ export class OrdersService {
     return result;
   }
 
-  async findAll(paginationDto: PaginationQueryDto) {
+  async findAll(paginationDto: PaginationQueryDto, member: User) {
     let {
       take: perPage,
       skip: page,
@@ -92,7 +92,9 @@ export class OrdersService {
       toD = endOfDay(new Date(date));
     }
 
-    const condition: any = {};
+    const condition: any = {
+      user: member,
+    };
     if (status) {
       condition.status = status;
     }

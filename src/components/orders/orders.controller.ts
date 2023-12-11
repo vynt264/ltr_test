@@ -29,8 +29,8 @@ export class OrdersController {
 
   @Get()
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  findAll(@Query() paginationDto: PaginationQueryDto): Promise<any> {
-    return this.ordersService.findAll(paginationDto);
+  findAll(@Query() paginationDto: PaginationQueryDto, @Request() req: any): Promise<any> {
+    return this.ordersService.findAll(paginationDto, req.user);
   }
 
   @Get('get-turn-index')
