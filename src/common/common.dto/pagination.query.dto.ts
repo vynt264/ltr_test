@@ -42,4 +42,12 @@ export class PaginationQueryDto implements Paging {
   @IsOptional()
   @IsNumber()
   seconds: number;
+
+  @IsOptional()
+  @IsString()
+  fromDate: string;
+
+  @IsOptional()
+  @IsString()
+  toDate: string;
 }

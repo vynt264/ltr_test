@@ -7,7 +7,7 @@ import { User } from '../user/user.entity';
 import { ListOrderRequestDto } from '../order.request/dto/create.list.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderRequest } from '../order.request/order.request.entity';
-import { Between, Repository } from 'typeorm';
+import { Between, LessThanOrEqual, MoreThan, Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
@@ -26,13 +26,12 @@ export class OrdersService {
   ) { }
 
   async create(data: CreateListOrdersDto, member: User) {
-    const fromDate = startOfDay(new Date()).getTime();
-    const toDate = (new Date()).getTime();
     let result: any;
     let promises = [];
     const turnIndex = this.getTurnIndex();
 
-    this.saveRedis(data.orders);
+    const bookmakerId = '1';
+    this.saveRedis(data.orders, bookmakerId);
 
     for (const order of data.orders) {
       order.turnIndex = turnIndex;
@@ -40,7 +39,9 @@ export class OrdersService {
       order.betTypeName = this.getCategoryLotteryTypeName(order.betType);
       order.childBetTypeName = this.getBetTypeName(order.childBetType);
       order.seconds = this.getPlayingTimeByType(order.type);
+      order.type = this.getTypeLottery(order.type);
       order.numberOfBets = this.getNumberOfBets(order.childBetType, order.detail);
+      order.user = member;
 
       promises.push(this.orderRequestRepository.save(order));
 
@@ -58,8 +59,18 @@ export class OrdersService {
     return result;
   }
 
-  async findAll(paginationDto: PaginationQueryDto) {
-    let { take: perPage, skip: page, order, type, seconds } = paginationDto;
+  async findAll(paginationDto: PaginationQueryDto, member: User) {
+    let {
+      take: perPage,
+      skip: page,
+      order,
+      type,
+      seconds,
+      date,
+      status,
+      fromDate,
+      toDate,
+    } = paginationDto;
 
     if (!perPage || perPage <= 0) {
       perPage = 10;
@@ -71,23 +82,32 @@ export class OrdersService {
     if (!page || page <= 0) {
       page = 1;
     }
+
     const skip = +perPage * +page - +perPage;
+    let fromD;
+    let toD;
 
-    const fromDate = startOfDay(new Date(paginationDto.date));
-    const toDate = endOfDay(new Date(paginationDto.date));
-    const condition: any = {};
+    if (date) {
+      fromD = startOfDay(new Date(date));
+      toD = endOfDay(new Date(date));
+    }
 
-    if (paginationDto.status) {
-      condition.status = paginationDto.status;
+    const condition: any = {
+      user: member,
+    };
+    if (status) {
+      condition.status = status;
     }
-    if (paginationDto.date) {
-      condition.createdAt = Between(fromDate, toDate);
+
+    if (fromD && toD) {
+      condition.createdAt = Between(fromD, toD);
     }
-    if (paginationDto.seconds) {
-      condition.seconds = paginationDto.seconds;
+
+    if (seconds) {
+      condition.seconds = seconds;
     }
-    if (paginationDto.type) {
-      condition.type = paginationDto.type;
+    if (type) {
+      condition.type = type;
     }
 
     const [orders, total] = await this.orderRequestRepository.findAndCount({
@@ -301,6 +321,40 @@ export class OrdersService {
     return seconds;
   }
 
+  getTypeLottery(type: string) {
+    let typeLottery;
+    switch (type) {
+      case TypeLottery.XSMB_1S:
+      case TypeLottery.XSMB_45S:
+      case TypeLottery.XSMB_180S:
+        typeLottery = 'xsmb';
+        break;
+
+      case TypeLottery.XSMT_1S:
+      case TypeLottery.XSMT_45S:
+      case TypeLottery.XSMT_180S:
+        typeLottery = 'xsmt';
+        break;
+
+      case TypeLottery.XSMN_1S:
+      case TypeLottery.XSMN_45S:
+      case TypeLottery.XSMN_180S:
+        typeLottery = 'xsmn';
+        break;
+
+      case TypeLottery.XSSPL_1S:
+      case TypeLottery.XSSPL_45S:
+      case TypeLottery.XSSPL_60S:
+      case TypeLottery.XSSPL_90S:
+      case TypeLottery.XSSPL_120S:
+      case TypeLottery.XSSPL_360S:
+        typeLottery = 'xsspl';
+        break;
+    }
+
+    return typeLottery;
+  }
+
   getTurnIndex() {
     const fromDate = startOfDay(new Date()).getTime();
     const toDate = (new Date()).getTime();
@@ -368,49 +422,21 @@ export class OrdersService {
     return numberOfBets;
   }
 
-  async saveRedis(orders: any) {
+  async saveRedis(orders: any, bookmakerId: string) {
     if (!orders || orders.length === 0) return;
 
-    const key = orders[0]?.type;
+    const key = `${orders[0]?.type}`;
     const initData = await this.initData(key);
 
     for (const order of orders) {
-      switch (order.betType) {
-        case CategoryLotteryType.BaoLo:
-          this.getOrdersBaoLo(order, initData);
-          break;
-
-        case CategoryLotteryType.DanhDe:
-          break;
-
-        case CategoryLotteryType.DauDuoi:
-          break;
-
-        case CategoryLotteryType.Lo3Cang:
-          break;
-
-        case CategoryLotteryType.Lo4Cang:
-          break;
-
-        case CategoryLotteryType.LoTruot:
-          break;
-
-        case CategoryLotteryType.LoXien:
-          break;
-
-        case CategoryLotteryType.TroChoiThuVi:
-          break;
-
-        default:
-          break;
-      }
+      this.handleOrders(order, initData);
     }
 
     // save data to redis
     await this.redisService.set(key, initData);
   }
 
-  getOrdersBaoLo(order: any, initData: any) {
+  handleOrders(order: any, initData: any) {
     if (!order) return initData;
 
     let str1;
@@ -421,6 +447,7 @@ export class OrdersService {
     let numbers3;
     let str4;
     let numbers4;
+    let numbers: string[] = [];
 
     try {
       str1 = order.detail.split('|')[0];
@@ -435,121 +462,87 @@ export class OrdersService {
 
     switch (order.childBetType) {
       case BaoLoType.Lo2So:
-        if ((order.detail.split('|').length - 1) === 1) {
-          for (const n1 of numbers1) {
-            for (const n2 of numbers2) {
-              let number = `${n1.toString()}${n2.toString()}`;
-              this.addOrder({
-                typeBet: order.betType,
-                childBetType: order.childBetType,
-                multiple: order.multiple,
-                number,
-                initData,
-              });
-            }
-          }
-        } else {
-          const numbers = order.detail.split(',');
-          for (const number of numbers) {
-            this.addOrder({
-              typeBet: order.betType,
-              childBetType: order.childBetType,
-              multiple: order.multiple,
-              number,
-              initData,
-            });
-          }
-        }
-        break;
-
       case BaoLoType.Lo2So1k:
+      case DanhDeType.DeDau:
+      case DanhDeType.DeDacBiet:
+      case DanhDeType.DeDauDuoi:
+        numbers = [];
         if ((order.detail.split('|').length - 1) === 1) {
           for (const n1 of numbers1) {
             for (const n2 of numbers2) {
-              let number = `${n1.toString()}${n2.toString()}`;
-              this.addOrder({
-                typeBet: order.betType,
-                childBetType: order.childBetType,
-                multiple: order.multiple,
-                number,
-                initData,
-              });
+              const number = `${n1.toString()}${n2.toString()}`;
+              numbers.push(number);
             }
           }
-
         } else {
-          const numbers = order.detail.split(',');
-          for (const number of numbers) {
-            this.addOrder({
-              typeBet: order.betType,
-              childBetType: order.childBetType,
-              multiple: order.multiple,
-              number,
-              initData,
-            });
-          }
+          numbers = order.detail.split(',');
+        }
+
+        for (const number of numbers) {
+          this.addOrder({
+            typeBet: order.betType,
+            childBetType: order.childBetType,
+            multiple: order.multiple,
+            number,
+            initData,
+          });
         }
         break;
 
       case BaoLoType.Lo3So:
+      case BaCangType.BaCangDau:
+      case BaCangType.BaCangDacBiet:
+      case BaCangType.BaCangDauDuoi:
+        numbers = [];
         if ((order.detail.split('|').length - 1) === 2) {
           for (const n1 of numbers1) {
             for (const n2 of numbers2) {
               for (const n3 of numbers3) {
-                let number = `${n1.toString()}${n2.toString()}${n3.toString()}`;
-                this.addOrder({
-                  typeBet: order.betType,
-                  childBetType: order.childBetType,
-                  multiple: order.multiple,
-                  number,
-                  initData,
-                });
+                const number = `${n1.toString()}${n2.toString()}${n3.toString()}`;
+                numbers.push(number);
               }
             }
           }
         } else {
-          const numbers = order.detail.split(',');
-          for (const number of numbers) {
-            this.addOrder({
-              typeBet: order.betType,
-              childBetType: order.childBetType,
-              multiple: order.multiple,
-              number,
-              initData,
-            });
-          }
+          numbers = order.detail.split(',');
+        }
+
+        for (const number of numbers) {
+          this.addOrder({
+            typeBet: order.betType,
+            childBetType: order.childBetType,
+            multiple: order.multiple,
+            number,
+            initData,
+          });
         }
         break;
 
       case BaoLoType.Lo4So:
+      case BonCangType.BonCangDacBiet:
+        numbers = [];
         if ((order.detail.split('|').length - 1) === 3) {
           for (const n1 of numbers1) {
             for (const n2 of numbers2) {
               for (const n3 of numbers3) {
                 for (const n4 of numbers4) {
-                  let number = `${n1.toString()}${n2.toString()}${n3.toString()}${n4.toString()}`;
-                  this.addOrder({
-                    typeBet: order.betType,
-                    childBetType: order.childBetType,
-                    multiple: order.multiple,
-                    number,
-                    initData,
-                  });
+                  const number = `${n1.toString()}${n2.toString()}${n3.toString()}${n4.toString()}`;
+                  numbers.push(number);
                 }
               }
             }
           }
         } else {
-          const numbers = order.detail.split(',');
-          for (const number of numbers) {
-            this.addOrder({
-              typeBet: order.betType,
-              childBetType: order.childBetType,
-              multiple: order.multiple,
-              number,
-              initData,
-            });
-          }
+          numbers = order.detail.split(',');
+        }
+        for (const number of numbers) {
+          this.addOrder({
+            typeBet: order.betType,
+            childBetType: order.childBetType,
+            multiple: order.multiple,
+            number,
+            initData,
+          });
         }
         break;
 
@@ -631,5 +624,5 @@ export class OrdersService {
 
     return data;
   }
-  
+
 }
