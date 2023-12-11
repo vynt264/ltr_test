@@ -28,6 +28,9 @@ import { NewQueryService } from "./new.query.sevice";
 import { PaginationQueryDto } from "./../../common/common.dto/pagination.query.dto";
 import { UserRoles } from "../user/enums/user.enum";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
+import { DataFake } from "./data.fake.entity";
+import { CreateDataFakeRequestDto } from "./dto/create.data.fake.dto";
+import { UpdateDataFakeRequestDto } from "./dto";
 @Controller("/api/v1/newQuery")
 @ApiTags("NewQuery")
 @ApiBearerAuth("Authorization")
@@ -76,5 +79,48 @@ export class NewQueryController {
     @Query() paginationQuery: PaginationQueryDto
   ): Promise<any> {
     return this.newQueryService.getListFavoriteGame(paginationQuery);
+  }
+
+  @Post("dataFake/create")
+  @ApiOperation({
+    description: "Create data fake",
+  })
+  @ApiOkResponse({
+    type: Response<DataFake>,
+  })
+  @ApiBearerAuth("Authorization")
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @Roles(UserRoles.SUPPER)
+  async create(@Body() createDto: CreateDataFakeRequestDto): Promise<any> {
+    return this.newQueryService.createDataFake(createDto);
+  }
+
+  @Patch("dataFake/:id")
+  @ApiOperation({
+    description: "Update data fake",
+  })
+  @ApiOkResponse({
+    type: Response<DataFake>,
+  })
+  @UsePipes(ValidationPipe)
+  @ApiBearerAuth("Authorization")
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @Roles(UserRoles.SUPPER)
+  async updateGame(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateDto: UpdateDataFakeRequestDto
+  ): Promise<any> {
+    return this.newQueryService.updateDataFake(id, updateDto);
+  }
+
+  @Delete("dataFake/:id")
+  @ApiOperation({
+    description: "Delete data fake",
+  })
+  @ApiBearerAuth("Authorization")
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @Roles(UserRoles.SUPPER)
+  async delete(@Param("id") id: number): Promise<any> {
+    return this.newQueryService.deleteDataFake(id);
   }
 }

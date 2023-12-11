@@ -9,12 +9,17 @@ import {
 import { ERROR, MESSAGE, STATUSCODE } from "../../system/constants";
 import { Between, Like, MoreThan, Repository } from "typeorm";
 import { Logger } from "winston";
-import { OrderRequest } from "../order.request/order.request.entity";
-
+import { Order } from "../orders/entities/order.entity";
+import { DataFake } from "./data.fake.entity";
+import { CreateDataFakeRequestDto } from "./dto/create.data.fake.dto";
+import { UpdateDataFakeRequestDto } from "./dto";
+import { KeyMode } from "./enums/key.mode.enum";
 export class NewQueryService {
   constructor(
-    @InjectRepository(OrderRequest)
-    private orderRequestRepository: Repository<OrderRequest>,
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>,
+    @InjectRepository(DataFake)
+    private dataFakeRepository: Repository<DataFake>,
     @Inject("winston")
     private readonly logger: Logger
   ) {}
@@ -27,7 +32,8 @@ export class NewQueryService {
     }
     const skip = +perPage * +page - +perPage;
     try {
-      const listData = await this.orderRequestRepository.findAndCount({
+      let listData: any = [];
+      const listDataReal = await this.orderRepository.findAndCount({
         relations: ["user"],
         select: {
           user: {
@@ -40,7 +46,29 @@ export class NewQueryService {
         },
         take: +perPage,
         skip,
+        order: {
+          createdAt: "DESC"
+        }
       });
+
+      const limitDataFake = Number(perPage) - listDataReal[1];
+      if (limitDataFake <= Number(perPage)) {
+        const dataFake: any = await this.dataFakeRepository.findAndCount({
+          where: {
+            keyMode: KeyMode.USER_WIN,
+          },
+          take: +limitDataFake,
+          skip,
+          order: {
+            id: "DESC"
+          }
+        });
+
+        listData = listDataReal[0].concat(dataFake[0]);
+      } else {
+        listData = listDataReal[0];
+      }
+
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
         listData,
@@ -66,7 +94,8 @@ export class NewQueryService {
     }
     const skip = +perPage * +page - +perPage;
     try {
-      const listData = await this.orderRequestRepository.findAndCount({
+      let listData: any = [];
+      const listDataReal = await this.orderRepository.findAndCount({
         relations: ["user"],
         select: {
           user: {
@@ -77,9 +106,28 @@ export class NewQueryService {
         take: +perPage,
         skip,
         order: {
-          id: "DESC",
+          createdAt: "DESC",
         },
       });
+
+      const limitDataFake = Number(perPage) - listDataReal[1];
+      if (limitDataFake <= Number(perPage)) {
+        const dataFake: any = await this.dataFakeRepository.findAndCount({
+          where: {
+            keyMode: KeyMode.USER_PLAYING,
+          },
+          take: +limitDataFake,
+          skip,
+          order: {
+            id: "DESC"
+          }
+        });
+
+        listData = listDataReal[0].concat(dataFake[0]);
+      } else {
+        listData = listDataReal[0];
+      }
+
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
         listData,
@@ -104,8 +152,9 @@ export class NewQueryService {
     }
     const skip = +perPage * +page - +perPage;
     try {
-      const listData = await this.orderRequestRepository
-        .createQueryBuilder("entity") // Đặt alias cho thực thể
+      let listData: any = []
+      const listDataReal = await this.orderRepository
+        .createQueryBuilder("entity")
         .select("entity.type as gameType")
         .addSelect("COUNT(*) as count")
         .addSelect("SUM(entity.revenue) as totalBet")
@@ -113,6 +162,31 @@ export class NewQueryService {
         .skip(skip)
         .take(perPage)
         .getRawMany();
+
+      listData = listDataReal;
+      const limitDataFake = Number(perPage) - listDataReal.length;
+      if (limitDataFake <= Number(perPage)) {
+        const dataFake: any = await this.dataFakeRepository.findAndCount({
+          where: {
+            keyMode: KeyMode.FAVORITE_GAME,
+          },
+          take: +limitDataFake,
+          skip,
+          order: {
+            id: "DESC"
+          }
+        });
+
+        dataFake[0]?.map((fake: any) => {
+          const newData = {
+            gameType: fake?.gameType,
+            count: fake?.numbPlayer,
+            totalBet: fake?.totalBet
+          }
+          listData.push(newData);
+        })
+      }
+
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
         listData,
@@ -126,6 +200,103 @@ export class NewQueryService {
         STATUSCODE.COMMON_FAILED,
         error,
         MESSAGE.LIST_FAILED
+      );
+    }
+  }
+
+  async createDataFake(createDto: CreateDataFakeRequestDto) {
+    try {
+      const createdDto = await this.dataFakeRepository.create(createDto);
+      const dataFake = await this.dataFakeRepository.save(createdDto);
+      const { id } = dataFake;
+      return new SuccessResponse(
+        STATUSCODE.COMMON_CREATE_SUCCESS,
+        { id },
+        MESSAGE.CREATE_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${NewQueryService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        ERROR.CREATE_FAILED
+      );
+    }
+  }
+
+  async updateDataFake(
+    id: number,
+    updateDto: UpdateDataFakeRequestDto
+  ): Promise<any> {
+    try {
+      let foundDtoUp = await this.dataFakeRepository.findOneBy({
+        id,
+      });
+
+      if (!foundDtoUp) {
+        return new ErrorResponse(
+          STATUSCODE.COMMON_NOT_FOUND,
+          `Data fake with id: ${id} not found!`,
+          ERROR.NOT_FOUND
+        );
+      }
+
+      if (updateDto) {
+        foundDtoUp = {
+          ...foundDtoUp,
+          ...updateDto,
+        };
+      }
+
+      await this.dataFakeRepository.save(foundDtoUp);
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_UPDATE_SUCCESS,
+        foundDtoUp,
+        MESSAGE.UPDATE_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${NewQueryService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        ERROR.UPDATE_FAILED
+      );
+    }
+  }
+
+  async deleteDataFake(id: number): Promise<any> {
+    try {
+      const foundUser = await this.dataFakeRepository.findOneBy({
+        id,
+      });
+
+      if (!foundUser) {
+        return new ErrorResponse(
+          STATUSCODE.COMMON_NOT_FOUND,
+          `Data fake with id: ${id} not found!`,
+          ERROR.NOT_FOUND
+        );
+      }
+      await this.dataFakeRepository.delete(id);
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_DELETE_SUCCESS,
+        `Data fake has deleted id: ${id} success!`,
+        MESSAGE.DELETE_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${NewQueryService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        ERROR.DELETE_FAILED
       );
     }
   }

@@ -6,17 +6,16 @@ import { NewQueryController } from "./new.query.controller";
 import { NewQueryService } from "./new.query.sevice";
 import { SysConfigsModule } from "../sys.config/sys.config.module";
 import { ConnectModule } from "../connect/connect.module";
-import { OrderRequestModule } from "../order.request/order.request.module";
-import { OrderRequest } from "../order.request/order.request.entity";
+import { Order } from "../orders/entities/order.entity";
+import { DataFake } from "./data.fake.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([OrderRequest]),
+    TypeOrmModule.forFeature([DataFake, Order]),
     BacklistModule,
     UserModule,
     SysConfigsModule,
     ConnectModule,
-    OrderRequestModule,
   ],
   controllers: [NewQueryController],
   providers: [NewQueryService],
