@@ -95,6 +95,21 @@ export class UserInfoController {
     return this.userInfoService.update(id, updateDto);
   }
 
+  @Patch(":id")
+  @ApiOperation({
+    description: "Update nickname",
+  })
+  @ApiOkResponse({
+    type: Response<UserInfo>,
+  })
+  @UsePipes(ValidationPipe)
+  async updateNickname(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateNicknameDto: any
+  ): Promise<any> {
+    return this.userInfoService.updateNickname(id, updateNicknameDto);
+  }
+
   @Delete(":id")
   @ApiOperation({
     description: "Delete user info",

@@ -14,6 +14,9 @@ export class UserInfo {
   user: User;
 
   @Column({ nullable: true })
+  nickname: string;
+
+  @Column({ nullable: true })
   avatar: string;
 
   @Column({

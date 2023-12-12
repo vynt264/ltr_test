@@ -61,6 +61,7 @@ export class AuthService {
       username: user.username,
       role: user.role,
       isAuth: true,
+      nickname: user.username,
     };
 
     let userHistoryDto = new CreateUserHistoryDto();
@@ -109,6 +110,7 @@ export class AuthService {
       username: user.username,
       role: user.role,
       isAuth: userFInd.isAuth,
+      nickname: user.username,
     };
 
     let userHistoryDto = new CreateUserHistoryDto();
@@ -222,6 +224,7 @@ export class AuthService {
       await this.userService.createWallet(user);
       const userInfoDt: any = {
         avatar: null,
+        nickname: username,
         user: { id: user.id },
         sumBet: 0,
         sumOrder: 0,

@@ -3,4 +3,5 @@ export interface JwtPayload {
   sub: number;
   role: string;
   isAuth: boolean;
+  nickname: string;
 }

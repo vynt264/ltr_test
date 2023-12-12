@@ -127,10 +127,47 @@ export class UserInfoService {
     }
   }
 
-  async update(
-    id: number,
-    userInfoDto: UpdateUserInfoDto,
-  ): Promise<any> {
+  async updateNickname(id: number, updateNicknameDto: any): Promise<any> {
+    try {
+      let foundUserInfo = await this.userInfoRepository.findOneBy({
+        id,
+      });
+
+      if (!foundUserInfo) {
+        return new ErrorResponse(
+          STATUSCODE.COMMON_NOT_FOUND,
+          `UserInfo with id: ${id} not found!`,
+          ERROR.NOT_FOUND
+        );
+      }
+
+      if (updateNicknameDto) {
+        foundUserInfo = {
+          ...foundUserInfo,
+          nickname: updateNicknameDto?.nickname,
+        };
+      }
+
+      await this.userInfoRepository.save(foundUserInfo);
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_UPDATE_SUCCESS,
+        "",
+        MESSAGE.UPDATE_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${UserInfoService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        ERROR.UPDATE_FAILED
+      );
+    }
+  }
+
+  async update(id: number, userInfoDto: UpdateUserInfoDto): Promise<any> {
     try {
       let foundUserInfo = await this.userInfoRepository.findOneBy({
         id,

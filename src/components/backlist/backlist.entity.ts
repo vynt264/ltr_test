@@ -10,7 +10,7 @@ export class Backlist {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Column({ nullable: false })
+  @Column({ type: "text", nullable: false })
   public acToken: string;
 
   @Column({

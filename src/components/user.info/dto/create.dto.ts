@@ -6,6 +6,10 @@ export class CreateUserInfoDto {
   avatar: string;
 
   @ApiProperty()
+  @IsString()
+  nickname: string;
+
+  @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
   sumBet: number;
