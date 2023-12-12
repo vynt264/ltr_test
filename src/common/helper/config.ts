@@ -15,6 +15,10 @@ export class ConfigSys {
         deposit: process.env.DEPOSIT || 500,
         sign: process.env.SIGN_8B_DEV || "",
         signUserName: process.env.SIGN_USERNAME_DEV || "",
+        accessKeyId: process.env.ACCESS_KEY_ID || "",
+        secretAccessKey: process.env.SECRET_ACCESS_KEY || "",
+        region: process.env.REGION || "",
+        bucketAvatar: process.env.BUCKET_AVATAR || "",
       };
     }
 
@@ -29,6 +33,10 @@ export class ConfigSys {
         deposit: process.env.DEPOSIT || 500,
         sign: process.env.SIGN_8B_PRO || "",
         signUserName: process.env.SIGN_USERNAME_DEV || "",
+        accessKeyId: process.env.ACCESS_KEY_ID || "",
+        secretAccessKey: process.env.SECRET_ACCESS_KEY || "",
+        region: process.env.REGION || "",
+        bucketAvatar: process.env.BUCKET_AVATAR || "",
       };
     }
 

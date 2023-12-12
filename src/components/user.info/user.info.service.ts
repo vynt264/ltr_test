@@ -14,6 +14,7 @@ import { UserInfo } from "./user.info.entity";
 import { UserService } from "../user/user.service";
 import { ConnectService } from "../connect/connect.service";
 import { OrderRequestService } from "../order.request/order.request.service";
+import { UploadS3Service } from "../upload.s3/upload.s3.service";
 @Injectable()
 export class UserInfoService { 
 
@@ -25,6 +26,7 @@ export class UserInfoService {
     private userService: UserService,
     private connectService: ConnectService,
     private orderRequestService: OrderRequestService,
+    private uploadS3Service: UploadS3Service,
   ) { }
 
   async getAll(): Promise<any> {
@@ -235,6 +237,41 @@ export class UserInfoService {
         STATUSCODE.COMMON_FAILED,
         error,
         ERROR.DELETE_FAILED
+      );
+    }
+  }
+
+  async uploadAvatar(image: Express.Multer.File): Promise<any> {
+    try {
+      const allowedExtensions = ["image/png", "image/jpg", "image/jpeg"];
+      const maxSize = 2 * 1024 * 1024; // 2MB
+      const mimeType = image?.mimetype;
+
+      if (!allowedExtensions.includes(mimeType)) {
+        return new ErrorResponse(
+          STATUSCODE.COMMON_NOT_FOUND,
+          `Image must be support png, jpg, jpeg`,
+          ERROR.NOT_FOUND
+        );
+      }
+
+      if (image?.size > maxSize) {
+        return new ErrorResponse(
+          STATUSCODE.COMMON_NOT_FOUND,
+          `Image must be less than 2MB`,
+          ERROR.NOT_FOUND
+        );
+      }
+
+      return await this.uploadS3Service.uploadS3(image);
+    } catch (error) {
+      this.logger.debug(
+        `${UserInfoService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        ERROR.UPDATE_FAILED
       );
     }
   }

@@ -12,7 +12,10 @@ import {
   UseGuards,
   UsePipes,
   ValidationPipe,
+  UseInterceptors,
+  UploadedFile
 } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express/multer";
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -118,5 +121,17 @@ export class UserInfoController {
   @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
   async delete(@Param("id") id: number): Promise<any> {
     return this.userInfoService.delete(id);
+  }
+
+  @Post("upload")
+  @ApiOperation({
+    description: "Upload file image",
+  })
+  @ApiOkResponse({
+    type: Response<unknown>,
+  })
+  @UseInterceptors(FileInterceptor("avatar"))
+  async uploadFile(@UploadedFile() image: Express.Multer.File): Promise<any> {
+    return this.userInfoService.uploadAvatar(image);
   }
 }
