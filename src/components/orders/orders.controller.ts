@@ -33,6 +33,12 @@ export class OrdersController {
     return this.ordersService.findAll(paginationDto, req.user);
   }
 
+  @Get('combine-orders-by-date')
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  combineOrdersByDate(@Query() paginationDto: PaginationQueryDto, @Request() req: any): Promise<any> {
+    return this.ordersService.combineOrdersByDate(paginationDto, req.user);
+  }
+
   @Get('get-turn-index')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   getCurrentTurnIndex(@Query() query: { seconds: string }) {
