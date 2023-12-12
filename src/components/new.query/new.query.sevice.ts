@@ -39,6 +39,10 @@ export class NewQueryService {
           user: {
             id: true,
             username: true,
+            userInfo: {
+              id: true,
+              avatar: true
+            }
           },
         },
         where: {
@@ -100,6 +104,10 @@ export class NewQueryService {
           user: {
             id: true,
             username: true,
+            userInfo: {
+              id: true,
+              avatar: true
+            }
           },
         },
         take: +perPage,
