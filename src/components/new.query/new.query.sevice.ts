@@ -51,8 +51,9 @@ export class NewQueryService {
         }
       });
 
+      listData = listDataReal[0];
       const limitDataFake = Number(perPage) - listDataReal[1];
-      if (limitDataFake <= Number(perPage)) {
+      if (limitDataFake <= Number(perPage) && limitDataFake >= 0) {
         const dataFake: any = await this.dataFakeRepository.findAndCount({
           where: {
             keyMode: KeyMode.USER_WIN,
@@ -64,9 +65,7 @@ export class NewQueryService {
           }
         });
 
-        listData = listDataReal[0].concat(dataFake[0]);
-      } else {
-        listData = listDataReal[0];
+        listData = listData.concat(dataFake[0]);
       }
 
       return new SuccessResponse(
@@ -110,8 +109,9 @@ export class NewQueryService {
         },
       });
 
+      listData = listDataReal[0];
       const limitDataFake = Number(perPage) - listDataReal[1];
-      if (limitDataFake <= Number(perPage)) {
+      if (limitDataFake <= Number(perPage) && limitDataFake >= 0) {
         const dataFake: any = await this.dataFakeRepository.findAndCount({
           where: {
             keyMode: KeyMode.USER_PLAYING,
@@ -123,9 +123,7 @@ export class NewQueryService {
           }
         });
 
-        listData = listDataReal[0].concat(dataFake[0]);
-      } else {
-        listData = listDataReal[0];
+        listData = listData.concat(dataFake[0]);
       }
 
       return new SuccessResponse(
