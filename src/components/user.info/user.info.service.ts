@@ -67,7 +67,11 @@ export class UserInfoService {
         user.result?.username
       );
       if (listOrderRes?.result[0]?.length > 0) {
-        let sumBet = 0, sumOrder, sumOrderWin = 0, sumOrderLose = 0, favoriteGame = "";
+        let sumBet = 0,
+          sumOrder = 0,
+          sumOrderWin = 0,
+          sumOrderLose = 0,
+          favoriteGame = "";
         const listOrder = listOrderRes?.result[0];
         listOrder?.map((order: any) => {
           sumBet += Number(order?.revenue);
