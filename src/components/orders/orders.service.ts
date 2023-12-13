@@ -140,21 +140,15 @@ export class OrdersService {
       perPage = 10;
     }
     page = Number(page) || 1;
-    // const skip = +perPage * +page - +perPage;
 
     let fromD;
     let toD;
-    // if (date) {
-    //   fromD = startOfDay(new Date(date));
-    //   toD = endOfDay(new Date(date));
-    // } else {
     if (fromDate) {
       fromD = startOfDay(new Date(fromDate));
     }
     if (toDate) {
       toD = endOfDay(new Date(toDate));
     }
-    // }
 
     let orders;
     let total;
