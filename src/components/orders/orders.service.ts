@@ -129,7 +129,6 @@ export class OrdersService {
 
   async combineOrdersByDate(paginationDto: PaginationQueryDto, member: User) {
     let {
-      date,
       order,
       toDate,
       fromDate,
@@ -141,79 +140,67 @@ export class OrdersService {
       perPage = 10;
     }
     page = Number(page) || 1;
-    const skip = +perPage * +page - +perPage;
+    // const skip = +perPage * +page - +perPage;
 
     let fromD;
     let toD;
-    if (date) {
-      fromD = startOfDay(new Date(date));
-      toD = endOfDay(new Date(date));
-    } else {
-      if (fromDate) {
-        fromD = startOfDay(new Date(fromDate));
-      }
-      if (toDate) {
-        toD = endOfDay(new Date(toDate));
-      }
+    // if (date) {
+    //   fromD = startOfDay(new Date(date));
+    //   toD = endOfDay(new Date(date));
+    // } else {
+    if (fromDate) {
+      fromD = startOfDay(new Date(fromDate));
     }
+    if (toDate) {
+      toD = endOfDay(new Date(toDate));
+    }
+    // }
 
     let orders;
     let total;
     let lastPage;
     let nextPage;
     let prevPage;
-    if (!date) {
-      const offset = (page - 1) * perPage;
-      const allOrders = await this.orderRequestRepository.query(`
-      SELECT CAST(created_at AS DATE) AS orderDate, SUM(entity.revenue) as totalBet
-      FROM orders AS entity
-      WHERE entity.userId = ${member.id}
-      GROUP BY CAST(created_at AS DATE)
-    `);
-      total = allOrders.length;
-      lastPage = Math.ceil(total / perPage);
-      nextPage = page + 1 > lastPage ? null : page + 1;
-      prevPage = page - 1 < 1 ? null : page - 1;
-      let query = `
-      SELECT CAST(created_at AS DATE) AS orderDate, SUM(entity.revenue) as totalBet, count(*) as orderCount, SUM(entity.paymentWin) as paymentWin
-      FROM orders AS entity
-      WHERE entity.userId = ${member.id}
-    `;
-      if (fromD && toD) {
-        query += `AND entity.created_at >= '${fromD.toISOString()}' AND entity.created_at <= '${toD.toISOString()}'`;
-      } else {
-        if (fromD) {
-          query += `AND entity.created_at >= '${fromD.toISOString()}'`;
-        }
-        if (toD) {
-          query += `AND entity.created_at <= '${toD.toISOString()}'`;
-        }
+    const offset = (page - 1) * perPage;
+    const allOrders = await this.orderRequestRepository.query(`
+        SELECT CAST(created_at AS DATE) AS orderDate, SUM(entity.revenue) as totalBet
+        FROM orders AS entity
+        WHERE entity.userId = ${member.id}
+        GROUP BY CAST(created_at AS DATE)
+      `);
+    total = allOrders.length;
+    lastPage = Math.ceil(total / perPage);
+    nextPage = page + 1 > lastPage ? null : page + 1;
+    prevPage = page - 1 < 1 ? null : page - 1;
+
+    let query = `
+        SELECT CAST(created_at AS DATE) AS orderDate, SUM(entity.revenue) as totalBet, count(*) as orderCount, SUM(entity.paymentWin) as paymentWin
+        FROM orders AS entity
+        WHERE entity.userId = ${member.id}
+      `;
+    if (fromD && toD) {
+      query += `AND entity.created_at >= '${fromD.toISOString()}' AND entity.created_at <= '${toD.toISOString()}'`;
+    } else {
+      if (fromD) {
+        query += `AND entity.created_at >= '${fromD.toISOString()}'`;
       }
-      query += `
+      if (toD) {
+        query += `AND entity.created_at <= '${toD.toISOString()}'`;
+      }
+    }
+    query += `
         GROUP BY CAST(created_at AS DATE)
         ORDER BY orderDate ${order || 'asc'}
         LIMIT ${perPage} OFFSET ${offset}
-    `;
+      `;
 
-      orders = await this.orderRequestRepository.query(query);
-    } else {
-      const condition: any = {
-        user: member,
-      };
-      if (fromD && toD) {
-        condition.createdAt = Between(fromD, toD);
-      }
+    orders = await this.orderRequestRepository.query(query);
 
-      [orders, total] = await this.orderRequestRepository.findAndCount({
-        where: condition,
-        order: { id: order },
-        take: perPage,
-        skip: skip,
-      });
-
-      lastPage = Math.ceil(total / perPage);
-      nextPage = page + 1 > lastPage ? null : page + 1;
-      prevPage = page - 1 < 1 ? null : page - 1;
+    let totalOrderCount = 0;
+    let totalPaymentWin = 0;
+    for (const order of orders) {
+      totalOrderCount += (Number(order.orderCount) || 0);
+      totalPaymentWin += (Number(order.paymentWin) || 0);
     }
 
     return {
@@ -221,6 +208,8 @@ export class OrdersService {
       nextPage,
       prevPage,
       lastPage,
+      totalOrderCount,
+      totalPaymentWin,
       data: orders,
       currentPage: page,
     }
