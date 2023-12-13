@@ -6,7 +6,7 @@ import { ConfigSys } from "src/common/helper";
 export class UploadS3Service {
   constructor() {};
 
-  async uploadS3(file: Express.Multer.File) {
+  async uploadS3(file: Express.Multer.File, bucket: string) {
     const s3 = new S3({
       accessKeyId: ConfigSys.config().accessKeyId,
       secretAccessKey: ConfigSys.config().secretAccessKey,
@@ -17,7 +17,7 @@ export class UploadS3Service {
     const fileContent = fs.readFileSync(file.path);
 
     const params = {
-      Bucket: ConfigSys.config().bucketAvatar,
+      Bucket: bucket,
       Key: randomName,
       Body: fileContent,
       ContentType: file.mimetype,

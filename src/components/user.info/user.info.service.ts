@@ -15,6 +15,7 @@ import { UserService } from "../user/user.service";
 import { ConnectService } from "../connect/connect.service";
 import { OrderRequestService } from "../order.request/order.request.service";
 import { UploadS3Service } from "../upload.s3/upload.s3.service";
+import { ConfigSys } from "src/common/helper";
 @Injectable()
 export class UserInfoService { 
 
@@ -267,7 +268,10 @@ export class UserInfoService {
         );
       }
 
-      return await this.uploadS3Service.uploadS3(image);
+      return await this.uploadS3Service.uploadS3(
+        image,
+        ConfigSys.config().bucketAvatar
+      );
     } catch (error) {
       this.logger.debug(
         `${UserInfoService.name} is Logging error: ${JSON.stringify(error)}`

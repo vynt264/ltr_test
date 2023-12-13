@@ -19,6 +19,7 @@ export class ConfigSys {
         secretAccessKey: process.env.SECRET_ACCESS_KEY || "",
         region: process.env.REGION || "",
         bucketAvatar: process.env.BUCKET_AVATAR || "",
+        bucketSysLayout: process.env.BUCKET_SYS_LAYOUT || "",
       };
     }
 
@@ -37,6 +38,7 @@ export class ConfigSys {
         secretAccessKey: process.env.SECRET_ACCESS_KEY || "",
         region: process.env.REGION || "",
         bucketAvatar: process.env.BUCKET_AVATAR || "",
+        bucketSysLayout: process.env.BUCKET_SYS_LAYOUT || "",
       };
     }
 

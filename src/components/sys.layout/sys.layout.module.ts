@@ -8,7 +8,9 @@ import { SysLayoutService } from "./sys.layout.service";
 import { SysConfig } from "../sys.config/sys.config.entity";
 import { SysConfigsModule } from "../sys.config/sys.config.module";
 import { ConnectModule } from "../connect/connect.module";
-
+import { UploadMiddleware } from "src/system/middleware/upload.middleware";
+import { MulterModule } from "@nestjs/platform-express";
+import { UploadS3Module } from "../upload.s3/upload.s3.module";
 @Module({
   imports: [
     TypeOrmModule.forFeature([SysLayout]),
@@ -16,6 +18,10 @@ import { ConnectModule } from "../connect/connect.module";
     UserModule,
     SysConfigsModule,
     ConnectModule,
+    UploadS3Module,
+    MulterModule.registerAsync({
+      useClass: UploadMiddleware,
+    }),
   ],
   controllers: [SysLayoutController],
   providers: [SysLayoutService],

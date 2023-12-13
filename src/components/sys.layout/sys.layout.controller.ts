@@ -12,7 +12,10 @@ import {
   UseGuards,
   UsePipes,
   ValidationPipe,
+  UseInterceptors,
+  UploadedFile
 } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express/multer";
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -91,5 +94,18 @@ export class SysLayoutController {
   @Roles(UserRoles.SUPPER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.sysLayoutService.delete(id);
+  }
+
+  @Post("upload")
+  @ApiOperation({
+    description: "Upload file image",
+  })
+  @ApiOkResponse({
+    type: Response<unknown>,
+  })
+  @UseInterceptors(FileInterceptor("image"))
+  async uploadFile(@UploadedFile() image: Express.Multer.File): Promise<any> {
+    // console.log(image)
+    return this.sysLayoutService.uploadImage(image);
   }
 }
