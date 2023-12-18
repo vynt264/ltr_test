@@ -37,6 +37,7 @@ export class UserService {
 
   async getByUsername(username: string, isAdmin = false) {
     let user = await this.userRepository.findOne({
+      relations: ['bookmaker'],
       select: {
         id: true,
         username: true,
@@ -93,6 +94,7 @@ export class UserService {
     isAdmin = false
   ) {
     let user = await this.userRepository.findOne({
+      relations: ['bookmaker'],
       select: {
         id: true,
         username: true,

@@ -35,68 +35,68 @@ export class Wallet {
   })
   balance: number;
 
-  @Column({
-    type: "decimal",
-    precision: 65,
-    scale: 5,
-    nullable: false,
-    default: 0,
-  })
-  availableBalance: number;
+  // @Column({
+  //   type: "decimal",
+  //   precision: 65,
+  //   scale: 5,
+  //   nullable: false,
+  //   default: 0,
+  // })
+  // availableBalance: number;
 
-  @Column({
-    type: "decimal",
-    precision: 65,
-    scale: 5,
-    nullable: false,
-    default: 0,
-  })
-  holdBalance: number;
+  // @Column({
+  //   type: "decimal",
+  //   precision: 65,
+  //   scale: 5,
+  //   nullable: false,
+  //   default: 0,
+  // })
+  // holdBalance: number;
 
-  @Column({
-    type: "decimal",
-    precision: 65,
-    scale: 5,
-    nullable: false,
-    default: 0,
-  })
-  totalUsedAmount: number;
+  // @Column({
+  //   type: "decimal",
+  //   precision: 65,
+  //   scale: 5,
+  //   nullable: false,
+  //   default: 0,
+  // })
+  // totalUsedAmount: number;
 
-  @Column({
-    type: "decimal",
-    precision: 65,
-    scale: 5,
-    nullable: false,
-    default: 0,
-  })
-  totalBalance: number;
+  // @Column({
+  //   type: "decimal",
+  //   precision: 65,
+  //   scale: 5,
+  //   nullable: false,
+  //   default: 0,
+  // })
+  // totalBalance: number;
 
-  @Column({
-    type: "decimal",
-    precision: 65,
-    scale: 5,
-    nullable: false,
-    default: 0,
-  })
-  totalDeposit: number;
+  // @Column({
+  //   type: "decimal",
+  //   precision: 65,
+  //   scale: 5,
+  //   nullable: false,
+  //   default: 0,
+  // })
+  // totalDeposit: number;
 
-  @Column({
-    type: "decimal",
-    precision: 65,
-    scale: 5,
-    nullable: false,
-    default: 0,
-  })
-  totalAvailableBalance: number;
+  // @Column({
+  //   type: "decimal",
+  //   precision: 65,
+  //   scale: 5,
+  //   nullable: false,
+  //   default: 0,
+  // })
+  // totalAvailableBalance: number;
 
-  @Column({ nullable: false, default: 0 })
-  version: number;
+  // @Column({ nullable: false, default: 0 })
+  // version: number;
 
-  @Column({ length: 255, nullable: true })
-  description: string;
+  // @Column({ length: 255, nullable: true })
+  // description: string;
 
-  @Column({ nullable: false, default: false })
-  isBlock: boolean;
+  // @Column({ nullable: false, default: false })
+  // isBlock: boolean;
 
   @Column({ nullable: false, default: false })
   isDelete: boolean;

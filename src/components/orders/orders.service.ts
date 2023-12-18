@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { endOfDay, startOfDay, addHours } from "date-fns";
 
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -12,10 +12,10 @@ import { Order } from './entities/order.entity';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
-import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, LoTruocType, LoXienType } from 'src/system/enums/lotteries';
+import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, LoTruocType, LoXienType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
 import { TypeLottery } from 'src/system/constants';
 import { RedisCacheService } from 'src/system/redis/redis.service';
-import { Interval } from '@nestjs/schedule';
+import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 
 @Injectable()
 export class OrdersService {
@@ -23,14 +23,26 @@ export class OrdersService {
     @InjectRepository(Order)
     private orderRequestRepository: Repository<Order>,
     private readonly redisService: RedisCacheService,
+    private readonly walletHandlerService: WalletHandlerService,
   ) { }
 
-  async create(data: CreateListOrdersDto, member: User) {
+  async create(data: CreateListOrdersDto, member: any) {
+    // check balance
+    const wallet = await this.walletHandlerService.findWalletByUserId(member.id);
+    const totalBet = this.getBalance(data.orders);
+    if (totalBet > wallet.balance) {
+      throw new HttpException(
+        {
+          message: 'Account balance is insufficient',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     let result: any;
     let promises = [];
     const turnIndex = this.getTurnIndex();
-
-    const bookmakerId = '1';
+    const bookmakerId = member.bookmarkId;
     this.saveRedis(data.orders, bookmakerId);
 
     for (const order of data.orders) {
@@ -55,6 +67,10 @@ export class OrdersService {
     if (promises.length === 0) return;
 
     result = await Promise.all(promises);
+
+    // update balance
+    const totalBetRemain = wallet.balance - totalBet;
+    this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
 
     return result;
   }
@@ -461,6 +477,7 @@ export class OrdersService {
     let unitRow;
     let numbersUnitRow;
     let hundreds;
+    let numbersHundreds;
 
     switch (childBetType) {
       case BaoLoType.Lo2So:
@@ -488,7 +505,8 @@ export class OrdersService {
           unitRow = ordersDetail.split('|')[1];
           numbersUnitRow = unitRow.split(',');
           hundreds = ordersDetail.split('|')[2];
-          numberOfBets = numbersDozens.length * numbersUnitRow.length * hundreds.length;
+          numbersHundreds = hundreds.split(',');
+          numberOfBets = numbersDozens.length * numbersUnitRow.length * numbersHundreds.length;
         } else {
           const numbers = ordersDetail.split(',');
           numberOfBets = numbers.length;
@@ -705,4 +723,34 @@ export class OrdersService {
     return data;
   }
 
+  getBalance(orders: any) {
+    let totalBet = 0;
+    for (const order of orders) {
+      const numberOfBets = this.getNumberOfBets(order.childBetType, order.detail);
+      let amount = 0;
+      switch (order.childBetType) {
+        case BaoLoType.Lo3So:
+          amount = (numberOfBets * PricePerScore.Lo3So) * order.multiple;
+          totalBet += amount;
+          break;
+
+        case BaoLoType.Lo2So:
+          amount = (numberOfBets * PricePerScore.Lo2So) * order.multiple;
+          break;
+
+        case BaoLoType.Lo2So1k:
+          amount = (numberOfBets * PricePerScore.Lo2So1k) * order.multiple;
+          break;
+
+        case BaoLoType.Lo4So:
+          amount = (numberOfBets * PricePerScore.Lo4So) * order.multiple;
+          break;
+
+        default:
+          break;
+      }
+    }
+
+    return totalBet;
+  }
 }

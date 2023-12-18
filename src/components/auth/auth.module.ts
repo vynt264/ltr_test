@@ -15,6 +15,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 // import { UserInfoModule } from "../user.info/user.info.module";
 import { UserInfo } from "../user.info/user.info.entity";
 import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
+import { WalletHandlerModule } from "../wallet-handler/wallet-handler.module";
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, UserInfo, CoinWallet]),
@@ -24,6 +25,7 @@ import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
     ConnectModule,
     PassportModule,
     JwtModule.register({}),
+    WalletHandlerModule,
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy, RtStrategy],
   controllers: [AuthController],

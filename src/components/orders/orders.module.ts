@@ -14,6 +14,7 @@ import { ConnectModule } from '../connect/connect.module';
 import { Order } from './entities/order.entity';
 import { RedisCacheModule } from 'src/system/redis/redis.module';
 import { GatewayModule } from '../gateway/gateway.module';
+import { WalletHandlerModule } from '../wallet-handler/wallet-handler.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { GatewayModule } from '../gateway/gateway.module';
     ConnectModule,
     RedisCacheModule,
     GatewayModule,
+    WalletHandlerModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService]

@@ -141,7 +141,7 @@ export class TransactionService {
         createdTransaction
       );
 
-      wallet.version = wallet.version + 1;
+      // wallet.version = wallet.version + 1;
       wallet.updatedBy = user.username;
       wallet.updatedAt = new Date();
       subWallet.version = subWallet.version + 1;
@@ -237,7 +237,7 @@ export class TransactionService {
           createdTransaction
         );
 
-        wallet.version = wallet.version + 1;
+        // wallet.version = wallet.version + 1;
         wallet.updatedBy = user.username;
         wallet.updatedAt = new Date();
         transaction.username = user.username;
@@ -314,7 +314,7 @@ export class TransactionService {
         createdTransaction
       );
 
-      wallet.version = wallet.version + 1;
+      // wallet.version = wallet.version + 1;
       wallet.updatedBy = user.username;
       wallet.updatedAt = new Date();
       subWallet.version = subWallet.version + 1;
@@ -410,92 +410,92 @@ export class TransactionService {
     wallet: Wallet,
     subWallet: SubWallet
   ) {
-    if (transaction.transType === `${TransactionType.DEPOSIT}`) {
-      wallet.balance = +wallet.balance + +transaction.amount;
-      wallet.totalBalance = +wallet.totalBalance + +transaction.amount;
-      wallet.totalDeposit = +wallet.totalDeposit + +transaction.amount;
-      wallet.availableBalance = +wallet.availableBalance + +transaction.amount;
-      wallet.totalAvailableBalance =
-        +wallet.totalAvailableBalance + +transaction.amount;
-    } else if (transaction.transType === `${TransactionType.TRANSFER}`) {
+    // if (transaction.transType === `${TransactionType.DEPOSIT}`) {
+    //   wallet.balance = +wallet.balance + +transaction.amount;
+    //   wallet.totalBalance = +wallet.totalBalance + +transaction.amount;
+    //   wallet.totalDeposit = +wallet.totalDeposit + +transaction.amount;
+    //   wallet.availableBalance = +wallet.availableBalance + +transaction.amount;
+    //   wallet.totalAvailableBalance =
+    //     +wallet.totalAvailableBalance + +transaction.amount;
+    // } else if (transaction.transType === `${TransactionType.TRANSFER}`) {
 
-      if (transaction.method === `${TransferMethod.WALLET_TO_SUB_WALLET}`) {
-        wallet.availableBalance =
-          +wallet.availableBalance - +transaction.amount;
-        wallet.balance = +wallet.balance - +transaction.amount;
-        subWallet.availableBalance =
-          +subWallet.availableBalance + +transaction.amount;
-        subWallet.balance = +subWallet.balance + +transaction.amount;
-      } else if (
-        transaction.method === `${TransferMethod.SUB_WALLET_TO_WALLET}`
-      ) {
+    //   if (transaction.method === `${TransferMethod.WALLET_TO_SUB_WALLET}`) {
+    //     wallet.availableBalance =
+    //       +wallet.availableBalance - +transaction.amount;
+    //     wallet.balance = +wallet.balance - +transaction.amount;
+    //     subWallet.availableBalance =
+    //       +subWallet.availableBalance + +transaction.amount;
+    //     subWallet.balance = +subWallet.balance + +transaction.amount;
+    //   } else if (
+    //     transaction.method === `${TransferMethod.SUB_WALLET_TO_WALLET}`
+    //   ) {
 
-        wallet.availableBalance =
-          +wallet.availableBalance + +transaction.amount;
-        wallet.balance = +wallet.balance + +transaction.amount;
-        subWallet.availableBalance =
-          +subWallet.availableBalance - +transaction.amount;
-        subWallet.balance = +subWallet.balance - +transaction.amount;
-      }
-    } else if (transaction.transType === `${TransactionType.PAYMENT}`) {
-      if (transaction.method === `${PaymentMethod.USER_MINI_GAME}`) {
+    //     wallet.availableBalance =
+    //       +wallet.availableBalance + +transaction.amount;
+    //     wallet.balance = +wallet.balance + +transaction.amount;
+    //     subWallet.availableBalance =
+    //       +subWallet.availableBalance - +transaction.amount;
+    //     subWallet.balance = +subWallet.balance - +transaction.amount;
+    //   }
+    // } else if (transaction.transType === `${TransactionType.PAYMENT}`) {
+    //   if (transaction.method === `${PaymentMethod.USER_MINI_GAME}`) {
 
-        subWallet.availableBalance =
-          +subWallet.availableBalance - +transaction.amount;
-        subWallet.balance = +subWallet.balance - +transaction.amount;
-        subWallet.totalUsedAmount =
-          +subWallet.totalUsedAmount + +transaction.amount;
-        wallet.totalAvailableBalance =
-          +wallet.totalAvailableBalance - +transaction.amount;
-        wallet.totalUsedAmount = +wallet.totalUsedAmount + +transaction.amount;
-        wallet.totalBalance = +wallet.totalBalance - +transaction.amount;
-      } else if (transaction.method === `${PaymentMethod.WALLET_MINI_GAME}`) {
+    //     subWallet.availableBalance =
+    //       +subWallet.availableBalance - +transaction.amount;
+    //     subWallet.balance = +subWallet.balance - +transaction.amount;
+    //     subWallet.totalUsedAmount =
+    //       +subWallet.totalUsedAmount + +transaction.amount;
+    //     wallet.totalAvailableBalance =
+    //       +wallet.totalAvailableBalance - +transaction.amount;
+    //     wallet.totalUsedAmount = +wallet.totalUsedAmount + +transaction.amount;
+    //     wallet.totalBalance = +wallet.totalBalance - +transaction.amount;
+    //   } else if (transaction.method === `${PaymentMethod.WALLET_MINI_GAME}`) {
 
-        wallet.totalAvailableBalance =
-          +wallet.totalAvailableBalance - +transaction.amount;
-        wallet.totalUsedAmount = +wallet.totalUsedAmount + +transaction.amount;
-        wallet.totalBalance = +wallet.totalBalance - +transaction.amount;
-        wallet.balance = +wallet.balance - +transaction.amount;
-        wallet.availableBalance = +wallet.availableBalance - +transaction.amount;
-      }
+    //     wallet.totalAvailableBalance =
+    //       +wallet.totalAvailableBalance - +transaction.amount;
+    //     wallet.totalUsedAmount = +wallet.totalUsedAmount + +transaction.amount;
+    //     wallet.totalBalance = +wallet.totalBalance - +transaction.amount;
+    //     wallet.balance = +wallet.balance - +transaction.amount;
+    //     wallet.availableBalance = +wallet.availableBalance - +transaction.amount;
+    //   }
 
-    } else if (transaction.transType === `${TransactionType.ADJUSTMENT}`) {
-      if (transaction.method === `${AdjustmentMethod.ADMIN_TO_PLUS}`) {
+    // } else if (transaction.transType === `${TransactionType.ADJUSTMENT}`) {
+    //   if (transaction.method === `${AdjustmentMethod.ADMIN_TO_PLUS}`) {
 
-        wallet.balance = +wallet.balance + +transaction.amount;
-        wallet.totalBalance = +wallet.totalBalance + +transaction.amount;
-        wallet.totalDeposit = +wallet.totalDeposit + +transaction.amount;
-        wallet.availableBalance = +wallet.availableBalance + +transaction.amount;
-        wallet.totalAvailableBalance =
-          +wallet.totalAvailableBalance + +transaction.amount;
-      } else if (transaction.method === `${AdjustmentMethod.ADMIN_TO_MINUS}`) {
+    //     wallet.balance = +wallet.balance + +transaction.amount;
+    //     wallet.totalBalance = +wallet.totalBalance + +transaction.amount;
+    //     wallet.totalDeposit = +wallet.totalDeposit + +transaction.amount;
+    //     wallet.availableBalance = +wallet.availableBalance + +transaction.amount;
+    //     wallet.totalAvailableBalance =
+    //       +wallet.totalAvailableBalance + +transaction.amount;
+    //   } else if (transaction.method === `${AdjustmentMethod.ADMIN_TO_MINUS}`) {
 
-        wallet.balance = +wallet.balance - +transaction.amount;
-        wallet.totalBalance = +wallet.totalBalance - +transaction.amount;
-        wallet.totalDeposit = +wallet.totalDeposit - +transaction.amount;
-        wallet.availableBalance = +wallet.availableBalance - +transaction.amount;
-        wallet.totalAvailableBalance =
-          +wallet.totalAvailableBalance - +transaction.amount;
-      }
-    } else if (transaction.transType === `${TransactionType.REFUND}`) {
-      if (transaction.method === `${RefundMethod.WALLET_REFUND}`) {
+    //     wallet.balance = +wallet.balance - +transaction.amount;
+    //     wallet.totalBalance = +wallet.totalBalance - +transaction.amount;
+    //     wallet.totalDeposit = +wallet.totalDeposit - +transaction.amount;
+    //     wallet.availableBalance = +wallet.availableBalance - +transaction.amount;
+    //     wallet.totalAvailableBalance =
+    //       +wallet.totalAvailableBalance - +transaction.amount;
+    //   }
+    // } else if (transaction.transType === `${TransactionType.REFUND}`) {
+    //   if (transaction.method === `${RefundMethod.WALLET_REFUND}`) {
 
-        wallet.balance = +wallet.balance + +transaction.amount;
-        wallet.totalBalance = +wallet.totalBalance + +transaction.amount;
-        wallet.availableBalance = +wallet.availableBalance + +transaction.amount;
-        wallet.totalAvailableBalance =
-          +wallet.totalAvailableBalance + +transaction.amount;
-      }
-    } else if (transaction.transType === `${TransactionType.POINTS_EARN}`) {
-      if (transaction.method === `${PointsEarnMethod.WALLET_POINTS_EARN}`) {
+    //     wallet.balance = +wallet.balance + +transaction.amount;
+    //     wallet.totalBalance = +wallet.totalBalance + +transaction.amount;
+    //     wallet.availableBalance = +wallet.availableBalance + +transaction.amount;
+    //     wallet.totalAvailableBalance =
+    //       +wallet.totalAvailableBalance + +transaction.amount;
+    //   }
+    // } else if (transaction.transType === `${TransactionType.POINTS_EARN}`) {
+    //   if (transaction.method === `${PointsEarnMethod.WALLET_POINTS_EARN}`) {
 
-        wallet.balance = +wallet.balance + +transaction.amount;
-        wallet.totalBalance = +wallet.totalBalance + +transaction.amount;
-        wallet.availableBalance = +wallet.availableBalance + +transaction.amount;
-        wallet.totalAvailableBalance =
-          +wallet.totalAvailableBalance + +transaction.amount;
-      }
-    }
+    //     wallet.balance = +wallet.balance + +transaction.amount;
+    //     wallet.totalBalance = +wallet.totalBalance + +transaction.amount;
+    //     wallet.availableBalance = +wallet.availableBalance + +transaction.amount;
+    //     wallet.totalAvailableBalance =
+    //       +wallet.totalAvailableBalance + +transaction.amount;
+    //   }
+    // }
   }
 
   async verifyUserAndWallet(
@@ -565,78 +565,78 @@ export class TransactionService {
     wallet: Wallet
   ): Promise<{ error: ErrorResponse }> {
 
-    if (!transaction.transType) {
-      return {
-        error: new ErrorResponse(
-          STATUSCODE.TRANS_TYPE_IS_NOT_SUPPORT,
-          "transfer is not support",
-          ERROR.UPDATE_FAILED
-        ),
-      };
-    }
-    if (transaction.transType === `${TransactionType.DEPOSIT}`) {
-      return { error: null };
-    } else if (transaction.transType === `${TransactionType.TRANSFER}`) {
-      if (transaction.method === `${TransferMethod.WALLET_TO_SUB_WALLET}`) {
-        if (+wallet.availableBalance < transaction.amount) {
-          return {
-            error: new ErrorResponse(
-              STATUSCODE.BALANCE_NOT_ENOUGH,
-              "wallet balance not enough",
-              ERROR.UPDATE_FAILED
-            ),
-          };
-        }
+    // if (!transaction.transType) {
+    //   return {
+    //     error: new ErrorResponse(
+    //       STATUSCODE.TRANS_TYPE_IS_NOT_SUPPORT,
+    //       "transfer is not support",
+    //       ERROR.UPDATE_FAILED
+    //     ),
+    //   };
+    // }
+    // if (transaction.transType === `${TransactionType.DEPOSIT}`) {
+    //   return { error: null };
+    // } else if (transaction.transType === `${TransactionType.TRANSFER}`) {
+    //   if (transaction.method === `${TransferMethod.WALLET_TO_SUB_WALLET}`) {
+    //     if (+wallet.availableBalance < transaction.amount) {
+    //       return {
+    //         error: new ErrorResponse(
+    //           STATUSCODE.BALANCE_NOT_ENOUGH,
+    //           "wallet balance not enough",
+    //           ERROR.UPDATE_FAILED
+    //         ),
+    //       };
+    //     }
 
-        return { error: null };
-      } else if (transaction.method === `${TransferMethod.SUB_WALLET_TO_WALLET}`) {
-        if (+subWallet.availableBalance < transaction.amount) {
-          return {
-            error: new ErrorResponse(
-              STATUSCODE.BALANCE_NOT_ENOUGH,
-              "subwallet balance not enough",
-              ERROR.UPDATE_FAILED
-            ),
-          };
-        }
+    //     return { error: null };
+    //   } else if (transaction.method === `${TransferMethod.SUB_WALLET_TO_WALLET}`) {
+    //     if (+subWallet.availableBalance < transaction.amount) {
+    //       return {
+    //         error: new ErrorResponse(
+    //           STATUSCODE.BALANCE_NOT_ENOUGH,
+    //           "subwallet balance not enough",
+    //           ERROR.UPDATE_FAILED
+    //         ),
+    //       };
+    //     }
 
-        return { error: null };
-      }
-    } else if (transaction.transType === `${TransactionType.PAYMENT}`) {
-      if (transaction.method === `${PaymentMethod.USER_MINI_GAME}`) {
-        if (+subWallet.availableBalance < transaction.amount) {
-          return {
-            error: new ErrorResponse(
-              STATUSCODE.BALANCE_NOT_ENOUGH,
-              "balance not enough",
-              ERROR.UPDATE_FAILED
-            ),
-          };
-        }
-      } else if (transaction.method === `${PaymentMethod.WALLET_MINI_GAME}`) {
-        if (+wallet.availableBalance < transaction.amount) {
-          return {
-            error: new ErrorResponse(
-              STATUSCODE.BALANCE_NOT_ENOUGH,
-              "balance not enough",
-              ERROR.UPDATE_FAILED
-            ),
-          };
-        }
-      }
-      return { error: null };
-    } else if (transaction.transType === `${TransactionType.ADJUSTMENT}`) {
+    //     return { error: null };
+    //   }
+    // } else if (transaction.transType === `${TransactionType.PAYMENT}`) {
+    //   if (transaction.method === `${PaymentMethod.USER_MINI_GAME}`) {
+    //     if (+subWallet.availableBalance < transaction.amount) {
+    //       return {
+    //         error: new ErrorResponse(
+    //           STATUSCODE.BALANCE_NOT_ENOUGH,
+    //           "balance not enough",
+    //           ERROR.UPDATE_FAILED
+    //         ),
+    //       };
+    //     }
+    //   } else if (transaction.method === `${PaymentMethod.WALLET_MINI_GAME}`) {
+    //     if (+wallet.availableBalance < transaction.amount) {
+    //       return {
+    //         error: new ErrorResponse(
+    //           STATUSCODE.BALANCE_NOT_ENOUGH,
+    //           "balance not enough",
+    //           ERROR.UPDATE_FAILED
+    //         ),
+    //       };
+    //     }
+    //   }
+    //   return { error: null };
+    // } else if (transaction.transType === `${TransactionType.ADJUSTMENT}`) {
 
-      return { error: null };
-    } else if (transaction.transType === `${TransactionType.REFUND}`) {
-      if (transaction.method === `${RefundMethod.WALLET_REFUND}`) {
-        return { error: null };
-      }
-    } else if (transaction.transType === `${TransactionType.POINTS_EARN}`) {
-      if (transaction.method === `${PointsEarnMethod.WALLET_POINTS_EARN}`) {
-        return { error: null };
-      }
-    }
+    //   return { error: null };
+    // } else if (transaction.transType === `${TransactionType.REFUND}`) {
+    //   if (transaction.method === `${RefundMethod.WALLET_REFUND}`) {
+    //     return { error: null };
+    //   }
+    // } else if (transaction.transType === `${TransactionType.POINTS_EARN}`) {
+    //   if (transaction.method === `${PointsEarnMethod.WALLET_POINTS_EARN}`) {
+    //     return { error: null };
+    //   }
+    // }
 
     return {
       error: new ErrorResponse(
@@ -781,7 +781,7 @@ export class TransactionService {
       );
       wallet.updatedBy = user.username;
       wallet.updatedAt = new Date();
-      wallet.version = wallet.version + 1;
+      // wallet.version = wallet.version + 1;et.version = wallet.version + 1;
       transaction.username = user.username;
       await this.processPayment(transaction, wallet, null, true, user);
 
@@ -1016,21 +1016,21 @@ export class TransactionService {
     if (isGet == 0) {
       return null;
     }
-    const wallet = await this.walletRepository.findOneBy({ user: { id } });
-    if (wallet) {
-      const walletInfo: WalletInfo = {
-        availableBalance: wallet.availableBalance,
-        balance: wallet.balance,
-        holdBalance: wallet.holdBalance,
-        totalBalance: wallet.totalBalance,
-        totalUsedAmount: wallet.totalUsedAmount,
-        totalAvailableBalance: wallet.totalAvailableBalance,
-        walletCode: wallet.walletCode,
-        isBlock: wallet.isBlock,
-        isDelete: wallet.isDelete,
-      };
-      return walletInfo;
-    }
+    // const wallet = await this.walletRepository.findOneBy({ user: { id } });
+    // if (wallet) {
+    //   const walletInfo: WalletInfo = {
+    //     availableBalance: wallet.availableBalance,
+    //     balance: wallet.balance,
+    //     holdBalance: wallet.holdBalance,
+    //     totalBalance: wallet.totalBalance,
+    //     totalUsedAmount: wallet.totalUsedAmount,
+    //     totalAvailableBalance: wallet.totalAvailableBalance,
+    //     walletCode: wallet.walletCode,
+    //     isBlock: wallet.isBlock,
+    //     isDelete: wallet.isDelete,
+    //   };
+    //   return walletInfo;
+    // }
 
     return null;
   }
@@ -1432,7 +1432,7 @@ export class TransactionService {
       if (methodError) return methodError;
 
       const now = new Date();
-      wallet.version = wallet.version + 1;
+      // wallet.version = wallet.version + 1;
       wallet.updatedBy = transaction.createdBy;
       wallet.updatedAt = now;
       transaction.approverNote = topUpTransMain.note;
@@ -1542,16 +1542,16 @@ export class TransactionService {
         wallet: null,
       };
     }
-    if (walletFound.isBlock) {
-      return {
-        error: new ErrorResponse(
-          STATUSCODE.MAIN_WALLET_IS_BLOCK,
-          `wallet is block`,
-          ERROR.NOT_FOUND
-        ),
-        wallet: null,
-      };
-    }
+    // if (walletFound.isBlock) {
+    //   return {
+    //     error: new ErrorResponse(
+    //       STATUSCODE.MAIN_WALLET_IS_BLOCK,
+    //       `wallet is block`,
+    //       ERROR.NOT_FOUND
+    //     ),
+    //     wallet: null,
+    //   };
+    // }
     if (walletFound.isDelete) {
       return {
         error: new ErrorResponse(

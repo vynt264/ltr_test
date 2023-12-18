@@ -49,7 +49,14 @@ export class AuthController {
     }
     
     user = {
-      ...user,
+      ... {
+        id: user.id,
+        isAuth: user.isAuth,
+        password: user.password,
+        username: user.username,
+        role: user.role,
+        bookmarkId: user.bookmaker.id,
+      },
       ip,
       mac,
       username,

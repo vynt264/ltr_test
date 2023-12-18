@@ -26,6 +26,7 @@ import { Repository } from "typeorm";
 import { ConfigSys } from "../../common/helper/config";
 import { UserInfo } from "../user.info/user.info.entity";
 import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
+import { WalletHandlerService } from "../wallet-handler/wallet-handler.service";
 @Injectable()
 export class AuthService {
   constructor(
@@ -36,11 +37,12 @@ export class AuthService {
     private backlistService: BacklistService,
     private readonly userHistoryService: UserHistoryService,
     private readonly connectService: ConnectService,
+    private readonly walletHandlerService: WalletHandlerService,
     @InjectRepository(UserInfo)
     private userInfoRepository: Repository<UserInfo>,
     @InjectRepository(CoinWallet)
     private coinWalletRepository: Repository<CoinWallet>,
-  ) {}
+  ) { }
 
   async validateUserCreds(username: string, password: string): Promise<any> {
     const user = await this.userService.getByUsername(username);
@@ -62,6 +64,7 @@ export class AuthService {
       role: user.role,
       isAuth: true,
       nickname: user.username,
+      bookmarkId: user.bookmarkId,
     };
 
     let userHistoryDto = new CreateUserHistoryDto();
@@ -111,6 +114,7 @@ export class AuthService {
       role: user.role,
       isAuth: userFInd.isAuth,
       nickname: user.username,
+      bookmarkId: userFInd.bookmaker.id,
     };
 
     let userHistoryDto = new CreateUserHistoryDto();
@@ -213,6 +217,20 @@ export class AuthService {
       throw new ForbiddenException("Access Denied");
     }
 
+    const wallet = await this.walletHandlerService.findWalletByUserId(user.id);
+    if (
+      user &&
+      !wallet
+    ) {
+      await this.walletHandlerService.create({
+        user: {
+          id: user.id
+        } as any,
+        balance: 30000000,
+        createdBy: user.name,
+      });
+    }
+
     if (!user) {
       const createUser = {
         username,
@@ -221,7 +239,13 @@ export class AuthService {
       };
       const createdUser = await this.userRepository.create(createUser);
       user = await this.userRepository.save(createdUser);
-      await this.userService.createWallet(user);
+      await this.walletHandlerService.create({
+        user: {
+          id: user.id
+        } as any,
+        balance: 30000000,
+        createdBy: user.name,
+      });
       const userInfoDt: any = {
         avatar: null,
         nickname: username,

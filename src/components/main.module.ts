@@ -27,6 +27,7 @@ import { CoinWalletModule } from "./coin.wallet/coin.wallet.module";
 import { CoinWalletHistoryModule } from "./coin.wallet.history/coin.wallet.history.module";
 import { TransactionModule } from "./transaction/transaction.module";
 import { SysLayoutModule } from "./sys.layout/sys.layout.module";
+import { WalletHandlerModule } from './wallet-handler/wallet-handler.module';
 @Module({
   imports: [
     AuthModule,
@@ -57,6 +58,7 @@ import { SysLayoutModule } from "./sys.layout/sys.layout.module";
     CoinWalletHistoryModule,
     TransactionModule,
     SysLayoutModule,
+    WalletHandlerModule,
   ],
 })
 export class MainModule {}

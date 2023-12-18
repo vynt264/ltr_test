@@ -19,5 +19,6 @@ import { ConnectModule } from "../connect/connect.module";
   ],
   controllers: [BookMakerController],
   providers: [BookMakerService],
+  exports: [BookMakerService],
 })
 export class BookMakerModule {}

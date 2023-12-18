@@ -41,6 +41,14 @@ export class BookMakerService {
     }
   }
 
+  async getAllBookMaker(): Promise<any> {
+    return this.bookMakerRepository.find({
+      select: {
+        id: true
+      }
+    });
+  }
+
   async getById(id: number): Promise<any> {
     try {
       const data = await this.bookMakerRepository.findOneBy({ id });
