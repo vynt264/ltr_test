@@ -55,7 +55,7 @@ export class AuthController {
         password: user.password,
         username: user.username,
         role: user.role,
-        bookmarkId: user.bookmaker.id,
+        bookmarkId: user?.bookmaker?.id || 1,
       },
       ip,
       mac,

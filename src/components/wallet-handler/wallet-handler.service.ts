@@ -29,8 +29,8 @@ export class WalletHandlerService {
   }
 
   async findWalletByUserId(userId: number) {
-    return this.walletRepository.findOne({
-      where: { user: { id: userId } },
+    return this.walletRepository.findOneBy({
+      user: { id: userId }
     });
   }
 

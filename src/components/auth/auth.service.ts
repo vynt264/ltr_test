@@ -217,7 +217,10 @@ export class AuthService {
       throw new ForbiddenException("Access Denied");
     }
 
-    const wallet = await this.walletHandlerService.findWalletByUserId(user.id);
+    let wallet;
+    if (user) {
+      wallet = await this.walletHandlerService.findWalletByUserId(user.id);
+    }
     if (
       user &&
       !wallet
@@ -227,7 +230,7 @@ export class AuthService {
           id: user.id
         } as any,
         balance: 30000000,
-        createdBy: user.name,
+        createdBy: user?.name,
       });
     }
 
@@ -236,6 +239,7 @@ export class AuthService {
         username,
         role: UserRoles.MEMBER,
         password,
+        bookmaker: { id: 1 },
       };
       const createdUser = await this.userRepository.create(createUser);
       user = await this.userRepository.save(createdUser);
@@ -244,7 +248,7 @@ export class AuthService {
           id: user.id
         } as any,
         balance: 30000000,
-        createdBy: user.name,
+        createdBy: "8816975368672903308",
       });
       const userInfoDt: any = {
         avatar: null,
