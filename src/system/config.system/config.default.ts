@@ -8,4 +8,4 @@ export const DEFAULT_CONFIG: ConfigData = {
 };
 
 
-export const FE_URL = 'http://localhost:3000';
+export const FE_URL = 'http://vntop.game.game8b.com';
