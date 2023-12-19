@@ -98,7 +98,7 @@ export class UserInfoController {
     return this.userInfoService.update(id, updateDto);
   }
 
-  @Patch(":id")
+  @Patch("updateNickname/:id")
   @ApiOperation({
     description: "Update nickname",
   })
