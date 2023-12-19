@@ -42,7 +42,7 @@ export class OrdersService {
     let result: any;
     let promises = [];
     const turnIndex = this.getTurnIndex();
-    const bookmakerId = member.bookmarkId;
+    const bookmakerId = member?.bookmakerId || 1;
     this.saveRedis(data.orders, bookmakerId);
 
     for (const order of data.orders) {
@@ -75,7 +75,7 @@ export class OrdersService {
     return result;
   }
 
-  async findAll(paginationDto: PaginationQueryDto, member: User) {
+  async findAll(paginationDto: PaginationQueryDto, member: any) {
     let {
       take: perPage,
       skip: page,
@@ -107,7 +107,7 @@ export class OrdersService {
     }
 
     const condition: any = {
-      user: member,
+      user: { id: member.id },
     };
     if (status) {
       condition.status = status;
@@ -143,7 +143,7 @@ export class OrdersService {
     }
   }
 
-  async combineOrdersByDate(paginationDto: PaginationQueryDto, member: User) {
+  async combineOrdersByDate(paginationDto: PaginationQueryDto, member: any) {
     let {
       order,
       toDate,
@@ -736,14 +736,17 @@ export class OrdersService {
 
         case BaoLoType.Lo2So:
           amount = (numberOfBets * PricePerScore.Lo2So) * order.multiple;
+          totalBet += amount;
           break;
 
         case BaoLoType.Lo2So1k:
           amount = (numberOfBets * PricePerScore.Lo2So1k) * order.multiple;
+          totalBet += amount;
           break;
 
         case BaoLoType.Lo4So:
           amount = (numberOfBets * PricePerScore.Lo4So) * order.multiple;
+          totalBet += amount;
           break;
 
         default:

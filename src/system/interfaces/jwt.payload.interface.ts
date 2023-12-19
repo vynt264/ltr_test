@@ -4,5 +4,5 @@ export interface JwtPayload {
   role: string;
   isAuth: boolean;
   nickname: string;
-  bookmarkId: number;
+  bookmakerId: number;
 }
