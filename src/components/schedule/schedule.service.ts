@@ -6,15 +6,18 @@ import { LotteriesService } from 'src/lotteries/lotteries.service';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { SocketGatewayService } from '../gateway/gateway.service';
 import { addDays, addMinutes, startOfDay } from 'date-fns';
+import { BookMakerService } from '../bookmaker/bookmaker.service';
+import { TypeLottery } from 'src/system/constants';
 
 
 @Injectable()
 export class ScheduleService implements OnModuleInit {
     constructor(
-        private schedulerRegistry: SchedulerRegistry,
+        private readonly schedulerRegistry: SchedulerRegistry,
         private readonly redisService: RedisCacheService,
         private readonly lotteriesService: LotteriesService,
         private readonly socketGateway: SocketGatewayService,
+        private readonly bookMakerService: BookMakerService,
     ) { }
 
     onModuleInit() {
@@ -25,6 +28,11 @@ export class ScheduleService implements OnModuleInit {
     initJobs() {
         this.deleteAllJob();
         this.createJobs(45);
+        this.createJobs(60);
+        this.createJobs(90);
+        this.createJobs(120);
+        this.createJobs(180);
+        this.createJobs(360);
     }
 
     createJobs(seconds: number) {
@@ -36,7 +44,7 @@ export class ScheduleService implements OnModuleInit {
             timeRunJob = timeRunJob + (seconds * 1000);
             if (timeRunJob > (new Date()).getTime()) {
                 count++;
-                const jobName = `${(new Date()).toLocaleDateString()}-${count}`;
+                const jobName = `${seconds}-${(new Date()).toLocaleDateString()}-${count}`;
                 const turnIndex = `${(new Date()).toLocaleDateString()}-${count}`;
                 const nextTurnIndex = `${(new Date()).toLocaleDateString()}-${count + 1}`;
                 const nextTime = (timeRunJob + (seconds * 1000));
@@ -53,7 +61,7 @@ export class ScheduleService implements OnModuleInit {
         for (let i = 0; i < numberOfTurnsTomorrow; i++) {
             countOfNextDay++;
             tomorrowSeconds = tomorrowSeconds + (seconds * 1000);
-            const jobName = `${(tomorrow).toLocaleDateString()}-${countOfNextDay}`;
+            const jobName = `${seconds}-${(tomorrow).toLocaleDateString()}-${countOfNextDay}`;
             const turnIndex = `${(new Date()).toLocaleDateString()}-${countOfNextDay}`;
             const nextTurnIndex = `${(new Date()).toLocaleDateString()}-${countOfNextDay + 1}`;
             const nextTime = (timeRunJob + (seconds * 1000));
@@ -71,15 +79,29 @@ export class ScheduleService implements OnModuleInit {
     }
 
     async callbackFunc(jobName: string, seconds: number, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
-        let data;
         switch (seconds) {
             case 45:
-                data = await this.redisService.get("xsspl45s");
-                await this.redisService.del("xsspl45s");
-                this.handleXsspl45s(data, jobName, time, turnIndex, nextTurnIndex, nextTime);
+                this.handle45s(jobName, time, turnIndex, nextTurnIndex, nextTime);
+                break;
+
+            case 60:
+                this.handle60s(jobName, time, turnIndex, nextTurnIndex, nextTime);
                 break;
 
             case 90:
+                this.handle90s(jobName, time, turnIndex, nextTurnIndex, nextTime);
+                break;
+
+            case 120:
+                this.handle120s(jobName, time, turnIndex, nextTurnIndex, nextTime);
+                break;
+
+            case 180:
+                this.handle180s(jobName, time, turnIndex, nextTurnIndex, nextTime);
+                break;
+
+            case 360:
+                this.handle360s(jobName, time, turnIndex, nextTurnIndex, nextTime);
                 break;
 
             default:
@@ -87,8 +109,128 @@ export class ScheduleService implements OnModuleInit {
         }
     }
 
-    handleXsspl45s(data: any, jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
+    async handle45s(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
+        const bookMakers = await this.bookMakerService.getAllBookMaker();
+        const gameType = [
+            TypeLottery.XSMB_45S,
+            TypeLottery.XSMT_45S,
+            TypeLottery.XSMN_45S,
+            TypeLottery.XSSPL_45S,
+        ];
+
+        let promises = [];
+        for (const bookMaker of bookMakers) {
+            for (const type of gameType) {
+                const key = `${bookMaker.id}-${type}`;
+                promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, key, type));
+            }
+        }
+
+        await Promise.all(promises);
+
         this.deleteCron(jobName);
+    }
+
+    async handle60s(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
+        const bookMakers = await this.bookMakerService.getAllBookMaker();
+        const gameType = [
+            TypeLottery.XSSPL_60S,
+        ];
+
+        let promises = [];
+        for (const bookMaker of bookMakers) {
+            for (const type of gameType) {
+                const key = `${bookMaker.id}-${type}`;
+                promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, key, type));
+            }
+        }
+
+        await Promise.all(promises);
+
+        this.deleteCron(jobName);
+    }
+
+    async handle90s(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
+        const bookMakers = await this.bookMakerService.getAllBookMaker();
+        const gameType = [
+            TypeLottery.XSSPL_90S,
+        ];
+
+        let promises = [];
+        for (const bookMaker of bookMakers) {
+            for (const type of gameType) {
+                const key = `${bookMaker.id}-${type}`;
+                promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, key, type));
+            }
+        }
+
+        await Promise.all(promises);
+
+        this.deleteCron(jobName);
+    }
+
+    async handle120s(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
+        const bookMakers = await this.bookMakerService.getAllBookMaker();
+        const gameType = [
+            TypeLottery.XSSPL_120S,
+        ];
+
+        let promises = [];
+        for (const bookMaker of bookMakers) {
+            for (const type of gameType) {
+                const key = `${bookMaker.id}-${type}`;
+                promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, key, type));
+            }
+        }
+
+        await Promise.all(promises);
+
+        this.deleteCron(jobName);
+    }
+
+    async handle180s(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
+        const bookMakers = await this.bookMakerService.getAllBookMaker();
+        const gameType = [
+            TypeLottery.XSMB_180S,
+            TypeLottery.XSMT_180S,
+            TypeLottery.XSMN_180S,
+        ];
+
+        let promises = [];
+        for (const bookMaker of bookMakers) {
+            for (const type of gameType) {
+                const key = `${bookMaker.id}-${type}`;
+                promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, key, type));
+            }
+        }
+
+        await Promise.all(promises);
+
+        this.deleteCron(jobName);
+    }
+
+    async handle360s(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
+        const bookMakers = await this.bookMakerService.getAllBookMaker();
+        const gameType = [
+            TypeLottery.XSSPL_360S,
+        ];
+
+        let promises = [];
+        for (const bookMaker of bookMakers) {
+            for (const type of gameType) {
+                const key = `${bookMaker.id}-${type}`;
+                promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, key, type));
+            }
+        }
+
+        await Promise.all(promises);
+
+        this.deleteCron(jobName);
+    }
+
+    async processingData(time: number, turnIndex: string, nextTurnIndex: string, nextTime: number, key: string, gameType: string) {
+        let data = await this.redisService.get(key);
+        await this.redisService.del(key);
         if (!data) {
             data = [];
         }
@@ -96,8 +238,8 @@ export class ScheduleService implements OnModuleInit {
         const prizes = this.lotteriesService.generatePrizes(dataTransform);
         const finalResult = this.lotteriesService.randomPrizes(prizes);
 
-        this.socketGateway.sendEventToClient('xsspl45s-receive-prizes', {
-            type: 'xsspl45s',
+        this.socketGateway.sendEventToClient(`${key}-receive-prizes`, {
+            type: gameType,
             turnIndex,
             nextTime,
             nextTurnIndex,

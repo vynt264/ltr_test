@@ -523,7 +523,7 @@ export class OrdersService {
   async saveRedis(orders: any, bookmakerId: string) {
     if (!orders || orders.length === 0) return;
 
-    const key = `${orders[0]?.type}`;
+    const key = `${bookmakerId}-${orders[0]?.type}`;
     const initData = await this.initData(key);
 
     for (const order of orders) {
