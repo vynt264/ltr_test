@@ -197,6 +197,7 @@ export class LotteryAwardService {
           type: true,
           awardTitle: true,
           turnIndex: true,
+          id: true,
         },
         where: {
           type: type
@@ -324,6 +325,7 @@ export class LotteryAwardService {
         awardDetail: true,
         awardTitle: true,
         turnIndex: true,
+        id: true,
       },
       where: this.guestHoldQuery(lotteryAwardDto),
       take: +perPage,
