@@ -736,14 +736,17 @@ export class OrdersService {
 
         case BaoLoType.Lo2So:
           amount = (numberOfBets * PricePerScore.Lo2So) * order.multiple;
+          totalBet += amount;
           break;
 
         case BaoLoType.Lo2So1k:
           amount = (numberOfBets * PricePerScore.Lo2So1k) * order.multiple;
+          totalBet += amount;
           break;
 
         case BaoLoType.Lo4So:
           amount = (numberOfBets * PricePerScore.Lo4So) * order.multiple;
+          totalBet += amount;
           break;
 
         default:
