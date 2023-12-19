@@ -238,11 +238,15 @@ export class UserService {
   async userGetInfo(id = 0): Promise<any> {
     try {
       const user = await this.userRepository.findOne({
+        relations: ['bookmaker'],
         select: {
           id: true,
           name: true,
           username: true,
           option: true,
+          bookmaker: {
+            id: true,
+          }
         },
         where: {
           id: id,
