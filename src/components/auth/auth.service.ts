@@ -64,7 +64,7 @@ export class AuthService {
       role: user.role,
       isAuth: true,
       nickname: user.username,
-      bookmarkId: user.bookmarkId,
+      bookmakerId: user?.bookmakerId || 1,
     };
 
     let userHistoryDto = new CreateUserHistoryDto();
@@ -114,7 +114,7 @@ export class AuthService {
       role: user.role,
       isAuth: userFInd.isAuth,
       nickname: user.username,
-      bookmarkId: userFInd?.bookmaker?.id || 1,
+      bookmakerId: userFInd?.bookmaker?.id || 1,
     };
 
     let userHistoryDto = new CreateUserHistoryDto();

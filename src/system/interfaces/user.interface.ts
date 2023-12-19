@@ -3,5 +3,5 @@ export interface UserInterface {
   username: string;
   role: string;
   usernameReal?: string;
-  bookmarkId?: number;
+  bookmakerId?: number;
 }

@@ -42,7 +42,7 @@ export class OrdersService {
     let result: any;
     let promises = [];
     const turnIndex = this.getTurnIndex();
-    const bookmakerId = member.bookmarkId;
+    const bookmakerId = member?.bookmakerId || 1;
     this.saveRedis(data.orders, bookmakerId);
 
     for (const order of data.orders) {
