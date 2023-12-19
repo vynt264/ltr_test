@@ -75,7 +75,7 @@ export class OrdersService {
     return result;
   }
 
-  async findAll(paginationDto: PaginationQueryDto, member: User) {
+  async findAll(paginationDto: PaginationQueryDto, member: any) {
     let {
       take: perPage,
       skip: page,
@@ -107,7 +107,7 @@ export class OrdersService {
     }
 
     const condition: any = {
-      user: member,
+      user: { id: member.id },
     };
     if (status) {
       condition.status = status;
@@ -143,7 +143,7 @@ export class OrdersService {
     }
   }
 
-  async combineOrdersByDate(paginationDto: PaginationQueryDto, member: User) {
+  async combineOrdersByDate(paginationDto: PaginationQueryDto, member: any) {
     let {
       order,
       toDate,
