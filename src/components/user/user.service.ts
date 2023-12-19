@@ -75,17 +75,17 @@ export class UserService {
   }
 
   async createWallet(user: User) {
-      const wlCodeQueue = await this.walletCodeQueueRepository.save({});
-      const walletCode = PrefixEnum.WALLET_CODE + wlCodeQueue.id;
-      // TODO lam torng so
-      const walletDto = {
-        walletCode: walletCode,
-        user: { id: user.id },
-        createdBy: user.username,
-      };
-      const walletCreate = this.walletRepository.create(walletDto);
-      const wallet = await this.walletRepository.save(walletCreate);
-      await this.walletHisotryRepository.save(wallet);
+    const wlCodeQueue = await this.walletCodeQueueRepository.save({});
+    const walletCode = PrefixEnum.WALLET_CODE + wlCodeQueue.id;
+    // TODO lam torng so
+    const walletDto = {
+      walletCode: walletCode,
+      user: { id: user.id },
+      createdBy: user.username,
+    };
+    const walletCreate = this.walletRepository.create(walletDto);
+    const wallet = await this.walletRepository.save(walletCreate);
+    await this.walletHisotryRepository.save(wallet);
   }
 
   async guestGetByUsername(
@@ -111,7 +111,8 @@ export class UserService {
         username,
         password: process.env.USER_PASSWORD,
         isAuth: false,
-        usernameReal
+        usernameReal,
+        bookmaker: { id: 1 },
       };
       const createdUser = this.userRepository.create(userDto);
       user = await this.userRepository.save(createdUser);
