@@ -251,10 +251,15 @@ export class OrdersService {
     const toDate = (new Date()).getTime();
     const times = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
     const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
+    const openTime = toDate - (secondsInCurrentRound * 1000);
 
     return {
-      currentTurnIndex: `${(new Date()).toLocaleDateString()} - ${times}`,
+      turnIndex: `${(new Date()).toLocaleDateString()} - ${times}`,
+      nextTurnIndex: `${(new Date()).toLocaleDateString()} - ${times + 1}`,
+      openTime: toDate - (secondsInCurrentRound * 1000),
+      nextTime: openTime + (parseInt(query.seconds) * 1000),
       currentSeconds: Math.round(secondsInCurrentRound),
+      currentMillisecond: toDate,
     };
   }
 
