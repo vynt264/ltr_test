@@ -134,4 +134,19 @@ export class UserInfoController {
   async uploadFile(@UploadedFile() image: Express.Multer.File): Promise<any> {
     return this.userInfoService.uploadAvatar(image);
   }
+
+  @Patch("update-avatar/:id")
+  @ApiOperation({
+    description: "Update avatar",
+  })
+  @ApiOkResponse({
+    type: Response<UserInfo>,
+  })
+  @UsePipes(ValidationPipe)
+  async updateAvatar(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateAvatarDto: any
+  ): Promise<any> {
+    return this.userInfoService.updateAvatar(id, updateAvatarDto);
+  }
 }
