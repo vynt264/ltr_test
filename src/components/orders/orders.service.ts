@@ -251,10 +251,26 @@ export class OrdersService {
     const toDate = (new Date()).getTime();
     const times = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
     const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
+    const openTime = toDate - (secondsInCurrentRound * 1000);
 
     return {
-      currentTurnIndex: `${(new Date()).toLocaleDateString()} - ${times}`,
+      turnIndex: `${(new Date()).toLocaleDateString()} - ${times}`,
+      nextTurnIndex: `${(new Date()).toLocaleDateString()} - ${times + 1}`,
+      openTime: toDate - (secondsInCurrentRound * 1000),
+      nextTime: openTime + (parseInt(query.seconds) * 1000),
       currentSeconds: Math.round(secondsInCurrentRound),
+      currentMillisecond: toDate,
+      awardDetail: {
+        0: ['764481'],
+        1: ['03599'],
+        2: ['03853'],
+        3: ['04880', '01115'],
+        4: ['01600', '01021', '01334', '02555', '04047', '05806', '04840'],
+        5: ['3403'],
+        6: ['2681', '8304', '1287'],
+        7: ['737'],
+        8: ['50'],
+      },
     };
   }
 
