@@ -188,6 +188,7 @@ export class UserService {
   holdQuery(object: any) {
     const data: any = {};
     // data.role = Like(`${UserRoles.MEMBER}`);
+    data.usernameReal = "";
     if (!object) {
       return data;
     }
