@@ -28,6 +28,7 @@ import { WalletHandlerModule } from '../wallet-handler/wallet-handler.module';
     WalletHandlerModule,
   ],
   controllers: [OrdersController],
-  providers: [OrdersService]
+  providers: [OrdersService],
+  exports: [OrdersService]
 })
 export class OrdersModule {}

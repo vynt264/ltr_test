@@ -68,6 +68,8 @@ export class OrdersService {
 
     result = await Promise.all(promises);
 
+    this.saveOrderOfUserToRedis(result, bookmakerId, member.id);
+
     // update balance
     const totalBetRemain = wallet.balance - totalBet;
     this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
@@ -548,6 +550,116 @@ export class OrdersService {
 
     // save data to redis
     await this.redisService.set(key, initData);
+  }
+
+  async saveOrderOfUserToRedis(orders: any, bookmakerId: number, userId: number) {
+    for (const order of orders) {
+      const dataByBookmakerId = await this.redisService.get(`bookmaker-id-${bookmakerId.toString()}-${order.type}${order.seconds}s`);
+      let initData: any = {};
+      if (!dataByBookmakerId) {
+        initData = {
+          [`user-id-${userId}`]: {
+  
+          } as any,
+        } as any;
+      } else {
+        initData = dataByBookmakerId;
+      }
+      initData[`user-id-${userId}`][`${order.id.toString()}-${order.type}${order.seconds}-${order.childBetType}`] = this.getOrderDetail(order);
+      this.redisService.set(`bookmaker-id-${bookmakerId.toString()}-${order.type}${order.seconds}s`, initData);
+    }
+  }
+
+  getOrderDetail(order: any) {
+    let str1;
+    let numbers1;
+    let str2;
+    let numbers2;
+    let str3;
+    let numbers3;
+    let str4;
+    let numbers4;
+    let numbers: any = [];
+
+    try {
+      str1 = order.detail.split('|')[0];
+      numbers1 = str1.split(',');
+      str2 = order.detail.split('|')[1];
+      numbers2 = str2.split(',');
+      str3 = order.detail.split('|')[2];
+      numbers3 = str3.split(',');
+      str4 = order.detail.split('|')[3];
+      numbers4 = str4.split(',');
+    } catch (error) { }
+
+    switch (order.childBetType) {
+      case BaoLoType.Lo2So:
+      case BaoLoType.Lo2So1k:
+      case DanhDeType.DeDau:
+      case DanhDeType.DeDacBiet:
+      case DanhDeType.DeDauDuoi:
+        numbers = [];
+        if ((order.detail.split('|').length - 1) === 1) {
+          for (const n1 of numbers1) {
+            for (const n2 of numbers2) {
+              const number = `${n1.toString()}${n2.toString()}`;
+              numbers.push(number);
+            }
+          }
+        } else {
+          numbers = order.detail.split(',');
+        }
+        break;
+
+      case BaoLoType.Lo3So:
+      case BaCangType.BaCangDau:
+      case BaCangType.BaCangDacBiet:
+      case BaCangType.BaCangDauDuoi:
+        numbers = [];
+        if ((order.detail.split('|').length - 1) === 2) {
+          for (const n1 of numbers1) {
+            for (const n2 of numbers2) {
+              for (const n3 of numbers3) {
+                const number = `${n1.toString()}${n2.toString()}${n3.toString()}`;
+                numbers.push(number);
+              }
+            }
+          }
+        } else {
+          numbers = order.detail.split(',');
+        }
+        break;
+
+      case BaoLoType.Lo4So:
+      case BonCangType.BonCangDacBiet:
+        numbers = [];
+        if ((order.detail.split('|').length - 1) === 3) {
+          for (const n1 of numbers1) {
+            for (const n2 of numbers2) {
+              for (const n3 of numbers3) {
+                for (const n4 of numbers4) {
+                  const number = `${n1.toString()}${n2.toString()}${n3.toString()}${n4.toString()}`;
+                  numbers.push(number);
+                }
+              }
+            }
+          }
+        } else {
+          numbers = order.detail.split(',');
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    const result: any = {};
+    
+    for (const number of numbers) {
+      result[number] = order.multiple;
+    }
+
+    return result;
   }
 
   handleOrders(order: any, initData: any) {
