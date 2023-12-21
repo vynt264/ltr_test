@@ -20,12 +20,16 @@ import { Roles } from "./roles.guard/roles.decorator";
 import { RolesGuard } from "./roles.guard/roles.guard";
 import { UserRoles } from "../user/enums/user.enum";
 import { CreateUserFakeDto } from "./dto/createUserFake";
+import { RedisCacheService } from "src/system/redis/redis.service";
 
 @ApiTags("Auth")
 @Controller("api/v1/auth")
 @UseGuards(RateLimitGuard)
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(
+    private authService: AuthService,
+    private readonly redisService: RedisCacheService,
+    ) { }
 
   @Post("login")
   // @UseGuards(LocalAuthGuard)
@@ -60,7 +64,9 @@ export class AuthController {
       ip,
       mac,
       username,
-    }
+    };
+
+    this.redisService.set(`bookmaker-id-${user?.bookmakerId}-users`, user.id);
 
     return this.authService.generateToken(user);
   }

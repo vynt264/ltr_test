@@ -8,6 +8,9 @@ import { SocketGatewayService } from '../gateway/gateway.service';
 import { addDays, addMinutes, startOfDay } from 'date-fns';
 import { BookMakerService } from '../bookmaker/bookmaker.service';
 import { TypeLottery } from 'src/system/constants';
+import { BaoLoType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
+import { OrdersService } from '../orders/orders.service';
+import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 
 
 @Injectable()
@@ -18,6 +21,8 @@ export class ScheduleService implements OnModuleInit {
         private readonly lotteriesService: LotteriesService,
         private readonly socketGateway: SocketGatewayService,
         private readonly bookMakerService: BookMakerService,
+        private readonly ordersService: OrdersService,
+        private readonly walletHandlerService: WalletHandlerService,
     ) { }
 
     onModuleInit() {
@@ -246,6 +251,11 @@ export class ScheduleService implements OnModuleInit {
             openTime: time,
             awardDetail: finalResult,
         });
+
+        this.handleBalance({
+            key,
+            prizes: finalResult,
+        });
     }
 
     transformData(data: any) {
@@ -292,5 +302,113 @@ export class ScheduleService implements OnModuleInit {
     @Cron('40 6 * * * ')
     cronJob() {
         this.initJobs();
+    }
+
+    async handleBalance({
+        key,
+        prizes,
+    }: { key: string, prizes: any }) {
+        const [bookmakerId, gameType] = key.split('-');
+        const userId = await this.redisService.get(`bookmaker-id-${bookmakerId}-users`);
+        const keyOrdersOfBookmaker = `bookmaker-id-${bookmakerId}-${gameType}`;
+        const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
+
+        if (!ordersOfBookmaker) return;
+
+        let ordersOfUser;
+        if (userId) {
+            ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}`] || null;
+        }
+
+        const promises = [];
+        let totalBalance = 0;
+        for (const key in ordersOfUser) {
+            const [orderId, region, typeBet] = key.split('-');
+            const balance = this.calcBalanceEachOrder({
+                orders: ordersOfUser[key],
+                typeBet,
+                prizes,
+            });
+
+            totalBalance += balance;
+
+            promises.push(this.ordersService.update(+orderId, {
+                paymentWin: balance,
+                status: 'closed',
+            }));
+        }
+
+        await Promise.all(promises);
+        await this.redisService.del(keyOrdersOfBookmaker);
+
+        const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
+        const remainBalance = +wallet.balance + totalBalance;
+        this.walletHandlerService.update(+userId, { balance: remainBalance });
+
+        this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {
+            // type: gameType,
+        });
+    }
+
+    calcBalanceEachOrder({
+        orders,
+        typeBet,
+        prizes,
+    }: any) {
+        let pointWin = 0;
+        let pointLosed = 0;
+        let balanceWin = 0;
+        let balanceLosed = 0;
+        for (const order in orders) {
+            const times = this.findNumberOccurrencesOfPrize({ order, prizes });
+            if (times > 0) {
+                pointWin += (times * orders[order]);
+            } else {
+                pointLosed -= orders[order];
+            }
+        }
+
+        switch (typeBet) {
+            case BaoLoType.Lo2So:
+                balanceWin += (pointWin * (OddBet.Lo2So * 1000));
+                balanceLosed += (pointLosed * (PricePerScore.Lo2So));
+                break;
+
+            case BaoLoType.Lo2So1k:
+                balanceWin += (pointWin * (OddBet.Lo2So1k * 1000));
+                balanceLosed += (pointLosed * (PricePerScore.Lo2So1k));
+                break;
+
+            case BaoLoType.Lo3So:
+                balanceWin += (pointWin * (OddBet.Lo3So * 1000));
+                balanceLosed += (pointLosed * (PricePerScore.Lo3So));
+                break;
+
+            case BaoLoType.Lo4So:
+                balanceWin += (pointWin * (OddBet.Lo4So * 1000));
+                balanceLosed += (pointLosed * (PricePerScore.Lo4So));
+                break;
+
+            default:
+                break;
+        }
+
+        return (balanceWin + balanceLosed);
+    }
+
+    findNumberOccurrencesOfPrize({
+        order,
+        prizes,
+    }: any) {
+        let count = 0;
+        for (let i = 0; i < 9; i++) {
+            for (let j = 0; j < prizes[i].length; j++) {
+                if (prizes[i][j].endsWith(order)) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
     }
 }
