@@ -210,6 +210,35 @@ export class NewQueryService {
     }
   }
 
+  async getDataFake(key: string) {
+    try {
+      console.log("key: ", key)
+      const listData = await this.dataFakeRepository.findAndCount({
+        where: {
+          keyMode: key,
+        },
+        order: {
+          id: "DESC",
+        }
+      })
+      console.log("listData: ", listData)
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        listData,
+        MESSAGE.LIST_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${NewQueryService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        MESSAGE.LIST_FAILED
+      );
+    }
+  }
+
   async createDataFake(createDto: CreateDataFakeRequestDto) {
     try {
       const createdDto = await this.dataFakeRepository.create(createDto);

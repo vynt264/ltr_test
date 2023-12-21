@@ -81,6 +81,20 @@ export class NewQueryController {
     return this.newQueryService.getListFavoriteGame(paginationQuery);
   }
 
+  @Get("dataFake/:key")
+  @ApiOperation({
+    description: "Get data fake by key",
+  })
+  @ApiOkResponse({
+    type: Response<DataFake[]>,
+  })
+  @ApiBearerAuth("Authorization")
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @Roles(UserRoles.SUPPER)
+  async getDataFake(@Param("key") key: string): Promise<any> {
+    return this.newQueryService.getDataFake(key);
+  }
+
   @Post("dataFake/create")
   @ApiOperation({
     description: "Create data fake",
