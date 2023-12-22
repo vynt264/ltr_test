@@ -407,7 +407,7 @@ export class NewQueryService {
         keyMode: KeyMode.FAVORITE_GAME,
         gameType: this.getRandomValueFromArray(gameTypeList),
         totalBet: this.getRandomNumberInRange(5000000, 100000000),
-        numbPlayer: this.getRandomNumber(50, 300),
+        numbPlayer: this.getRandomNumber(50, 3000),
       }
 
       const listCrreateDto = [newDtoUserWin, newDtoUserPlay, newDtoFavourite];
