@@ -7,13 +7,14 @@ import {
   SuccessResponse,
 } from "../../system/BaseResponse/index";
 import { ERROR, MESSAGE, STATUSCODE } from "../../system/constants";
-import { Between, Like, MoreThan, Repository } from "typeorm";
+import { Between, LessThan, Like, MoreThan, Repository } from "typeorm";
 import { Logger } from "winston";
 import { Order } from "../orders/entities/order.entity";
 import { DataFake } from "./data.fake.entity";
 import { CreateDataFakeRequestDto } from "./dto/create.data.fake.dto";
 import { UpdateDataFakeRequestDto } from "./dto";
 import { KeyMode } from "./enums/key.mode.enum";
+import { TypeLottery } from "../lottery.award/enums/status.dto";
 export class NewQueryService {
   constructor(
     @InjectRepository(Order)
@@ -333,6 +334,113 @@ export class NewQueryService {
         error,
         ERROR.DELETE_FAILED
       );
+    }
+  }
+
+  getRandomValueFromArray(arr: any) {
+    const randomIndex = Math.floor(Math.random() * arr.length);
+    return arr[randomIndex];
+  }
+
+  getRandomNumberInRange(min: number, max: number) {
+    // Kiểm tra nếu min không phải là bội số của 1000, tăng giá trị min cho đến khi nó là bội số của 1000
+    while (min % 1000 !== 0) {
+      min++;
+    }
+    // Tính toán số lượng bội số của 1000 trong khoảng
+    const numberOfMultiples = Math.floor((max - min + 1) / 1000);
+    // Chọn một số nguyên ngẫu nhiên từ 0 đến numberOfMultiples - 1
+    const randomIndex = Math.floor(Math.random() * numberOfMultiples);
+    // Tính toán giá trị cuối cùng bằng cách thêm số nguyên ngẫu nhiên nhân với 1000
+    const randomNumber = min + randomIndex * 1000;
+    return randomNumber;
+  }
+
+  getRandomNumber(min: number, max: number) {
+    const numberOfMultiples = Math.floor((max - min + 1));
+    const randomIndex = Math.floor(Math.random() * numberOfMultiples);
+    const randomNumber = min + randomIndex;
+    return randomNumber;
+  }
+
+  async createDataFakeAuto() {
+    try {
+      const usernameFakeList = [
+        "Đời Đày Đọa",
+        "Chim Một Nắng",
+        "Sexy Girl",
+        "Bố Mày Tới",
+        "Lò Vịt Quay",
+        "Thái Dương Tâm",
+        "Âu Văn Dương",
+        "Mù Văn Tới",
+      ];
+      const gameTypeList = [
+        TypeLottery.XSMB_45_S,
+        TypeLottery.XSMB_180_S,
+        TypeLottery.XSMT_45_S,
+        TypeLottery.XSMT_180_S,
+        TypeLottery.XSMN_45_S,
+        TypeLottery.XSMN_180_S,
+        TypeLottery.XSSPL_45_S,
+        TypeLottery.XSSPL_60_S,
+        TypeLottery.XSSPL_90_S,
+        TypeLottery.XSSPL_120_S,
+        TypeLottery.XSSPL_360_S,
+      ]
+
+      const newDtoUserWin = {
+        keyMode: KeyMode.USER_WIN,
+        username: this.getRandomValueFromArray(usernameFakeList),
+        gameType: this.getRandomValueFromArray(gameTypeList),
+        paymentWin: this.getRandomNumberInRange(10000000, 100000000),
+      }
+
+      const newDtoUserPlay = {
+        keyMode: KeyMode.USER_PLAYING,
+        username: this.getRandomValueFromArray(usernameFakeList),
+        gameType: this.getRandomValueFromArray(gameTypeList),
+        revenue: this.getRandomNumberInRange(100000, 10000000),
+      }
+
+      const newDtoFavourite = {
+        keyMode: KeyMode.FAVORITE_GAME,
+        gameType: this.getRandomValueFromArray(gameTypeList),
+        totalBet: this.getRandomNumberInRange(5000000, 100000000),
+        numbPlayer: this.getRandomNumber(50, 300),
+      }
+
+      const listCrreateDto = [newDtoUserWin, newDtoUserPlay, newDtoFavourite];
+      const createAll = listCrreateDto.map(async (dto: any) => {
+        const createdDto = await this.dataFakeRepository.create(dto);
+        await this.dataFakeRepository.save(createdDto);
+      });
+      await Promise.all(createAll);
+    } catch (error) {
+      this.logger.debug(
+        `${NewQueryService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        ERROR.CREATE_FAILED
+      );
+    }
+  }
+
+  async deteleDataFakeAuto() {
+    const currentDate = new Date();
+    const timeCheck = new Date(currentDate);
+    timeCheck.setHours(currentDate.getHours() - 1);
+    const data = await this.dataFakeRepository.find({
+      where: {
+        createdAt: LessThan(timeCheck),
+      }
+    });
+    if (data?.length > 0) {
+      data.map(async (item) => {
+        await this.dataFakeRepository.delete(item?.id)
+      })
     }
   }
 }

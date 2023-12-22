@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 @Entity({ name: "data_fake" })
 export class DataFake {
   @PrimaryGeneratedColumn()
@@ -27,4 +27,11 @@ export class DataFake {
 
   @Column({ nullable: false })
   keyMode: string;
+
+  @CreateDateColumn({
+    type: "timestamp",
+    default: () => "CURRENT_TIMESTAMP(6)",
+    name: "createdAt",
+  })
+  public createdAt!: Date;
 }

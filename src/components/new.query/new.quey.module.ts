@@ -8,6 +8,7 @@ import { SysConfigsModule } from "../sys.config/sys.config.module";
 import { ConnectModule } from "../connect/connect.module";
 import { Order } from "../orders/entities/order.entity";
 import { DataFake } from "./data.fake.entity";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { DataFake } from "./data.fake.entity";
     UserModule,
     SysConfigsModule,
     ConnectModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [NewQueryController],
   providers: [NewQueryService],
