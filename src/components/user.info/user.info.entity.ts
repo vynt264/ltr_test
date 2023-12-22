@@ -46,7 +46,7 @@ export class UserInfo {
   })
   sumOrderLose: number;
 
-  @Column({ nullable: true })
+  @Column({ type: "text", nullable: true })
   favoriteGame: string;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
