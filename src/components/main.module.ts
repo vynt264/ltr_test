@@ -28,6 +28,7 @@ import { CoinWalletHistoryModule } from "./coin.wallet.history/coin.wallet.histo
 import { TransactionModule } from "./transaction/transaction.module";
 import { SysLayoutModule } from "./sys.layout/sys.layout.module";
 import { WalletHandlerModule } from './wallet-handler/wallet-handler.module';
+import { AnalyticsModule } from "./analytics/analytics.module";
 @Module({
   imports: [
     AuthModule,
@@ -59,6 +60,7 @@ import { WalletHandlerModule } from './wallet-handler/wallet-handler.module';
     TransactionModule,
     SysLayoutModule,
     WalletHandlerModule,
+    AnalyticsModule,
   ],
 })
-export class MainModule {}
+export class MainModule { }

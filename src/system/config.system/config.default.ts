@@ -8,4 +8,4 @@ export const DEFAULT_CONFIG: ConfigData = {
 };
 
 
-export const FE_URL = 'http://vntop.game.game8b.com';
+export const FE_URL = 'http://192.168.120.17:4000';

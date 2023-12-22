@@ -56,6 +56,7 @@ export enum Lo2SoGiaiDacBietType {
 
 export enum BaoLoType {
     Lo2So = 'Lo_2_So',
+    Lo2SoDau = 'Lo_2_So_Dau',
     Lo2So1k = 'Lo_2_So_1k',
     Lo3So = 'Lo_3_So',
     Lo4So = 'Lo_4_So',

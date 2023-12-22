@@ -346,7 +346,7 @@ export class ScheduleService implements OnModuleInit {
         this.walletHandlerService.update(+userId, { balance: remainBalance });
 
         this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {
-            // type: gameType,
+            type: gameType,
         });
     }
 
