@@ -374,6 +374,13 @@ export class NewQueryService {
         "Thái Dương Tâm",
         "Âu Văn Dương",
         "Mù Văn Tới",
+        "Thẳng Không Ham",
+        "Thua Không Cay",
+        "Thỏ Lông Trắng",
+        "Gà Đi Bộ",
+        "Sếu Đầu Đỏ",
+        "Vịt Bay Màu",
+        "Họa Sĩ Mù"
       ];
       const gameTypeList = [
         TypeLottery.XSMB_45_S,
