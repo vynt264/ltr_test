@@ -37,8 +37,8 @@ import { BodyAnalyticsDto } from "./dto/bodyAnalytics.dto";
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) { }
 
-  @Post()
-  @Roles(UserRoles.MEMBER)
+  @Post("latest-50rounds")
+  // @Roles(UserRoles.MEMBER)
   async getAnalyticsByType(@Body() bodyDto: BodyAnalyticsDto): Promise<any> {
     return this.analyticsService.getAnalytics(bodyDto);
   }
