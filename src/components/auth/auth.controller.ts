@@ -21,6 +21,7 @@ import { RolesGuard } from "./roles.guard/roles.guard";
 import { UserRoles } from "../user/enums/user.enum";
 import { CreateUserFakeDto } from "./dto/createUserFake";
 import { RedisCacheService } from "src/system/redis/redis.service";
+import { Cron } from "@nestjs/schedule";
 
 @ApiTags("Auth")
 @Controller("api/v1/auth")
@@ -135,5 +136,10 @@ export class AuthController {
     @GetCurrentUser("refreshToken") refreshToken: string
   ): Promise<JWTResult> {
     return this.authService.refreshTokens(userId, refreshToken);
+  }
+
+  @Cron("0 40 * * * *")
+  async handleCronDeleteData() {
+    await this.authService.deleteBacklist();
   }
 }

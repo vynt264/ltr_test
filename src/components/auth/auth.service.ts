@@ -283,4 +283,8 @@ export class AuthService {
 
     return user;
   }
+
+  async deleteBacklist() {
+    await this.backlistService.deleteBacklist();
+  }
 }
