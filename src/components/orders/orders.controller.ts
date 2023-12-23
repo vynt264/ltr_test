@@ -53,8 +53,8 @@ export class OrdersController {
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  update(@Param('id') id: string, @Body() updateOrderDto: any) {
-    return this.ordersService.update(+id, updateOrderDto);
+  update(@Param('id') id: string, @Body() updateOrderDto: any, @Request() req: any) {
+    return this.ordersService.update(+id, updateOrderDto, req.user);
   }
 
   @Delete(':id')

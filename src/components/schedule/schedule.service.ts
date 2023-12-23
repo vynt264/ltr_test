@@ -309,45 +309,95 @@ export class ScheduleService implements OnModuleInit {
         prizes,
     }: { key: string, prizes: any }) {
         const [bookmakerId, gameType] = key.split('-');
-        const userId = await this.redisService.get(`bookmaker-id-${bookmakerId}-users`);
-        const keyOrdersOfBookmaker = `bookmaker-id-${bookmakerId}-${gameType}`;
-        const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
+        const userIds: any = await this.redisService.get(`bookmaker-id-${bookmakerId}-users`);
+        let keyOrdersOfBookmaker;
+        for (const userId of userIds as any) {
+            keyOrdersOfBookmaker = `bookmaker-id-${bookmakerId}-${gameType}`;
+            const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
 
-        if (!ordersOfBookmaker) return;
+            if (!ordersOfBookmaker) continue;
 
-        let ordersOfUser;
-        if (userId) {
-            ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}`] || null;
+            let ordersOfUser;
+            if (userId) {
+                ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}`] || null;
+            }
+
+            if (!ordersOfUser) continue;
+
+            const promises = [];
+            let totalBalance = 0;
+            for (const key in ordersOfUser) {
+                const [orderId, region, typeBet] = key.split('-');
+                const balance = this.calcBalanceEachOrder({
+                    orders: ordersOfUser[key],
+                    typeBet,
+                    prizes,
+                });
+
+                totalBalance += balance;
+
+                promises.push(this.ordersService.update(
+                    +orderId,
+                    {
+                        paymentWin: balance,
+                        status: 'closed',
+                    },
+                    null,
+                ));
+            }
+
+            await Promise.all(promises);
+
+            const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
+            const remainBalance = +wallet.balance + totalBalance;
+            this.walletHandlerService.update(+userId, { balance: remainBalance });
+
+            this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
         }
-
-        const promises = [];
-        let totalBalance = 0;
-        for (const key in ordersOfUser) {
-            const [orderId, region, typeBet] = key.split('-');
-            const balance = this.calcBalanceEachOrder({
-                orders: ordersOfUser[key],
-                typeBet,
-                prizes,
-            });
-
-            totalBalance += balance;
-
-            promises.push(this.ordersService.update(+orderId, {
-                paymentWin: balance,
-                status: 'closed',
-            }));
-        }
-
-        await Promise.all(promises);
         await this.redisService.del(keyOrdersOfBookmaker);
 
-        const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
-        const remainBalance = +wallet.balance + totalBalance;
-        this.walletHandlerService.update(+userId, { balance: remainBalance });
+        // const keyOrdersOfBookmaker = `bookmaker-id-${bookmakerId}-${gameType}`;
+        // const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
 
-        this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {
-            type: gameType,
-        });
+        // if (!ordersOfBookmaker) return;
+
+        // let ordersOfUser;
+        // if (userId) {
+        //     ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}`] || null;
+        // }
+
+        // if (!ordersOfUser) return;
+
+        // const promises = [];
+        // let totalBalance = 0;
+        // for (const key in ordersOfUser) {
+        //     const [orderId, region, typeBet] = key.split('-');
+        //     const balance = this.calcBalanceEachOrder({
+        //         orders: ordersOfUser[key],
+        //         typeBet,
+        //         prizes,
+        //     });
+
+        //     totalBalance += balance;
+
+        //     promises.push(this.ordersService.update(
+        //         +orderId,
+        //         {
+        //             paymentWin: balance,
+        //             status: 'closed',
+        //         },
+        //         null,
+        //     ));
+        // }
+
+        // await Promise.all(promises);
+        // await this.redisService.del(keyOrdersOfBookmaker);
+
+        // const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
+        // const remainBalance = +wallet.balance + totalBalance;
+        // this.walletHandlerService.update(+userId, { balance: remainBalance });
+
+        // this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
     }
 
     calcBalanceEachOrder({
