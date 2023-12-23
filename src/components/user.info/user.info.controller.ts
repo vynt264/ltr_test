@@ -149,4 +149,19 @@ export class UserInfoController {
   ): Promise<any> {
     return this.userInfoService.updateAvatar(id, updateAvatarDto);
   }
+
+  @Get("detail-statiscal/:category")
+  @ApiOperation({
+    description: "Get user info by userId",
+  })
+  @ApiOkResponse({
+    type: Response<UserInfo>,
+  })
+  @UseGuards(JwtAuthGuard, BacklistGuard)
+  async GetDetailStatiscal(
+    @Param("category") category: string,
+    @Request() req: any,
+  ): Promise<any> {
+    return this.userInfoService.getDetailStatiscal(category, req.user);
+  }
 }

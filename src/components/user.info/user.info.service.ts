@@ -359,4 +359,82 @@ export class UserInfoService {
       );
     }
   }
+
+  async getDetailStatiscal(category: string, member: any) {
+    try {
+      let orders: any[] = []
+
+      if (category == "all" || category == "xoso") {
+        const paginationDto: any = {
+          take: 100,
+          skip: 1,
+          order: Order.DESC,
+        }
+        const listOrderRes = await this.ordersService.findAll(paginationDto, {
+          id: member?.id,
+        });
+        if (listOrderRes?.lastPage == 1) {
+          orders = listOrderRes.data;
+        } else if (listOrderRes?.lastPage > 1) {
+          for (let i = 2; i <= listOrderRes?.lastPage; i++) {
+            const pagingDto: any = {
+              take: 100,
+              skip: i,
+              order: Order.DESC,
+            }
+            const listOrderResPage = await this.ordersService.findAll(
+              pagingDto,
+              { id: member?.id }
+            );
+            orders = orders.concat(listOrderResPage.data);
+          }
+        } else {
+          orders = [];
+        }
+        if (orders?.length > 0) {
+          let listFv: any[] = [];
+          const listOrder = orders;
+          listOrder?.map((order: any) => {
+            const itemFv = {
+              type: `${order?.type}${order?.seconds}s`,
+              bet: order?.revenue,
+              orderWin: order?.paymentWin > 0 ? 1 : 0,
+              sumOrder: 1,
+            }
+            listFv.push(itemFv);
+          });
+          // console.log(listFv)
+          listFv = listFv.reduce((accumulator: any, currentValue: any) => {
+            const { type, bet, orderWin, sumOrder } = currentValue;
+            if (!accumulator[type]) {
+              accumulator[type] = { type, bet: 0, orderWin: 0, sumOrder: 0 };
+            }
+            accumulator[type].bet += Number(bet);
+            accumulator[type].orderWin += Number(orderWin);
+            accumulator[type].sumOrder += Number(sumOrder);
+            return accumulator;
+          }, {});
+          // console.log("listFv: ", Object.values(listFv));
+          orders = Object.values(listFv);
+        }
+      } else {
+        // to go category != "xoso"
+      }
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        orders,
+        MESSAGE.LIST_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${UserInfoService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        MESSAGE.LIST_FAILED
+      );
+    }
+  }
 }
