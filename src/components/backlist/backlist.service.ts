@@ -55,19 +55,14 @@ export class BacklistService {
 
   async deleteBacklist() {
     const currentDate = new Date();
-    const yesterday = new Date(currentDate);
-    // yesterday.setDate(currentDate.getDate() - 1);
-    yesterday.setHours(currentDate.getHours() - 2);
-    // yesterday.setMinutes(59);
-    // yesterday.setSeconds(59);
+    const timeCheck = new Date(currentDate);
+    timeCheck.setHours(currentDate.getHours() - 2);
     // delete lotery request
-    const data = await this.backlistRepository.find(
-      {
-        where: {
-          createdAt: LessThan(yesterday)
-        }
+    const data = await this.backlistRepository.find({
+      where: {
+        createdAt: LessThan(timeCheck)
       }
-    );
+    });
     if (data?.length > 0) {
       data.map(async (item) => {
         await this.backlistRepository.delete(item?.id)

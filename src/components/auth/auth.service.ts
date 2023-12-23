@@ -205,7 +205,7 @@ export class AuthService {
   }
 
   async isNotAdmin(username: string, sign: string, isFake: boolean) {
-    if (!isFake) await this.connectService.logIn(username, sign);
+    // if (!isFake) await this.connectService.logIn(username, sign);
     const passwordDf = ConfigSys.config().password;
     return this.checkUser(username, passwordDf);
   }
@@ -221,10 +221,7 @@ export class AuthService {
     if (user) {
       wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     }
-    if (
-      user &&
-      !wallet
-    ) {
+    if (user && !wallet) {
       await this.walletHandlerService.create({
         user: {
           id: user.id
@@ -285,5 +282,9 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async deleteBacklist() {
+    await this.backlistService.deleteBacklist();
   }
 }

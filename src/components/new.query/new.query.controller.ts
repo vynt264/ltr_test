@@ -31,6 +31,7 @@ import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { DataFake } from "./data.fake.entity";
 import { CreateDataFakeRequestDto } from "./dto/create.data.fake.dto";
 import { UpdateDataFakeRequestDto } from "./dto";
+import { Cron, CronExpression } from "@nestjs/schedule";
 @Controller("/api/v1/newQuery")
 @ApiTags("NewQuery")
 @ApiBearerAuth("Authorization")
@@ -136,5 +137,15 @@ export class NewQueryController {
   @Roles(UserRoles.SUPPER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.newQueryService.deleteDataFake(id);
+  }
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  async createDataAuto() {
+    await this.newQueryService.createDataFakeAuto();
+  }
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async deteleDataAuto() {
+    await this.newQueryService.deteleDataFakeAuto();
   }
 }

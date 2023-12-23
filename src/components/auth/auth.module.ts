@@ -17,6 +17,7 @@ import { UserInfo } from "../user.info/user.info.entity";
 import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
 import { WalletHandlerModule } from "../wallet-handler/wallet-handler.module";
 import { RedisCacheModule } from "src/system/redis/redis.module";
+import { ScheduleModule } from "@nestjs/schedule";
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, UserInfo, CoinWallet]),
@@ -28,6 +29,7 @@ import { RedisCacheModule } from "src/system/redis/redis.module";
     JwtModule.register({}),
     WalletHandlerModule,
     RedisCacheModule,
+    ScheduleModule.forRoot(),
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy, RtStrategy],
   controllers: [AuthController],
