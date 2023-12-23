@@ -309,9 +309,11 @@ export class ScheduleService implements OnModuleInit {
         prizes,
     }: { key: string, prizes: any }) {
         const [bookmakerId, gameType] = key.split('-');
-        const userIds: any = await this.redisService.get(`bookmaker-id-${bookmakerId}-users`);
+        let userIds: any = await this.redisService.get(`bookmaker-id-${bookmakerId}-users`);
+        if (!userIds) return;
+
         let keyOrdersOfBookmaker;
-        for (const userId of userIds as any) {
+        for (const userId of (userIds || [])) {
             keyOrdersOfBookmaker = `bookmaker-id-${bookmakerId}-${gameType}`;
             const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
 
