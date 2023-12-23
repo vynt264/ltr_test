@@ -30,7 +30,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private readonly redisService: RedisCacheService,
-    ) { }
+  ) { }
 
   @Post("login")
   // @UseGuards(LocalAuthGuard)
@@ -46,13 +46,13 @@ export class AuthController {
     @Body() loginDto: LoginDto
   ): Promise<JWTResult> {
     const { ip, mac, is_admin: isAdmin, username, sign, is_fake: isFake } = loginDto;
-    let user;
+    let user: any;
     if (isAdmin) {
       user = await this.authService.valiRole(username, isAdmin);
     } else {
       user = await this.authService.isNotAdmin(username, sign, isFake);
     }
-    
+
     user = {
       ... {
         id: user.id,
@@ -67,7 +67,15 @@ export class AuthController {
       username,
     };
 
-    this.redisService.set(`bookmaker-id-${user?.bookmakerId}-users`, user.id);
+    let userIds: any = await this.redisService.get(`bookmaker-id-${user?.bookmakerId}-users`);
+    if (!userIds) {
+      userIds = [];
+    }
+    const hasUserId = userIds.some((id: any) => id.toString() === user.id.toString());
+    if (!hasUserId) {
+      userIds.push(user.id);
+    }
+    await this.redisService.set(`bookmaker-id-${user?.bookmakerId}-users`, userIds);
 
     return this.authService.generateToken(user);
   }
