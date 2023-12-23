@@ -22,11 +22,14 @@ export class AnalyticsService {
         dau: { [key: string]: number }
         duoi: { [key: string]: number }
     } = null
+
     constructor(
         @InjectRepository(LotteryAward)
         private lotteryAwardRepository: Repository<LotteryAward>,
     ) {
+
         this.analytic1 = Ianalytic1
+
     }
 
     async getAnalytics(body: BodyAnalyticsDto) {
@@ -68,11 +71,12 @@ export class AnalyticsService {
         switch (body.playType) {
             case CategoryLotteryType.BaoLo:
             case CategoryLotteryType.LoXien:
-                result = this.analyticsForBaolo_LoXien(body, arrAwards, countMap, countMapShow)
+            case CategoryLotteryType.LoTruot:
+                result = this.analyticsForBaolo_LoXien_LoTruot(body, arrAwards, countMap, countMapShow)
                 break;
 
             case CategoryLotteryType.DanhDe:
-                result = this.analyticsForDanhDe(body, arrAwards)
+                result = this.analyticsForDanhDe(body, arrAwards, countMap, countMapShow)
                 break;
 
             case CategoryLotteryType.DauDuoi:
@@ -80,7 +84,11 @@ export class AnalyticsService {
                 break;
 
             case CategoryLotteryType.Lo3Cang:
-                result = this.analyticsFor3Cang(body, arrAwards)
+                result = this.analyticsFor3Cang(body, arrAwards, countMap, countMapShow)
+                break;
+
+            case CategoryLotteryType.Lo4Cang:
+                result = this.analyticsFor4Cang(body, arrAwards)
                 break;
 
         }
@@ -92,7 +100,7 @@ export class AnalyticsService {
         );
     }
 
-    analyticsForBaolo_LoXien(
+    analyticsForBaolo_LoXien_LoTruot(
         body: BodyAnalyticsDto,
         arrAwards: string[],
         countMap: { [key: string]: number },
@@ -114,24 +122,7 @@ export class AnalyticsService {
                     }
                 }
             }
-        } else if (body.subPlayType == BaoLoType.Lo2So) {
-            for (const item of arrAwards) {
-                for (const el of item) {
-                    const numbers = el.split(",");
-                    // Duyệt qua mảng dữ liệu và thực hiện việc lấy 2 chữ số cuối và đếm
-                    for (const number of numbers) {
-                        const lastTwoDigits = number.slice(-2);
-                        if (countMap.hasOwnProperty(lastTwoDigits)) {
-                            countMap[lastTwoDigits] = 0;
-                            countMapShow[lastTwoDigits] = countMap[lastTwoDigits]
-                        } else {
-                            countMap[lastTwoDigits] == countMapShow[lastTwoDigits]++
-                        }
-                    }
-                }
-            }
-        }
-        else {
+        } else if (body.subPlayType == BaoLoType.Lo2SoDau) {
             for (const item of arrAwards) {
                 for (const el of item) {
                     const numbers = el.split(",");
@@ -143,6 +134,23 @@ export class AnalyticsService {
                             countMapShow[firstTwoDigits] = countMap[firstTwoDigits]
                         } else {
                             countMap[firstTwoDigits] == countMapShow[firstTwoDigits]++
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            for (const item of arrAwards) {
+                for (const el of item) {
+                    const numbers = el.split(",");
+                    // Duyệt qua mảng dữ liệu và thực hiện việc lấy 2 chữ số cuối và đếm
+                    for (const number of numbers) {
+                        const lastTwoDigits = number.slice(-2);
+                        if (countMap.hasOwnProperty(lastTwoDigits)) {
+                            countMap[lastTwoDigits] = 0;
+                            countMapShow[lastTwoDigits] = countMap[lastTwoDigits]
+                        } else {
+                            countMap[lastTwoDigits] == countMapShow[lastTwoDigits]++
                         }
                     }
                 }
@@ -160,17 +168,18 @@ export class AnalyticsService {
     analyticsForDanhDe(
         body: BodyAnalyticsDto,
         arrAwards: string[],
+        countMap: { [key: string]: number },
+        countMapShow: { [key: string]: number }
     ) {
         this.analytic1.ngan = {}
         this.analytic1.tram = {}
-        let analytic2: { [key: string]: number }
 
         switch (body.subPlayType) {
 
             case DanhDeType.DeDau:
             case DanhDeType.DeDacBiet:
                 for (const item of arrAwards) {
-                    const award = DanhDeType.DeDau ? item[8] : item[0]
+                    const award: string = (body.subPlayType === DanhDeType.DeDau) ? item[8] : item[0]
                     const dauNum = award.charAt(0)
                     const duoiNum = award.charAt(1)
 
@@ -189,6 +198,19 @@ export class AnalyticsService {
                         }
                     }
                 }
+                // analytic2
+                for (const item of arrAwards) {
+                    const number: string = (body.subPlayType === DanhDeType.DeDau) ? item[8] : item[0]
+                    const lastTwoDigits = number.slice(-2);
+
+                    if (countMap.hasOwnProperty(lastTwoDigits)) {
+                        countMap[lastTwoDigits] = 0;
+                        countMapShow[lastTwoDigits] = countMap[lastTwoDigits]
+                    } else {
+                        countMap[lastTwoDigits] == countMapShow[lastTwoDigits]++
+                    }
+                }
+
                 break;
 
             case DanhDeType.DeDauDuoi:
@@ -213,12 +235,26 @@ export class AnalyticsService {
                         }
                     }
                 }
+                // analytic2
+                for (const item of arrAwards) {
+                    for (const number of [item[8], item[0]]) {
+                        const lastTwoDigits = number.slice(-2);
+
+                        if (countMap.hasOwnProperty(lastTwoDigits)) {
+                            countMap[lastTwoDigits] = 0;
+                            countMapShow[lastTwoDigits] = countMap[lastTwoDigits]
+                        } else {
+                            countMap[lastTwoDigits] == countMapShow[lastTwoDigits]++
+                        }
+                    }
+                }
+
                 break;
         }
 
         return {
             analytic1: this.analytic1,
-            analytic2: {}
+            analytic2: countMapShow
         }
     }
 
@@ -265,9 +301,11 @@ export class AnalyticsService {
     analyticsFor3Cang(
         body: BodyAnalyticsDto,
         arrAwards: string[],
+        countMap: { [key: string]: number },
+        countMapShow: { [key: string]: number }
     ) {
         this.analytic1.ngan = {}
-        this.analytic1.tram = {}
+
         let analytic2: { [key: string]: number }
 
         switch (body.subPlayType) {
@@ -275,10 +313,18 @@ export class AnalyticsService {
             case BaCangType.BaCangDau:
             case BaCangType.BaCangDacBiet:
                 for (const item of arrAwards) {
-                    const award = BaCangType.BaCangDau ? item[7] : item[0]
-                    const dauNum = award.charAt(0)
-                    const duoiNum = award.charAt(1)
+                    const award: string = (body.subPlayType === BaCangType.BaCangDau) ? item[7] : item[0].slice(-3)
+                    const tramNum = award.charAt(0)
+                    const dauNum = award.charAt(1)
+                    const duoiNum = award.charAt(2)
 
+                    for (const key in this.analytic1.tram) {
+                        if (key === tramNum) {
+                            this.analytic1.tram[tramNum] = 0
+                        } else {
+                            this.analytic1.tram[key] += 1
+                        }
+                    }
                     for (const key in this.analytic1.dau) {
                         if (key === dauNum) {
                             this.analytic1.dau[dauNum] = 0
@@ -294,14 +340,35 @@ export class AnalyticsService {
                         }
                     }
                 }
+                // analytic2
+                for (const item of arrAwards) {
+                    const number: string = (body.subPlayType === BaCangType.BaCangDau) ? item[7] : item[0]
+                    const lastThreeDigits = number.slice(-3);
+
+                    if (countMap.hasOwnProperty(lastThreeDigits)) {
+                        countMap[lastThreeDigits] = 0;
+                        countMapShow[lastThreeDigits] = countMap[lastThreeDigits]
+                    } else {
+                        countMap[lastThreeDigits] == countMapShow[lastThreeDigits]++
+                    }
+                }
+
                 break;
 
             case BaCangType.BaCangDauDuoi:
                 for (const item of arrAwards) {
-                    for (const award of [item[8], item[0]]) {
-                        const dauNum = award.charAt(0)
-                        const duoiNum = award.charAt(1)
+                    for (const award of [item[7], item[0]]) {
+                        const tramNum = award.charAt(0)
+                        const dauNum = award.charAt(1)
+                        const duoiNum = award.charAt(2)
 
+                        for (const key in this.analytic1.tram) {
+                            if (key === tramNum) {
+                                this.analytic1.tram[tramNum] = 0
+                            } else {
+                                this.analytic1.tram[key] += 1
+                            }
+                        }
                         for (const key in this.analytic1.dau) {
                             if (key === dauNum) {
                                 this.analytic1.dau[dauNum] = 0
@@ -319,6 +386,56 @@ export class AnalyticsService {
                     }
                 }
                 break;
+        }
+
+        return {
+            analytic1: this.analytic1,
+            analytic2: countMapShow
+        }
+    }
+
+    analyticsFor4Cang(
+        body: BodyAnalyticsDto,
+        arrAwards: string[],
+    ) {
+
+        let analytic2: { [key: string]: number }
+
+        for (const item of arrAwards) {
+            const award: string = item[0].slice(-4)
+            const nganNum = award.charAt(0)
+            const tramNum = award.charAt(1)
+            const dauNum = award.charAt(2)
+            const duoiNum = award.charAt(3)
+
+            for (const key in this.analytic1.ngan) {
+                if (key === nganNum) {
+                    this.analytic1.ngan[nganNum] = 0
+                } else {
+                    this.analytic1.ngan[key] += 1
+                }
+            }
+            for (const key in this.analytic1.tram) {
+                if (key === tramNum) {
+                    this.analytic1.tram[tramNum] = 0
+                } else {
+                    this.analytic1.tram[key] += 1
+                }
+            }
+            for (const key in this.analytic1.dau) {
+                if (key === dauNum) {
+                    this.analytic1.dau[dauNum] = 0
+                } else {
+                    this.analytic1.dau[key] += 1
+                }
+            }
+            for (const key in this.analytic1.duoi) {
+                if (key === duoiNum) {
+                    this.analytic1.duoi[duoiNum] = 0
+                } else {
+                    this.analytic1.duoi[key] += 1
+                }
+            }
         }
 
         return {

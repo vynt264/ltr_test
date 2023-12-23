@@ -33,7 +33,7 @@ import { BodyAnalyticsDto } from "./dto/bodyAnalytics.dto";
 @Controller("/api/v1/analytics")
 @ApiTags("analytics")
 @ApiBearerAuth("Authorization")
-@UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard, RateLimitGuard)
+@UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) { }
 
