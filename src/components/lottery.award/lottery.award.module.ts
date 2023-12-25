@@ -26,5 +26,6 @@ import { LotteryFtQueue } from "../lottery.request/lottery.ft.queue";
   ],
   controllers: [LotteryAwardController],
   providers: [LotteryAwardService],
+  exports: [LotteryAwardService]
 })
 export class LotteryAwardModule {}

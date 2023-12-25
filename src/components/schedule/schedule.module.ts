@@ -6,6 +6,7 @@ import { GatewayModule } from '../gateway/gateway.module';
 import { BookMakerModule } from '../bookmaker/bookmaker.module';
 import { OrdersModule } from '../orders/orders.module';
 import { WalletHandlerModule } from '../wallet-handler/wallet-handler.module';
+import { LotteryAwardModule } from '../lottery.award/lottery.award.module';
 
 @Module({
     imports: [
@@ -14,7 +15,8 @@ import { WalletHandlerModule } from '../wallet-handler/wallet-handler.module';
         GatewayModule,
         BookMakerModule,
         OrdersModule,
-        WalletHandlerModule
+        WalletHandlerModule,
+        LotteryAwardModule,
     ],
     providers: [
         ScheduleService,

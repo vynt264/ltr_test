@@ -16,6 +16,7 @@ import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, C
 import { TypeLottery } from 'src/system/constants';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
+import { LotteryAwardService } from '../lottery.award/lottery.award.service';
 
 @Injectable()
 export class OrdersService {
@@ -24,6 +25,7 @@ export class OrdersService {
     private orderRequestRepository: Repository<Order>,
     private readonly redisService: RedisCacheService,
     private readonly walletHandlerService: WalletHandlerService,
+    private readonly lotteryAwardService: LotteryAwardService,
   ) { }
 
   async create(data: CreateListOrdersDto, member: any) {
@@ -39,7 +41,6 @@ export class OrdersService {
       );
     }
 
-    // let result: any;
     let promises = [];
     const turnIndex = this.getTurnIndex();
     const bookmakerId = member?.bookmakerId || 1;
@@ -56,12 +57,6 @@ export class OrdersService {
       order.user = member;
 
       promises.push(this.orderRequestRepository.save(order));
-
-      // if (promises.length === 1000) {
-      //   const tempResult = await Promise.all(promises);
-      //   result = result.concat(tempResult);
-      //   promises = [];
-      // }
     }
 
     if (promises.length === 0) return;
@@ -273,36 +268,26 @@ export class OrdersService {
     return this.orderRequestRepository.delete(id);
   }
 
-  getCurrentTurnIndex(query: { seconds: string }) {
+  async getCurrentTurnIndex(query: { seconds: string }) {
     if (!query.seconds) {
       return {};
     }
     const startOf7AM = startOfDay(new Date());
     const fromDate = addHours(startOf7AM, 7).getTime();
-
     const toDate = (new Date()).getTime();
     const times = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
     const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
     const openTime = toDate - (secondsInCurrentRound * 1000);
+    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${(new Date()).toLocaleDateString()}-${times-1}`);
 
     return {
-      turnIndex: `${(new Date()).toLocaleDateString()} - ${times}`,
-      nextTurnIndex: `${(new Date()).toLocaleDateString()} - ${times + 1}`,
+      turnIndex: `${(new Date()).toLocaleDateString()}-${times}`,
+      nextTurnIndex: `${(new Date()).toLocaleDateString()}-${times + 1}`,
       openTime: toDate - (secondsInCurrentRound * 1000),
       nextTime: openTime + (parseInt(query.seconds) * 1000),
       currentSeconds: Math.round(secondsInCurrentRound),
       currentMillisecond: toDate,
-      awardDetail: {
-        0: ['764481'],
-        1: ['03599'],
-        2: ['03853'],
-        3: ['04880', '01115'],
-        4: ['01600', '01021', '01334', '02555', '04047', '05806', '04840'],
-        5: ['3403'],
-        6: ['2681', '8304', '1287'],
-        7: ['737'],
-        8: ['50'],
-      },
+      awardDetail: lotteryAward.awardDetail,
     };
   }
 
@@ -526,9 +511,15 @@ export class OrdersService {
     let numbersUnitRow;
     let hundreds;
     let numbersHundreds;
+    let unit;
+    let numbersUnits;
 
     switch (childBetType) {
       case BaoLoType.Lo2So:
+      case BaoLoType.Lo2So1k:
+      case DanhDeType.DeDau:
+      case DanhDeType.DeDacBiet:
+      case DanhDeType.DeDauDuoi:
         try {
           if ((ordersDetail.split('|').length - 1) === 1) {
             dozens = ordersDetail.split('|')[0];
@@ -547,6 +538,9 @@ export class OrdersService {
         break;
 
       case BaoLoType.Lo3So:
+      case BaCangType.BaCangDau:
+      case BaCangType.BaCangDacBiet:
+      case BaCangType.BaCangDauDuoi:
         if ((ordersDetail.split('|').length - 1) === 2) {
           dozens = ordersDetail.split('|')[0];
           numbersDozens = dozens.split(',');
@@ -555,6 +549,24 @@ export class OrdersService {
           hundreds = ordersDetail.split('|')[2];
           numbersHundreds = hundreds.split(',');
           numberOfBets = numbersDozens.length * numbersUnitRow.length * numbersHundreds.length;
+        } else {
+          const numbers = ordersDetail.split(',');
+          numberOfBets = numbers.length;
+        }
+        break;
+
+      case BaoLoType.Lo4So:
+      case BonCangType.BonCangDacBiet:
+        if ((ordersDetail.split('|').length - 1) === 3) {
+          dozens = ordersDetail.split('|')[0];
+          numbersDozens = dozens.split(',');
+          unitRow = ordersDetail.split('|')[1];
+          numbersUnitRow = unitRow.split(',');
+          hundreds = ordersDetail.split('|')[2];
+          numbersHundreds = hundreds.split(',');
+          unit = ordersDetail.split('|')[3];
+          numbersUnits = unit.split(',');
+          numberOfBets = numbersDozens.length * numbersUnitRow.length * numbersHundreds.length * numbersUnits.length;
         } else {
           const numbers = ordersDetail.split(',');
           numberOfBets = numbers.length;
@@ -910,6 +922,36 @@ export class OrdersService {
 
         case BaoLoType.Lo4So:
           amount = (numberOfBets * PricePerScore.Lo4So) * order.multiple;
+          totalBet += amount;
+          break;
+
+        case DanhDeType.DeDau:
+          amount = (numberOfBets * PricePerScore.DeDau) * order.multiple;
+          totalBet += amount;
+          break;
+
+        case DanhDeType.DeDacBiet:
+          amount = (numberOfBets * PricePerScore.DeDacBiet) * order.multiple;
+          totalBet += amount;
+          break;
+
+        case DanhDeType.DeDauDuoi:
+          amount = (numberOfBets * PricePerScore.DeDauDuoi) * order.multiple;
+          totalBet += amount;
+          break;
+
+        case BaCangType.BaCangDau:
+          amount = (numberOfBets * PricePerScore.BaCangDau) * order.multiple;
+          totalBet += amount;
+          break;
+
+        case BaCangType.BaCangDacBiet:
+          amount = (numberOfBets * PricePerScore.BaCangDacBiet) * order.multiple;
+          totalBet += amount;
+          break;
+
+        case BaCangType.BaCangDauDuoi:
+          amount = (numberOfBets * PricePerScore.BaCangDauDuoi) * order.multiple;
           totalBet += amount;
           break;
 

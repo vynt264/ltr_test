@@ -250,6 +250,14 @@ export class LotteryAwardService {
     }
   }
 
+  getLotteryAwardByTurnIndex(turnIndex: string) {
+    return this.lotteryAwardRepository.findOne({
+      where: {
+        turnIndex,
+      },
+    });
+  }
+
   getNextTimeXsBySecond(second: number, currentTurn: number = 0) {
     const cycle = second;
     const now = new Date(new Date().getTime() - 5000);
@@ -502,17 +510,17 @@ export class LotteryAwardService {
     }
   }
 
-  async processXsByType(type: string) {
-    const turnIndex = this.getTurnIndex(type);
-    const username = `${SystemEnum.SYSTEM}`;
+  // async processXsByType(type: string) {
+  //   const turnIndex = this.getTurnIndex(type);
+  //   const username = `${SystemEnum.SYSTEM}`;
 
-    const createLotteryAward: CreateLotteryAwardDto = {
-      type,
-      turnIndex,
-    }
+  //   const createLotteryAward: CreateLotteryAwardDto = {
+  //     type,
+  //     turnIndex,
+  //   }
 
-    const result = await this.create(createLotteryAward, username);
-  }
+  //   const result = await this.create(createLotteryAward, username);
+  // }
 
   convertOpenTime(type: string, dateTime: Date): Date {
     if (type == this.xsmb) {
@@ -1586,6 +1594,10 @@ export class LotteryAwardService {
 
     const arrSortAward = arrSubAwardRandom.sort((a, b) => a.paymentSub - b.paymentSub);
     return arrSortAward[0];
+  }
+
+  async createLotteryAward(createAwardDto: CreateLotteryAwardDto) {
+    return await this.lotteryAwardRepository.save(createAwardDto);
   }
 
   async create(createAwardDto: CreateLotteryAwardDto, username = ''): Promise<BaseResponse> {

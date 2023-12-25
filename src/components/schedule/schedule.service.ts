@@ -11,6 +11,7 @@ import { TypeLottery } from 'src/system/constants';
 import { BaoLoType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
+import { LotteryAwardService } from '../lottery.award/lottery.award.service';
 
 
 @Injectable()
@@ -23,6 +24,7 @@ export class ScheduleService implements OnModuleInit {
         private readonly bookMakerService: BookMakerService,
         private readonly ordersService: OrdersService,
         private readonly walletHandlerService: WalletHandlerService,
+        private readonly lotteryAwardService: LotteryAwardService,
     ) { }
 
     onModuleInit() {
@@ -47,8 +49,8 @@ export class ScheduleService implements OnModuleInit {
         let count = 0;
         for (let i = 0; i < numberOfTurns; i++) {
             timeRunJob = timeRunJob + (seconds * 1000);
+            count++;
             if (timeRunJob > (new Date()).getTime()) {
-                count++;
                 const jobName = `${seconds}-${(new Date()).toLocaleDateString()}-${count}`;
                 const turnIndex = `${(new Date()).toLocaleDateString()}-${count}`;
                 const nextTurnIndex = `${(new Date()).toLocaleDateString()}-${count + 1}`;
@@ -243,6 +245,12 @@ export class ScheduleService implements OnModuleInit {
         const prizes = this.lotteriesService.generatePrizes(dataTransform);
         const finalResult = this.lotteriesService.randomPrizes(prizes);
 
+        this.lotteryAwardService.createLotteryAward({
+            turnIndex,
+            type: gameType,
+            awardDetail: JSON.stringify(finalResult),
+        });
+
         this.socketGateway.sendEventToClient(`${key}-receive-prizes`, {
             type: gameType,
             turnIndex,
@@ -357,49 +365,6 @@ export class ScheduleService implements OnModuleInit {
             this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
         }
         await this.redisService.del(keyOrdersOfBookmaker);
-
-        // const keyOrdersOfBookmaker = `bookmaker-id-${bookmakerId}-${gameType}`;
-        // const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
-
-        // if (!ordersOfBookmaker) return;
-
-        // let ordersOfUser;
-        // if (userId) {
-        //     ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}`] || null;
-        // }
-
-        // if (!ordersOfUser) return;
-
-        // const promises = [];
-        // let totalBalance = 0;
-        // for (const key in ordersOfUser) {
-        //     const [orderId, region, typeBet] = key.split('-');
-        //     const balance = this.calcBalanceEachOrder({
-        //         orders: ordersOfUser[key],
-        //         typeBet,
-        //         prizes,
-        //     });
-
-        //     totalBalance += balance;
-
-        //     promises.push(this.ordersService.update(
-        //         +orderId,
-        //         {
-        //             paymentWin: balance,
-        //             status: 'closed',
-        //         },
-        //         null,
-        //     ));
-        // }
-
-        // await Promise.all(promises);
-        // await this.redisService.del(keyOrdersOfBookmaker);
-
-        // const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
-        // const remainBalance = +wallet.balance + totalBalance;
-        // this.walletHandlerService.update(+userId, { balance: remainBalance });
-
-        // this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
     }
 
     calcBalanceEachOrder({

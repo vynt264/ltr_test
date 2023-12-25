@@ -39,6 +39,11 @@ import { RequestDetailDto } from "../lottery.request/dto/request.detail.dto";
 export class LotteryAwardController {
   constructor(private lotteryAwardService: LotteryAwardService) { }
 
+  @Post('')
+  async createLotteryAward(@Body() createLotteryAwardDto: CreateLotteryAwardDto): Promise<any> {
+    return this.lotteryAwardService.createLotteryAward(createLotteryAwardDto);
+  }
+
   @Post("create")
   @ApiOperation({
     description: "Create lotteryAward",
@@ -235,75 +240,75 @@ export class LotteryAwardController {
 
   // mien bac -- start
   // @Cron('*/45 * * * * *') // job 45s
-  @Interval(45000)
-  async handleCronXsmb45s() {
-    // const now = new Date();
-    // const cycle = 45000;
-    // const minutesSinceMidnight = now.getTime() - startOfDay(now).getTime();
-    // const turn = Math.floor(minutesSinceMidnight / +cycle);
+  // @Interval(45000)
+  // async handleCronXsmb45s() {
+  //   // const now = new Date();
+  //   // const cycle = 45000;
+  //   // const minutesSinceMidnight = now.getTime() - startOfDay(now).getTime();
+  //   // const turn = Math.floor(minutesSinceMidnight / +cycle);
 
-    // check này là do cron ko support chạy 45s
-    // if (now.getTime() - startOfDay(now).getTime() - turn * cycle < 10000) {
-      this.lotteryAwardService.processXsByType(TypeLottery.XSMB_45_S);
-    // }
-  }
+  //   // check này là do cron ko support chạy 45s
+  //   // if (now.getTime() - startOfDay(now).getTime() - turn * cycle < 10000) {
+  //     this.lotteryAwardService.processXsByType(TypeLottery.XSMB_45_S);
+  //   // }
+  // }
 
-  @Interval(180000)
-  async handleCronXsmb180s() {
-    await this.lotteryAwardService.processXsByType(TypeLottery.XSMB_180_S);
-  }
-  // mien bac --end
+  // @Interval(180000)
+  // async handleCronXsmb180s() {
+  //   await this.lotteryAwardService.processXsByType(TypeLottery.XSMB_180_S);
+  // }
+  // // mien bac --end
 
-  // mien trung --start
-  @Interval(45000)
-  async handleCronXsmt45s() {
-    await this.lotteryAwardService.processXsByType(TypeLottery.XSMT_45_S);
-  }
+  // // mien trung --start
+  // @Interval(45000)
+  // async handleCronXsmt45s() {
+  //   await this.lotteryAwardService.processXsByType(TypeLottery.XSMT_45_S);
+  // }
 
-  @Interval(180000)
-  async handleCronXsmt180s() {
-    await this.lotteryAwardService.processXsByType(TypeLottery.XSMT_180_S);
-  }
-  // mien trung --end
+  // @Interval(180000)
+  // async handleCronXsmt180s() {
+  //   await this.lotteryAwardService.processXsByType(TypeLottery.XSMT_180_S);
+  // }
+  // // mien trung --end
 
-  // mien nam --start
-  @Interval(45000)
-  async handleCronXsmn45s() {
-    await this.lotteryAwardService.processXsByType(TypeLottery.XSMN_45_S);
-  }
+  // // mien nam --start
+  // @Interval(45000)
+  // async handleCronXsmn45s() {
+  //   await this.lotteryAwardService.processXsByType(TypeLottery.XSMN_45_S);
+  // }
 
-  @Interval(180000)
-  async handleCronXsmn180s() {
-    await this.lotteryAwardService.processXsByType(TypeLottery.XSMN_180_S);
-  }
-  // mien trung --end
+  // @Interval(180000)
+  // async handleCronXsmn180s() {
+  //   await this.lotteryAwardService.processXsByType(TypeLottery.XSMN_180_S);
+  // }
+  // // mien trung --end
 
-  // supper rick lottery --start
-  @Interval(45000)
-  async handleCronXsspl45s() {
-    await this.lotteryAwardService.processXsByType(TypeLottery.XSSPL_45_S);
-  }
+  // // supper rick lottery --start
+  // @Interval(45000)
+  // async handleCronXsspl45s() {
+  //   await this.lotteryAwardService.processXsByType(TypeLottery.XSSPL_45_S);
+  // }
 
-  @Cron(CronExpression.EVERY_MINUTE)
-  async handleCronXsspl60s() {
-    await this.lotteryAwardService.processXsByType(TypeLottery.XSSPL_60_S);
-  }
+  // @Cron(CronExpression.EVERY_MINUTE)
+  // async handleCronXsspl60s() {
+  //   await this.lotteryAwardService.processXsByType(TypeLottery.XSSPL_60_S);
+  // }
 
-  @Interval(90000)
-  async handleCronXsspl90s() {
-    await this.lotteryAwardService.processXsByType(TypeLottery.XSSPL_90_S);
-  }
+  // @Interval(90000)
+  // async handleCronXsspl90s() {
+  //   await this.lotteryAwardService.processXsByType(TypeLottery.XSSPL_90_S);
+  // }
 
-  @Interval(120000)
-  async handleCronXsspl180s() {
-    await this.lotteryAwardService.processXsByType(TypeLottery.XSSPL_120_S);
-  }
+  // @Interval(120000)
+  // async handleCronXsspl180s() {
+  //   await this.lotteryAwardService.processXsByType(TypeLottery.XSSPL_120_S);
+  // }
 
-  @Interval(360000)
-  async handleCronXsspl360s() {
-    await this.lotteryAwardService.processXsByType(TypeLottery.XSSPL_360_S);
-  }
-  // supper rick lottery --end
+  // @Interval(360000)
+  // async handleCronXsspl360s() {
+  //   await this.lotteryAwardService.processXsByType(TypeLottery.XSSPL_360_S);
+  // }
+  // // supper rick lottery --end
 
   // delete data
   // @Cron(CronExpression.EVERY_DAY_AT_5AM)
