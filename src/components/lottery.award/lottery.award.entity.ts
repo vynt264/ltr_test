@@ -23,7 +23,7 @@ export class LotteryAward {
   @Column({ type: 'int', nullable: true })
   status: number;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'text', nullable: true })
   awardDetail: string;
   
   @Column({ type: 'json', nullable: true })

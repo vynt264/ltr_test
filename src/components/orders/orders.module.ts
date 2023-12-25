@@ -15,6 +15,7 @@ import { Order } from './entities/order.entity';
 import { RedisCacheModule } from 'src/system/redis/redis.module';
 import { GatewayModule } from '../gateway/gateway.module';
 import { WalletHandlerModule } from '../wallet-handler/wallet-handler.module';
+import { LotteryAwardModule } from '../lottery.award/lottery.award.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { WalletHandlerModule } from '../wallet-handler/wallet-handler.module';
     RedisCacheModule,
     GatewayModule,
     WalletHandlerModule,
+    LotteryAwardModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsJSON, IsNotEmpty, IsString } from "class-validator";
 
 export class CreateLotteryAwardDto {
 
@@ -20,4 +20,8 @@ export class CreateLotteryAwardDto {
   @IsString()
   @IsNotEmpty()
   turnIndex: string;
+
+  @IsString()
+  @IsNotEmpty()
+  awardDetail: string;
 }
