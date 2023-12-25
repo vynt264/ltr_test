@@ -485,7 +485,8 @@ export class OrdersService {
   }
 
   getTurnIndex() {
-    const fromDate = startOfDay(new Date()).getTime();
+    const time = `${(new Date()).toLocaleDateString()}, 07:00 AM`;
+    const fromDate = new Date(time).getTime();
     const toDate = (new Date()).getTime();
     const times = Math.floor(((toDate - fromDate) / 1000) / 45);
 
