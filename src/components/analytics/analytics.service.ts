@@ -102,16 +102,16 @@ export class AnalyticsService {
 
     analyticsForBaolo_LoXien_LoTruot(
         body: BodyAnalyticsDto,
-        arrAwards: string[],
+        arrAwards: any[],
         countMap: { [key: string]: number },
         countMapShow: { [key: string]: number }) {
 
         if (body.subPlayType == BaoLoType.Lo3So) {
             for (const item of arrAwards) {
-                for (const el of item.slice(0, 8)) {
-                    const numbers = el.split(",");
+                for (const el in item) {
+                    // const numbers = el.split(",");
                     // Duyệt qua mảng dữ liệu và thực hiện việc lấy 3 chữ số cuối và đếm
-                    for (const number of numbers) {
+                    for (const number of item[el]) {
                         const lastThreeDigits = number.slice(-3).toString();
                         if (countMap.hasOwnProperty(lastThreeDigits)) {
                             countMap[lastThreeDigits] = 0;
@@ -124,10 +124,10 @@ export class AnalyticsService {
             }
         } else if (body.subPlayType == BaoLoType.Lo2SoDau) {
             for (const item of arrAwards) {
-                for (const el of item) {
-                    const numbers = el.split(",");
+                for (const el in item) {
+                    // const numbers = el.split(",");
                     // Duyệt qua mảng dữ liệu và thực hiện việc lấy 2 chữ số cuối và đếm
-                    for (const number of numbers) {
+                    for (const number of item[el]) {
                         const firstTwoDigits = number.slice(0, 2);
                         if (countMap.hasOwnProperty(firstTwoDigits)) {
                             countMap[firstTwoDigits] = 0;
@@ -139,12 +139,12 @@ export class AnalyticsService {
                 }
             }
         }
-        else {
+        else if (body.subPlayType == BaoLoType.Lo2So || body.subPlayType == BaoLoType.Lo2So1k) {
             for (const item of arrAwards) {
-                for (const el of item) {
-                    const numbers = el.split(",");
+                for (const el in item) {
+                    // const numbers = el.split(",");
                     // Duyệt qua mảng dữ liệu và thực hiện việc lấy 2 chữ số cuối và đếm
-                    for (const number of numbers) {
+                    for (const number of item[el]) {
                         const lastTwoDigits = number.slice(-2);
                         if (countMap.hasOwnProperty(lastTwoDigits)) {
                             countMap[lastTwoDigits] = 0;
@@ -167,10 +167,11 @@ export class AnalyticsService {
 
     analyticsForDanhDe(
         body: BodyAnalyticsDto,
-        arrAwards: string[],
+        arrAwards: any[],
         countMap: { [key: string]: number },
         countMapShow: { [key: string]: number }
     ) {
+        this.analytic1 = Ianalytic1
         this.analytic1.ngan = {}
         this.analytic1.tram = {}
 
@@ -179,9 +180,9 @@ export class AnalyticsService {
             case DanhDeType.DeDau:
             case DanhDeType.DeDacBiet:
                 for (const item of arrAwards) {
-                    const award: string = (body.subPlayType === DanhDeType.DeDau) ? item[8] : item[0]
-                    const dauNum = award.charAt(0)
-                    const duoiNum = award.charAt(1)
+                    const award: string = (body.subPlayType === DanhDeType.DeDau) ? item[8][0] : item[0][0]
+                    const dauNum = award.charAt(4)
+                    const duoiNum = award.charAt(5)
 
                     for (const key in this.analytic1.dau) {
                         if (key === dauNum) {
@@ -200,7 +201,7 @@ export class AnalyticsService {
                 }
                 // analytic2
                 for (const item of arrAwards) {
-                    const number: string = (body.subPlayType === DanhDeType.DeDau) ? item[8] : item[0]
+                    const number: string = (body.subPlayType === DanhDeType.DeDau) ? item[8][0] : item[0][0]
                     const lastTwoDigits = number.slice(-2);
 
                     if (countMap.hasOwnProperty(lastTwoDigits)) {
@@ -215,7 +216,7 @@ export class AnalyticsService {
 
             case DanhDeType.DeDauDuoi:
                 for (const item of arrAwards) {
-                    for (const award of [item[8], item[0]]) {
+                    for (const award of [item[8][0], item[0][0]]) {
                         const dauNum = award.charAt(0)
                         const duoiNum = award.charAt(1)
 
@@ -237,7 +238,7 @@ export class AnalyticsService {
                 }
                 // analytic2
                 for (const item of arrAwards) {
-                    for (const number of [item[8], item[0]]) {
+                    for (const number of [item[8][0], item[0][0]]) {
                         const lastTwoDigits = number.slice(-2);
 
                         if (countMap.hasOwnProperty(lastTwoDigits)) {
@@ -260,14 +261,15 @@ export class AnalyticsService {
 
     analyticsForDauDuoi(
         body: BodyAnalyticsDto,
-        arrAwards: string[],
+        arrAwards: any[],
     ) {
+        this.analytic1 = Ianalytic1
         this.analytic1.ngan = {}
         this.analytic1.tram = {}
         let analytic2: { [key: string]: number }
 
         for (const item of arrAwards) {
-            const award = item[0]
+            const award = item[0][0]
 
             if (body.subPlayType === DauDuoiType.Dau) {
                 this.analytic1.duoi = {}
@@ -300,7 +302,7 @@ export class AnalyticsService {
 
     analyticsFor3Cang(
         body: BodyAnalyticsDto,
-        arrAwards: string[],
+        arrAwards: any[],
         countMap: { [key: string]: number },
         countMapShow: { [key: string]: number }
     ) {
@@ -313,7 +315,7 @@ export class AnalyticsService {
             case BaCangType.BaCangDau:
             case BaCangType.BaCangDacBiet:
                 for (const item of arrAwards) {
-                    const award: string = (body.subPlayType === BaCangType.BaCangDau) ? item[7] : item[0].slice(-3)
+                    const award: string = (body.subPlayType === BaCangType.BaCangDau) ? item[7][0] : item[0][0].slice(-3)
                     const tramNum = award.charAt(0)
                     const dauNum = award.charAt(1)
                     const duoiNum = award.charAt(2)
@@ -342,7 +344,7 @@ export class AnalyticsService {
                 }
                 // analytic2
                 for (const item of arrAwards) {
-                    const number: string = (body.subPlayType === BaCangType.BaCangDau) ? item[7] : item[0]
+                    const number: string = (body.subPlayType === BaCangType.BaCangDau) ? item[7][0] : item[0][0]
                     const lastThreeDigits = number.slice(-3);
 
                     if (countMap.hasOwnProperty(lastThreeDigits)) {
@@ -357,7 +359,7 @@ export class AnalyticsService {
 
             case BaCangType.BaCangDauDuoi:
                 for (const item of arrAwards) {
-                    for (const award of [item[7], item[0]]) {
+                    for (const award of [item[7][0], item[0][0]]) {
                         const tramNum = award.charAt(0)
                         const dauNum = award.charAt(1)
                         const duoiNum = award.charAt(2)
@@ -396,13 +398,13 @@ export class AnalyticsService {
 
     analyticsFor4Cang(
         body: BodyAnalyticsDto,
-        arrAwards: string[],
+        arrAwards: any[],
     ) {
 
         let analytic2: { [key: string]: number }
 
         for (const item of arrAwards) {
-            const award: string = item[0].slice(-4)
+            const award: string = item[0][0].slice(-4)
             const nganNum = award.charAt(0)
             const tramNum = award.charAt(1)
             const dauNum = award.charAt(2)
