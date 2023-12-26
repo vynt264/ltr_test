@@ -488,9 +488,9 @@ export class OrdersService {
     const time = `${(new Date()).toLocaleDateString()}, 07:00 AM`;
     const fromDate = new Date(time).getTime();
     const toDate = (new Date()).getTime();
-    const times = Math.floor(((toDate - fromDate) / 1000) / 45);
+    const times = Math.ceil(((toDate - fromDate) / 1000) / 45);
 
-    return `${(new Date()).toLocaleDateString()} - ${times}`;
+    return `${(new Date()).toLocaleDateString()}-${times}`;
   }
 
   getRandomTradingCode() {
