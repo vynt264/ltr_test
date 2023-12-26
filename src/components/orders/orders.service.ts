@@ -55,7 +55,7 @@ export class OrdersService {
       order.type = this.getTypeLottery(order.type);
       order.numberOfBets = this.getNumberOfBets(order.childBetType, order.detail);
       order.user = member;
-      order.betAmount = this.getBetAmount(order.numberOfBets, order.childBetType);
+      order.revenue = this.getBetAmount(order.numberOfBets, order.childBetType);
 
       promises.push(this.orderRequestRepository.save(order));
     }
@@ -144,7 +144,7 @@ export class OrdersService {
     const info = await this.orderRequestRepository
       .createQueryBuilder("orders")
       .select("count(*)", "totalBet")
-      .addSelect("SUM(orders.betAmount)", "totalBetAmount")
+      .addSelect("SUM(orders.revenue)", "totalRevenue")
       .addSelect("SUM(orders.paymentWin)", "totalPaymentWin")
       .where(query, conditionCalcAllOrders)
       .getRawOne();
