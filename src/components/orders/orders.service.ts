@@ -287,7 +287,7 @@ export class OrdersService {
       nextTime: openTime + (parseInt(query.seconds) * 1000),
       currentSeconds: Math.round(secondsInCurrentRound),
       currentMillisecond: toDate,
-      awardDetail: lotteryAward.awardDetail,
+      awardDetail: lotteryAward?.awardDetail || [],
     };
   }
 
