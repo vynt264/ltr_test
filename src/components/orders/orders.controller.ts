@@ -40,7 +40,6 @@ export class OrdersController {
   }
 
   @Get('get-turn-index')
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   getCurrentTurnIndex(@Query() query: { seconds: string }) {
     return this.ordersService.getCurrentTurnIndex(query);
   }
