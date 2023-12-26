@@ -139,7 +139,9 @@ export class AnalyticsService {
                 }
             }
         }
-        else if (body.subPlayType == BaoLoType.Lo2So || body.subPlayType == BaoLoType.Lo2So1k) {
+        else if (body.subPlayType == BaoLoType.Lo4So) {
+            countMapShow = {}
+        } else {
             for (const item of arrAwards) {
                 for (const el in item) {
                     // const numbers = el.split(",");
@@ -306,9 +308,8 @@ export class AnalyticsService {
         countMap: { [key: string]: number },
         countMapShow: { [key: string]: number }
     ) {
+        this.analytic1 = Ianalytic1
         this.analytic1.ngan = {}
-
-        let analytic2: { [key: string]: number }
 
         switch (body.subPlayType) {
 
@@ -400,8 +401,6 @@ export class AnalyticsService {
         body: BodyAnalyticsDto,
         arrAwards: any[],
     ) {
-
-        let analytic2: { [key: string]: number }
 
         for (const item of arrAwards) {
             const award: string = item[0][0].slice(-4)
