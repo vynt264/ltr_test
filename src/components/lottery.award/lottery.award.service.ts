@@ -250,9 +250,10 @@ export class LotteryAwardService {
     }
   }
 
-  getLotteryAwardByTurnIndex(turnIndex: string) {
+  getLotteryAwardByTurnIndex(turnIndex: string, type: string) {
     return this.lotteryAwardRepository.findOne({
       where: {
+        type,
         turnIndex,
       },
     });

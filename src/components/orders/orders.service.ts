@@ -143,9 +143,9 @@ export class OrdersService {
 
     const info = await this.orderRequestRepository
       .createQueryBuilder("orders")
-      .select("SUM(orders.multiple)", "multiple")
-      .addSelect("SUM(orders.betAmount)", "betAmount")
-      .addSelect("SUM(orders.paymentWin)", "paymentWin")
+      .select("count(*)", "totalBet")
+      .addSelect("SUM(orders.betAmount)", "totalBetAmount")
+      .addSelect("SUM(orders.paymentWin)", "totalPaymentWin")
       .where(query, conditionCalcAllOrders)
       .getRawOne();
 
@@ -294,7 +294,7 @@ export class OrdersService {
     return this.orderRequestRepository.delete(id);
   }
 
-  async getCurrentTurnIndex(query: { seconds: string }) {
+  async getCurrentTurnIndex(query: { seconds: string, type: string }) {
     if (!query.seconds) {
       return {};
     }
@@ -304,7 +304,7 @@ export class OrdersService {
     const times = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
     const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
     const openTime = toDate - (secondsInCurrentRound * 1000);
-    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${(new Date()).toLocaleDateString()}-${times - 1}`);
+    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${(new Date()).toLocaleDateString()}-${times - 1}`, query.type);
 
     return {
       turnIndex: `${(new Date()).toLocaleDateString()}-${times}`,
