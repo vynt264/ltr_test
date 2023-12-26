@@ -74,4 +74,7 @@ export class Order extends BaseEntity {
 
     @Column({ type: 'varchar' })
     detail: string;
+
+    @Column({ type: 'decimal', nullable: true })
+    betAmount: number;
 }

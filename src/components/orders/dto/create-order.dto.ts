@@ -67,4 +67,8 @@ export class CreateOrderDto {
     })
     @JoinColumn()
     user: User;
+
+    @IsOptional()
+    @IsNumber()
+    betAmount: number;
 }

@@ -55,6 +55,7 @@ export class OrdersService {
       order.type = this.getTypeLottery(order.type);
       order.numberOfBets = this.getNumberOfBets(order.childBetType, order.detail);
       order.user = member;
+      order.betAmount = this.getBetAmount(order.numberOfBets, order.childBetType);
 
       promises.push(this.orderRequestRepository.save(order));
     }
@@ -103,28 +104,50 @@ export class OrdersService {
       toD = endOfDay(new Date(date));
     }
 
-    const condition: any = {
+    const conditionGetOrders: any = {
       user: { id: member.id },
     };
+    const conditionCalcAllOrders: any = {
+      userId: member.id,
+    };
+
+    let query = 'orders.userId = :userId ';
     if (status) {
-      condition.status = status;
+      conditionGetOrders.status = status;
+      conditionCalcAllOrders.status = status;
+      query += `AND orders.status = :status `;
     }
     if (fromD && toD) {
-      condition.createdAt = Between(fromD, toD);
+      conditionGetOrders.createdAt = Between(fromD, toD);
+      conditionCalcAllOrders.fromD = fromD.toISOString();
+      conditionCalcAllOrders.toD = toD.toISOString();
+      query += `AND orders.created_at between :fromD AND :toD `;
     }
     if (seconds) {
-      condition.seconds = seconds;
+      conditionGetOrders.seconds = seconds;
+      conditionCalcAllOrders.seconds = seconds;
+      query += `AND orders.seconds = :seconds `;
     }
     if (type) {
-      condition.type = type;
+      conditionGetOrders.type = type;
+      conditionCalcAllOrders.type = type;
+      query += `AND orders.type = :type `;
     }
 
     const [orders, total] = await this.orderRequestRepository.findAndCount({
-      where: condition,
+      where: conditionGetOrders,
       order: { id: order },
       take: perPage,
       skip: skip,
     });
+
+    const info = await this.orderRequestRepository
+      .createQueryBuilder("orders")
+      .select("SUM(orders.multiple)", "multiple")
+      .addSelect("SUM(orders.betAmount)", "betAmount")
+      .addSelect("SUM(orders.paymentWin)", "paymentWin")
+      .where(query, conditionCalcAllOrders)
+      .getRawOne();
 
     const lastPage = Math.ceil(total / perPage);
     const nextPage = page + 1 > lastPage ? null : page + 1;
@@ -137,6 +160,9 @@ export class OrdersService {
       lastPage,
       data: orders,
       currentPage: page,
+      betAmount: info.betAmount || 0,
+      multiple: info.multiple || 0,
+      paymentWin: info.paymentWin || 0,
     }
   }
 
@@ -278,7 +304,7 @@ export class OrdersService {
     const times = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
     const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
     const openTime = toDate - (secondsInCurrentRound * 1000);
-    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${(new Date()).toLocaleDateString()}-${times-1}`);
+    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${(new Date()).toLocaleDateString()}-${times - 1}`);
 
     return {
       turnIndex: `${(new Date()).toLocaleDateString()}-${times}`,
@@ -579,6 +605,38 @@ export class OrdersService {
     }
 
     return numberOfBets;
+  }
+
+  getBetAmount(score: number, childBetType: string) {
+    let pricePerScore = 0;
+    switch (childBetType) {
+      case BaoLoType.Lo2So:
+        pricePerScore = PricePerScore.Lo2So;
+        break;
+
+      case BaoLoType.Lo3So:
+        pricePerScore = PricePerScore.Lo3So;
+        break;
+
+      case BaoLoType.Lo4So:
+        pricePerScore = PricePerScore.Lo4So;
+        break;
+
+      case BaoLoType.Lo2So1k:
+        pricePerScore = PricePerScore.Lo2So1k;
+        break;
+
+      case DanhDeType.DeDau:
+        pricePerScore = PricePerScore.DeDau;
+        break;
+
+      default:
+        break;
+    }
+
+
+
+    return (pricePerScore * (score || 0));
   }
 
   async saveRedis(orders: any, bookmakerId: string) {
