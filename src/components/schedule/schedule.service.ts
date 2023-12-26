@@ -126,6 +126,7 @@ export class ScheduleService implements OnModuleInit {
         ];
 
         let promises = [];
+        // TODO: xu ly truong hop co nhieu bookmaker
         for (const bookMaker of bookMakers) {
             for (const type of gameType) {
                 const key = `${bookMaker.id}-${type}`;
@@ -241,6 +242,7 @@ export class ScheduleService implements OnModuleInit {
         if (!data) {
             data = [];
         }
+
         const dataTransform = this.transformData(data);
         const prizes = this.lotteriesService.generatePrizes(dataTransform);
         const finalResult = this.lotteriesService.randomPrizes(prizes);
@@ -251,6 +253,7 @@ export class ScheduleService implements OnModuleInit {
             awardDetail: JSON.stringify(finalResult),
         });
 
+        // key = bookmakerId-gameType
         this.socketGateway.sendEventToClient(`${key}-receive-prizes`, {
             type: gameType,
             turnIndex,
@@ -376,7 +379,9 @@ export class ScheduleService implements OnModuleInit {
         let pointLosed = 0;
         let balanceWin = 0;
         let balanceLosed = 0;
+        let point = 0;
         for (const order in orders) {
+            point += orders[order];
             const times = this.findNumberOccurrencesOfPrize({ order, prizes });
             if (times > 0) {
                 pointWin += (times * orders[order]);
@@ -388,29 +393,29 @@ export class ScheduleService implements OnModuleInit {
         switch (typeBet) {
             case BaoLoType.Lo2So:
                 balanceWin += (pointWin * (OddBet.Lo2So * 1000));
-                balanceLosed += (pointLosed * (PricePerScore.Lo2So));
+                balanceLosed += (point * (PricePerScore.Lo2So));
                 break;
 
             case BaoLoType.Lo2So1k:
                 balanceWin += (pointWin * (OddBet.Lo2So1k * 1000));
-                balanceLosed += (pointLosed * (PricePerScore.Lo2So1k));
+                balanceLosed += (point * (PricePerScore.Lo2So1k));
                 break;
 
             case BaoLoType.Lo3So:
                 balanceWin += (pointWin * (OddBet.Lo3So * 1000));
-                balanceLosed += (pointLosed * (PricePerScore.Lo3So));
+                balanceLosed += (point * (PricePerScore.Lo3So));
                 break;
 
             case BaoLoType.Lo4So:
                 balanceWin += (pointWin * (OddBet.Lo4So * 1000));
-                balanceLosed += (pointLosed * (PricePerScore.Lo4So));
+                balanceLosed += (point * (PricePerScore.Lo4So));
                 break;
 
             default:
                 break;
         }
 
-        return (balanceWin + balanceLosed);
+        return (balanceWin - balanceLosed);
     }
 
     findNumberOccurrencesOfPrize({
