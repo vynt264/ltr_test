@@ -304,7 +304,7 @@ export class OrdersService {
     const times = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
     const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
     const openTime = toDate - (secondsInCurrentRound * 1000);
-    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${(new Date()).toLocaleDateString()}-${times - 1}`, query.type);
+    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${(new Date()).toLocaleDateString()}-${times}`, query.type);
 
     return {
       turnIndex: `${(new Date()).toLocaleDateString()}-${times}`,
