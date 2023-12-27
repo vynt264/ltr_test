@@ -160,9 +160,9 @@ export class OrdersService {
       lastPage,
       data: orders,
       currentPage: page,
-      betAmount: info.betAmount || 0,
-      multiple: info.multiple || 0,
-      paymentWin: info.paymentWin || 0,
+      totalBet: info.totalBet || 0,
+      totalRevenue: info.totalRevenue || 0,
+      totalPaymentWin: info.totalPaymentWin || 0,
     }
   }
 
@@ -311,9 +311,7 @@ export class OrdersService {
       nextTurnIndex: `${(new Date()).toLocaleDateString()}-${times + 1}`,
       openTime: toDate - (secondsInCurrentRound * 1000),
       nextTime: openTime + (parseInt(query.seconds) * 1000),
-      // currentSeconds: Math.round(secondsInCurrentRound),
-      // currentMillisecond: toDate,
-      awardDetail: lotteryAward?.awardDetail || [],
+      awardDetail: lotteryAward?.awardDetail || {},
     };
   }
 
@@ -633,8 +631,6 @@ export class OrdersService {
       default:
         break;
     }
-
-
 
     return (pricePerScore * (score || 0));
   }
