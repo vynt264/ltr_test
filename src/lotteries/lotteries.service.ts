@@ -1619,6 +1619,11 @@ export class LotteriesService {
       type: 'giai-7',
     }));
 
+    let amountPaid = 0;
+    for (const val of prizesSpecialAnd8) {
+      amountPaid += val.payOut;
+    }
+
     let map1: Map<string, number> = new Map();
     let map2: Map<string, number> = new Map();
 
@@ -1626,7 +1631,7 @@ export class LotteriesService {
       if (!value) {
         map2.set(key, value);
       } else {
-        if (value < (totalBetAmount * 95) / 100) {
+        if ((value + amountPaid) < (totalBetAmount * 95) / 100) {
           map1.set(key, value);
         }
       }
@@ -2036,11 +2041,16 @@ export class LotteriesService {
     let map1: Map<string, number> = new Map();
     let map2: Map<string, number> = new Map();
 
+    let amountPaid = 0;
+    for (const val of finalPrizeSpecial) {
+      amountPaid += val.payOut;
+    }
+
     prizes8.forEach((value: number, key: string) => {
       if (!value) {
         map2.set(key, value);
       } else {
-        if (value < (totalBetAmount * 95) / 100) {
+        if ((value + amountPaid) < (totalBetAmount * 95) / 100) {
           map1.set(key, value);
         }
       }
@@ -3434,30 +3444,6 @@ export class LotteriesService {
 
 
     } while (condition)
-
-
-    // while (true) {
-    //   newNumber = (Math.floor(Math.random() * numberLength)).toString();
-    //   if (!options?.excludeNumbers || options?.excludeNumbers?.length === 0) break;
-
-    //   for (const excludeNumber of options.excludeNumbers) {
-    //     let tempExcludeNumber = excludeNumber;
-    //     if (excludeNumber.length === 1) {
-    //       tempExcludeNumber = `0${excludeNumber}`;
-    //     }
-
-    //     if (newNumber.length >= 2) {
-    //       const lastTwoDigits = newNumber.substr(-2);
-    //       condition = lastTwoDigits == tempExcludeNumber;
-
-    //       // console.log("tempExcludeNumber", tempExcludeNumber);
-    //       // console.log("lastTwoDigits", lastTwoDigits);
-    //       // console.log("condition", condition);
-    //       if (condition) break;
-    //     }
-    //   }
-    // }
-
     const tempLength = length - newNumber.length;
     for (let i = 0; i < tempLength; i++) {
       newNumber = '0' + newNumber;
@@ -3482,26 +3468,26 @@ export class LotteriesService {
             switch (ordersOfBalo.type) {
               case BaoLoType.Lo2So:
                 totalBetAmount += (totalScore * PricePerScore.Lo2So);
-                console.log("Total score 2so", totalScore);
-                console.log("Tong tien users dat cuoc: 2so", (totalScore * PricePerScore.Lo2So));
+                // console.log("Total score 2so", totalScore);
+                // console.log("Tong tien users dat cuoc: 2so", (totalScore * PricePerScore.Lo2So));
                 break;
 
               case BaoLoType.Lo2So1k:
                 totalBetAmount += (totalScore * PricePerScore.Lo2So1k);
-                console.log("Total score 2so 1k", totalScore);
-                console.log("Tong tien users dat cuoc: 2so1k", (totalScore * PricePerScore.Lo2So1k));
+                // console.log("Total score 2so 1k", totalScore);
+                // console.log("Tong tien users dat cuoc: 2so1k", (totalScore * PricePerScore.Lo2So1k));
                 break;
 
               case BaoLoType.Lo3So:
                 totalBetAmount += (totalScore * PricePerScore.Lo3So);
-                console.log("Total score 3so", totalScore);
-                console.log("Tong tien users dat cuoc: 3so", (totalScore * PricePerScore.Lo3So));
+                // console.log("Total score 3so", totalScore);
+                // console.log("Tong tien users dat cuoc: 3so", (totalScore * PricePerScore.Lo3So));
                 break;
 
               case BaoLoType.Lo4So:
                 totalBetAmount += (totalScore * PricePerScore.Lo4So);
-                console.log("Total score 4so", totalScore);
-                console.log("Tong tien users dat cuoc: 4so", (totalScore * PricePerScore.Lo4So));
+                // console.log("Total score 4so", totalScore);
+                // console.log("Tong tien users dat cuoc: 4so", (totalScore * PricePerScore.Lo4So));
                 break;
 
               default:
@@ -3517,20 +3503,20 @@ export class LotteriesService {
             switch (ordersOfLoXien.type) {
               case LoXienType.Xien2:
                 totalBetAmount += (totalScore * PricePerScore.Xien2);
-                console.log("Total score xien 2", totalScore);
-                console.log("Tong tien users dat cuoc: xien 2", (totalScore * PricePerScore.Xien2));
+                // console.log("Total score xien 2", totalScore);
+                // console.log("Tong tien users dat cuoc: xien 2", (totalScore * PricePerScore.Xien2));
                 break;
 
               case LoXienType.Xien3:
                 totalBetAmount += (totalScore * PricePerScore.Xien3);
-                console.log("Total score xien 3", totalScore);
-                console.log("Tong tien users dat cuoc: xien 3", (totalScore * PricePerScore.Xien3));
+                // console.log("Total score xien 3", totalScore);
+                // console.log("Tong tien users dat cuoc: xien 3", (totalScore * PricePerScore.Xien3));
                 break;
 
               case LoXienType.Xien4:
                 totalBetAmount += (totalScore * PricePerScore.Xien4);
-                console.log("Total score xien 4", totalScore);
-                console.log("Tong tien users dat cuoc: xien 4", (totalScore * PricePerScore.Xien4));
+                // console.log("Total score xien 4", totalScore);
+                // console.log("Tong tien users dat cuoc: xien 4", (totalScore * PricePerScore.Xien4));
                 break;
 
               default:
@@ -3546,20 +3532,20 @@ export class LotteriesService {
             switch (ordersOfDanhDe?.type) {
               case DanhDeType.DeDau:
                 totalBetAmount += (totalScore * PricePerScore.DeDau);
-                console.log("Total score de dau", totalScore);
-                console.log("Tong tien users dat cuoc: de dau", (totalScore * PricePerScore.DeDau));
+                // console.log("Total score de dau", totalScore);
+                // console.log("Tong tien users dat cuoc: de dau", (totalScore * PricePerScore.DeDau));
                 break;
 
               case DanhDeType.DeDacBiet:
                 totalBetAmount += (totalScore * PricePerScore.DeDacBiet);
-                console.log("Total score de dac biet", totalScore);
-                console.log("Tong tien users dat cuoc: de dac biet", (totalScore * PricePerScore.DeDacBiet));
+                // console.log("Total score de dac biet", totalScore);
+                // console.log("Tong tien users dat cuoc: de dac biet", (totalScore * PricePerScore.DeDacBiet));
                 break;
 
               case DanhDeType.DeDauDuoi:
                 totalBetAmount += (totalScore * PricePerScore.DeDauDuoi);
-                console.log("Total score de dau duoi", totalScore);
-                console.log("Tong tien users dat cuoc: de dau duoi", (totalScore * PricePerScore.DeDauDuoi));
+                // console.log("Total score de dau duoi", totalScore);
+                // console.log("Tong tien users dat cuoc: de dau duoi", (totalScore * PricePerScore.DeDauDuoi));
                 break;
 
               default:
@@ -3575,14 +3561,14 @@ export class LotteriesService {
             switch (ordersOfDauDuoi?.type) {
               case DauDuoiType.Duoi:
                 totalBetAmount += (totalScore * PricePerScore.Duoi);
-                console.log("Total score duoi", totalScore);
-                console.log("Tong tien users dat cuoc: duoi", (totalScore * PricePerScore.Duoi));
+                // console.log("Total score duoi", totalScore);
+                // console.log("Tong tien users dat cuoc: duoi", (totalScore * PricePerScore.Duoi));
                 break;
 
               case DauDuoiType.Dau:
                 totalBetAmount += (totalScore * PricePerScore.Dau);
-                console.log("Total score dau", totalScore);
-                console.log("Tong tien users dat cuoc: dau", (totalScore * PricePerScore.Dau));
+                // console.log("Total score dau", totalScore);
+                // console.log("Tong tien users dat cuoc: dau", (totalScore * PricePerScore.Dau));
                 break;
 
               default:
@@ -3598,14 +3584,14 @@ export class LotteriesService {
             switch (ordersOf3Cang?.type) {
               case BaCangType.BaCangDacBiet:
                 totalBetAmount += (totalScore * PricePerScore.BaCangDacBiet);
-                console.log("Total score 3 cang dat biet", totalScore);
-                console.log("Tong tien users dat cuoc: 3 cang dac biet", (totalScore * PricePerScore.BaCangDacBiet));
+                // console.log("Total score 3 cang dat biet", totalScore);
+                // console.log("Tong tien users dat cuoc: 3 cang dac biet", (totalScore * PricePerScore.BaCangDacBiet));
                 break;
 
               case BaCangType.BaCangDauDuoi:
                 totalBetAmount += (totalScore * PricePerScore.BaCangDauDuoi);
-                console.log("Total score 3 cang dau duoi", totalScore);
-                console.log("Tong tien users dat cuoc: 3 cang dau duoi", (totalScore * PricePerScore.BaCangDauDuoi));
+                // console.log("Total score 3 cang dau duoi", totalScore);
+                // console.log("Tong tien users dat cuoc: 3 cang dau duoi", (totalScore * PricePerScore.BaCangDauDuoi));
                 break;
 
               default:
@@ -3621,8 +3607,8 @@ export class LotteriesService {
             switch (ordersOf4Cang?.type) {
               case BaCangType.BaCangDauDuoi:
                 totalBetAmount += (totalScore * PricePerScore.BaCangDauDuoi);
-                console.log("Total score 4 cang dat biet", totalScore);
-                console.log("Tong tien users dat cuoc: 4 cang dac biet", (totalScore * PricePerScore.BaCangDauDuoi));
+                // console.log("Total score 4 cang dat biet", totalScore);
+                // console.log("Tong tien users dat cuoc: 4 cang dac biet", (totalScore * PricePerScore.BaCangDauDuoi));
                 break;
 
               default:
@@ -3638,20 +3624,20 @@ export class LotteriesService {
             switch (ordersOfLoTruot.type) {
               case LoTruocType.TruotXien4:
                 totalBetAmount += (totalScore * PricePerScore.XienTruot4);
-                console.log("Total score truot xien 4", totalScore);
-                console.log("Tong tien users dat cuoc: truot 4", (totalScore * PricePerScore.XienTruot4));
+                // console.log("Total score truot xien 4", totalScore);
+                // console.log("Tong tien users dat cuoc: truot 4", (totalScore * PricePerScore.XienTruot4));
                 break;
 
               case LoTruocType.TruotXien8:
                 totalBetAmount += (totalScore * PricePerScore.XienTruot8);
-                console.log("Total score truot xien 8", totalScore);
-                console.log("Tong tien users dat cuoc: truot 8", (totalScore * PricePerScore.XienTruot8));
+                // console.log("Total score truot xien 8", totalScore);
+                // console.log("Tong tien users dat cuoc: truot 8", (totalScore * PricePerScore.XienTruot8));
                 break;
 
               case LoTruocType.TruotXien10:
                 totalBetAmount += (totalScore * PricePerScore.XienTruot10);
-                console.log("Total score truot xien 10", totalScore);
-                console.log("Tong tien users dat cuoc: truot 10", (totalScore * PricePerScore.XienTruot10));
+                // console.log("Total score truot xien 10", totalScore);
+                // console.log("Tong tien users dat cuoc: truot 10", (totalScore * PricePerScore.XienTruot10));
                 break;
 
               default:
