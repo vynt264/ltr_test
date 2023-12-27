@@ -8,7 +8,7 @@ import { SocketGatewayService } from '../gateway/gateway.service';
 import { addDays, addMinutes, startOfDay } from 'date-fns';
 import { BookMakerService } from '../bookmaker/bookmaker.service';
 import { TypeLottery } from 'src/system/constants';
-import { BaoLoType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
+import { BaCangType, BaoLoType, DanhDeType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
@@ -383,17 +383,14 @@ export class ScheduleService implements OnModuleInit {
         prizes,
     }: any) {
         let pointWin = 0;
-        let pointLosed = 0;
         let balanceWin = 0;
         let balanceLosed = 0;
         let totalPoint = 0;
         for (const order in orders) {
             totalPoint += orders[order];
-            const times = this.findNumberOccurrencesOfPrize({ order, prizes });
+            const times = this.findNumberOccurrencesOfPrize({ order, prizes, typeBet });
             if (times > 0) {
                 pointWin += (times * orders[order]);
-            } else {
-                pointLosed -= orders[order];
             }
         }
 
@@ -408,9 +405,39 @@ export class ScheduleService implements OnModuleInit {
                 balanceLosed += (totalPoint * (PricePerScore.Lo2So1k));
                 break;
 
+            case DanhDeType.DeDau:
+                balanceWin += (pointWin * (OddBet.DeDau * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.DeDau));
+                break;
+
+            case DanhDeType.DeDacBiet:
+                balanceWin += (pointWin * (OddBet.DeDacBiet * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.DeDacBiet));
+                break;
+
+            case DanhDeType.DeDauDuoi:
+                balanceWin += (pointWin * (OddBet.DeDauDuoi * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.DeDauDuoi));
+                break;
+
             case BaoLoType.Lo3So:
                 balanceWin += (pointWin * (OddBet.Lo3So * 1000));
                 balanceLosed += (totalPoint * (PricePerScore.Lo3So));
+                break;
+
+            case BaCangType.BaCangDau:
+                balanceWin += (pointWin * (OddBet.BaCangDau * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.BaCangDau));
+                break;
+
+            case BaCangType.BaCangDacBiet:
+                balanceWin += (pointWin * (OddBet.BaCangDacBiet * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.BaCangDacBiet));
+                break;
+
+            case BaCangType.BaCangDauDuoi:
+                balanceWin += (pointWin * (OddBet.BaCangDauDuoi * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.BaCangDauDuoi));
                 break;
 
             case BaoLoType.Lo4So:
@@ -428,20 +455,91 @@ export class ScheduleService implements OnModuleInit {
     findNumberOccurrencesOfPrize({
         order,
         prizes,
+        typeBet,
     }: any) {
         let count = 0;
-        for (let i = 0; i < 9; i++) {
-            for (let j = 0; j < prizes[i].length; j++) {
-                if (prizes[i][j].endsWith(order)) {
-                    count++;
+
+        switch (typeBet) {
+            case BaoLoType.Lo2So:
+            case BaoLoType.Lo2So1k:
+            case BaoLoType.Lo3So:
+            case BaoLoType.Lo4So:
+                for (let i = 0; i < 9; i++) {
+                    for (let j = 0; j < prizes[i].length; j++) {
+                        if (prizes[i][j].endsWith(order)) {
+                            count++;
+                        }
+                    }
                 }
-            }
+                break;
+
+            case DanhDeType.DeDau:
+                for (let j = 0; j < prizes[8].length; j++) {
+                    if (prizes[8][j].endsWith(order)) {
+                        count++;
+                    }
+                }
+                break;
+
+            case DanhDeType.DeDacBiet:
+                for (let j = 0; j < prizes[0].length; j++) {
+                    if (prizes[0][j].endsWith(order)) {
+                        count++;
+                    }
+                }
+                break;
+
+            case DanhDeType.DeDauDuoi:
+                for (let j = 0; j < prizes[0].length; j++) {
+                    if (prizes[0][j].endsWith(order)) {
+                        count++;
+                    }
+                }
+                for (let j = 0; j < prizes[8].length; j++) {
+                    if (prizes[8][j].endsWith(order)) {
+                        count++;
+                    }
+                }
+                break;
+
+            case BaCangType.BaCangDau:
+                for (let j = 0; j < prizes[7].length; j++) {
+                    if (prizes[7][j].endsWith(order)) {
+                        count++;
+                    }
+                }
+                break;
+
+            case BaCangType.BaCangDacBiet:
+                for (let j = 0; j < prizes[0].length; j++) {
+                    if (prizes[0][j].endsWith(order)) {
+                        count++;
+                    }
+                }
+                break;
+
+            case BaCangType.BaCangDauDuoi:
+                for (let j = 0; j < prizes[0].length; j++) {
+                    if (prizes[0][j].endsWith(order)) {
+                        count++;
+                    }
+                }
+                for (let j = 0; j < prizes[7].length; j++) {
+                    if (prizes[7][j].endsWith(order)) {
+                        count++;
+                    }
+                }
+                break;
+
+            default:
+                break;
         }
 
         return count;
     }
 
     async clearDataInRedis() {
+        console.log("clear data in redis");
         const bookMakers = await this.bookMakerService.getAllBookMaker();
         const typeLottery = Object.values(TypeLottery);
         const promises = [];

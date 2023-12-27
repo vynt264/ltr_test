@@ -612,20 +612,44 @@ export class OrdersService {
         pricePerScore = PricePerScore.Lo2So;
         break;
 
-      case BaoLoType.Lo3So:
-        pricePerScore = PricePerScore.Lo3So;
-        break;
-
-      case BaoLoType.Lo4So:
-        pricePerScore = PricePerScore.Lo4So;
-        break;
-
       case BaoLoType.Lo2So1k:
         pricePerScore = PricePerScore.Lo2So1k;
         break;
 
       case DanhDeType.DeDau:
         pricePerScore = PricePerScore.DeDau;
+        break;
+
+      case DanhDeType.DeDacBiet:
+        pricePerScore = PricePerScore.DeDacBiet;
+        break;
+
+      case DanhDeType.DeDauDuoi:
+        pricePerScore = PricePerScore.DeDauDuoi;
+        break;
+
+      case BaoLoType.Lo3So:
+        pricePerScore = PricePerScore.Lo3So;
+        break;
+
+      case BaCangType.BaCangDau:
+        pricePerScore = PricePerScore.BaCangDau;
+        break;
+
+      case BaCangType.BaCangDacBiet:
+        pricePerScore = PricePerScore.BaCangDacBiet;
+        break;
+
+      case BaCangType.BaCangDauDuoi:
+        pricePerScore = PricePerScore.BaCangDauDuoi;
+        break;
+
+      case BaoLoType.Lo4So:
+        pricePerScore = PricePerScore.Lo4So;
+        break;
+
+      case BonCangType.BonCangDacBiet:
+        // pricePerScore = PricePerScore.BonCangDacBiet;
         break;
 
       default:
