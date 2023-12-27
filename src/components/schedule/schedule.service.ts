@@ -33,6 +33,7 @@ export class ScheduleService implements OnModuleInit {
     }
 
     initJobs() {
+        this.clearDataInRedis();
         this.deleteAllJob();
         this.createJobs(45);
         this.createJobs(60);
@@ -264,6 +265,7 @@ export class ScheduleService implements OnModuleInit {
         });
 
         this.handleBalance({
+            turnIndex,
             key,
             prizes: finalResult,
         });
@@ -316,26 +318,31 @@ export class ScheduleService implements OnModuleInit {
     }
 
     async handleBalance({
+        turnIndex,
         key,
         prizes,
-    }: { key: string, prizes: any }) {
+    }: { turnIndex: string, key: string, prizes: any }) {
         const [bookmakerId, gameType] = key.split('-');
         let userIds: any = await this.redisService.get(`bookmaker-id-${bookmakerId}-users`);
         if (!userIds) return;
 
-        let keyOrdersOfBookmaker;
-        for (const userId of (userIds || [])) {
-            keyOrdersOfBookmaker = `bookmaker-id-${bookmakerId}-${gameType}`;
-            const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
+        const keyOrdersOfBookmaker = `bookmaker-id-${bookmakerId}-${gameType}`;
+        const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
+        if (!ordersOfBookmaker) {
+            console.log(`orders of bookmakerId ${keyOrdersOfBookmaker}-${turnIndex} is not found.`);
+            return;
+        }
 
-            if (!ordersOfBookmaker) continue;
-
+        for (const userId of userIds) {
             let ordersOfUser;
             if (userId) {
                 ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}`] || null;
             }
 
-            if (!ordersOfUser) continue;
+            if (!ordersOfUser) {
+                console.log(`orders of userId ${keyOrdersOfBookmaker}-${turnIndex} is not found.`);
+                continue;
+            }
 
             const promises = [];
             let totalBalance = 0;
@@ -379,9 +386,9 @@ export class ScheduleService implements OnModuleInit {
         let pointLosed = 0;
         let balanceWin = 0;
         let balanceLosed = 0;
-        let point = 0;
+        let totalPoint = 0;
         for (const order in orders) {
-            point += orders[order];
+            totalPoint += orders[order];
             const times = this.findNumberOccurrencesOfPrize({ order, prizes });
             if (times > 0) {
                 pointWin += (times * orders[order]);
@@ -393,22 +400,22 @@ export class ScheduleService implements OnModuleInit {
         switch (typeBet) {
             case BaoLoType.Lo2So:
                 balanceWin += (pointWin * (OddBet.Lo2So * 1000));
-                balanceLosed += (point * (PricePerScore.Lo2So));
+                balanceLosed += (totalPoint * (PricePerScore.Lo2So));
                 break;
 
             case BaoLoType.Lo2So1k:
                 balanceWin += (pointWin * (OddBet.Lo2So1k * 1000));
-                balanceLosed += (point * (PricePerScore.Lo2So1k));
+                balanceLosed += (totalPoint * (PricePerScore.Lo2So1k));
                 break;
 
             case BaoLoType.Lo3So:
                 balanceWin += (pointWin * (OddBet.Lo3So * 1000));
-                balanceLosed += (point * (PricePerScore.Lo3So));
+                balanceLosed += (totalPoint * (PricePerScore.Lo3So));
                 break;
 
             case BaoLoType.Lo4So:
                 balanceWin += (pointWin * (OddBet.Lo4So * 1000));
-                balanceLosed += (point * (PricePerScore.Lo4So));
+                balanceLosed += (totalPoint * (PricePerScore.Lo4So));
                 break;
 
             default:
@@ -432,5 +439,19 @@ export class ScheduleService implements OnModuleInit {
         }
 
         return count;
+    }
+
+    async clearDataInRedis() {
+        const bookMakers = await this.bookMakerService.getAllBookMaker();
+        const typeLottery = Object.values(TypeLottery);
+        const promises = [];
+        for (const bookMaker of bookMakers) {
+            for (const key in typeLottery) {
+                promises.push(this.redisService.del(`bookmaker-id-${bookMaker.id}-${typeLottery[key]}`));
+                promises.push(this.redisService.del(`${bookMaker.id}-${typeLottery[key]}`));
+            }
+        }
+
+        await Promise.all(promises);
     }
 }
