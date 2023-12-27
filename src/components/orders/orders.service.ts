@@ -311,8 +311,8 @@ export class OrdersService {
       nextTurnIndex: `${(new Date()).toLocaleDateString()}-${times + 1}`,
       openTime: toDate - (secondsInCurrentRound * 1000),
       nextTime: openTime + (parseInt(query.seconds) * 1000),
-      currentSeconds: Math.round(secondsInCurrentRound),
-      currentMillisecond: toDate,
+      // currentSeconds: Math.round(secondsInCurrentRound),
+      // currentMillisecond: toDate,
       awardDetail: lotteryAward?.awardDetail || [],
     };
   }
