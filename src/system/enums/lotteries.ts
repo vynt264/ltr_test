@@ -183,6 +183,7 @@ export enum PricePerScore {
     BaCangDau = 1000,
     BaCangDacBiet = 1000,
     BaCangDauDuoi = 2000,
+    BonCangDacBiet = 1000,
     Dau = 1000,
     Duoi = 1000,
     TroChoiThuVi = 1000,

@@ -649,7 +649,7 @@ export class OrdersService {
         break;
 
       case BonCangType.BonCangDacBiet:
-        // pricePerScore = PricePerScore.BonCangDacBiet;
+        pricePerScore = PricePerScore.BonCangDacBiet;
         break;
 
       default:
@@ -1031,6 +1031,11 @@ export class OrdersService {
 
         case BaCangType.BaCangDauDuoi:
           amount = (numberOfBets * PricePerScore.BaCangDauDuoi) * order.multiple;
+          totalBet += amount;
+          break;
+
+        case BonCangType.BonCangDacBiet:
+          amount = (numberOfBets * PricePerScore.BonCangDacBiet) * order.multiple;
           totalBet += amount;
           break;
 

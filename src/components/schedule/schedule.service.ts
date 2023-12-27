@@ -8,7 +8,7 @@ import { SocketGatewayService } from '../gateway/gateway.service';
 import { addDays, addMinutes, startOfDay } from 'date-fns';
 import { BookMakerService } from '../bookmaker/bookmaker.service';
 import { TypeLottery } from 'src/system/constants';
-import { BaCangType, BaoLoType, DanhDeType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
+import { BaCangType, BaoLoType, BonCangType, DanhDeType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
@@ -445,6 +445,11 @@ export class ScheduleService implements OnModuleInit {
                 balanceLosed += (totalPoint * (PricePerScore.Lo4So));
                 break;
 
+            case BonCangType.BonCangDacBiet:
+                balanceWin += (pointWin * (OddBet.BonCangDacBiet * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.BonCangDacBiet));
+                break;
+
             default:
                 break;
         }
@@ -526,6 +531,14 @@ export class ScheduleService implements OnModuleInit {
                 }
                 for (let j = 0; j < prizes[7].length; j++) {
                     if (prizes[7][j].endsWith(order)) {
+                        count++;
+                    }
+                }
+                break;
+
+            case BonCangType.BonCangDacBiet:
+                for (let j = 0; j < prizes[0].length; j++) {
+                    if (prizes[0][j].endsWith(order)) {
                         count++;
                     }
                 }

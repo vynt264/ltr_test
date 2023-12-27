@@ -3605,8 +3605,8 @@ export class LotteriesService {
             const totalScore = this.getTotalScore(ordersOf4Cang?.data);
 
             switch (ordersOf4Cang?.type) {
-              case BaCangType.BaCangDauDuoi:
-                totalBetAmount += (totalScore * PricePerScore.BaCangDauDuoi);
+              case BonCangType.BonCangDacBiet:
+                totalBetAmount += (totalScore * PricePerScore.BonCangDacBiet);
                 // console.log("Total score 4 cang dat biet", totalScore);
                 // console.log("Tong tien users dat cuoc: 4 cang dac biet", (totalScore * PricePerScore.BaCangDauDuoi));
                 break;
