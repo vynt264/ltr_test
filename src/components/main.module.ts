@@ -29,6 +29,7 @@ import { TransactionModule } from "./transaction/transaction.module";
 import { SysLayoutModule } from "./sys.layout/sys.layout.module";
 import { WalletHandlerModule } from './wallet-handler/wallet-handler.module';
 import { AnalyticsModule } from "./analytics/analytics.module";
+import { AdminOrdersModule } from "./admin.orders/admin.orders.module";
 @Module({
   imports: [
     AuthModule,
@@ -61,6 +62,7 @@ import { AnalyticsModule } from "./analytics/analytics.module";
     SysLayoutModule,
     WalletHandlerModule,
     AnalyticsModule,
+    AdminOrdersModule,
   ],
 })
 export class MainModule { }
