@@ -7,11 +7,12 @@ import { RedisCacheService } from 'src/system/redis/redis.service';
 import { SocketGatewayService } from '../gateway/gateway.service';
 import { addDays, addMinutes, startOfDay } from 'date-fns';
 import { BookMakerService } from '../bookmaker/bookmaker.service';
-import { TypeLottery } from 'src/system/constants';
+import { INIT_TIME_CREATE_JOB, TypeLottery } from 'src/system/constants';
 import { BaCangType, BaoLoType, BonCangType, DanhDeType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
+import { DateTimeHelper } from 'src/helpers/date-time';
 
 
 @Injectable()
@@ -44,7 +45,7 @@ export class ScheduleService implements OnModuleInit {
     }
 
     createJobs(seconds: number) {
-        const time = `${(new Date()).toLocaleDateString()}, 07:00 AM`;
+        const time = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
         const numberOfTurns = (17 * 60 * 60) / seconds;
         let timeRunJob = new Date(time).getTime();
         let count = 0;
@@ -52,9 +53,9 @@ export class ScheduleService implements OnModuleInit {
             timeRunJob = timeRunJob + (seconds * 1000);
             count++;
             if (timeRunJob > (new Date()).getTime()) {
-                const jobName = `${seconds}-${(new Date()).toLocaleDateString()}-${count}`;
-                const turnIndex = `${(new Date()).toLocaleDateString()}-${count}`;
-                const nextTurnIndex = `${(new Date()).toLocaleDateString()}-${count + 1}`;
+                const jobName = `${seconds}-${DateTimeHelper.formatDate((new Date()))}-${count}`;
+                const turnIndex = `${DateTimeHelper.formatDate((new Date()))}-${count}`;
+                const nextTurnIndex = `${DateTimeHelper.formatDate((new Date()))}-${count + 1}`;
                 const nextTime = (timeRunJob + (seconds * 1000));
                 this.addCronJob(jobName, seconds, timeRunJob, turnIndex, nextTurnIndex, nextTime);
             }
@@ -69,9 +70,9 @@ export class ScheduleService implements OnModuleInit {
         for (let i = 0; i < numberOfTurnsTomorrow; i++) {
             countOfNextDay++;
             tomorrowSeconds = tomorrowSeconds + (seconds * 1000);
-            const jobName = `${seconds}-${(tomorrow).toLocaleDateString()}-${countOfNextDay}`;
-            const turnIndex = `${(new Date()).toLocaleDateString()}-${countOfNextDay}`;
-            const nextTurnIndex = `${(new Date()).toLocaleDateString()}-${countOfNextDay + 1}`;
+            const jobName = `${seconds}-${DateTimeHelper.formatDate(tomorrow)}-${countOfNextDay}`;
+            const turnIndex = `${DateTimeHelper.formatDate(new Date())}-${countOfNextDay}`;
+            const nextTurnIndex = `${DateTimeHelper.formatDate(new Date())}-${countOfNextDay + 1}`;
             const nextTime = (timeRunJob + (seconds * 1000));
             this.addCronJob(jobName, seconds, tomorrowSeconds, turnIndex, nextTurnIndex, nextTime);
         }
@@ -306,6 +307,7 @@ export class ScheduleService implements OnModuleInit {
     }
 
     deleteAllJob() {
+        console.log("delete all job.");
         const jobs = this.schedulerRegistry.getCronJobs();
         jobs.forEach((value, key, map) => {
             this.schedulerRegistry.deleteCronJob(key);

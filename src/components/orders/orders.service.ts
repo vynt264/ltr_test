@@ -13,10 +13,11 @@ import { PaginationQueryDto } from 'src/common/common.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, LoTruocType, LoXienType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
-import { TypeLottery } from 'src/system/constants';
+import { INIT_TIME_CREATE_JOB, TypeLottery } from 'src/system/constants';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
+import { DateTimeHelper } from 'src/helpers/date-time';
 
 @Injectable()
 export class OrdersService {
@@ -304,11 +305,11 @@ export class OrdersService {
     const times = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
     const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
     const openTime = toDate - (secondsInCurrentRound * 1000);
-    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${(new Date()).toLocaleDateString()}-${times}`, query.type);
+    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${DateTimeHelper.formatDate(new Date())}-${times}`, query.type);
 
     return {
-      turnIndex: `${(new Date()).toLocaleDateString()}-${times}`,
-      nextTurnIndex: `${(new Date()).toLocaleDateString()}-${times + 1}`,
+      turnIndex: `${DateTimeHelper.formatDate(new Date())}-${times}`,
+      nextTurnIndex: `${DateTimeHelper.formatDate(new Date())}-${times + 1}`,
       openTime: toDate - (secondsInCurrentRound * 1000),
       nextTime: openTime + (parseInt(query.seconds) * 1000),
       awardDetail: lotteryAward?.awardDetail || {},
@@ -509,12 +510,12 @@ export class OrdersService {
   }
 
   getTurnIndex() {
-    const time = `${(new Date()).toLocaleDateString()}, 07:00 AM`;
+    const time = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
     const fromDate = new Date(time).getTime();
     const toDate = (new Date()).getTime();
     const times = Math.ceil(((toDate - fromDate) / 1000) / 45);
 
-    return `${(new Date()).toLocaleDateString()}-${times}`;
+    return `${DateTimeHelper.formatDate(new Date())}-${times}`;
   }
 
   getRandomTradingCode() {
