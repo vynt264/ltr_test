@@ -1191,7 +1191,7 @@ export class LotteriesService {
         if (!exist) {
           if (prizes.has(key) && !hasInFinalResult) {
             let payOut = prizes.get(key);
-            payOut -= ((orders.score || 0) * (OddBet.XienTruot4 * 1000));
+            payOut -= ((orders.score || 0) * (OddBet.TruotXien4 * 1000));
             prizes.set(key, payOut);
             indexOrdersTruotXien4HasCounted.push(index);
           }
@@ -1211,7 +1211,7 @@ export class LotteriesService {
       if (exist) {
         const hasIndex = ordersXien2HasCounted.some((index: any) => index == currentIndex);
         if (!hasIndex) {
-          totalBetAmount += (OddBet.XienTruot4 * 1000 * (currentValue?.score || 0));
+          totalBetAmount += (OddBet.TruotXien4 * 1000 * (currentValue?.score || 0));
           ordersXien2HasCounted.push(currentIndex);
         }
       }
@@ -1260,7 +1260,7 @@ export class LotteriesService {
         if (!exist) {
           if (prizes.has(key) && !hasInFinalResult) {
             let payOut = prizes.get(key);
-            payOut -= ((orders.score || 0) * (OddBet.XienTruot8 * 1000));
+            payOut -= ((orders.score || 0) * (OddBet.TruotXien8 * 1000));
             prizes.set(key, payOut);
             indexOrdersTruotXien8HasCounted.push(index);
           }
@@ -1281,7 +1281,7 @@ export class LotteriesService {
       if (exist) {
         const hasIndex = ordersXien3HasCounted.some((index: any) => index == currentIndex);
         if (!hasIndex) {
-          totalBetAmount += (OddBet.XienTruot8 * 1000 * (currentValue?.score || 0));
+          totalBetAmount += (OddBet.TruotXien8 * 1000 * (currentValue?.score || 0));
           ordersXien3HasCounted.push(currentIndex);
         }
       }
@@ -1327,7 +1327,7 @@ export class LotteriesService {
         if (!exist) {
           if (prizes.has(key) && !hasInFinalResult) {
             let payOut = prizes.get(key);
-            payOut -= ((orders.score || 0) * (OddBet.XienTruot10 * 1000));
+            payOut -= ((orders.score || 0) * (OddBet.TruotXien10 * 1000));
             prizes.set(key, payOut);
             indexOrdersTruotXien10HasCounted.push(index);
           }
@@ -1348,7 +1348,7 @@ export class LotteriesService {
       if (exist) {
         const hasIndex = ordersXien4HasCounted.some((index: any) => index == currentIndex);
         if (!hasIndex) {
-          totalBetAmount += (OddBet.XienTruot10 * 1000 * (currentValue?.score || 0));
+          totalBetAmount += (OddBet.TruotXien10 * 1000 * (currentValue?.score || 0));
           ordersXien4HasCounted.push(currentIndex);
         }
       }
@@ -1404,11 +1404,11 @@ export class LotteriesService {
 
           if (prizes.has(key) && !hasInFinalResult) {
             let payOut = prizes.get(key);
-            payOut -= ((orders.score || 0) * (OddBet.XienTruot4 * 1000));
+            payOut -= ((orders.score || 0) * (OddBet.TruotXien4 * 1000));
             prizes.set(key, payOut);
           } else {
             let payOut = prizes.get(key);
-            payOut += ((orders.score || 0) * (OddBet.XienTruot4 * 1000));
+            payOut += ((orders.score || 0) * (OddBet.TruotXien4 * 1000));
             prizes.set(key, payOut);
           }
         }
@@ -1427,7 +1427,7 @@ export class LotteriesService {
       if (exist) {
         const hasIndex = ordersXien2HasCounted.some((index: any) => index == currentIndex);
         if (!hasIndex) {
-          totalBetAmount += (OddBet.XienTruot4 * 1000 * (currentValue?.score || 0));
+          totalBetAmount += (OddBet.TruotXien4 * 1000 * (currentValue?.score || 0));
           ordersXien2HasCounted.push(currentIndex);
         }
       }
@@ -1463,7 +1463,7 @@ export class LotteriesService {
       if (exist) {
         const hasIndex = ordersXien3HasCounted.some((index: any) => index == currentIndex);
         if (!hasIndex) {
-          totalBetAmount += (OddBet.XienTruot8 * 1000 * (currentValue?.score || 0));
+          totalBetAmount += (OddBet.TruotXien8 * 1000 * (currentValue?.score || 0));
           ordersXien3HasCounted.push(currentIndex);
         }
       }
@@ -1491,11 +1491,11 @@ export class LotteriesService {
 
         if (prizes.has(key) && !hasInFinalResult) {
           let payOut = prizes.get(key);
-          payOut -= ((orders.score || 0) * (OddBet.XienTruot8 * 1000));
+          payOut -= ((orders.score || 0) * (OddBet.TruotXien8 * 1000));
           prizes.set(key, payOut);
         } else {
           let payOut = prizes.get(key);
-          payOut += ((orders.score || 0) * (OddBet.XienTruot8 * 1000));
+          payOut += ((orders.score || 0) * (OddBet.TruotXien8 * 1000));
           prizes.set(key, payOut);
         }
       }
@@ -1521,7 +1521,7 @@ export class LotteriesService {
       if (exist) {
         const hasIndex = ordersXien4HasCounted.some((index: any) => index == currentIndex);
         if (!hasIndex) {
-          totalBetAmount += (OddBet.XienTruot10 * 1000 * (currentValue?.score || 0));
+          totalBetAmount += (OddBet.TruotXien10 * 1000 * (currentValue?.score || 0));
           ordersXien4HasCounted.push(currentIndex);
         }
       }
@@ -1556,11 +1556,11 @@ export class LotteriesService {
 
         if (prizes.has(key) && !hasInFinalResult) {
           let payOut = prizes.get(key);
-          payOut -= ((orders.score || 0) * (OddBet.XienTruot10 * 1000));
+          payOut -= ((orders.score || 0) * (OddBet.TruotXien10 * 1000));
           prizes.set(key, payOut);
         } else {
           let payOut = prizes.get(key);
-          payOut += ((orders.score || 0) * (OddBet.XienTruot10 * 1000));
+          payOut += ((orders.score || 0) * (OddBet.TruotXien10 * 1000));
           prizes.set(key, payOut);
         }
       }
@@ -2948,19 +2948,19 @@ export class LotteriesService {
 
     // truot 4
     for (const order of ordersTruotXien4) {
-      const pricePerOrderTruotXien4 = (order?.score || 0) * (OddBet.XienTruot4 * 1000);
+      const pricePerOrderTruotXien4 = (order?.score || 0) * (OddBet.TruotXien4 * 1000);
       totalAmountLoXienTruot += pricePerOrderTruotXien4;
     }
 
     // truot 8
     for (const order of ordersTruotXien8) {
-      const pricePerOrderTruotXien8 = (order?.score || 0) * (OddBet.XienTruot8 * 1000);
+      const pricePerOrderTruotXien8 = (order?.score || 0) * (OddBet.TruotXien8 * 1000);
       totalAmountLoXienTruot += pricePerOrderTruotXien8;
     }
 
     // truot 10
     for (const order of ordersTruotXien10) {
-      const pricePerOrderTruotXien10 = (order?.score || 0) * (OddBet.XienTruot10 * 1000);
+      const pricePerOrderTruotXien10 = (order?.score || 0) * (OddBet.TruotXien10 * 1000);
       totalAmountLoXienTruot += pricePerOrderTruotXien10;
     }
 
@@ -3623,19 +3623,19 @@ export class LotteriesService {
 
             switch (ordersOfLoTruot.type) {
               case LoTruocType.TruotXien4:
-                totalBetAmount += (totalScore * PricePerScore.XienTruot4);
+                totalBetAmount += (totalScore * PricePerScore.TruotXien4);
                 // console.log("Total score truot xien 4", totalScore);
                 // console.log("Tong tien users dat cuoc: truot 4", (totalScore * PricePerScore.XienTruot4));
                 break;
 
               case LoTruocType.TruotXien8:
-                totalBetAmount += (totalScore * PricePerScore.XienTruot8);
+                totalBetAmount += (totalScore * PricePerScore.TruotXien8);
                 // console.log("Total score truot xien 8", totalScore);
                 // console.log("Tong tien users dat cuoc: truot 8", (totalScore * PricePerScore.XienTruot8));
                 break;
 
               case LoTruocType.TruotXien10:
-                totalBetAmount += (totalScore * PricePerScore.XienTruot10);
+                totalBetAmount += (totalScore * PricePerScore.TruotXien10);
                 // console.log("Total score truot xien 10", totalScore);
                 // console.log("Tong tien users dat cuoc: truot 10", (totalScore * PricePerScore.XienTruot10));
                 break;

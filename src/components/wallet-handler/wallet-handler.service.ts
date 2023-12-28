@@ -38,6 +38,12 @@ export class WalletHandlerService {
     return this.walletRepository.update(id, updateWalletHandlerDto);
   }
 
+  async updateWalletByUserId(userId: number, updateWalletHandlerDto: any) {
+    const wallet = await this.findWalletByUserId(userId);
+    wallet.balance = updateWalletHandlerDto.balance;
+    return this.walletRepository.save(wallet);
+  }
+
   remove(id: number) {
     return `This action removes a #${id} walletHandler`;
   }

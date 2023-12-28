@@ -8,7 +8,7 @@ import { SocketGatewayService } from '../gateway/gateway.service';
 import { addDays, addMinutes, startOfDay } from 'date-fns';
 import { BookMakerService } from '../bookmaker/bookmaker.service';
 import { INIT_TIME_CREATE_JOB, TypeLottery } from 'src/system/constants';
-import { BaCangType, BaoLoType, BonCangType, DanhDeType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
+import { BaCangType, BaoLoType, BonCangType, CategoryLotteryType, DanhDeType, LoTruocType, LoXienType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
@@ -274,8 +274,9 @@ export class ScheduleService implements OnModuleInit {
 
     transformData(data: any) {
         const orders: any = [];
+        let dataOrders: any = {};
         for (const categoryLotteryType in data) {
-            const dataOrders: any = {
+            dataOrders = {
                 categoryLotteryType,
                 data: [] as any,
             };
@@ -284,12 +285,40 @@ export class ScheduleService implements OnModuleInit {
                     type,
                     data: [] as any,
                 };
-                for (const order in data[categoryLotteryType][type]) {
-                    const item = {
-                        score: data[categoryLotteryType][type][order],
-                        number: order,
-                    };
-                    dataChild.data.push(item);
+                switch (type) {
+                    case BaoLoType.Lo2So:
+                    case BaoLoType.Lo2So1k:
+                    case BaoLoType.Lo3So:
+                    case BaoLoType.Lo4So:
+                    case DanhDeType.DeDau:
+                    case DanhDeType.DeDacBiet:
+                    case DanhDeType.DeDauDuoi:
+                        for (const number in data[categoryLotteryType][type]) {
+                            const item = {
+                                score: data[categoryLotteryType][type][number],
+                                number: number,
+                            };
+                            dataChild.data.push(item);
+                        }
+                        break;
+
+                    case LoXienType.Xien2:
+                    case LoXienType.Xien3:
+                    case LoXienType.Xien4:
+                    case LoTruocType.TruotXien4:
+                    case LoTruocType.TruotXien8:
+                    case LoTruocType.TruotXien10:
+                        for (const number in data[categoryLotteryType][type]) {
+                            const item = {
+                                score: data[categoryLotteryType][type][number],
+                                number: JSON.parse(number),
+                            };
+                            dataChild.data.push(item);
+                        }
+                        break;
+
+                    default:
+                        break;
                 }
 
                 dataOrders.data.push(dataChild);
@@ -330,7 +359,7 @@ export class ScheduleService implements OnModuleInit {
 
         const keyOrdersOfBookmaker = `bookmaker-id-${bookmakerId}-${gameType}`;
         const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
-        if (!ordersOfBookmaker) {
+        if (!ordersOfBookmaker || Object.keys(ordersOfBookmaker).length === 0) {
             console.log(`orders of bookmakerId ${keyOrdersOfBookmaker}-${turnIndex} is not found.`);
             return;
         }
@@ -341,7 +370,7 @@ export class ScheduleService implements OnModuleInit {
                 ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}`] || null;
             }
 
-            if (!ordersOfUser) {
+            if (!ordersOfUser || Object.keys(ordersOfUser).length === 0) {
                 console.log(`orders of userId ${keyOrdersOfBookmaker}-${turnIndex} is not found.`);
                 continue;
             }
@@ -372,7 +401,7 @@ export class ScheduleService implements OnModuleInit {
 
             const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
             const remainBalance = +wallet.balance + totalBalance;
-            this.walletHandlerService.update(+userId, { balance: remainBalance });
+            this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
 
             this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
         }
@@ -390,7 +419,7 @@ export class ScheduleService implements OnModuleInit {
         let totalPoint = 0;
         for (const order in orders) {
             totalPoint += orders[order];
-            const times = this.findNumberOccurrencesOfPrize({ order, prizes, typeBet });
+            const times = this.findNumberOccurrencesOfPrizes({ order, prizes, typeBet });
             if (times > 0) {
                 pointWin += (times * orders[order]);
             }
@@ -452,6 +481,37 @@ export class ScheduleService implements OnModuleInit {
                 balanceLosed += (totalPoint * (PricePerScore.BonCangDacBiet));
                 break;
 
+            case LoXienType.Xien2:
+                balanceWin += (pointWin * (OddBet.Xien2 * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.Xien2));
+                break;
+
+            case LoXienType.Xien3:
+                balanceWin += (pointWin * (OddBet.Xien3 * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.Xien3));
+                break;
+
+            case LoXienType.Xien4:
+                balanceWin += (pointWin * (OddBet.Xien4 * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.Xien4));
+                break;
+
+            case LoTruocType.TruotXien4:
+                balanceWin += (pointWin * (OddBet.TruotXien4 * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.TruotXien4));
+                break;
+
+
+            case LoTruocType.TruotXien8:
+                balanceWin += (pointWin * (OddBet.TruotXien8 * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.TruotXien8));
+                break;
+
+            case LoTruocType.TruotXien10:
+                balanceWin += (pointWin * (OddBet.TruotXien10 * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.TruotXien10));
+                break;
+
             default:
                 break;
         }
@@ -459,7 +519,7 @@ export class ScheduleService implements OnModuleInit {
         return (balanceWin - balanceLosed);
     }
 
-    findNumberOccurrencesOfPrize({
+    findNumberOccurrencesOfPrizes({
         order,
         prizes,
         typeBet,
@@ -543,6 +603,46 @@ export class ScheduleService implements OnModuleInit {
                     if (prizes[0][j].endsWith(order)) {
                         count++;
                     }
+                }
+                break;
+
+            case LoXienType.Xien2:
+            case LoXienType.Xien3:
+            case LoXienType.Xien4:
+                let tempCount = 0;
+                const numbers = order.split(',');
+                for (let i = 0; i < 9; i++) {
+                    for (let j = 0; j < prizes[i].length; j++) {
+                        for (const number of numbers) {
+                            if (prizes[i][j].endsWith(number)) {
+                                tempCount++;
+                            }
+                        }
+                    }
+                }
+
+                if (tempCount === numbers.length) {
+                    count++;
+                }
+                break;
+
+            case LoTruocType.TruotXien4:
+            case LoTruocType.TruotXien8:
+            case LoTruocType.TruotXien10:
+                let tempCountTruotXien = 0;
+                const numbersTruotXien = order.split(',');
+                for (let i = 0; i < 9; i++) {
+                    for (let j = 0; j < prizes[i].length; j++) {
+                        for (const number of numbersTruotXien) {
+                            if (!prizes[i][j].endsWith(number)) {
+                                tempCountTruotXien++;
+                            }
+                        }
+                    }
+                }
+
+                if (tempCountTruotXien === numbersTruotXien.length) {
+                    count++;
                 }
                 break;
 
