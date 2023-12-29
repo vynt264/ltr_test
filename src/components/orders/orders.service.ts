@@ -18,6 +18,7 @@ import { RedisCacheService } from 'src/system/redis/redis.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
 import { DateTimeHelper } from 'src/helpers/date-time';
+import { OrderValidate } from './validations/order.validate';
 
 @Injectable()
 export class OrdersService {
@@ -30,6 +31,7 @@ export class OrdersService {
   ) { }
 
   async create(data: CreateListOrdersDto, member: any) {
+    OrderValidate.validOrders(data?.orders || []);
     // check balance
     const wallet = await this.walletHandlerService.findWalletByUserId(member.id);
     const totalBet = this.getBalance(data.orders);

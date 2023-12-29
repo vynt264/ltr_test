@@ -10,4 +10,8 @@ export enum ERROR {
   NOT_FOUND = "NOT_FOUND",
   SYSTEM_OCCURRENCE = "SYSTEM_OCCURRENCE",
   INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR",
+  MESSAGE_DAU_CUOI_INVALID = "Đơn cược cuả quý khách vượt qua 7 số",
+  MESSAGE_LO_2_S0_INVALID = "Đơn cược cuả quý khách vượt qua 70 số",
+  MESSAGE_LO_3_S0_INVALID = "Đơn cược cuả quý khách vượt qua 700 số",
+  MESSAGE_LO_4_S0_INVALID = "Đơn cược cuả quý khách vượt qua 7000 số",
 }

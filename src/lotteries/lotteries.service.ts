@@ -3,16 +3,7 @@ import * as _ from "lodash";
 import { CreateLotteryDto } from './dto/create-lottery.dto';
 import { UpdateLotteryDto } from './dto/update-lottery.dto';
 import {
-  MAX_ORDERS_LO2SO,
-  MAX_ORDERS_LO3SO,
-  MAX_ORDERS_LO4SO,
-  MAX_PERCENT,
-  MINIUM_PROFIT,
-  MAX_NUMBER_PRIZES_OF_LO2SO,
-  MAX_NUMBER_PRIZES_OF_LO3SO,
-  MAX_NUMBER_PRIZES_OF_LO4SO,
   PRIZES,
-  MAX_ORDERS_LO2SO1K,
 } from '../system/constants';
 import { OrderDto } from './dto/order.dto';
 import {
