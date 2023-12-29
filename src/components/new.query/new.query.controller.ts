@@ -92,8 +92,11 @@ export class NewQueryController {
   @ApiBearerAuth("Authorization")
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @Roles(UserRoles.SUPPER)
-  async getDataFake(@Param("key") key: string): Promise<any> {
-    return this.newQueryService.getDataFake(key);
+  async getDataFake(
+    @Param("key") key: string,
+    @Query() paginationQuery: PaginationQueryDto
+  ): Promise<any> {
+    return this.newQueryService.getDataFake(key, paginationQuery);
   }
 
   @Post("dataFake/create")
