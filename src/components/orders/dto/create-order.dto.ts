@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { BookMaker } from "src/components/bookmaker/bookmaker.entity";
 import { User } from "src/components/user/user.entity";
 import { JoinColumn, ManyToOne } from "typeorm";
 
@@ -65,6 +66,10 @@ export class CreateOrderDto {
         cascade: true,
         createForeignKeyConstraints: false,
     })
+
     @JoinColumn()
     user: User;
+
+    @JoinColumn()
+    bookMaker: BookMaker;
 }

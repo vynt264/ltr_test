@@ -58,6 +58,7 @@ export class OrdersService {
       order.type = this.getTypeLottery(order.type);
       order.numberOfBets = this.getNumberOfBets(order.childBetType, order.detail);
       order.user = member;
+      order.bookMaker = { id: member.bookmakerId } as any;
       order.revenue = this.getBetAmount(order.multiple, order.childBetType, order.numberOfBets);
 
       promises.push(this.orderRequestRepository.save(order));

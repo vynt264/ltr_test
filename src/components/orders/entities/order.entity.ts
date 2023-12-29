@@ -7,6 +7,7 @@ import {
 } from "typeorm";
 import { User } from "../../user/user.entity";
 import { BaseEntity } from "src/common/mysql/base.entity";
+import { BookMaker } from "src/components/bookmaker/bookmaker.entity";
 
 enum OrderStatus {
     closed = "closed",
@@ -23,6 +24,13 @@ export class Order extends BaseEntity {
     })
     @JoinColumn()
     user: User;
+
+    @ManyToOne(() => BookMaker, {
+        cascade: true,
+        createForeignKeyConstraints: false,
+    })
+    @JoinColumn()
+    bookMaker: BookMaker;
 
     @Column({ type: 'varchar', length: 31, nullable: true })
     numericalOrder: string;
