@@ -222,13 +222,19 @@ export class NewQueryService {
     }
   }
 
-  async getDataFake(key: string) {
+  async getDataFake(key: string, paginationQuery: PaginationQueryDto) {
+    const { take: perPage, skip: page } = paginationQuery;
+    if (page <= 0) {
+      return "The skip must be more than 0";
+    }
+    const skip = +perPage * +page - +perPage;
     try {
-      console.log("key: ", key)
       const listData = await this.dataFakeRepository.findAndCount({
         where: {
           keyMode: key,
         },
+        take: +perPage,
+        skip,
         order: {
           id: "DESC",
         }
