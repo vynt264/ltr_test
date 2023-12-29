@@ -13,10 +13,11 @@ import { PaginationQueryDto } from 'src/common/common.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, LoTruocType, LoXienType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
-import { TypeLottery } from 'src/system/constants';
+import { INIT_TIME_CREATE_JOB, TypeLottery } from 'src/system/constants';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
+import { DateTimeHelper } from 'src/helpers/date-time';
 
 @Injectable()
 export class OrdersService {
@@ -55,7 +56,7 @@ export class OrdersService {
       order.type = this.getTypeLottery(order.type);
       order.numberOfBets = this.getNumberOfBets(order.childBetType, order.detail);
       order.user = member;
-      order.revenue = this.getBetAmount(order.numberOfBets, order.childBetType);
+      order.revenue = this.getBetAmount(order.multiple, order.childBetType, order.numberOfBets);
 
       promises.push(this.orderRequestRepository.save(order));
     }
@@ -257,35 +258,54 @@ export class OrdersService {
   }
 
   async update(id: number, updateOrderDto: any, member: any) {
+    let order = await this.orderRequestRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
     if (member) {
-      const order = await this.orderRequestRepository.findOne({
-        where: {
-          id,
-        },
-      });
+      const dataByBookmakerId: any = await this.redisService.get(`bookmaker-id-${member.bookmakerId.toString()}-${order.type}${order.seconds}s`);
+      if (dataByBookmakerId) {
+        const result: any = {};
+        const orders: any = dataByBookmakerId[`user-id-${member.id}`];
+        for (const key in orders) {
+          if (key === `${order.id}-${order.type}${order.seconds}-${order.childBetType}`) continue;
+          result[key] = orders[key];
+        }
+        dataByBookmakerId[`user-id-${member.id}`] = result;
+        await this.redisService.set(`bookmaker-id-${member.bookmakerId.toString()}-${order.type}${order.seconds}s`, dataByBookmakerId);
+      }
 
       const key = `${member.bookmakerId}-${order.type}${order.seconds}s`;
       let data: any = await this.redisService.get(key);
-      const orderDetail = this.getOrderDetail(order);
-      const availableOrders = data[order.betType][order.childBetType];
-
-      const resultFinal: any = {};
-      for (const key in availableOrders) {
-        if (orderDetail[key]) {
-          const remainScore = availableOrders[key] - orderDetail[key];
-          if (remainScore > 0) {
-            resultFinal[key] = remainScore;
+      if (data) {
+        try {
+          const orderDetail = this.getOrderDetail(order);
+          const availableOrders = data[order.betType][order.childBetType];
+          const resultFinal: any = {};
+          for (const key in availableOrders) {
+            if (orderDetail[key]) {
+              const remainScore = availableOrders[key] - orderDetail[key];
+              if (remainScore > 0) {
+                resultFinal[key] = remainScore;
+              }
+            } else {
+              resultFinal[key] = availableOrders[key];
+            }
           }
-        } else {
-          resultFinal[key] = availableOrders[key];
-        }
+
+          data[order.betType][order.childBetType] = resultFinal;
+          await this.redisService.set(key, data);
+        } catch (err) { }
       }
 
-      data[order.betType][order.childBetType] = resultFinal;
-      await this.redisService.set(key, data);
-
-      console.log(orderDetail);
+      const wallet = await this.walletHandlerService.findWalletByUserId(member.id);
+      const remainBalance = +wallet.balance + (+order.revenue);
+      await this.walletHandlerService.updateWalletByUserId(+member.id, { balance: remainBalance });
     }
+
+    if (order.status !== 'pending') return;
 
     return this.orderRequestRepository.update(id, updateOrderDto);
   }
@@ -304,11 +324,11 @@ export class OrdersService {
     const times = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
     const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
     const openTime = toDate - (secondsInCurrentRound * 1000);
-    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${(new Date()).toLocaleDateString()}-${times}`, query.type);
+    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${DateTimeHelper.formatDate(new Date())}-${times}`, query.type);
 
     return {
-      turnIndex: `${(new Date()).toLocaleDateString()}-${times}`,
-      nextTurnIndex: `${(new Date()).toLocaleDateString()}-${times + 1}`,
+      turnIndex: `${DateTimeHelper.formatDate(new Date())}-${times}`,
+      nextTurnIndex: `${DateTimeHelper.formatDate(new Date())}-${times + 1}`,
       openTime: toDate - (secondsInCurrentRound * 1000),
       nextTime: openTime + (parseInt(query.seconds) * 1000),
       awardDetail: lotteryAward?.awardDetail || {},
@@ -433,6 +453,7 @@ export class OrdersService {
       case LoTruocType.TruotXien8:
         typeName = BetTypeName.TruotXien8;
         break;
+
       case LoTruocType.TruotXien10:
         typeName = BetTypeName.TruotXien10;
         break;
@@ -449,6 +470,7 @@ export class OrdersService {
     let seconds = 0;
     switch (type) {
       case TypeLottery.XSMB_1S:
+      case TypeLottery.XSMT_1S:
       case TypeLottery.XSMN_1S:
       case TypeLottery.XSSPL_1S:
         seconds = 1;
@@ -461,10 +483,26 @@ export class OrdersService {
         seconds = 45;
         break;
 
+      case TypeLottery.XSSPL_60S:
+        seconds = 60;
+        break;
+
+      case TypeLottery.XSSPL_90S:
+        seconds = 90;
+        break;
+
+      case TypeLottery.XSSPL_120S:
+        seconds = 120;
+        break;
+
       case TypeLottery.XSMB_180S:
       case TypeLottery.XSMT_180S:
       case TypeLottery.XSMN_180S:
         seconds = 180;
+        break;
+
+      case TypeLottery.XSSPL_360S:
+        seconds = 360;
         break;
 
       default:
@@ -509,12 +547,12 @@ export class OrdersService {
   }
 
   getTurnIndex() {
-    const time = `${(new Date()).toLocaleDateString()}, 07:00 AM`;
+    const time = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
     const fromDate = new Date(time).getTime();
     const toDate = (new Date()).getTime();
     const times = Math.ceil(((toDate - fromDate) / 1000) / 45);
 
-    return `${(new Date()).toLocaleDateString()}-${times}`;
+    return `${DateTimeHelper.formatDate(new Date())}-${times}`;
   }
 
   getRandomTradingCode() {
@@ -559,7 +597,6 @@ export class OrdersService {
         } catch (err) {
           numberOfBets = 0;
         }
-
         break;
 
       case BaoLoType.Lo3So:
@@ -598,6 +635,18 @@ export class OrdersService {
         }
         break;
 
+      case LoXienType.Xien2:
+      case LoXienType.Xien3:
+      case LoXienType.Xien4:
+        numberOfBets = 1;
+        break;
+
+      case LoTruocType.TruotXien4:
+      case LoTruocType.TruotXien8:
+      case LoTruocType.TruotXien10:
+        numberOfBets = 1;
+        break;
+
       default:
         break;
     }
@@ -605,7 +654,7 @@ export class OrdersService {
     return numberOfBets;
   }
 
-  getBetAmount(score: number, childBetType: string) {
+  getBetAmount(score: number, childBetType: string, numberOfBets: number) {
     let pricePerScore = 0;
     switch (childBetType) {
       case BaoLoType.Lo2So:
@@ -652,11 +701,23 @@ export class OrdersService {
         pricePerScore = PricePerScore.BonCangDacBiet;
         break;
 
+      case LoXienType.Xien2:
+      case LoXienType.Xien3:
+      case LoXienType.Xien4:
+        pricePerScore = PricePerScore.Xien2;
+        break;
+
+      case LoTruocType.TruotXien4:
+      case LoTruocType.TruotXien8:
+      case LoTruocType.TruotXien10:
+        pricePerScore = PricePerScore.TruotXien4;
+        break;
+
       default:
         break;
     }
 
-    return (pricePerScore * (score || 0));
+    return (pricePerScore * (score || 0) * numberOfBets);
   }
 
   async saveRedis(orders: any, bookmakerId: string) {
@@ -774,6 +835,15 @@ export class OrdersService {
         } else {
           numbers = order.detail.split(',');
         }
+        break;
+
+      case LoXienType.Xien2:
+      case LoXienType.Xien3:
+      case LoXienType.Xien4:
+      case LoTruocType.TruotXien4:
+      case LoTruocType.TruotXien8:
+      case LoTruocType.TruotXien10:
+        numbers = [order.detail];
         break;
 
       default:
@@ -899,6 +969,26 @@ export class OrdersService {
         }
         break;
 
+      case LoXienType.Xien2:
+      case LoXienType.Xien3:
+      case LoXienType.Xien4:
+      case LoTruocType.TruotXien4:
+      case LoTruocType.TruotXien8:
+      case LoTruocType.TruotXien10:
+        numbers = order.detail.split(',');
+        numbers = numbers.map(number => number.trim());
+        numbers.sort((a: string, b: string) => {
+          return parseInt(a) - parseInt(b);
+        });
+        this.addOrder({
+          typeBet: order.betType,
+          childBetType: order.childBetType,
+          multiple: order.multiple,
+          number: JSON.stringify(numbers),
+          initData,
+        });
+        break;
+
       default:
         break;
     }
@@ -972,6 +1062,28 @@ export class OrdersService {
 
           } as any,
         },
+        [CategoryLotteryType.LoXien]: {
+          [LoXienType.Xien2]: {
+
+          } as any,
+          [LoXienType.Xien3]: {
+
+          } as any,
+          [LoXienType.Xien4]: {
+
+          } as any,
+        },
+        [CategoryLotteryType.LoTruot]: {
+          [LoTruocType.TruotXien4]: {
+
+          } as any,
+          [LoTruocType.TruotXien8]: {
+
+          } as any,
+          [LoTruocType.TruotXien10]: {
+
+          } as any,
+        },
       };
     }
 
@@ -983,65 +1095,81 @@ export class OrdersService {
     for (const order of orders) {
       const numberOfBets = this.getNumberOfBets(order.childBetType, order.detail);
       let amount = 0;
+
       switch (order.childBetType) {
         case BaoLoType.Lo3So:
           amount = (numberOfBets * PricePerScore.Lo3So) * order.multiple;
-          totalBet += amount;
           break;
 
         case BaoLoType.Lo2So:
           amount = (numberOfBets * PricePerScore.Lo2So) * order.multiple;
-          totalBet += amount;
           break;
 
         case BaoLoType.Lo2So1k:
           amount = (numberOfBets * PricePerScore.Lo2So1k) * order.multiple;
-          totalBet += amount;
           break;
 
         case BaoLoType.Lo4So:
           amount = (numberOfBets * PricePerScore.Lo4So) * order.multiple;
-          totalBet += amount;
           break;
 
         case DanhDeType.DeDau:
           amount = (numberOfBets * PricePerScore.DeDau) * order.multiple;
-          totalBet += amount;
           break;
 
         case DanhDeType.DeDacBiet:
           amount = (numberOfBets * PricePerScore.DeDacBiet) * order.multiple;
-          totalBet += amount;
           break;
 
         case DanhDeType.DeDauDuoi:
           amount = (numberOfBets * PricePerScore.DeDauDuoi) * order.multiple;
-          totalBet += amount;
           break;
 
         case BaCangType.BaCangDau:
           amount = (numberOfBets * PricePerScore.BaCangDau) * order.multiple;
-          totalBet += amount;
           break;
 
         case BaCangType.BaCangDacBiet:
           amount = (numberOfBets * PricePerScore.BaCangDacBiet) * order.multiple;
-          totalBet += amount;
           break;
 
         case BaCangType.BaCangDauDuoi:
           amount = (numberOfBets * PricePerScore.BaCangDauDuoi) * order.multiple;
-          totalBet += amount;
           break;
 
         case BonCangType.BonCangDacBiet:
           amount = (numberOfBets * PricePerScore.BonCangDacBiet) * order.multiple;
-          totalBet += amount;
+          break;
+
+        case LoXienType.Xien2:
+          amount = (numberOfBets * PricePerScore.Xien2) * order.multiple;
+          break;
+
+        case LoXienType.Xien3:
+          amount = (numberOfBets * PricePerScore.Xien3) * order.multiple;
+          break;
+
+        case LoXienType.Xien4:
+          amount = (numberOfBets * PricePerScore.Xien4) * order.multiple;
+          break;
+
+        case LoTruocType.TruotXien4:
+          amount = (numberOfBets * PricePerScore.TruotXien4) * order.multiple;
+          break;
+
+        case LoTruocType.TruotXien8:
+          amount = (numberOfBets * PricePerScore.TruotXien8) * order.multiple;
+          break;
+
+        case LoTruocType.TruotXien10:
+          amount = (numberOfBets * PricePerScore.TruotXien10) * order.multiple;
           break;
 
         default:
           break;
       }
+
+      totalBet += amount;
     }
 
     return totalBet;
