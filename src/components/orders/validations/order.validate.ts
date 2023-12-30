@@ -5,7 +5,7 @@ import { ERROR } from '../../../system/constants/messageError';
 import { MAX_ORDERS_LO2SO, MAX_ORDERS_LO3SO, MAX_ORDERS_LO4SO, MAX_ORDERS_DAU_DUOI } from "src/system/constants";
 
 export class OrderValidate {
-    static validOrders(orders: any) {
+    static validateOrders(orders: any) {
         let numberOfOrders;
         for (const order of orders) {
             switch (order.childBetType) {
