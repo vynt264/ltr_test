@@ -14,4 +14,5 @@ export enum ERROR {
   MESSAGE_LO_2_S0_INVALID = "Đơn cược cuả quý khách vượt qua 70 số",
   MESSAGE_LO_3_S0_INVALID = "Đơn cược cuả quý khách vượt qua 700 số",
   MESSAGE_LO_4_S0_INVALID = "Đơn cược cuả quý khách vượt qua 7000 số",
+  ACCOUNT_BALANCE_IS_INSUFFICIENT = "Số dư tài khoản không đủ",
 }

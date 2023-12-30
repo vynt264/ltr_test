@@ -13,7 +13,7 @@ import { PaginationQueryDto } from 'src/common/common.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, LoTruocType, LoXienType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
-import { INIT_TIME_CREATE_JOB, TypeLottery } from 'src/system/constants';
+import { ERROR, INIT_TIME_CREATE_JOB, TypeLottery } from 'src/system/constants';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
@@ -31,14 +31,14 @@ export class OrdersService {
   ) { }
 
   async create(data: CreateListOrdersDto, member: any) {
-    OrderValidate.validOrders(data?.orders || []);
+    OrderValidate.validateOrders(data?.orders || []);
     // check balance
     const wallet = await this.walletHandlerService.findWalletByUserId(member.id);
     const totalBet = this.getBalance(data.orders);
     if (totalBet > wallet.balance) {
       throw new HttpException(
         {
-          message: 'Account balance is insufficient',
+          message: ERROR.ACCOUNT_BALANCE_IS_INSUFFICIENT,
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -650,6 +650,12 @@ export class OrdersService {
         numberOfBets = 1;
         break;
 
+      case DauDuoiType.Dau:
+      case DauDuoiType.Duoi:
+        const numbers = ordersDetail.split(',');
+        numberOfBets = numbers.length;
+        break;
+
       default:
         break;
     }
@@ -714,6 +720,11 @@ export class OrdersService {
       case LoTruocType.TruotXien8:
       case LoTruocType.TruotXien10:
         pricePerScore = PricePerScore.TruotXien4;
+        break;
+
+      case DauDuoiType.Dau:
+      case DauDuoiType.Duoi:
+        pricePerScore = PricePerScore.Dau;
         break;
 
       default:
@@ -847,6 +858,12 @@ export class OrdersService {
       case LoTruocType.TruotXien8:
       case LoTruocType.TruotXien10:
         numbers = [order.detail];
+        break;
+
+      case DauDuoiType.Dau:
+      case DauDuoiType.Duoi:
+        numbers = order.detail.split(',');
+        numbers = numbers.map((number: any) => number.trim());
         break;
 
       default:
@@ -990,6 +1007,21 @@ export class OrdersService {
           number: JSON.stringify(numbers),
           initData,
         });
+        break;
+
+      case DauDuoiType.Dau:
+      case DauDuoiType.Duoi:
+        numbers = order.detail.split(',');
+        numbers = numbers.map(number => number.trim());
+        for (const number of numbers) {
+          this.addOrder({
+            typeBet: order.betType,
+            childBetType: order.childBetType,
+            multiple: order.multiple,
+            number,
+            initData,
+          });
+        }
         break;
 
       default:

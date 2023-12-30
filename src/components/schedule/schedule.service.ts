@@ -8,7 +8,7 @@ import { SocketGatewayService } from '../gateway/gateway.service';
 import { addDays, addMinutes, startOfDay } from 'date-fns';
 import { BookMakerService } from '../bookmaker/bookmaker.service';
 import { INIT_TIME_CREATE_JOB, TypeLottery } from 'src/system/constants';
-import { BaCangType, BaoLoType, BonCangType, CategoryLotteryType, DanhDeType, LoTruocType, LoXienType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
+import { BaCangType, BaoLoType, BonCangType, CategoryLotteryType, DanhDeType, DauDuoiType, LoTruocType, LoXienType, OddBet, PricePerScore, TroChoiThuViType } from 'src/system/enums/lotteries';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
@@ -512,6 +512,19 @@ export class ScheduleService implements OnModuleInit {
                 balanceLosed += (totalPoint * (PricePerScore.TruotXien10));
                 break;
 
+            case DauDuoiType.Dau:
+                balanceWin += (pointWin * (OddBet.Dau * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.Dau));
+                break;
+
+            case DauDuoiType.Duoi:
+                balanceWin += (pointWin * (OddBet.Duoi * 1000));
+                balanceLosed += (totalPoint * (PricePerScore.Duoi));
+                break;
+
+            case TroChoiThuViType.Lo2SoGiaiDacBiet:
+                break;
+
             default:
                 break;
         }
@@ -525,6 +538,8 @@ export class ScheduleService implements OnModuleInit {
         typeBet,
     }: any) {
         let count = 0;
+        let lastTwoDigits;
+        let isValidOrder = false;
 
         switch (typeBet) {
             case BaoLoType.Lo2So:
@@ -614,7 +629,7 @@ export class ScheduleService implements OnModuleInit {
                 for (let i = 0; i < 9; i++) {
                     for (let j = 0; j < prizes[i].length; j++) {
                         for (const number of numbers) {
-                            if (prizes[i][j].endsWith(number)) {
+                            if (prizes[i][j].endsWith(number.trim())) {
                                 tempCount++;
                             }
                         }
@@ -634,7 +649,7 @@ export class ScheduleService implements OnModuleInit {
                 for (let i = 0; i < 9; i++) {
                     for (let j = 0; j < prizes[i].length; j++) {
                         for (const number of numbersTruotXien) {
-                            if (!prizes[i][j].endsWith(number)) {
+                            if (!prizes[i][j].endsWith(number.trim())) {
                                 tempCountTruotXien++;
                             }
                         }
@@ -642,6 +657,30 @@ export class ScheduleService implements OnModuleInit {
                 }
 
                 if (tempCountTruotXien === numbersTruotXien.length) {
+                    count++;
+                }
+                break;
+
+            case DauDuoiType.Dau:
+                lastTwoDigits = prizes[0][0].slice(-2);
+                isValidOrder = false;
+                if (order) {
+                    isValidOrder = lastTwoDigits.startsWith(order.toString());
+                }
+
+                if (isValidOrder) {
+                    count++;
+                }
+                break;
+
+            case DauDuoiType.Duoi:
+                lastTwoDigits = prizes[0][0].slice(-2);
+                isValidOrder = false;
+                if (order) {
+                    isValidOrder = lastTwoDigits.endsWith(order.toString());
+                }
+
+                if (isValidOrder) {
                     count++;
                 }
                 break;
