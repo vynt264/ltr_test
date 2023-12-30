@@ -136,4 +136,88 @@ export class AdminOrdersService {
       );
     }
   }
+
+  async reportChart(bookmakerId: number) {
+    try {
+      let condition = "entity.status = 'closed'";
+      const conditionParams: any = {}
+      if (bookmakerId > 0) {
+        condition = condition.concat(` AND bookmaker.id = :bookmarkerFind`);
+        conditionParams.bookmarkerFind = bookmakerId;
+      }
+
+      const responseUsers = await this.userService.getOneByBookmaker(
+        bookmakerId
+      );
+
+      const dataOrders = await this.orderRepository
+        .createQueryBuilder("entity")
+        .leftJoinAndSelect("users", "user", "entity.userId = user.id")
+        .leftJoinAndSelect(
+          "bookmaker",
+          "bookmaker",
+          "user.bookmakerId = bookmaker.id"
+        )
+        .select("bookmaker.name as bookmakerName")
+        .addSelect("COUNT(entity.id) as count")
+        .addSelect("SUM(entity.revenue) as totalBet")
+        .addSelect("SUM(entity.paymentWin) as totalPaymentWin")
+        .where(condition, conditionParams)
+        .groupBy("bookmakerName")
+        .getRawMany();
+
+      const dataLottery = await this.orderRepository
+        .createQueryBuilder("entity")
+        .leftJoinAndSelect("users", "user", "entity.userId = user.id")
+        .leftJoinAndSelect(
+          "bookmaker",
+          "bookmaker",
+          "user.bookmakerId = bookmaker.id"
+        )
+        .select("entity.type as typeGame")
+        .addSelect("entity.seconds as secondsGame")
+        .addSelect("COUNT(entity.id) as count")
+        .addSelect("SUM(entity.revenue) as totalBet")
+        .addSelect("SUM(entity.paymentWin) as totalPaymentWin")
+        .where(condition, conditionParams)
+        .groupBy("typeGame, secondsGame")
+        .getRawMany();
+
+      const dataResult = responseUsers.map((itemU: any) => {
+        const matchingItemB = dataOrders.find(
+          (itemO) => itemO.bookmakerName === itemU.bookmakerName
+        );
+        if (matchingItemB) {
+          return {
+            bookmakerName: itemU.bookmakerName,
+            countUser: itemU.count,
+            countOrder: matchingItemB.count,
+            totalBet: matchingItemB.totalBet,
+            totalPaymentWin: matchingItemB.totalPaymentWin,
+          };
+        }
+        return itemU;
+      });
+
+      const result = {
+        dataGenaral: dataResult,
+        dataGame: dataLottery
+      }
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        result,
+        MESSAGE.LIST_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${AdminOrdersService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        MESSAGE.LIST_FAILED
+      );
+    }
+  }
 }

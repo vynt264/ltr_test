@@ -236,6 +236,41 @@ export class UserService {
     }
   }
 
+
+  async getOneByBookmaker(bookmakerId: number): Promise<any> {
+    try {
+      let condition = "user.role = 'member' AND user.bookmakerId IS NOT NULL";
+      const conditionParams: any = {}
+      if (bookmakerId > 0) {
+        condition = condition.concat(` AND bookmaker.id = :bookmarkerFind`);
+        conditionParams.bookmarkerFind = bookmakerId;
+      }
+      const users = await this.userRepository
+        .createQueryBuilder("user")
+        .leftJoinAndSelect(
+          "bookmaker",
+          "bookmaker",
+          "user.bookmakerId = bookmaker.id"
+        )
+        .select("bookmaker.name as bookmakerName")
+        .addSelect("COUNT(user.id) as count")
+        .where(condition, conditionParams)
+        .groupBy("bookmakerName")
+        .getRawMany();
+
+      return users;
+    } catch (error) {
+      this.logger.debug(
+        `${UserService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_NOT_FOUND,
+        error,
+        ERROR.NOT_FOUND
+      );
+    }
+  }
+
   async userGetInfo(id = 0): Promise<any> {
     try {
       const user = await this.userRepository.findOne({
