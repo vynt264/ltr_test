@@ -93,7 +93,7 @@ export class UserController {
     type: Response<User[]>,
   })
   @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_VIEW)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.userService.getAll(paginationQuery);
   }
@@ -171,7 +171,7 @@ export class UserController {
   })
   @UsePipes(ValidationPipe)
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async blockUser(
     @Param("id", ParseIntPipe) id: number,
     @Body() blockDto: BlockUserDto

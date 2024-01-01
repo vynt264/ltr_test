@@ -26,7 +26,7 @@ import { ReportQueryDto } from "./dto/report.query.dto";
 @ApiTags("Admin-ordres")
 @ApiBearerAuth("Authorization")
 @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-@Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+@Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
 export class AdminOrdersController {
   constructor(private readonly adminOrdersService: AdminOrdersService) {}
 

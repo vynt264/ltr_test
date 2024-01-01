@@ -73,6 +73,10 @@ export class AdminOrdersService {
     }
 
     for (const key in object) {
+      if (key === "bookmakerId") {
+        data.user = { bookmaker : { id: object.bookmakerId }};
+      }
+
       if (key === "username") {
         data.user = { username: Like(`%${object.username}%`) };
       }

@@ -210,6 +210,10 @@ export class UserService {
         const endDate = new Date(object.endDate);
         data.createdAt = Between(startOfDay(startDate), endOfDay(endDate));
       }
+
+      if (key === "bookmakerId") {
+        data.bookmaker = { id: object.bookmakerId }
+      }
     }
 
     return [data];
