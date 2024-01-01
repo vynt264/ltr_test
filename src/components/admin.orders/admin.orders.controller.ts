@@ -56,4 +56,15 @@ export class AdminOrdersController {
   async GetReportChart(@Query() reportQueryDto: ReportQueryDto): Promise<any> {
     return this.adminOrdersService.reportChart(reportQueryDto?.bookmakerId);
   }
+
+  @Get("chart-detail")
+  @ApiOperation({
+    description: "Get report detail",
+  })
+  async GetChartDetail(@Query() reportQueryDto: ReportQueryDto): Promise<any> {
+    return this.adminOrdersService.reportDetailByTime(
+      reportQueryDto?.bookmakerId,
+      reportQueryDto?.timeFillter
+    );
+  }
 }
