@@ -4,6 +4,16 @@ export class DateTimeHelper {
         const dd = date.getDate();
         const yy = date.getFullYear();
 
-        return `${yy}${mm}${dd}`;
+        let tempMM = mm.toString();
+        if (tempMM.toString().length === 1) {
+            tempMM = `0${mm}`;
+        }
+
+        let tempDD = dd.toString();
+        if (tempDD.toString().length === 1) {
+            tempDD = `0${dd}`;
+        }
+
+        return `${yy}${tempMM}${tempDD}`;
     }
 }

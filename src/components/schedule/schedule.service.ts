@@ -13,6 +13,7 @@ import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
 import { DateTimeHelper } from 'src/helpers/date-time';
+import { WinningNumbersService } from '../winning-numbers/winning-numbers.service';
 
 
 @Injectable()
@@ -26,6 +27,7 @@ export class ScheduleService implements OnModuleInit {
         private readonly ordersService: OrdersService,
         private readonly walletHandlerService: WalletHandlerService,
         private readonly lotteryAwardService: LotteryAwardService,
+        private readonly winningNumbersService: WinningNumbersService,
     ) { }
 
     onModuleInit() {
@@ -265,6 +267,7 @@ export class ScheduleService implements OnModuleInit {
             awardDetail: finalResult,
         });
 
+        // calc balance
         this.handleBalance({
             turnIndex,
             key,
@@ -354,9 +357,12 @@ export class ScheduleService implements OnModuleInit {
         prizes,
     }: { turnIndex: string, key: string, prizes: any }) {
         const [bookmakerId, gameType] = key.split('-');
+
+        // get all userId of bookmaker
         let userIds: any = await this.redisService.get(`bookmaker-id-${bookmakerId}-users`);
         if (!userIds) return;
 
+        // get orders of bookmaker by game type (example: sxmb45s)
         const keyOrdersOfBookmaker = `bookmaker-id-${bookmakerId}-${gameType}`;
         const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
         if (!ordersOfBookmaker || Object.keys(ordersOfBookmaker).length === 0) {
@@ -377,25 +383,44 @@ export class ScheduleService implements OnModuleInit {
 
             const promises = [];
             let totalBalance = 0;
+            const promisesCreateWinningNumbers = [];
             for (const key in ordersOfUser) {
                 const [orderId, region, typeBet] = key.split('-');
-                const balance = this.calcBalanceEachOrder({
+                const { balanceWin, winningNumbers } = this.calcBalanceEachOrder({
                     orders: ordersOfUser[key],
                     typeBet,
                     prizes,
+                    orderId,
+                    turnIndex,
                 });
 
-                totalBalance += balance;
+                totalBalance += balanceWin;
+
+                if (winningNumbers.length > 0) {
+                    promisesCreateWinningNumbers.push(
+                        this.winningNumbersService.create({
+                            winningNumbers: JSON.stringify(winningNumbers),
+                            turnIndex,
+                            order: {
+                                id: orderId
+                            } as any,
+                            type: gameType,
+                        }),
+                    );
+                }
 
                 promises.push(this.ordersService.update(
                     +orderId,
                     {
-                        paymentWin: balance,
+                        paymentWin: balanceWin,
                         status: 'closed',
                     },
                     null,
                 ));
             }
+
+            // save winning numbers
+            Promise.all(promisesCreateWinningNumbers);
 
             await Promise.all(promises);
 
@@ -417,11 +442,14 @@ export class ScheduleService implements OnModuleInit {
         let balanceWin = 0;
         let balanceLosed = 0;
         let totalPoint = 0;
+        let count = 0;
+        let winningNumbers = [];
+
         for (const order in orders) {
             totalPoint += orders[order];
-            const times = this.findNumberOccurrencesOfPrizes({ order, prizes, typeBet });
-            if (times > 0) {
-                pointWin += (times * orders[order]);
+            ({ count, winningNumbers } = this.findNumberOccurrencesOfPrizes({ order, prizes, typeBet, winningNumbers }));
+            if (count > 0) {
+                pointWin += (count * orders[order]);
             }
         }
 
@@ -529,13 +557,17 @@ export class ScheduleService implements OnModuleInit {
                 break;
         }
 
-        return (balanceWin - balanceLosed);
+        return {
+            balanceWin,
+            winningNumbers
+        };
     }
 
     findNumberOccurrencesOfPrizes({
         order,
         prizes,
         typeBet,
+        winningNumbers,
     }: any) {
         let count = 0;
         let lastTwoDigits;
@@ -550,6 +582,7 @@ export class ScheduleService implements OnModuleInit {
                     for (let j = 0; j < prizes[i].length; j++) {
                         if (prizes[i][j].endsWith(order)) {
                             count++;
+                            winningNumbers.push(order);
                         }
                     }
                 }
@@ -559,6 +592,7 @@ export class ScheduleService implements OnModuleInit {
                 for (let j = 0; j < prizes[8].length; j++) {
                     if (prizes[8][j].endsWith(order)) {
                         count++;
+                        winningNumbers.push(order);
                     }
                 }
                 break;
@@ -567,6 +601,7 @@ export class ScheduleService implements OnModuleInit {
                 for (let j = 0; j < prizes[0].length; j++) {
                     if (prizes[0][j].endsWith(order)) {
                         count++;
+                        winningNumbers.push(order);
                     }
                 }
                 break;
@@ -575,11 +610,13 @@ export class ScheduleService implements OnModuleInit {
                 for (let j = 0; j < prizes[0].length; j++) {
                     if (prizes[0][j].endsWith(order)) {
                         count++;
+                        winningNumbers.push(order);
                     }
                 }
                 for (let j = 0; j < prizes[8].length; j++) {
                     if (prizes[8][j].endsWith(order)) {
                         count++;
+                        winningNumbers.push(order);
                     }
                 }
                 break;
@@ -588,6 +625,7 @@ export class ScheduleService implements OnModuleInit {
                 for (let j = 0; j < prizes[7].length; j++) {
                     if (prizes[7][j].endsWith(order)) {
                         count++;
+                        winningNumbers.push(order);
                     }
                 }
                 break;
@@ -596,6 +634,7 @@ export class ScheduleService implements OnModuleInit {
                 for (let j = 0; j < prizes[0].length; j++) {
                     if (prizes[0][j].endsWith(order)) {
                         count++;
+                        winningNumbers.push(order);
                     }
                 }
                 break;
@@ -604,11 +643,13 @@ export class ScheduleService implements OnModuleInit {
                 for (let j = 0; j < prizes[0].length; j++) {
                     if (prizes[0][j].endsWith(order)) {
                         count++;
+                        winningNumbers.push(order);
                     }
                 }
                 for (let j = 0; j < prizes[7].length; j++) {
                     if (prizes[7][j].endsWith(order)) {
                         count++;
+                        winningNumbers.push(order);
                     }
                 }
                 break;
@@ -617,6 +658,7 @@ export class ScheduleService implements OnModuleInit {
                 for (let j = 0; j < prizes[0].length; j++) {
                     if (prizes[0][j].endsWith(order)) {
                         count++;
+                        winningNumbers.push(order);
                     }
                 }
                 break;
@@ -670,6 +712,7 @@ export class ScheduleService implements OnModuleInit {
 
                 if (isValidOrder) {
                     count++;
+                    winningNumbers.push(order);
                 }
                 break;
 
@@ -682,6 +725,7 @@ export class ScheduleService implements OnModuleInit {
 
                 if (isValidOrder) {
                     count++;
+                    winningNumbers.push(order);
                 }
                 break;
 
@@ -689,7 +733,10 @@ export class ScheduleService implements OnModuleInit {
                 break;
         }
 
-        return count;
+        return {
+            count,
+            winningNumbers,
+        };
     }
 
     async clearDataInRedis() {
