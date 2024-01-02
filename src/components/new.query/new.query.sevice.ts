@@ -183,7 +183,7 @@ export class NewQueryService {
       });
 
       const limitDataFake = Number(perPage) - listDataReal.length;
-      if (limitDataFake <= Number(perPage)) {
+      if (limitDataFake <= Number(perPage) && limitDataFake > 0) {
         const dataFake: any = await this.dataFakeRepository.findAndCount({
           where: {
             keyMode: KeyMode.FAVORITE_GAME,
