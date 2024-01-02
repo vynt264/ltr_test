@@ -48,6 +48,9 @@ export class NewQueryService {
         },
         where: {
           paymentWin: MoreThan(AMOUNT_CHECK),
+          user: {
+            usernameReal: ""
+          }
         },
         take: +perPage,
         skip,
@@ -110,6 +113,11 @@ export class NewQueryService {
               avatar: true
             }
           },
+        },
+        where: {
+          user: {
+            usernameReal: ""
+          }
         },
         take: +perPage,
         skip,
