@@ -42,7 +42,8 @@ export class NewQueryService {
             username: true,
             userInfo: {
               id: true,
-              avatar: true
+              avatar: true,
+              nickname: true,
             }
           },
         },
@@ -110,7 +111,8 @@ export class NewQueryService {
             username: true,
             userInfo: {
               id: true,
-              avatar: true
+              avatar: true,
+              nickname: true,
             }
           },
         },

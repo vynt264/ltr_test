@@ -93,7 +93,7 @@ export class AdminOrdersService {
 
   async reportAll(bookmakerId: number, type: string) {
     try {
-      let condition = "entity.status = 'closed' and user.usernameReal = ''";
+      let condition = "entity.status = 'closed'";
       const conditionParams: any = {}
       if (bookmakerId > 0) {
         condition = condition.concat(` AND bookmaker.id = :bookmarkerFind`);
@@ -143,7 +143,7 @@ export class AdminOrdersService {
 
   async reportChart(bookmakerId: number) {
     try {
-      let condition = "entity.status = 'closed' and user.usernameReal = ''";
+      let condition = "entity.status = 'closed'";
       const conditionParams: any = {}
       if (bookmakerId > 0) {
         condition = condition.concat(` AND bookmaker.id = :bookmarkerFind`);
@@ -227,7 +227,7 @@ export class AdminOrdersService {
 
   async reportDetailByTime(bookmakerId: number, type: string) {
     try {
-      let condition = "entity.status = 'closed' AND entity.created_at > DATE_SUB(now(), INTERVAL 6 MONTH) and user.usernameReal = ''";
+      let condition = "entity.status = 'closed' AND entity.created_at > DATE_SUB(now(), INTERVAL 6 MONTH)";
       const conditionParams: any = {}
       if (bookmakerId > 0) {
         condition = condition.concat(` AND bookmaker.id = :bookmarkerFind`);
