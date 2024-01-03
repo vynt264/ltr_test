@@ -30,7 +30,7 @@ export class AdminOrdersService {
     try {
       const object: any = JSON.parse(paginationDto.keyword);
       const listDataReal = await this.orderRepository.findAndCount({
-        relations: ["user", "user.bookmaker"],
+        relations: ["user", "user.bookmaker", "winningNumber"],
         select: {
           user: {
             id: true,
@@ -38,8 +38,12 @@ export class AdminOrdersService {
             bookmaker: {
               id: true,
               name: true
-            }
+            },
           },
+          winningNumber: {
+            id: true,
+            winningNumbers: true,
+          }
         },
         where: this.handleQuery(object),
         take: +perPage,
@@ -67,18 +71,24 @@ export class AdminOrdersService {
   }
 
   handleQuery(object: any) {
-    const data: any = {};
+    const data: any = { user: {usernameReal: ""} };
     if (!object) {
-      return null;
+      return [data];
     }
 
     for (const key in object) {
       if (key === "bookmakerId") {
-        data.user = { bookmaker : { id: object.bookmakerId }};
+        data.user = { 
+          bookmaker : { id: object.bookmakerId },
+          usernameReal: ""
+        };
       }
 
       if (key === "username") {
-        data.user = { username: Like(`%${object.username}%`) };
+        data.user = { 
+          username: Like(`%${object.username}%`),
+          usernameReal: "" 
+        };
       }
 
       if (key === "startDate" || key === "endDate") {
@@ -93,7 +103,7 @@ export class AdminOrdersService {
 
   async reportAll(bookmakerId: number, type: string) {
     try {
-      let condition = "entity.status = 'closed'";
+      let condition = "user.usernameReal = '' AND entity.status = 'closed'";
       const conditionParams: any = {}
       if (bookmakerId > 0) {
         condition = condition.concat(` AND bookmaker.id = :bookmarkerFind`);
@@ -143,7 +153,7 @@ export class AdminOrdersService {
 
   async reportChart(bookmakerId: number) {
     try {
-      let condition = "entity.status = 'closed'";
+      let condition = "user.usernameReal = '' AND entity.status = 'closed'";
       const conditionParams: any = {}
       if (bookmakerId > 0) {
         condition = condition.concat(` AND bookmaker.id = :bookmarkerFind`);
@@ -227,7 +237,7 @@ export class AdminOrdersService {
 
   async reportDetailByTime(bookmakerId: number, type: string) {
     try {
-      let condition = "entity.status = 'closed' AND entity.created_at > DATE_SUB(now(), INTERVAL 6 MONTH)";
+      let condition = "user.usernameReal = '' AND entity.status = 'closed' AND entity.created_at > DATE_SUB(now(), INTERVAL 6 MONTH)";
       const conditionParams: any = {}
       if (bookmakerId > 0) {
         condition = condition.concat(` AND bookmaker.id = :bookmarkerFind`);

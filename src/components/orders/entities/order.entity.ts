@@ -3,11 +3,13 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn
 } from "typeorm";
 import { User } from "../../user/user.entity";
 import { BaseEntity } from "src/common/mysql/base.entity";
 import { BookMaker } from "src/components/bookmaker/bookmaker.entity";
+import { WinningNumber } from "src/components/winning-numbers/entities/winning-number.entity";
 
 enum OrderStatus {
     closed = "closed",
@@ -31,6 +33,9 @@ export class Order extends BaseEntity {
     })
     @JoinColumn()
     bookMaker: BookMaker;
+
+    @OneToMany(() => WinningNumber, (WinningNumber) => WinningNumber.order)
+    winningNumber: WinningNumber[];
 
     @Column({ type: 'varchar', length: 31, nullable: true })
     numericalOrder: string;
