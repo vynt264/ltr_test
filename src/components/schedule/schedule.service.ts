@@ -8,12 +8,13 @@ import { SocketGatewayService } from '../gateway/gateway.service';
 import { addDays, addMinutes, startOfDay } from 'date-fns';
 import { BookMakerService } from '../bookmaker/bookmaker.service';
 import { INIT_TIME_CREATE_JOB, TypeLottery } from 'src/system/constants';
-import { BaCangType, BaoLoType, BonCangType, CategoryLotteryType, DanhDeType, DauDuoiType, LoTruocType, LoXienType, OddBet, PricePerScore, TroChoiThuViType } from 'src/system/enums/lotteries';
+import { BaCangType, BaoLoType, BonCangType, CategoryLotteryType, DanhDeType, DauDuoiType, Lo2SoGiaiDacBietType, LoTruocType, LoXienType, OddBet, PricePerScore, TroChoiThuViType } from 'src/system/enums/lotteries';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
 import { DateTimeHelper } from 'src/helpers/date-time';
 import { WinningNumbersService } from '../winning-numbers/winning-numbers.service';
+import { OrderHelper } from 'src/common/helper';
 
 
 @Injectable()
@@ -39,11 +40,11 @@ export class ScheduleService implements OnModuleInit {
         this.clearDataInRedis();
         this.deleteAllJob();
         this.createJobs(45);
-        this.createJobs(60);
-        this.createJobs(90);
-        this.createJobs(120);
-        this.createJobs(180);
-        this.createJobs(360);
+        // this.createJobs(60);
+        // this.createJobs(90);
+        // this.createJobs(120);
+        // this.createJobs(180);
+        // this.createJobs(360);
     }
 
     createJobs(seconds: number) {
@@ -296,6 +297,7 @@ export class ScheduleService implements OnModuleInit {
                     case DanhDeType.DeDau:
                     case DanhDeType.DeDacBiet:
                     case DanhDeType.DeDauDuoi:
+                    case TroChoiThuViType.Lo2SoGiaiDacBiet:
                         for (const number in data[categoryLotteryType][type]) {
                             const item = {
                                 score: data[categoryLotteryType][type][number],
@@ -551,6 +553,121 @@ export class ScheduleService implements OnModuleInit {
                 break;
 
             case TroChoiThuViType.Lo2SoGiaiDacBiet:
+                balanceLosed += (totalPoint * (PricePerScore.TroChoiThuVi));
+                if (winningNumbers.length > 0) {
+                    switch (winningNumbers[0]) {
+                        case Lo2SoGiaiDacBietType.Tai:
+                            balanceWin += (pointWin * (OddBet.Tai * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Xiu:
+                            balanceWin += (pointWin * (OddBet.Xiu * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Chan:
+                            balanceWin += (pointWin * (OddBet.Chan * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Le:
+                            balanceWin += (pointWin * (OddBet.Le * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong0:
+                            balanceWin += (pointWin * (OddBet.Tong0 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong1:
+                            balanceWin += (pointWin * (OddBet.Tong1 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong2:
+                            balanceWin += (pointWin * (OddBet.Tong2 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong3:
+                            balanceWin += (pointWin * (OddBet.Tong3 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong4:
+                            balanceWin += (pointWin * (OddBet.Tong4 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong5:
+                            balanceWin += (pointWin * (OddBet.Tong5 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong6:
+                            balanceWin += (pointWin * (OddBet.Tong6 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong7:
+                            balanceWin += (pointWin * (OddBet.Tong7 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong8:
+                            balanceWin += (pointWin * (OddBet.Tong8 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong9:
+                            balanceWin += (pointWin * (OddBet.Tong9 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong10:
+                            balanceWin += (pointWin * (OddBet.Tong10 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong11:
+                            balanceWin += (pointWin * (OddBet.Tong11 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong12:
+                            balanceWin += (pointWin * (OddBet.Tong12 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong13:
+                            balanceWin += (pointWin * (OddBet.Tong13 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong14:
+                            balanceWin += (pointWin * (OddBet.Tong14 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong15:
+                            balanceWin += (pointWin * (OddBet.Tong15 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong16:
+                            balanceWin += (pointWin * (OddBet.Tong16 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong17:
+                            balanceWin += (pointWin * (OddBet.Tong17 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong18:
+                            balanceWin += (pointWin * (OddBet.Tong18 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.TongTai:
+                            balanceWin += (pointWin * (OddBet.TongTai * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.TongXiu:
+                            balanceWin += (pointWin * (OddBet.TongXiu * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.TongChan:
+                            balanceWin += (pointWin * (OddBet.TongChan * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.TongLe:
+                            balanceWin += (pointWin * (OddBet.TongLe * 1000));
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
                 break;
 
             default:
@@ -558,7 +675,7 @@ export class ScheduleService implements OnModuleInit {
         }
 
         return {
-            balanceWin,
+            balanceWin: (balanceWin - balanceLosed),
             winningNumbers
         };
     }
@@ -680,6 +797,7 @@ export class ScheduleService implements OnModuleInit {
 
                 if (tempCount === numbers.length) {
                     count++;
+                    winningNumbers.push(order);
                 }
                 break;
 
@@ -700,6 +818,7 @@ export class ScheduleService implements OnModuleInit {
 
                 if (tempCountTruotXien === numbersTruotXien.length) {
                     count++;
+                    winningNumbers.push(order);
                 }
                 break;
 
@@ -724,6 +843,15 @@ export class ScheduleService implements OnModuleInit {
                 }
 
                 if (isValidOrder) {
+                    count++;
+                    winningNumbers.push(order);
+                }
+                break;
+
+            case TroChoiThuViType.Lo2SoGiaiDacBiet:
+                const winningPatterns = OrderHelper.getWinningPatternsFromPrizes(prizes);
+                const hasNumber = winningPatterns.find((ord: any) => ord === order);
+                if (hasNumber) {
                     count++;
                     winningNumbers.push(order);
                 }

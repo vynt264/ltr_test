@@ -21,7 +21,7 @@ export enum CategoryLotteryTypeName {
 };
 
 export enum TroChoiThuViType {
-    Lo2SoGiaiDacBiet = 'lo-2-so-giai-dac-biet',
+    Lo2SoGiaiDacBiet = '2_So_DB',
 };
 
 export enum Lo2SoGiaiDacBietType {
@@ -115,6 +115,7 @@ export enum BetTypeName {
     TruotXien4 = 'Trượt Xiên 4',
     TruotXien8 = 'Trượt Xiên 8',
     TruotXien10 = 'Trượt Xiên 10',
+    HaiSoDacBiet = '2 Số Đặc Biệt',
 };
 
 export enum OddBet {
