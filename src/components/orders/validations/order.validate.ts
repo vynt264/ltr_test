@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus } from "@nestjs/common";
 import { OrderHelper } from "src/common/helper";
-import { BaCangType, BaoLoType, BonCangType, DanhDeType, DauDuoiType } from "src/system/enums/lotteries";
+import { BaCangType, BaoLoType, BonCangType, DanhDeType, DauDuoiType, TroChoiThuViType } from "src/system/enums/lotteries";
 import { ERROR } from '../../../system/constants/messageError';
 import { MAX_ORDERS_LO2SO, MAX_ORDERS_LO3SO, MAX_ORDERS_LO4SO, MAX_ORDERS_DAU_DUOI } from "src/system/constants";
 
@@ -60,6 +60,18 @@ export class OrderValidate {
                         throw new HttpException(
                             {
                                 message: ERROR.MESSAGE_DAU_CUOI_INVALID,
+                            },
+                            HttpStatus.BAD_REQUEST,
+                        );
+                    }
+                    break;
+
+                case TroChoiThuViType.Lo2SoGiaiDacBiet:
+                    const isValid = OrderHelper.isValid2SoDacBiet(order.detail);
+                    if (!isValid) {
+                        throw new HttpException(
+                            {
+                                message: ERROR.MESSAGE_TRO_CHOI_THU_VI_INVALID,
                             },
                             HttpStatus.BAD_REQUEST,
                         );

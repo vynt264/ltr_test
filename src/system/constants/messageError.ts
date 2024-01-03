@@ -15,4 +15,5 @@ export enum ERROR {
   MESSAGE_LO_3_S0_INVALID = "Đơn cược cuả quý khách vượt qua 700 số",
   MESSAGE_LO_4_S0_INVALID = "Đơn cược cuả quý khách vượt qua 7000 số",
   ACCOUNT_BALANCE_IS_INSUFFICIENT = "Số dư tài khoản không đủ",
+  MESSAGE_TRO_CHOI_THU_VI_INVALID = "Bạn không thể đặt cược tài và xỉu hoặc chẵn và lẻ cùng một kỳ và cùng một khoảng thời gian !",
 }

@@ -12,7 +12,7 @@ import { Order } from './entities/order.entity';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
-import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, LoTruocType, LoXienType, OddBet, PricePerScore } from 'src/system/enums/lotteries';
+import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, LoTruocType, LoXienType, OddBet, PricePerScore, TroChoiThuViType } from 'src/system/enums/lotteries';
 import { ERROR, INIT_TIME_CREATE_JOB, TypeLottery } from 'src/system/constants';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
@@ -59,7 +59,7 @@ export class OrdersService {
       order.numberOfBets = this.getNumberOfBets(order.childBetType, order.detail);
       order.user = member;
       order.bookMaker = { id: member.bookmakerId } as any;
-      order.revenue = this.getBetAmount(order.multiple, order.childBetType, order.numberOfBets);
+      order.revenue = this.getBetAmount(order.multiple, order.childBetType, order.numberOfBets, order.detail);
 
       promises.push(this.orderRequestRepository.save(order));
     }
@@ -461,6 +461,10 @@ export class OrdersService {
         typeName = BetTypeName.TruotXien10;
         break;
 
+      case TroChoiThuViType.Lo2SoGiaiDacBiet:
+        typeName = BetTypeName.HaiSoDacBiet;
+        break;
+
       default:
         break;
     }
@@ -656,6 +660,10 @@ export class OrdersService {
         numberOfBets = numbers.length;
         break;
 
+      case TroChoiThuViType.Lo2SoGiaiDacBiet:
+        numberOfBets = 1;
+        break;
+
       default:
         break;
     }
@@ -663,7 +671,7 @@ export class OrdersService {
     return numberOfBets;
   }
 
-  getBetAmount(score: number, childBetType: string, numberOfBets: number) {
+  getBetAmount(score: number, childBetType: string, numberOfBets: number, detailOrder: string) {
     let pricePerScore = 0;
     switch (childBetType) {
       case BaoLoType.Lo2So:
@@ -725,6 +733,10 @@ export class OrdersService {
       case DauDuoiType.Dau:
       case DauDuoiType.Duoi:
         pricePerScore = PricePerScore.Dau;
+        break;
+
+      case TroChoiThuViType.Lo2SoGiaiDacBiet:
+        pricePerScore = PricePerScore.TroChoiThuVi;
         break;
 
       default:
@@ -864,6 +876,10 @@ export class OrdersService {
       case DauDuoiType.Duoi:
         numbers = order.detail.split(',');
         numbers = numbers.map((number: any) => number.trim());
+        break;
+
+      case TroChoiThuViType.Lo2SoGiaiDacBiet:
+        numbers = [order.detail];
         break;
 
       default:
@@ -1024,6 +1040,16 @@ export class OrdersService {
         }
         break;
 
+      case TroChoiThuViType.Lo2SoGiaiDacBiet:
+        this.addOrder({
+          typeBet: order.betType,
+          childBetType: order.childBetType,
+          multiple: order.multiple,
+          number: order.detail.toString(),
+          initData,
+        });
+        break;
+
       default:
         break;
     }
@@ -1119,6 +1145,11 @@ export class OrdersService {
 
           } as any,
         },
+        [CategoryLotteryType.TroChoiThuVi]: {
+          [TroChoiThuViType.Lo2SoGiaiDacBiet]: {
+
+          } as any,
+        },
       };
     }
 
@@ -1198,6 +1229,10 @@ export class OrdersService {
 
         case LoTruocType.TruotXien10:
           amount = (numberOfBets * PricePerScore.TruotXien10) * order.multiple;
+          break;
+
+        case TroChoiThuViType.Lo2SoGiaiDacBiet:
+          amount = (numberOfBets * PricePerScore.TroChoiThuVi) * order.multiple;
           break;
 
         default:
