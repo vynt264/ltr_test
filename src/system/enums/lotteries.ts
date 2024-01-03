@@ -14,8 +14,8 @@ export enum CategoryLotteryTypeName {
     LoXien = 'Lô Xiên',
     DanhDe = 'Đánh Đề',
     DauDuoi = 'Đầu Đuôi',
-    Lo3Cang = 'Lô 3 Càng',
-    Lo4Cang = 'Lô 4 Càng',
+    Lo3Cang = '3 Càng',
+    Lo4Cang = '4 Càng',
     LoTruot = 'Lô Trượt',
     TroChoiThuVi = 'Trò Chơi Thú Vị',
 };
