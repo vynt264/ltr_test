@@ -35,7 +35,7 @@ export class NewQueryService {
     try {
       let listData: any = [];
       const listDataReal = await this.orderRepository.findAndCount({
-        relations: ["user"],
+        relations: ["user", "user.userInfo"],
         select: {
           user: {
             id: true,
@@ -104,7 +104,7 @@ export class NewQueryService {
     try {
       let listData: any = [];
       const listDataReal = await this.orderRepository.findAndCount({
-        relations: ["user"],
+        relations: ["user", "user.userInfo"],
         select: {
           user: {
             id: true,
