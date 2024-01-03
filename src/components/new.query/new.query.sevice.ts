@@ -53,7 +53,7 @@ export class NewQueryService {
             usernameReal: ""
           }
         },
-        take: +perPage,
+        take: +perPage / 2,
         skip,
         order: {
           createdAt: "DESC"
@@ -61,7 +61,7 @@ export class NewQueryService {
       });
 
       listData = listDataReal[0];
-      const limitDataFake = Number(perPage) - listDataReal[1];
+      const limitDataFake = Number(perPage) - listDataReal[0].length;
       if (limitDataFake <= Number(perPage) && limitDataFake > 0) {
         const dataFake: any = await this.dataFakeRepository.findAndCount({
           where: {
@@ -76,10 +76,9 @@ export class NewQueryService {
 
         listData = listData.concat(dataFake[0]);
       }
-
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
-        listData,
+        this.shuffleArray(listData),
         MESSAGE.LIST_SUCCESS
       );
     } catch (error) {
@@ -92,6 +91,14 @@ export class NewQueryService {
         MESSAGE.LIST_FAILED
       );
     }
+  }
+
+  shuffleArray(array: any) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
   }
 
   async getListUserPlaying(paginationQuery: PaginationQueryDto) {
@@ -121,7 +128,7 @@ export class NewQueryService {
             usernameReal: ""
           }
         },
-        take: +perPage,
+        take: +perPage / 2,
         skip,
         order: {
           createdAt: "DESC",
@@ -129,7 +136,7 @@ export class NewQueryService {
       });
 
       listData = listDataReal[0];
-      const limitDataFake = Number(perPage) - listDataReal[1];
+      const limitDataFake = Number(perPage) - listDataReal[0]?.length;
       if (limitDataFake <= Number(perPage) && limitDataFake > 0) {
         const dataFake: any = await this.dataFakeRepository.findAndCount({
           where: {
@@ -147,7 +154,7 @@ export class NewQueryService {
 
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
-        listData,
+        this.shuffleArray(listData),
         MESSAGE.LIST_SUCCESS
       );
     } catch (error) {
