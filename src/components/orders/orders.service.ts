@@ -72,7 +72,7 @@ export class OrdersService {
 
     // update balance
     const totalBetRemain = wallet.balance - totalBet;
-    this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
+    await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
 
     return result;
   }
