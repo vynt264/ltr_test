@@ -2,9 +2,9 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { BacklistModule } from "../backlist/backlist.module";
 import { ConnectModule } from "../connect/connect.module";
-import { SubWalletCodeQueue } from "../subwallet/sub.wallet.code.queue";
-import { SubWallet } from "../subwallet/sub.wallet.entity";
-import { SubWalletHistory } from "../subwallet/sub.wallet.history.entity";
+// import { SubWalletCodeQueue } from "../subwallet/sub.wallet.code.queue";
+// import { SubWallet } from "../subwallet/sub.wallet.entity";
+// import { SubWalletHistory } from "../subwallet/sub.wallet.history.entity";
 import { SysConfig } from "../sys.config/sys.config.entity";
 import { SysConfigsModule } from "../sys.config/sys.config.module";
 import { User } from "../user/user.entity";
@@ -26,10 +26,10 @@ import { OrderRequestModule } from "../order.request/order.request.module";
       User,
       Wallet,
       TransFtQueue,
-      SubWallet,
-      SubWalletCodeQueue,
+      // SubWallet,
+      // SubWalletCodeQueue,
       WalletHistory,
-      SubWalletHistory,
+      // SubWalletHistory,
     ]),
     BacklistModule,
     UserModule,

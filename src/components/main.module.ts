@@ -19,7 +19,6 @@ import { CommonModule } from "./common/common.module";
 import { QaModule } from "./qa/qa.module";
 import { BookMakerModule } from "./bookmaker/bookmaker.module";
 import { WalletModule } from "./wallet/wallet.module";
-import { SubWalletModule } from "./subwallet/sub.wallet.module";
 import { UserInfoModule } from "./user.info/user.info.module";
 import { PromotionModule } from "./promotion/promotion.module";
 import { PromotionHistoriesModule } from "./promotion.history/promotion.history.module";
@@ -53,7 +52,6 @@ import { WinningNumbersModule } from './winning-numbers/winning-numbers.module';
     QaModule,
     BookMakerModule,
     WalletModule,
-    SubWalletModule,
     UserInfoModule,
     PromotionModule,
     PromotionHistoriesModule,

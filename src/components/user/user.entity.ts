@@ -11,7 +11,6 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { BcryptSalt } from "../../system/constants/bcrypt.salt";
-import { SubWallet } from "../subwallet/sub.wallet.entity";
 import { UserHistory } from "../user.history/user.history.entity";
 import { Wallet } from "../wallet/wallet.entity";
 import { WalletHistory } from "../wallet/wallet.history.entity";
@@ -69,9 +68,6 @@ export class User {
 
   @OneToMany(() => WalletHistory, (walletHistory) => walletHistory.user)
   walletHistory: WalletHistory[];
-
-  @OneToMany(() => SubWallet, (subWallet) => subWallet.user)
-  SubWallet: SubWallet[];
 
   @OneToOne(() => UserInfo, (userInfo) => userInfo.user)
   userInfo: UserInfo;

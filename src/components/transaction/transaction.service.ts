@@ -14,9 +14,9 @@ import {
 } from "../../system/BaseResponse/index";
 import { ERROR, MESSAGE, STATUSCODE } from "../../system/constants";
 import { ConnectService } from "../connect/connect.service";
-import { SubWalletCodeQueue } from "../subwallet/sub.wallet.code.queue";
-import { SubWallet } from "../subwallet/sub.wallet.entity";
-import { SubWalletHistory } from "../subwallet/sub.wallet.history.entity";
+// import { SubWalletCodeQueue } from "../subwallet/sub.wallet.code.queue";
+// import { SubWallet } from "../subwallet/sub.wallet.entity";
+// import { SubWalletHistory } from "../subwallet/sub.wallet.history.entity";
 import {
   PrefixEnum,
   SYS_ITEM_ENUM,
@@ -64,14 +64,14 @@ export class TransactionService {
     private walletRepository: Repository<Wallet>,
     @InjectRepository(TransFtQueue)
     private transFtRepository: Repository<TransFtQueue>,
-    @InjectRepository(SubWallet)
-    private subWalletRepository: Repository<SubWallet>,
-    @InjectRepository(SubWalletCodeQueue)
-    private subCodeQueueRepository: Repository<SubWalletCodeQueue>,
+    // @InjectRepository(SubWallet)
+    // private subWalletRepository: Repository<SubWallet>,
+    // @InjectRepository(SubWalletCodeQueue)
+    // private subCodeQueueRepository: Repository<SubWalletCodeQueue>,
     @InjectRepository(WalletHistory)
     private walletHistoryRepository: Repository<WalletHistory>,
-    @InjectRepository(SubWalletHistory)
-    private subWalletHistoryRepository: Repository<SubWalletHistory>,
+    // @InjectRepository(SubWalletHistory)
+    // private subWalletHistoryRepository: Repository<SubWalletHistory>,
     private connectService: ConnectService,
     protected readonly lockRedisService: RedisLockService,
     private connection: Connection,
@@ -357,7 +357,7 @@ export class TransactionService {
   async processPayment(
     transaction: Transaction,
     wallet: Wallet,
-    subWallet: SubWallet,
+    subWallet: any,
     verify: boolean,
     user: User
   ) {
@@ -379,14 +379,14 @@ export class TransactionService {
         await this.walletHistoryRepository.save(createdWalletHis);
       }
 
-      if (subWallet) {
-        const subWalletUpdated = await this.subWalletRepository.save(subWallet);
-        const createdSubWalletHis = {
-          ...subWalletUpdated,
-          user: { id: user.id },
-        };
-        await this.subWalletHistoryRepository.save(createdSubWalletHis);
-      }
+      // if (subWallet) {
+      //   const subWalletUpdated = await this.subWalletRepository.save(subWallet);
+      //   const createdSubWalletHis = {
+      //     ...subWalletUpdated,
+      //     user: { id: user.id },
+      //   };
+      //   await this.subWalletHistoryRepository.save(createdSubWalletHis);
+      // }
 
       transaction.status = StatusSend.SUCCESS;
       await this.transactionRepository.save(transaction);
@@ -408,7 +408,7 @@ export class TransactionService {
   cacularWalletAndSubWallet(
     transaction: Transaction,
     wallet: Wallet,
-    subWallet: SubWallet
+    subWallet: any
   ) {
     // if (transaction.transType === `${TransactionType.DEPOSIT}`) {
     //   wallet.balance = +wallet.balance + +transaction.amount;
@@ -505,7 +505,7 @@ export class TransactionService {
   ): Promise<{
     error: ErrorResponse;
     wallet: Wallet;
-    subWallet: SubWallet;
+    subWallet: any;
     user: User;
   }> {
     const { error: errorUser, user } = await this.verifyUsername(username);
@@ -538,10 +538,7 @@ export class TransactionService {
         subWallet: null,
         user: user,
       };
-    let subWallet = await this.subWalletRepository.findOneBy({
-      user: { id: user.id },
-      gameCode: gameCode,
-    });
+    let subWallet;
 
     if (!subWallet) {
       subWallet = await this.initSubWallet(user, walletFound, gameCode);
@@ -561,7 +558,7 @@ export class TransactionService {
 
   async verifyTransTypeAndMethod(
     transaction: Transaction,
-    subWallet: SubWallet,
+    subWallet: any,
     wallet: Wallet
   ): Promise<{ error: ErrorResponse }> {
 
@@ -651,9 +648,9 @@ export class TransactionService {
     user: User,
     walletFound: Wallet,
     gameCode: string
-  ): Promise<SubWallet> {
-    const subCodeQueue = await this.subCodeQueueRepository.save({});
-    const subWalletCode = PrefixEnum.SUB_WALLET_CODE + subCodeQueue.id;
+  ): Promise<any> {
+    // const subCodeQueue = await this.subCodeQueueRepository.save({});
+    const subWalletCode = PrefixEnum.SUB_WALLET_CODE + 1;
     const subWalletDto = {
       gameCode: gameCode,
       walletCode: walletFound.walletCode,
@@ -662,9 +659,9 @@ export class TransactionService {
       createdBy: user.username,
     };
 
-    const subWalletCreate = this.subWalletRepository.create(subWalletDto);
-    const subWallet = await this.subWalletRepository.save(subWalletCreate);
-    return subWallet;
+    // const subWalletCreate = this.subWalletRepository.create(subWalletDto);
+    // const subWallet = await this.subWalletRepository.save(subWalletCreate);
+    return null;
   }
 
   async verifyGameCode(gameCode: string): Promise<{ error: ErrorResponse }> {
@@ -932,11 +929,11 @@ export class TransactionService {
     if (!gamesCode || gamesCode.length == 0) {
       return null;
     }
-    const subWallets = await this.subWalletRepository.findBy({
-      gameCode: In(gamesCode),
-      user: { id: userId },
-    });
-    return subWallets;
+    // const subWallets = await this.subWalletRepository.findBy({
+    //   gameCode: In(gamesCode),
+    //   user: { id: userId },
+    // });
+    return null;
   }
 
   async userGetSumRevenueFromToDate(
@@ -1567,8 +1564,8 @@ export class TransactionService {
   }
 
   async verifySubWallet(
-    subWallet: SubWallet
-  ): Promise<{ error: ErrorResponse; subWallet: SubWallet }> {
+    subWallet: any
+  ): Promise<{ error: ErrorResponse; subWallet: any }> {
     if (!subWallet) {
       return {
         error: new ErrorResponse(
