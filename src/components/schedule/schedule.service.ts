@@ -388,7 +388,7 @@ export class ScheduleService implements OnModuleInit {
             const promisesCreateWinningNumbers = [];
             for (const key in ordersOfUser) {
                 const [orderId, region, typeBet] = key.split('-');
-                const { balanceWin, winningNumbers } = this.calcBalanceEachOrder({
+                const { realWinningAmount, winningNumbers, winningAmount } = this.calcBalanceEachOrder({
                     orders: ordersOfUser[key],
                     typeBet,
                     prizes,
@@ -396,7 +396,7 @@ export class ScheduleService implements OnModuleInit {
                     turnIndex,
                 });
 
-                totalBalance += balanceWin;
+                totalBalance += winningAmount;
 
                 if (winningNumbers.length > 0) {
                     promisesCreateWinningNumbers.push(
@@ -414,7 +414,7 @@ export class ScheduleService implements OnModuleInit {
                 promises.push(this.ordersService.update(
                     +orderId,
                     {
-                        paymentWin: balanceWin,
+                        paymentWin: realWinningAmount,
                         status: 'closed',
                     },
                     null,
@@ -428,7 +428,7 @@ export class ScheduleService implements OnModuleInit {
 
             const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
             const remainBalance = +wallet.balance + totalBalance;
-            this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
+            await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
 
             this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
         }
@@ -440,9 +440,9 @@ export class ScheduleService implements OnModuleInit {
         typeBet,
         prizes,
     }: any) {
-        let pointWin = 0;
-        let balanceWin = 0;
-        let balanceLosed = 0;
+        let winningPoint = 0;
+        let winningAmount = 0;
+        let betAmount = 0;
         let totalPoint = 0;
         let count = 0;
         let winningNumbers = [];
@@ -451,217 +451,217 @@ export class ScheduleService implements OnModuleInit {
             totalPoint += orders[order];
             ({ count, winningNumbers } = this.findNumberOccurrencesOfPrizes({ order, prizes, typeBet, winningNumbers }));
             if (count > 0) {
-                pointWin += (count * orders[order]);
+                winningPoint += (count * orders[order]);
             }
         }
 
         switch (typeBet) {
             case BaoLoType.Lo2So:
-                balanceWin += (pointWin * (OddBet.Lo2So * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.Lo2So));
+                winningAmount += (winningPoint * (OddBet.Lo2So * 1000));
+                betAmount += (totalPoint * (PricePerScore.Lo2So));
                 break;
 
             case BaoLoType.Lo2So1k:
-                balanceWin += (pointWin * (OddBet.Lo2So1k * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.Lo2So1k));
+                winningAmount += (winningPoint * (OddBet.Lo2So1k * 1000));
+                betAmount += (totalPoint * (PricePerScore.Lo2So1k));
                 break;
 
             case DanhDeType.DeDau:
-                balanceWin += (pointWin * (OddBet.DeDau * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.DeDau));
+                winningAmount += (winningPoint * (OddBet.DeDau * 1000));
+                betAmount += (totalPoint * (PricePerScore.DeDau));
                 break;
 
             case DanhDeType.DeDacBiet:
-                balanceWin += (pointWin * (OddBet.DeDacBiet * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.DeDacBiet));
+                winningAmount += (winningPoint * (OddBet.DeDacBiet * 1000));
+                betAmount += (totalPoint * (PricePerScore.DeDacBiet));
                 break;
 
             case DanhDeType.DeDauDuoi:
-                balanceWin += (pointWin * (OddBet.DeDauDuoi * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.DeDauDuoi));
+                winningAmount += (winningPoint * (OddBet.DeDauDuoi * 1000));
+                betAmount += (totalPoint * (PricePerScore.DeDauDuoi));
                 break;
 
             case BaoLoType.Lo3So:
-                balanceWin += (pointWin * (OddBet.Lo3So * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.Lo3So));
+                winningAmount += (winningPoint * (OddBet.Lo3So * 1000));
+                betAmount += (totalPoint * (PricePerScore.Lo3So));
                 break;
 
             case BaCangType.BaCangDau:
-                balanceWin += (pointWin * (OddBet.BaCangDau * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.BaCangDau));
+                winningAmount += (winningPoint * (OddBet.BaCangDau * 1000));
+                betAmount += (totalPoint * (PricePerScore.BaCangDau));
                 break;
 
             case BaCangType.BaCangDacBiet:
-                balanceWin += (pointWin * (OddBet.BaCangDacBiet * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.BaCangDacBiet));
+                winningAmount += (winningPoint * (OddBet.BaCangDacBiet * 1000));
+                betAmount += (totalPoint * (PricePerScore.BaCangDacBiet));
                 break;
 
             case BaCangType.BaCangDauDuoi:
-                balanceWin += (pointWin * (OddBet.BaCangDauDuoi * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.BaCangDauDuoi));
+                winningAmount += (winningPoint * (OddBet.BaCangDauDuoi * 1000));
+                betAmount += (totalPoint * (PricePerScore.BaCangDauDuoi));
                 break;
 
             case BaoLoType.Lo4So:
-                balanceWin += (pointWin * (OddBet.Lo4So * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.Lo4So));
+                winningAmount += (winningPoint * (OddBet.Lo4So * 1000));
+                betAmount += (totalPoint * (PricePerScore.Lo4So));
                 break;
 
             case BonCangType.BonCangDacBiet:
-                balanceWin += (pointWin * (OddBet.BonCangDacBiet * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.BonCangDacBiet));
+                winningAmount += (winningPoint * (OddBet.BonCangDacBiet * 1000));
+                betAmount += (totalPoint * (PricePerScore.BonCangDacBiet));
                 break;
 
             case LoXienType.Xien2:
-                balanceWin += (pointWin * (OddBet.Xien2 * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.Xien2));
+                winningAmount += (winningPoint * (OddBet.Xien2 * 1000));
+                betAmount += (totalPoint * (PricePerScore.Xien2));
                 break;
 
             case LoXienType.Xien3:
-                balanceWin += (pointWin * (OddBet.Xien3 * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.Xien3));
+                winningAmount += (winningPoint * (OddBet.Xien3 * 1000));
+                betAmount += (totalPoint * (PricePerScore.Xien3));
                 break;
 
             case LoXienType.Xien4:
-                balanceWin += (pointWin * (OddBet.Xien4 * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.Xien4));
+                winningAmount += (winningPoint * (OddBet.Xien4 * 1000));
+                betAmount += (totalPoint * (PricePerScore.Xien4));
                 break;
 
             case LoTruocType.TruotXien4:
-                balanceWin += (pointWin * (OddBet.TruotXien4 * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.TruotXien4));
+                winningAmount += (winningPoint * (OddBet.TruotXien4 * 1000));
+                betAmount += (totalPoint * (PricePerScore.TruotXien4));
                 break;
 
 
             case LoTruocType.TruotXien8:
-                balanceWin += (pointWin * (OddBet.TruotXien8 * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.TruotXien8));
+                winningAmount += (winningPoint * (OddBet.TruotXien8 * 1000));
+                betAmount += (totalPoint * (PricePerScore.TruotXien8));
                 break;
 
             case LoTruocType.TruotXien10:
-                balanceWin += (pointWin * (OddBet.TruotXien10 * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.TruotXien10));
+                winningAmount += (winningPoint * (OddBet.TruotXien10 * 1000));
+                betAmount += (totalPoint * (PricePerScore.TruotXien10));
                 break;
 
             case DauDuoiType.Dau:
-                balanceWin += (pointWin * (OddBet.Dau * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.Dau));
+                winningAmount += (winningPoint * (OddBet.Dau * 1000));
+                betAmount += (totalPoint * (PricePerScore.Dau));
                 break;
 
             case DauDuoiType.Duoi:
-                balanceWin += (pointWin * (OddBet.Duoi * 1000));
-                balanceLosed += (totalPoint * (PricePerScore.Duoi));
+                winningAmount += (winningPoint * (OddBet.Duoi * 1000));
+                betAmount += (totalPoint * (PricePerScore.Duoi));
                 break;
 
             case TroChoiThuViType.Lo2SoGiaiDacBiet:
-                balanceLosed += (totalPoint * (PricePerScore.TroChoiThuVi));
+                betAmount += (totalPoint * (PricePerScore.TroChoiThuVi));
                 if (winningNumbers.length > 0) {
                     switch (winningNumbers[0]) {
                         case Lo2SoGiaiDacBietType.Tai:
-                            balanceWin += (pointWin * (OddBet.Tai * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tai * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Xiu:
-                            balanceWin += (pointWin * (OddBet.Xiu * 1000));
+                            winningAmount += (winningPoint * (OddBet.Xiu * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Chan:
-                            balanceWin += (pointWin * (OddBet.Chan * 1000));
+                            winningAmount += (winningPoint * (OddBet.Chan * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Le:
-                            balanceWin += (pointWin * (OddBet.Le * 1000));
+                            winningAmount += (winningPoint * (OddBet.Le * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong0:
-                            balanceWin += (pointWin * (OddBet.Tong0 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong0 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong1:
-                            balanceWin += (pointWin * (OddBet.Tong1 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong1 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong2:
-                            balanceWin += (pointWin * (OddBet.Tong2 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong2 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong3:
-                            balanceWin += (pointWin * (OddBet.Tong3 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong3 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong4:
-                            balanceWin += (pointWin * (OddBet.Tong4 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong4 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong5:
-                            balanceWin += (pointWin * (OddBet.Tong5 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong5 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong6:
-                            balanceWin += (pointWin * (OddBet.Tong6 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong6 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong7:
-                            balanceWin += (pointWin * (OddBet.Tong7 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong7 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong8:
-                            balanceWin += (pointWin * (OddBet.Tong8 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong8 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong9:
-                            balanceWin += (pointWin * (OddBet.Tong9 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong9 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong10:
-                            balanceWin += (pointWin * (OddBet.Tong10 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong10 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong11:
-                            balanceWin += (pointWin * (OddBet.Tong11 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong11 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong12:
-                            balanceWin += (pointWin * (OddBet.Tong12 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong12 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong13:
-                            balanceWin += (pointWin * (OddBet.Tong13 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong13 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong14:
-                            balanceWin += (pointWin * (OddBet.Tong14 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong14 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong15:
-                            balanceWin += (pointWin * (OddBet.Tong15 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong15 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong16:
-                            balanceWin += (pointWin * (OddBet.Tong16 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong16 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong17:
-                            balanceWin += (pointWin * (OddBet.Tong17 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong17 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.Tong18:
-                            balanceWin += (pointWin * (OddBet.Tong18 * 1000));
+                            winningAmount += (winningPoint * (OddBet.Tong18 * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.TongTai:
-                            balanceWin += (pointWin * (OddBet.TongTai * 1000));
+                            winningAmount += (winningPoint * (OddBet.TongTai * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.TongXiu:
-                            balanceWin += (pointWin * (OddBet.TongXiu * 1000));
+                            winningAmount += (winningPoint * (OddBet.TongXiu * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.TongChan:
-                            balanceWin += (pointWin * (OddBet.TongChan * 1000));
+                            winningAmount += (winningPoint * (OddBet.TongChan * 1000));
                             break;
 
                         case Lo2SoGiaiDacBietType.TongLe:
-                            balanceWin += (pointWin * (OddBet.TongLe * 1000));
+                            winningAmount += (winningPoint * (OddBet.TongLe * 1000));
                             break;
 
                         default:
@@ -675,8 +675,9 @@ export class ScheduleService implements OnModuleInit {
         }
 
         return {
-            balanceWin: (balanceWin - balanceLosed),
-            winningNumbers
+            winningAmount,
+            winningNumbers,
+            realWinningAmount: (winningAmount - betAmount),
         };
     }
 
