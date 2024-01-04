@@ -40,11 +40,11 @@ export class ScheduleService implements OnModuleInit {
         this.clearDataInRedis();
         this.deleteAllJob();
         this.createJobs(45);
-        // this.createJobs(60);
-        // this.createJobs(90);
-        // this.createJobs(120);
-        // this.createJobs(180);
-        // this.createJobs(360);
+        this.createJobs(60);
+        this.createJobs(90);
+        this.createJobs(120);
+        this.createJobs(180);
+        this.createJobs(360);
     }
 
     createJobs(seconds: number) {
