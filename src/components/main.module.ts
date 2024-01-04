@@ -24,7 +24,6 @@ import { PromotionModule } from "./promotion/promotion.module";
 import { PromotionHistoriesModule } from "./promotion.history/promotion.history.module";
 import { CoinWalletModule } from "./coin.wallet/coin.wallet.module";
 import { CoinWalletHistoryModule } from "./coin.wallet.history/coin.wallet.history.module";
-import { TransactionModule } from "./transaction/transaction.module";
 import { SysLayoutModule } from "./sys.layout/sys.layout.module";
 import { WalletHandlerModule } from './wallet-handler/wallet-handler.module';
 import { AnalyticsModule } from "./analytics/analytics.module";
@@ -57,7 +56,6 @@ import { WinningNumbersModule } from './winning-numbers/winning-numbers.module';
     PromotionHistoriesModule,
     CoinWalletModule,
     CoinWalletHistoryModule,
-    TransactionModule,
     SysLayoutModule,
     WalletHandlerModule,
     AnalyticsModule,
