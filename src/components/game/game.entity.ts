@@ -23,6 +23,12 @@ export class Game {
   })
   sumBet: number;
 
+  @Column({ nullable: true })
+  textView: string;
+
+  @Column({ nullable: true })
+  image: string;
+
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 }

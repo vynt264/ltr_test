@@ -18,6 +18,14 @@ export class CreateGameDto {
   @ApiProperty()
   @IsNumber()
   sumBet: number;
+
+  @ApiProperty()
+  @IsString()
+  textView: string;
+
+  @ApiProperty()
+  @IsString()
+  image: string;
 }
 
 export default CreateGameDto;
