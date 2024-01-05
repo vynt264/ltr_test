@@ -38,8 +38,9 @@ export class ScheduleService implements OnModuleInit {
 
     async initJobs() {
         let promises: any = [];
-        this.clearDataInRedis();
+        await this.clearDataInRedis();
         this.deleteAllJob();
+        console.log("init job");
         promises = promises.concat(this.createJobs(45));
         promises = promises.concat(this.createJobs(60));
         promises = promises.concat(this.createJobs(90));
@@ -50,7 +51,7 @@ export class ScheduleService implements OnModuleInit {
         await Promise.all(promises);
     }
 
-    createJobs(seconds: number) {
+    async createJobs(seconds: number) {
         const timeStartRunJob = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
         let timeMillisecondsStartRunJob = new Date(timeStartRunJob).getTime();
         const numberOfTurns = Math.round((((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) / seconds));
@@ -65,8 +66,9 @@ export class ScheduleService implements OnModuleInit {
                 const nextTurnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${count + 1}`;
                 const nextTime = (timeMillisecondsStartRunJob + (seconds * 1000));
                 this.addCronJob(jobName, seconds, timeMillisecondsStartRunJob, turnIndex, nextTurnIndex, nextTime);
-            } else {
-                const tempPromises = this.createLotteryAwardInPastTime(turnIndex, seconds);
+            }
+            else {
+                const tempPromises = await this.createLotteryAwardInPastTime(turnIndex, seconds);
                 promises = promises.concat(tempPromises);
             }
         }
@@ -124,64 +126,54 @@ export class ScheduleService implements OnModuleInit {
     }
 
     async callbackFunc(jobName: string, seconds: number, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
+        this.handlerJobs(jobName, time, turnIndex, nextTurnIndex, nextTime, seconds);
+    }
+
+    async handlerJobs(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number, seconds: number) {
+        const bookMakers = await this.bookMakerService.getAllBookMaker();
+        let gameType;
         switch (seconds) {
             case 45:
-                this.handle45s(jobName, time, turnIndex, nextTurnIndex, nextTime);
+                gameType = [
+                    TypeLottery.XSMB_45S,
+                    TypeLottery.XSMT_45S,
+                    TypeLottery.XSMN_45S,
+                    TypeLottery.XSSPL_45S,
+                ];
                 break;
 
             case 60:
-                this.handle60s(jobName, time, turnIndex, nextTurnIndex, nextTime);
+                gameType = [
+                    TypeLottery.XSSPL_60S,
+                ];
                 break;
 
             case 90:
-                this.handle90s(jobName, time, turnIndex, nextTurnIndex, nextTime);
+                gameType = [
+                    TypeLottery.XSSPL_90S,
+                ];
                 break;
 
             case 120:
-                this.handle120s(jobName, time, turnIndex, nextTurnIndex, nextTime);
+                gameType = [
+                    TypeLottery.XSSPL_120S,
+                ];
                 break;
 
             case 180:
-                this.handle180s(jobName, time, turnIndex, nextTurnIndex, nextTime);
+                gameType = [
+                    TypeLottery.XSMB_180S,
+                    TypeLottery.XSMT_180S,
+                    TypeLottery.XSMN_180S,
+                ];
                 break;
 
             case 360:
-                this.handle360s(jobName, time, turnIndex, nextTurnIndex, nextTime);
+                gameType = [
+                    TypeLottery.XSSPL_360S,
+                ];
                 break;
-
-            default:
-                break;
         }
-    }
-
-    async handle45s(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
-        const bookMakers = await this.bookMakerService.getAllBookMaker();
-        const gameType = [
-            TypeLottery.XSMB_45S,
-            TypeLottery.XSMT_45S,
-            TypeLottery.XSMN_45S,
-            TypeLottery.XSSPL_45S,
-        ];
-
-        let promises = [];
-        // TODO: xu ly truong hop co nhieu bookmaker
-        for (const bookMaker of bookMakers) {
-            for (const type of gameType) {
-                const key = `${bookMaker.id}-${type}`;
-                promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, key, type));
-            }
-        }
-
-        await Promise.all(promises);
-
-        this.deleteCron(jobName);
-    }
-
-    async handle60s(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
-        const bookMakers = await this.bookMakerService.getAllBookMaker();
-        const gameType = [
-            TypeLottery.XSSPL_60S,
-        ];
 
         let promises = [];
         for (const bookMaker of bookMakers) {
@@ -193,85 +185,7 @@ export class ScheduleService implements OnModuleInit {
 
         await Promise.all(promises);
 
-        this.deleteCron(jobName);
-    }
-
-    async handle90s(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
-        const bookMakers = await this.bookMakerService.getAllBookMaker();
-        const gameType = [
-            TypeLottery.XSSPL_90S,
-        ];
-
-        let promises = [];
-        for (const bookMaker of bookMakers) {
-            for (const type of gameType) {
-                const key = `${bookMaker.id}-${type}`;
-                promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, key, type));
-            }
-        }
-
-        await Promise.all(promises);
-
-        this.deleteCron(jobName);
-    }
-
-    async handle120s(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
-        const bookMakers = await this.bookMakerService.getAllBookMaker();
-        const gameType = [
-            TypeLottery.XSSPL_120S,
-        ];
-
-        let promises = [];
-        for (const bookMaker of bookMakers) {
-            for (const type of gameType) {
-                const key = `${bookMaker.id}-${type}`;
-                promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, key, type));
-            }
-        }
-
-        await Promise.all(promises);
-
-        this.deleteCron(jobName);
-    }
-
-    async handle180s(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
-        const bookMakers = await this.bookMakerService.getAllBookMaker();
-        const gameType = [
-            TypeLottery.XSMB_180S,
-            TypeLottery.XSMT_180S,
-            TypeLottery.XSMN_180S,
-        ];
-
-        let promises = [];
-        for (const bookMaker of bookMakers) {
-            for (const type of gameType) {
-                const key = `${bookMaker.id}-${type}`;
-                promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, key, type));
-            }
-        }
-
-        await Promise.all(promises);
-
-        this.deleteCron(jobName);
-    }
-
-    async handle360s(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
-        const bookMakers = await this.bookMakerService.getAllBookMaker();
-        const gameType = [
-            TypeLottery.XSSPL_360S,
-        ];
-
-        let promises = [];
-        for (const bookMaker of bookMakers) {
-            for (const type of gameType) {
-                const key = `${bookMaker.id}-${type}`;
-                promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, key, type));
-            }
-        }
-
-        await Promise.all(promises);
-
-        this.deleteCron(jobName);
+        this.finishJob(jobName);
     }
 
     async processingData(time: number, turnIndex: string, nextTurnIndex: string, nextTime: number, key: string, gameType: string) {
@@ -373,6 +287,10 @@ export class ScheduleService implements OnModuleInit {
         console.log(`job ${name} deleted!`);
     }
 
+    finishJob(name: string) {
+        console.log(`job ${name} finished!`);
+    }
+
     deleteAllJob() {
         console.log("delete all job.");
         const jobs = this.schedulerRegistry.getCronJobs();
@@ -383,6 +301,7 @@ export class ScheduleService implements OnModuleInit {
 
     @Cron('40 6 * * * ')
     cronJob() {
+        console.log('cron job');
         this.initJobs();
     }
 
@@ -965,15 +884,14 @@ export class ScheduleService implements OnModuleInit {
         for (const type of gameType) {
             const finalResult = this.lotteriesService.randomPrizes({});
             const lottery = await this.lotteryAwardService.findOneBy(type, turnIndex);
-            if (!lottery) {
-                promises.push(
-                    this.lotteryAwardService.createLotteryAward({
-                        turnIndex,
-                        type,
-                        awardDetail: JSON.stringify(finalResult),
-                    })
-                )
-            }
+            if (lottery) continue;
+            promises.push(
+                this.lotteryAwardService.createLotteryAward({
+                    turnIndex,
+                    type,
+                    awardDetail: JSON.stringify(finalResult),
+                })
+            )
         }
 
         return promises;
