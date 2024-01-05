@@ -433,6 +433,13 @@ export class LotteryAwardService {
     return { member };
   }
 
+  async findOneBy(type: string, turnIndex: string): Promise<LotteryAward> {
+    return this.lotteryAwardRepository.findOneBy({
+      type,
+      turnIndex,
+    });
+  }
+
   async getOneById(id: number): Promise<BaseResponse> {
     try {
       const foundlotteryAward = await this.lotteryAwardRepository.findOneBy({ id });

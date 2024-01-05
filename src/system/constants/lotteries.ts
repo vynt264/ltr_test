@@ -22,6 +22,7 @@ export const MAX_NUMBER_PRIZES_OF_LO2SO = 18;
 export const MAX_NUMBER_PRIZES_OF_LO3SO = 17;
 export const MAX_NUMBER_PRIZES_OF_LO4SO = 16;
 export const INIT_TIME_CREATE_JOB = '07:00 AM';
+export const MAINTENANCE_PERIOD = 20; // 20p
 
 export enum TypeLottery {
     // mien bac

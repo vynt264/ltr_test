@@ -3793,35 +3793,35 @@ export class LotteriesService {
     if (!prizes) return {};
 
     const values = _.get(prizes, 'finalResult.values', []);
-    const specialPrize: string[] = [this.generateDigitsPrize(values[0].number, 6)];
-    const prize8: string[] = [this.generateDigitsPrize(values[1].number, 2)];
-    const prize7: string[] = [this.generateDigitsPrize(values[2].number, 3)];
+    const specialPrize: string[] = [this.generateDigitsPrize(values?.[0]?.number || '', 6)];
+    const prize8: string[] = [this.generateDigitsPrize(values?.[1]?.number || '', 2)];
+    const prize7: string[] = [this.generateDigitsPrize(values?.[2]?.number || '', 3)];
     const prize6: string[] = [
-      this.generateDigitsPrize(values[3].number, 4),
-      this.generateDigitsPrize(values[4].number, 4), 
-      this.generateDigitsPrize(values[5].number, 4),
+      this.generateDigitsPrize(values?.[3]?.number || '', 4),
+      this.generateDigitsPrize(values?.[4]?.number || '', 4),
+      this.generateDigitsPrize(values?.[5]?.number || '', 4),
     ];
     const prize5: string[] = [
-      this.generateDigitsPrize(values[6].number, 4),
+      this.generateDigitsPrize(values?.[6]?.number || '', 4),
     ];
     const prize4: string[] = [
-      this.generateDigitsPrize(values[7].number, 5),
-      this.generateDigitsPrize(values[8].number, 5),
-      this.generateDigitsPrize(values[9].number, 5),
-      this.generateDigitsPrize(values[10].number, 5),
-      this.generateDigitsPrize(values[11].number, 5),
-      this.generateDigitsPrize(values[12].number, 5),
-      this.generateDigitsPrize(values[13].number, 5),
+      this.generateDigitsPrize(values?.[7]?.number || '', 5),
+      this.generateDigitsPrize(values?.[8]?.number || '', 5),
+      this.generateDigitsPrize(values?.[9]?.number || '', 5),
+      this.generateDigitsPrize(values?.[10]?.number || '', 5),
+      this.generateDigitsPrize(values?.[11]?.number || '', 5),
+      this.generateDigitsPrize(values?.[12]?.number || '', 5),
+      this.generateDigitsPrize(values?.[13]?.number || '', 5),
     ];
     const prize3: string[] = [
-      this.generateDigitsPrize(values[14].number, 5),
-      this.generateDigitsPrize(values[15].number, 5),
+      this.generateDigitsPrize(values?.[14]?.number || '', 5),
+      this.generateDigitsPrize(values?.[15]?.number || '', 5),
     ];
     const prize2: string[] = [
-      this.generateDigitsPrize(values[16].number, 5),
+      this.generateDigitsPrize(values?.[16]?.number || '', 5),
     ];
     const prize1: string[] = [
-      this.generateDigitsPrize(values[17].number, 5),
+      this.generateDigitsPrize(values?.[17]?.number || '', 5),
     ];
 
     return {
@@ -3852,6 +3852,10 @@ export class LotteriesService {
       numberAdded = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
     } else if (tempLength === 4) {
       numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+    } else if (tempLength === 5) {
+      numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 10000;
+    } else if (tempLength === 6) {
+      numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 100000;
     }
 
     return `${numberAdded}${number}`;

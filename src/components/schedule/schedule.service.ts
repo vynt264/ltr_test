@@ -7,7 +7,7 @@ import { RedisCacheService } from 'src/system/redis/redis.service';
 import { SocketGatewayService } from '../gateway/gateway.service';
 import { addDays, addMinutes, startOfDay } from 'date-fns';
 import { BookMakerService } from '../bookmaker/bookmaker.service';
-import { INIT_TIME_CREATE_JOB, TypeLottery } from 'src/system/constants';
+import { INIT_TIME_CREATE_JOB, MAINTENANCE_PERIOD, TypeLottery } from 'src/system/constants';
 import { BaCangType, BaoLoType, BonCangType, CategoryLotteryType, DanhDeType, DauDuoiType, Lo2SoGiaiDacBietType, LoTruocType, LoXienType, OddBet, PricePerScore, TroChoiThuViType } from 'src/system/enums/lotteries';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
@@ -36,49 +36,82 @@ export class ScheduleService implements OnModuleInit {
         this.initJobs();
     }
 
-    initJobs() {
+    async initJobs() {
+        let promises: any = [];
         this.clearDataInRedis();
         this.deleteAllJob();
-        this.createJobs(45);
-        this.createJobs(60);
-        this.createJobs(90);
-        this.createJobs(120);
-        this.createJobs(180);
-        this.createJobs(360);
+        promises = promises.concat(this.createJobs(45));
+        promises = promises.concat(this.createJobs(60));
+        promises = promises.concat(this.createJobs(90));
+        promises = promises.concat(this.createJobs(120));
+        promises = promises.concat(this.createJobs(180));
+        promises = promises.concat(this.createJobs(360));
+
+        await Promise.all(promises);
     }
 
     createJobs(seconds: number) {
-        const time = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
-        const numberOfTurns = (17 * 60 * 60) / seconds;
-        let timeRunJob = new Date(time).getTime();
+        const timeStartRunJob = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
+        let timeMillisecondsStartRunJob = new Date(timeStartRunJob).getTime();
+        const numberOfTurns = Math.round((((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) / seconds));
         let count = 0;
+        let promises: any = [];
         for (let i = 0; i < numberOfTurns; i++) {
-            timeRunJob = timeRunJob + (seconds * 1000);
+            timeMillisecondsStartRunJob = timeMillisecondsStartRunJob + (seconds * 1000);
             count++;
-            if (timeRunJob > (new Date()).getTime()) {
-                const jobName = `${seconds}-${DateTimeHelper.formatDate((new Date()))}-${count}`;
-                const turnIndex = `${DateTimeHelper.formatDate((new Date()))}-${count}`;
-                const nextTurnIndex = `${DateTimeHelper.formatDate((new Date()))}-${count + 1}`;
-                const nextTime = (timeRunJob + (seconds * 1000));
-                this.addCronJob(jobName, seconds, timeRunJob, turnIndex, nextTurnIndex, nextTime);
+            const turnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${count}`;
+            if (timeMillisecondsStartRunJob > (new Date()).getTime()) {
+                const jobName = `${seconds}-${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${count}`;
+                const nextTurnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${count + 1}`;
+                const nextTime = (timeMillisecondsStartRunJob + (seconds * 1000));
+                this.addCronJob(jobName, seconds, timeMillisecondsStartRunJob, turnIndex, nextTurnIndex, nextTime);
+            } else {
+                const tempPromises = this.createLotteryAwardInPastTime(turnIndex, seconds);
+                promises = promises.concat(tempPromises);
             }
         }
 
-        const tomorrow = startOfDay(addDays(new Date(), 1));
-        const toDate = addMinutes(tomorrow, 6 * 60 + 40);
-        const numberOfTurnsTomorrow = Math.round(((toDate.getTime() - tomorrow.getTime()) / 1000) / seconds);
+        return promises;
 
-        let tomorrowSeconds = tomorrow.getTime();
-        let countOfNextDay = 0;
-        for (let i = 0; i < numberOfTurnsTomorrow; i++) {
-            countOfNextDay++;
-            tomorrowSeconds = tomorrowSeconds + (seconds * 1000);
-            const jobName = `${seconds}-${DateTimeHelper.formatDate(tomorrow)}-${countOfNextDay}`;
-            const turnIndex = `${DateTimeHelper.formatDate(new Date())}-${countOfNextDay}`;
-            const nextTurnIndex = `${DateTimeHelper.formatDate(new Date())}-${countOfNextDay + 1}`;
-            const nextTime = (timeRunJob + (seconds * 1000));
-            this.addCronJob(jobName, seconds, tomorrowSeconds, turnIndex, nextTurnIndex, nextTime);
-        }
+        // const time = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
+        // // 17: 7h -> 24h
+        // const numberOfTurns = (17 * 60 * 60) / seconds;
+        // let timeStartRunJob = new Date(time).getTime();
+        // let count = 0;
+        // let promises: any = [];
+        // for (let i = 0; i < numberOfTurns; i++) {
+        //     timeStartRunJob = timeStartRunJob + (seconds * 1000);
+        //     count++;
+        //     const turnIndex = `${DateTimeHelper.formatDate((new Date()))}-${count}`;
+        //     if (timeStartRunJob > (new Date()).getTime()) {
+        //         const jobName = `${seconds}-${DateTimeHelper.formatDate((new Date()))}-${count}`;
+        //         const nextTurnIndex = `${DateTimeHelper.formatDate((new Date()))}-${count + 1}`;
+        //         const nextTime = (timeStartRunJob + (seconds * 1000));
+        //         this.addCronJob(jobName, seconds, timeStartRunJob, turnIndex, nextTurnIndex, nextTime);
+        //     } else {
+        //         const tempPromises = this.createLotteryAwardInPastTime(turnIndex, seconds);
+        //         promises = promises.concat(tempPromises);
+        //     }
+        // }
+
+        // // create job tomorrow
+        // const tomorrow = startOfDay(addDays(new Date(), 1));
+        // const toDate = addMinutes(tomorrow, 6 * 60 + 40);
+        // const numberOfTurnsTomorrow = Math.round(((toDate.getTime() - tomorrow.getTime()) / 1000) / seconds);
+
+        // let tomorrowSeconds = tomorrow.getTime();
+        // let countOfNextDay = 0;
+        // for (let i = 0; i < numberOfTurnsTomorrow; i++) {
+        //     countOfNextDay++;
+        //     tomorrowSeconds = tomorrowSeconds + (seconds * 1000);
+        //     const jobName = `${seconds}-${DateTimeHelper.formatDate(tomorrow)}-${countOfNextDay}`;
+        //     const turnIndex = `${DateTimeHelper.formatDate(new Date())}-${countOfNextDay}`;
+        //     const nextTurnIndex = `${DateTimeHelper.formatDate(new Date())}-${countOfNextDay + 1}`;
+        //     const nextTime = (timeStartRunJob + (seconds * 1000));
+        //     this.addCronJob(jobName, seconds, tomorrowSeconds, turnIndex, nextTurnIndex, nextTime);
+        // }
+
+        // return promises;
     }
 
     addCronJob(name: string, seconds: number, time: any, turnIndex: string, nextTurnIndex: string, nextTime: number) {
@@ -881,5 +914,68 @@ export class ScheduleService implements OnModuleInit {
         }
 
         await Promise.all(promises);
+    }
+
+    async createLotteryAwardInPastTime(turnIndex: string, seconds: number) {
+        let gameType: any = [];
+        switch (seconds) {
+            case 45:
+                gameType = [
+                    TypeLottery.XSMB_45S,
+                    TypeLottery.XSMT_45S,
+                    TypeLottery.XSMN_45S,
+                    TypeLottery.XSSPL_45S,
+                ];
+                break;
+
+            case 60:
+                gameType = [
+                    TypeLottery.XSSPL_60S,
+                ];
+                break;
+
+            case 90:
+                gameType = [
+                    TypeLottery.XSSPL_90S,
+                ];
+                break;
+
+            case 120:
+                gameType = [
+                    TypeLottery.XSSPL_120S,
+                ];
+                break;
+
+            case 180:
+                gameType = [
+                    TypeLottery.XSMB_180S,
+                    TypeLottery.XSMT_180S,
+                    TypeLottery.XSMN_180S,
+                ];
+                break;
+
+            case 360:
+                gameType = [
+                    TypeLottery.XSSPL_360S,
+                ];
+                break;
+        }
+
+        const promises = [];
+        for (const type of gameType) {
+            const finalResult = this.lotteriesService.randomPrizes({});
+            const lottery = await this.lotteryAwardService.findOneBy(type, turnIndex);
+            if (!lottery) {
+                promises.push(
+                    this.lotteryAwardService.createLotteryAward({
+                        turnIndex,
+                        type,
+                        awardDetail: JSON.stringify(finalResult),
+                    })
+                )
+            }
+        }
+
+        return promises;
     }
 }
