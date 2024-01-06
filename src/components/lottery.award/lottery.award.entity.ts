@@ -2,11 +2,14 @@ import {
   Column,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn
 } from "typeorm";
+import { BookMaker } from "../bookmaker/bookmaker.entity";
 
 @Entity({ name: "lottery_award" })
-@Index("type_turn_index_unique", ["type", "turnIndex"], { unique: true })
+@Index("type_turn_index_unique", ["type", "turnIndex", "bookmaker"], { unique: true })
 export class LotteryAward {
   @PrimaryGeneratedColumn()
   id: number;
@@ -25,7 +28,7 @@ export class LotteryAward {
 
   @Column({ type: 'text', nullable: true })
   awardDetail: string;
-  
+
   @Column({ type: 'json', nullable: true })
   extraData: any;
 
@@ -49,4 +52,11 @@ export class LotteryAward {
 
   @Column({ type: 'timestamp', nullable: true })
   updatedAt: Date;
+
+  @ManyToOne(() => BookMaker, {
+    cascade: true,
+    createForeignKeyConstraints: false,
+  })
+  @JoinColumn()
+  bookmaker: BookMaker;
 }

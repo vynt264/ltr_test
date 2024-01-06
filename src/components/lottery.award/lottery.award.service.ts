@@ -55,6 +55,7 @@ export class LotteryAwardService {
 
   async guestGetAll(
     paginationQueryDto: PaginationQueryDto,
+    member: any
   ): Promise<BaseResponse> {
     try {
       const object: any = JSON.parse(paginationQueryDto.keyword);
@@ -62,6 +63,7 @@ export class LotteryAwardService {
       const lotteryAwards = await this.searchGuestGetAll(
         paginationQueryDto,
         object,
+        member.bookmakerId
       );
 
       return new SuccessResponse(
@@ -213,13 +215,13 @@ export class LotteryAwardService {
         nextTurnIndex = nextTurnIndexXsmb;
       } else if (type != `${TypeLottery.XSN_TEST}` && type != `${TypeLottery.XSN_45s}`) {
         let second;
-        switch(type) {
-          case `${TypeLottery.XSMB_45_S}`: 
-          case `${TypeLottery.XSMT_45_S}`: 
-          case `${TypeLottery.XSMN_45_S}`: 
+        switch (type) {
+          case `${TypeLottery.XSMB_45_S}`:
+          case `${TypeLottery.XSMT_45_S}`:
+          case `${TypeLottery.XSMN_45_S}`:
           case `${TypeLottery.XSSPL_45_S}`: second = 45000; break;
-          case `${TypeLottery.XSMB_180_S}`: 
-          case `${TypeLottery.XSMT_180_S}`: 
+          case `${TypeLottery.XSMB_180_S}`:
+          case `${TypeLottery.XSMT_180_S}`:
           case `${TypeLottery.XSMN_180_S}`: second = 180000; break;
           case `${TypeLottery.XSSPL_60_S}`: second = 60000; break;
           case `${TypeLottery.XSSPL_90_S}`: second = 90000; break;
@@ -291,6 +293,7 @@ export class LotteryAwardService {
 
   async userGetAll(
     paginationQueryDto: PaginationQueryDto,
+    member: any
   ): Promise<BaseResponse> {
     try {
       const object: any = JSON.parse(paginationQueryDto.keyword);
@@ -298,6 +301,7 @@ export class LotteryAwardService {
       const lotteryAwards = await this.searchUserGetAll(
         paginationQueryDto,
         object,
+        member.bookmakerId,
       );
 
       return new SuccessResponse(
@@ -320,6 +324,7 @@ export class LotteryAwardService {
   async searchGuestGetAll(
     paginationQuery: PaginationQueryDto,
     lotteryAwardDto: any,
+    bookMakerId: number
   ) {
     const { take: perPage, skip: page } = paginationQuery;
     if (page <= 0) {
@@ -327,16 +332,16 @@ export class LotteryAwardService {
     }
     const skip = +perPage * +page - +perPage;
     const searching = await this.lotteryAwardRepository.findAndCount({
-      select: {
-        openTime: true,
-        status: true,
-        type: true,
-        awardDetail: true,
-        awardTitle: true,
-        turnIndex: true,
-        id: true,
-      },
-      where: this.guestHoldQuery(lotteryAwardDto),
+      // select: {
+      //   openTime: true,
+      //   status: true,
+      //   type: true,
+      //   awardDetail: true,
+      //   awardTitle: true,
+      //   turnIndex: true,
+      //   id: true,
+      // },
+      where: this.guestHoldQuery(lotteryAwardDto, bookMakerId),
       take: +perPage,
       skip,
       order: { createdAt: paginationQuery.order },
@@ -348,6 +353,7 @@ export class LotteryAwardService {
   async searchUserGetAll(
     paginationQuery: PaginationQueryDto,
     lotteryAwardDto: any,
+    bookMakerId: number
   ) {
     const { take: perPage, skip: page } = paginationQuery;
     if (page <= 0) {
@@ -368,7 +374,7 @@ export class LotteryAwardService {
         totalPay: true,
         totalRevenue: true,
       },
-      where: this.guestHoldQuery(lotteryAwardDto),
+      where: this.guestHoldQuery(lotteryAwardDto, bookMakerId),
       take: +perPage,
       skip,
       order: { createdAt: paginationQuery.order },
@@ -377,7 +383,7 @@ export class LotteryAwardService {
     return searching;
   }
 
-  guestHoldQuery(object: any = null) {
+  guestHoldQuery(object: any = null, bookMakerId: number) {
     const data: any = {};
     if (!object) return data;
 
@@ -405,6 +411,9 @@ export class LotteryAwardService {
         data.openTime = Between(startDate, endDate);
       }
     }
+
+    data.bookmaker = { id: bookMakerId };
+
     return data;
   }
 
@@ -433,10 +442,11 @@ export class LotteryAwardService {
     return { member };
   }
 
-  async findOneBy(type: string, turnIndex: string): Promise<LotteryAward> {
+  async findOneBy(type: string, turnIndex: string, bookMakerId: number): Promise<LotteryAward> {
     return this.lotteryAwardRepository.findOneBy({
       type,
       turnIndex,
+      bookmaker: { id: bookMakerId },
     });
   }
 
@@ -592,7 +602,7 @@ export class LotteryAwardService {
     return arrAwardStr;
   }
 
-  async processInitLotteryAward(createRequestDto: LotteryRequestDetailDto): Promise<BaseResponse>  {
+  async processInitLotteryAward(createRequestDto: LotteryRequestDetailDto): Promise<BaseResponse> {
     try {
       createRequestDto.type = createRequestDto.type
         ? createRequestDto.type
@@ -664,9 +674,9 @@ export class LotteryAwardService {
     if (type == `${TypeLottery.XSMB}`) {
       turnIndex = formattedDate;
     } else if (
-        type == `${TypeLottery.XSMB_45_S}` || type == `${TypeLottery.XSMT_45_S}` || 
-        type == `${TypeLottery.XSMN_45_S}` || type == `${TypeLottery.XSSPL_45_S}`
-      ) {
+      type == `${TypeLottery.XSMB_45_S}` || type == `${TypeLottery.XSMT_45_S}` ||
+      type == `${TypeLottery.XSMN_45_S}` || type == `${TypeLottery.XSSPL_45_S}`
+    ) {
       const cycle = 45000;
       const minutesSinceMidnight = now.getTime() - startOfDay(now).getTime();
       const turn = Math.floor(minutesSinceMidnight / +cycle);
@@ -791,7 +801,7 @@ export class LotteryAwardService {
 
     if (
       type == `${TypeLottery.XSMB_45_S}` || type == `${TypeLottery.XSMT_45_S}` ||
-      type == `${TypeLottery.XSMN_45_S}`|| type == `${TypeLottery.XSSPL_45_S}`
+      type == `${TypeLottery.XSMN_45_S}` || type == `${TypeLottery.XSSPL_45_S}`
     ) {
       return this.getTimeBySecond(45000);
     }
@@ -1732,7 +1742,7 @@ export class LotteryAwardService {
         await this.orderRequestService.processEarnListFake(arrOrderFakeWin);
       }
       await this.orderRequestService.orderRequestLoser(arrOrderLoser);
-      
+
       return new SuccessResponse(
         STATUSCODE.COMMON_CREATE_SUCCESS,
         lotteryAward,
@@ -1913,7 +1923,7 @@ export class LotteryAwardService {
 
     for (const order of orders) {
       const { values } = convertOrderDetail(order);
-      if(values.length == 0){
+      if (values.length == 0) {
       }
       switch (order.betType) {
         case `${TypeCaculation.De_Dac_Biet}`:

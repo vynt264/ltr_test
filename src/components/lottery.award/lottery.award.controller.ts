@@ -8,6 +8,8 @@ import {
   Patch,
   Post,
   Query,
+  Request,
+  UseGuards,
   UsePipes,
   ValidationPipe
 } from "@nestjs/common";
@@ -31,11 +33,14 @@ import { LotteryAwardService } from "./lottery.award.service";
 import { CurrentAwardXsmb, TypeLottery } from "./enums/status.dto";
 import { startOfDay } from "date-fns";
 import { RequestDetailDto } from "../lottery.request/dto/request.detail.dto";
+import { JwtAuthGuard } from "../auth/jwt/jwt-auth.guard";
+import { BacklistGuard } from "../backlist/backlist.guard";
+import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 
 @Controller("/api/v1/lotteryAward")
 @ApiTags("lotteryAward")
 @ApiBearerAuth("Authorization")
-// @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard, RateLimitGuard)
+@UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
 export class LotteryAwardController {
   constructor(private lotteryAwardService: LotteryAwardService) { }
 
@@ -88,8 +93,9 @@ export class LotteryAwardController {
   })
   async getAll(
     @Query() paginationQueryDto: PaginationQueryDto,
+    @Request() req: any
   ): Promise<any> {
-    return this.lotteryAwardService.guestGetAll(paginationQueryDto);
+    return this.lotteryAwardService.guestGetAll(paginationQueryDto, req.user);
   }
 
   @Get("allType")
@@ -158,8 +164,9 @@ export class LotteryAwardController {
   })
   async userGetAll(
     @Query() paginationQueryDto: PaginationQueryDto,
+    @Request() req: any
   ): Promise<any> {
-    return this.lotteryAwardService.userGetAll(paginationQueryDto);
+    return this.lotteryAwardService.userGetAll(paginationQueryDto, req.user);
   }
 
   @Get(":id")
