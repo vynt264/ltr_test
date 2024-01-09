@@ -10,4 +10,7 @@ export class CreateUserFakeDto {
   @IsString()
   usernameReal: string;
 
+
+  @IsString()
+  bookmakerId: number;
 }

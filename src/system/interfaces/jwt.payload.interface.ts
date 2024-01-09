@@ -5,4 +5,5 @@ export interface JwtPayload {
   isAuth: boolean;
   nickname: string;
   bookmakerId: number;
+  usernameReal?: string;
 }

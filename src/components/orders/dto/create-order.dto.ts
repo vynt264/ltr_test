@@ -72,4 +72,6 @@ export class CreateOrderDto {
 
     @JoinColumn()
     bookMaker: BookMaker;
+
+    isTestPlayer: boolean;
 }

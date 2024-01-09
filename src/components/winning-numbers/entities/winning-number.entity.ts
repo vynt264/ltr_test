@@ -24,4 +24,10 @@ export class WinningNumber extends BaseEntity {
 
     @Column({ type: 'varchar', length: 31, nullable: true })
     type: string;
+
+    @Column({
+        nullable: true,
+        default: false,
+    })
+    isTestPlayer: boolean;
 }

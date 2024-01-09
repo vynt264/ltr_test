@@ -27,6 +27,8 @@ import { ConfigSys } from "../../common/helper/config";
 import { UserInfo } from "../user.info/user.info.entity";
 import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
 import { WalletHandlerService } from "../wallet-handler/wallet-handler.service";
+import { OrderHelper } from "src/common/helper";
+import { RedisCacheService } from "src/system/redis/redis.service";
 @Injectable()
 export class AuthService {
   constructor(
@@ -35,6 +37,7 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private backlistService: BacklistService,
+    private readonly redisService: RedisCacheService,
     private readonly userHistoryService: UserHistoryService,
     private readonly connectService: ConnectService,
     private readonly walletHandlerService: WalletHandlerService,
@@ -65,6 +68,7 @@ export class AuthService {
       isAuth: true,
       nickname: user.username,
       bookmakerId: user?.bookmakerId || 1,
+      usernameReal: user?.usernameReal || '',
     };
 
     let userHistoryDto = new CreateUserHistoryDto();
@@ -98,8 +102,9 @@ export class AuthService {
     };
   }
 
-  async guestgenerateToken(
-    user: UserInterface & DeviceInterface
+  async guestGenerateToken(
+    user: UserInterface & DeviceInterface,
+    bookmakerId: any
   ): Promise<JWTResult> {
     const userFInd = await this.userService.guestGetByUsername(
       user.username,
@@ -115,7 +120,23 @@ export class AuthService {
       isAuth: userFInd.isAuth,
       nickname: user.username,
       bookmakerId: userFInd?.bookmaker?.id || 1,
+      usernameReal: user.usernameReal,
     };
+
+    let key = OrderHelper.getKeySaveUserIdsByBookmaker(bookmakerId);
+    if (user.usernameReal) {
+      key = OrderHelper.getKeySaveUserIdsFakeByBookmaker(bookmakerId);
+    }
+    let userIds: any = await this.redisService.get(key);
+    if (!userIds) {
+      userIds = [];
+    }
+    userIds = userIds.filter((id: string) => id !== null);
+    const hasUserId = userIds.some((id: any) => id.toString() === user.id.toString());
+    if (!hasUserId) {
+      userIds.push(user.id);
+    }
+    await this.redisService.set(key, userIds);
 
     let userHistoryDto = new CreateUserHistoryDto();
     userHistoryDto = {

@@ -9,7 +9,7 @@ import {
 import { BookMaker } from "../bookmaker/bookmaker.entity";
 
 @Entity({ name: "lottery_award" })
-@Index("type_turn_index_unique", ["type", "turnIndex", "bookmaker"], { unique: true })
+@Index("type_turn_index_unique", ["type", "turnIndex", "bookmaker", "isTestPlayer"], { unique: true })
 export class LotteryAward {
   @PrimaryGeneratedColumn()
   id: number;
@@ -59,4 +59,10 @@ export class LotteryAward {
   })
   @JoinColumn()
   bookmaker: BookMaker;
+
+  @Column({
+    nullable: true,
+    default: false,
+  })
+  isTestPlayer: boolean;
 }

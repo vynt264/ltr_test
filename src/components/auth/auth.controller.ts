@@ -22,6 +22,7 @@ import { UserRoles } from "../user/enums/user.enum";
 import { CreateUserFakeDto } from "./dto/createUserFake";
 import { RedisCacheService } from "src/system/redis/redis.service";
 import { Cron } from "@nestjs/schedule";
+import { OrderHelper } from "src/common/helper";
 
 @ApiTags("Auth")
 @Controller("api/v1/auth")
@@ -61,13 +62,18 @@ export class AuthController {
         username: user.username,
         role: user.role,
         bookmakerId: user?.bookmaker?.id || 1,
+        usernameReal: user?.usernameReal,
       },
       ip,
       mac,
       username,
     };
 
-    let userIds: any = await this.redisService.get(`bookmaker-id-${user?.bookmakerId}-users`);
+    let key = OrderHelper.getKeySaveUserIdsByBookmaker(user?.bookmakerId);
+    if (user.usernameReal) {
+      key = OrderHelper.getKeySaveUserIdsFakeByBookmaker(user?.bookmakerId);
+    }
+    let userIds: any = await this.redisService.get(key);
     if (!userIds) {
       userIds = [];
     }
@@ -75,7 +81,7 @@ export class AuthController {
     if (!hasUserId) {
       userIds.push(user.id);
     }
-    await this.redisService.set(`bookmaker-id-${user?.bookmakerId}-users`, userIds);
+    await this.redisService.set(key, userIds);
 
     return this.authService.generateToken(user);
   }
@@ -101,9 +107,11 @@ export class AuthController {
       ip: '',
       role: `${UserRoles.MEMBER}`,
       id: null,
-      usernameReal: createUserFakeDto?.usernameReal
+      usernameReal: createUserFakeDto?.usernameReal,
+      bookmakerId: createUserFakeDto?.bookmakerId,
     };
-    return this.authService.guestgenerateToken(user);
+
+    return this.authService.guestGenerateToken(user, createUserFakeDto?.bookmakerId);
   }
 
   @Post("register")

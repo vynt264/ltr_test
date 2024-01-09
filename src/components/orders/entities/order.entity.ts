@@ -87,4 +87,10 @@ export class Order extends BaseEntity {
 
     @Column({ type: 'varchar' })
     detail: string;
+
+    @Column({
+        nullable: true,
+        default: false,
+    })
+    isTestPlayer: boolean;
 }
