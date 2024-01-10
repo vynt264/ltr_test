@@ -18,9 +18,10 @@ import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
 import { WalletHandlerModule } from "../wallet-handler/wallet-handler.module";
 import { RedisCacheModule } from "src/system/redis/redis.module";
 import { ScheduleModule } from "@nestjs/schedule";
+import { WalletInout } from "../wallet.inout/wallet.inout.entity";
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserInfo, CoinWallet]),
+    TypeOrmModule.forFeature([User, UserInfo, CoinWallet, WalletInout]),
     UserHistoryModule,
     UserModule,
     BacklistModule,

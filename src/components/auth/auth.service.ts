@@ -29,6 +29,7 @@ import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
 import { WalletHandlerService } from "../wallet-handler/wallet-handler.service";
 import { OrderHelper } from "src/common/helper";
 import { RedisCacheService } from "src/system/redis/redis.service";
+import { WalletInout } from "../wallet.inout/wallet.inout.entity";
 @Injectable()
 export class AuthService {
   constructor(
@@ -45,6 +46,8 @@ export class AuthService {
     private userInfoRepository: Repository<UserInfo>,
     @InjectRepository(CoinWallet)
     private coinWalletRepository: Repository<CoinWallet>,
+    @InjectRepository(WalletInout)
+    private walletInoutRepository: Repository<WalletInout>,
   ) { }
 
   async validateUserCreds(username: string, password: string): Promise<any> {
@@ -238,9 +241,12 @@ export class AuthService {
       throw new ForbiddenException("Access Denied");
     }
 
-    let wallet;
+    let wallet, walletInout;
     if (user) {
       wallet = await this.walletHandlerService.findWalletByUserId(user.id);
+      walletInout = await this.walletInoutRepository.findBy({
+        user: { id: user.id }
+      });
     }
     if (user && !wallet) {
       await this.walletHandlerService.create({
@@ -248,8 +254,28 @@ export class AuthService {
           id: user.id
         } as any,
         balance: 30000000,
-        createdBy: user?.name,
+        createdBy: user?.username,
       });
+    }
+
+    if (user && walletInout?.length === 0) {
+      const walletInoutCreate = {
+        user: { id: user.id },
+        balanceIn: wallet?.balance ? wallet?.balance : 30000000,
+        balanceOut: 0,
+        timeIn: new Date(),
+        createdBy: user.username,
+      }
+      const createtedWalletInout = await this.walletInoutRepository.create(walletInoutCreate);
+      await this.walletInoutRepository.save(createtedWalletInout);
+    } else if (wallet) {
+      const walletInoutUp = {
+        ...walletInout[walletInout?.length - 1],
+        balanceOut: wallet?.balance,
+        updatedBy: user.username,
+        timeOut: new Date()
+      }
+      await this.walletInoutRepository.save(walletInoutUp);
     }
 
     if (!user) {
@@ -288,6 +314,15 @@ export class AuthService {
         coinWalletDto
       );
       await this.coinWalletRepository.save(coinWalletCreate);
+      const walletInoutCreate = {
+        user: { id: user.id },
+        balanceIn: 30000000,
+        balanceOut: 0,
+        timeIn: new Date(),
+        createdBy: user.username,
+      }
+      const createtedWalletInout = await this.walletInoutRepository.create(walletInoutCreate);
+      await this.walletInoutRepository.save(createtedWalletInout);
     }
 
     return user
