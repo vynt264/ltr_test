@@ -252,11 +252,12 @@ export class LotteryAwardService {
     }
   }
 
-  getLotteryAwardByTurnIndex(turnIndex: string, type: string) {
+  getLotteryAwardByTurnIndex(turnIndex: string, type: string, isTestPlayer: boolean) {
     return this.lotteryAwardRepository.findOne({
       where: {
         type,
         turnIndex,
+        isTestPlayer,
       },
     });
   }

@@ -22,4 +22,6 @@ export class CreateWinningNumberDto {
     @IsString()
     @IsNotEmpty()
     type: string;
+
+    isTestPlayer: boolean;
 }

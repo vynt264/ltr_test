@@ -516,98 +516,6 @@ export class OrderHelper {
                 break;
         }
 
-        // switch (order.childBetType) {
-        //     case BaoLoType.Lo2So:
-        //     case BaoLoType.Lo2So1k:
-        //     case DanhDeType.DeDau:
-        //     case DanhDeType.DeDacBiet:
-        //     case DanhDeType.DeDauDuoi:
-        //         // numbers = [];
-        //         // if ((order.detail.split('|').length - 1) === 1) {
-        //         //     for (const n1 of numbers1) {
-        //         //         for (const n2 of numbers2) {
-        //         //             const number = `${n1.toString()}${n2.toString()}`;
-        //         //             numbers.push(number);
-        //         //         }
-        //         //     }
-        //         // } else {
-        //         //     numbers = order.detail.split(',');
-        //         // }
-        //         numbers = this.getNumbersOfOrder2Digit(order.detail);
-        //         break;
-
-        //     case BaoLoType.Lo3So:
-        //     case BaCangType.BaCangDau:
-        //     case BaCangType.BaCangDacBiet:
-        //     case BaCangType.BaCangDauDuoi:
-        //         // numbers = [];
-        //         // if ((order.detail.split('|').length - 1) === 2) {
-        //         //     for (const n1 of numbers1) {
-        //         //         for (const n2 of numbers2) {
-        //         //             for (const n3 of numbers3) {
-        //         //                 const number = `${n1.toString()}${n2.toString()}${n3.toString()}`;
-        //         //                 numbers.push(number);
-        //         //             }
-        //         //         }
-        //         //     }
-        //         // } else {
-        //         //     numbers = order.detail.split(',');
-        //         // }
-        //         numbers = this.getNumbersOfOrder3Digit(order.detail);
-        //         break;
-
-        //     case BaoLoType.Lo4So:
-        //     case BonCangType.BonCangDacBiet:
-        //         // numbers = [];
-        //         // if ((order.detail.split('|').length - 1) === 3) {
-        //         //     for (const n1 of numbers1) {
-        //         //         for (const n2 of numbers2) {
-        //         //             for (const n3 of numbers3) {
-        //         //                 for (const n4 of numbers4) {
-        //         //                     const number = `${n1.toString()}${n2.toString()}${n3.toString()}${n4.toString()}`;
-        //         //                     numbers.push(number);
-        //         //                 }
-        //         //             }
-        //         //         }
-        //         //     }
-        //         // } else {
-        //         //     numbers = order.detail.split(',');
-        //         // }
-        //         numbers = this.getNumbersOfOrder4Digit(order.detail);
-        //         break;
-
-        //     case LoXienType.Xien2:
-        //     case LoXienType.Xien3:
-        //     case LoXienType.Xien4:
-        //     case LoTruocType.TruotXien4:
-        //     case LoTruocType.TruotXien8:
-        //     case LoTruocType.TruotXien10:
-        //         // numbers = order.detail.split(',');
-        //         // numbers = numbers.map((number: string) => number.trim());
-        //         // numbers.sort((a: string, b: string) => {
-        //         //     return parseInt(a) - parseInt(b);
-        //         // });
-
-        //         // numbers = [JSON.stringify(numbers)];
-
-        //         numbers = this.getNumbersOfLoXienAndTruot(order.detail);
-        //         break;
-
-        //     case DauDuoiType.Dau:
-        //     case DauDuoiType.Duoi:
-        //         // numbers = order.detail.split(',');
-        //         // numbers = numbers.map((number: any) => number.trim());
-        //         numbers = this.getNumbersOfDauDuoi(order.detail);
-        //         break;
-
-        //     case TroChoiThuViType.Lo2SoGiaiDacBiet:
-        //         numbers = [order.detail];
-        //         break;
-
-        //     default:
-        //         break;
-        // }
-
         return {
             numbers,
             betTypeName,
@@ -1025,11 +933,42 @@ export class OrderHelper {
         return `${DateTimeHelper.formatDate(new Date())}-${times}`;
     }
 
-    static getKeyByBookmaker(bookmakerId: string, order: any) {
-        return `bookmaker-id-${bookmakerId.toString()}-${order.type}${order.seconds}s`;
+    static getKeySaveUserIdsByBookmaker(bookmakerId: string) {
+        return `bookmaker-id-${bookmakerId}-users`;
     }
 
-    static getKeyByOrder(order: any) {
+    static getKeySaveUserIdsFakeByBookmaker(bookmakerId: string) {
+        return `bookmaker-id-${bookmakerId}-fake-users`;
+    }
+
+    static getKeySaveOrdersOfBookmakerAndTypeGame(bookmakerId: string, gameType: string) {
+        return `bookmaker-id-${bookmakerId}-${gameType}`;
+    }
+
+    static getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId: string, gameType: string) {
+        return `bookmaker-id-${bookmakerId}-${gameType}-fake-users`;
+    }
+
+    static getKeySaveEachOrder(order: any) {
         return `${order.id.toString()}-${order.type}${order.seconds}s-${order.childBetType}`;
+    }
+
+    static getKeyPrepareOrders(bookmakerId: string, type: string, turnIndex: string) {
+        return `${bookmakerId}-${type}-${turnIndex}`;
+    }
+
+    static getKeyPrepareOrdersOfTestPlayer(bookmakerId: string, type: string, turnIndex: string) {
+        return `${bookmakerId}-${type}-${turnIndex}-test-player`;
+    }
+
+    static getCurrentTime(seconds: number) {
+        const toDate = (new Date()).getTime();
+        const secondsInCurrentRound = (toDate / 1000) % seconds;
+
+        return secondsInCurrentRound;
+    }
+
+    static delay(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 }

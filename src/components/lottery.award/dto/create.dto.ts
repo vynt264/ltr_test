@@ -29,4 +29,6 @@ export class CreateLotteryAwardDto {
 
   @JoinColumn()
   bookmaker: BookMaker;
+
+  isTestPlayer: boolean;
 }
