@@ -5,9 +5,8 @@ import { CronJob } from 'cron';
 import { LotteriesService } from 'src/lotteries/lotteries.service';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { SocketGatewayService } from '../gateway/gateway.service';
-import { addDays, addMinutes, startOfDay } from 'date-fns';
 import { BookMakerService } from '../bookmaker/bookmaker.service';
-import { INIT_TIME_CREATE_JOB, MAINTENANCE_PERIOD, TypeLottery } from 'src/system/constants';
+import { INIT_TIME_CREATE_JOB, MAINTENANCE_PERIOD, PERIOD_DELAY_TO_HANDLER_ORDERS, TypeLottery } from 'src/system/constants';
 import { BaCangType, BaoLoType, BonCangType, CategoryLotteryType, DanhDeType, DauDuoiType, Lo2SoGiaiDacBietType, LoTruocType, LoXienType, OddBet, PricePerScore, TroChoiThuViType } from 'src/system/enums/lotteries';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
@@ -89,6 +88,7 @@ export class ScheduleService implements OnModuleInit {
     }
 
     async callbackFunc(jobName: string, seconds: number, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number) {
+        await OrderHelper.delay(PERIOD_DELAY_TO_HANDLER_ORDERS);
         this.handlerJobs(jobName, time, turnIndex, nextTurnIndex, nextTime, seconds);
     }
 
@@ -382,6 +382,7 @@ export class ScheduleService implements OnModuleInit {
             const remainBalance = +wallet.balance + totalBalance;
             await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
 
+            console.log(`userId ${userId} send event payment`);
             this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
         }
         await this.redisService.del(keyOrdersOfBookmaker);
@@ -465,7 +466,7 @@ export class ScheduleService implements OnModuleInit {
             const remainBalance = +wallet.balance + totalBalance;
             await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
 
-            console.log("user id fake", userId);
+            console.log(`userId ${userId} test player send event payment`);
             this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
         }
         await this.redisService.del(keyOrdersOfBookmaker);

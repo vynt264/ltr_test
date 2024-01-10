@@ -960,4 +960,15 @@ export class OrderHelper {
     static getKeyPrepareOrdersOfTestPlayer(bookmakerId: string, type: string, turnIndex: string) {
         return `${bookmakerId}-${type}-${turnIndex}-test-player`;
     }
+
+    static getCurrentTime(seconds: number) {
+        const toDate = (new Date()).getTime();
+        const secondsInCurrentRound = (toDate / 1000) % seconds;
+
+        return secondsInCurrentRound;
+    }
+
+    static delay(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 }

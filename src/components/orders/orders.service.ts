@@ -17,7 +17,7 @@ import {
   LoXienType,
   TroChoiThuViType,
 } from 'src/system/enums/lotteries';
-import { ERROR } from 'src/system/constants';
+import { ERROR, PERIOD_CANNOT_CANCELED, PERIOD_CANNOT_ORDER } from 'src/system/constants';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
@@ -36,6 +36,19 @@ export class OrdersService {
   ) { }
 
   async create(data: CreateListOrdersDto, member: any) {
+    if (!data || !data?.orders || data.orders.length === 0) return;
+
+    const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
+    const currentTime = OrderHelper.getCurrentTime(seconds);
+    if ((seconds - currentTime) < PERIOD_CANNOT_ORDER) {
+      throw new HttpException(
+        {
+          message: ERROR.MESSAGE_NOT_ORDER,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     OrderValidate.validateOrders(data?.orders || []);
     // check balance
     const wallet = await this.walletHandlerService.findWalletByUserId(member.id);
@@ -290,6 +303,16 @@ export class OrdersService {
     });
 
     if (member) {
+      const currentTime = OrderHelper.getCurrentTime(order.seconds);
+      if ((order.seconds - currentTime) < PERIOD_CANNOT_CANCELED) {
+        throw new HttpException(
+          {
+            message: ERROR.MESSAGE_NOT_CANCEL,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       const keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(member.bookmakerId.toString(), `${order.type}${order.seconds}s`);
       const dataByBookmakerId: any = await this.redisService.get(keyOrdersOfBookmaker);
       if (dataByBookmakerId) {
@@ -339,7 +362,7 @@ export class OrdersService {
     return this.orderRequestRepository.delete(id);
   }
 
-  async getCurrentTurnIndex(query: { seconds: string, type: string }) {
+  async getCurrentTurnIndex(query: { seconds: string, type: string }, user: any) {
     if (!query.seconds) {
       return {};
     }
@@ -349,7 +372,11 @@ export class OrdersService {
     const times = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
     const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
     const openTime = toDate - (secondsInCurrentRound * 1000);
-    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${DateTimeHelper.formatDate(new Date())}-${times}`, query.type);
+    let isTestPlayer = false;
+    if (user?.usernameReal) {
+      isTestPlayer = true;
+    }
+    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${DateTimeHelper.formatDate(new Date())}-${times}`, query.type, isTestPlayer);
 
     return {
       turnIndex: `${DateTimeHelper.formatDate(new Date())}-${times}`,
