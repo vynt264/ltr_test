@@ -96,8 +96,11 @@ export class AdminOrdersService {
         const endDate = new Date(object.endDate);
         data.createdAt = Between(startOfDay(startDate), endOfDay(endDate));
       }
-    }
 
+      if (key === "status") {
+        data.status = object.status
+      }
+    }
     return [data];
   }
 
