@@ -45,8 +45,8 @@ import {
     @ApiOkResponse({
       type: Response<WalletInout[]>,
     })
-    async GetAll(): Promise<any> {
-      return this.walletInoutService.getAll();
+    async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
+      return this.walletInoutService.getAll(paginationQuery);
     }
   
     @Post("create")
