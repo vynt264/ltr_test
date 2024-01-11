@@ -16,6 +16,7 @@ import { RedisCacheModule } from 'src/system/redis/redis.module';
 import { GatewayModule } from '../gateway/gateway.module';
 import { WalletHandlerModule } from '../wallet-handler/wallet-handler.module';
 import { LotteryAwardModule } from '../lottery.award/lottery.award.module';
+import { HoldingNumbersModule } from '../holding-numbers/holding-numbers.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { LotteryAwardModule } from '../lottery.award/lottery.award.module';
     GatewayModule,
     WalletHandlerModule,
     LotteryAwardModule,
+    HoldingNumbersModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

@@ -44,6 +44,30 @@ export class OrdersController {
     return this.ordersService.getCurrentTurnIndex(query, req.user);
   }
 
+  @Post('generate-follow-up-plan')
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  generateFollowUpPlan(
+    @Body() data: any,
+    @Request() req: any,
+  ) {
+    return this.ordersService.generateFollowUpPlan({
+      boiSo: data.boiSo,
+      cachLuot: data.cachLuot,
+      nhieuX: data.nhieuX,
+      soLuot: data.soLuot,
+      order: data.order,
+    });
+  }
+
+  @Post('confirm-generate-follow-up-plan')
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  confirmGenerateFollowUpPlan(
+    @Body() data: any,
+    @Request() req: any,
+  ) {
+    return this.ordersService.confirmGenerateFollowUpPlan(data, req.user);
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   findOne(@Param('id') id: string) {
