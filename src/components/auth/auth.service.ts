@@ -276,6 +276,16 @@ export class AuthService {
         timeOut: new Date()
       }
       await this.walletInoutRepository.save(walletInoutUp);
+
+      const walletInoutCreate = {
+        user: { id: user.id },
+        balanceIn: wallet?.balance,
+        balanceOut: 0,
+        timeIn: new Date(),
+        createdBy: user.username,
+      }
+      const createtedWalletInout = await this.walletInoutRepository.create(walletInoutCreate);
+      await this.walletInoutRepository.save(createtedWalletInout);
     }
 
     if (!user) {
