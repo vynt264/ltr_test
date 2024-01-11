@@ -128,7 +128,7 @@ export class UserService {
       };
       const walletCreate = this.walletRepository.create(walletDto);
       const wallet = await this.walletRepository.save(walletCreate);
-      await this.walletHisotryRepository.save(wallet);
+      // await this.walletHisotryRepository.save(wallet);
     }
 
     return user;

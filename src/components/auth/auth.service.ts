@@ -30,6 +30,7 @@ import { WalletHandlerService } from "../wallet-handler/wallet-handler.service";
 import { OrderHelper } from "src/common/helper";
 import { RedisCacheService } from "src/system/redis/redis.service";
 import { WalletInout } from "../wallet.inout/wallet.inout.entity";
+import { WalletHistory } from "../wallet/wallet.history.entity";
 @Injectable()
 export class AuthService {
   constructor(
@@ -48,6 +49,8 @@ export class AuthService {
     private coinWalletRepository: Repository<CoinWallet>,
     @InjectRepository(WalletInout)
     private walletInoutRepository: Repository<WalletInout>,
+    @InjectRepository(WalletHistory)
+    private walletHistoryRepository: Repository<WalletHistory>,
   ) { }
 
   async validateUserCreds(username: string, password: string): Promise<any> {
@@ -297,13 +300,14 @@ export class AuthService {
       };
       const createdUser = await this.userRepository.create(createUser);
       user = await this.userRepository.save(createdUser);
-      await this.walletHandlerService.create({
+      const walletCreate = await this.walletHandlerService.create({
         user: {
           id: user.id
         } as any,
         balance: 30000000,
-        createdBy: "8816975368672903308",
+        createdBy: user?.username,
       });
+      await this.walletHistoryRepository.save(walletCreate);
       const userInfoDt: any = {
         avatar: null,
         nickname: username,
@@ -332,7 +336,7 @@ export class AuthService {
         createdBy: user.username,
       }
       const createtedWalletInout = await this.walletInoutRepository.create(walletInoutCreate);
-      await this.walletInoutRepository.save(createtedWalletInout);
+      await this.walletInoutRepository.save(createtedWalletInout); 
     }
 
     return user

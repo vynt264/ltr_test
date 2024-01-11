@@ -48,6 +48,17 @@ import {
     async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
       return this.walletInoutService.getAll(paginationQuery);
     }
+
+    @Get("history")
+    @ApiOperation({
+      description: "Get wallet history",
+    })
+    @ApiOkResponse({
+      type: Response<WalletInout[]>,
+    })
+    async GetWalletHistory(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
+      return this.walletInoutService.getAll(paginationQuery);
+    }
   
     @Post("create")
     @ApiOperation({

@@ -25,12 +25,15 @@ import { DateTimeHelper } from 'src/helpers/date-time';
 import { OrderValidate } from './validations/order.validate';
 import { OrderHelper } from 'src/common/helper';
 import { HoldingNumbersService } from '../holding-numbers/holding-numbers.service';
+import { WalletHistory } from '../wallet/wallet.history.entity';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private orderRequestRepository: Repository<Order>,
+    @InjectRepository(WalletHistory)
+    private walletHistoryRepository: Repository<WalletHistory>,
     private readonly redisService: RedisCacheService,
     private readonly walletHandlerService: WalletHandlerService,
     private readonly lotteryAwardService: LotteryAwardService,
@@ -97,6 +100,16 @@ export class OrdersService {
     // update balance
     const totalBetRemain = wallet.balance - totalBet;
     await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
+
+    // save wallet history
+    const createWalletHis: any = {
+      id: wallet.id,
+      user: { id: member.id },
+      balance: totalBetRemain,
+      createdBy: member.name
+    }
+    const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+    await this.walletHistoryRepository.save(createdWalletHis);
 
     return result;
   }
@@ -353,6 +366,15 @@ export class OrdersService {
       const wallet = await this.walletHandlerService.findWalletByUserId(member.id);
       const remainBalance = +wallet.balance + (+order.revenue);
       await this.walletHandlerService.updateWalletByUserId(+member.id, { balance: remainBalance });
+      // save wallet history
+      const createWalletHis: any = {
+        id: wallet.id,
+        user: { id: member.id },
+        balance: remainBalance,
+        createdBy: member.name
+      }
+      const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+      await this.walletHistoryRepository.save(createdWalletHis);
     }
 
     if (order.status !== 'pending') return;

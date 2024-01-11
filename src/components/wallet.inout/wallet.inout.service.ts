@@ -11,12 +11,15 @@ import { Between, Like, Repository } from "typeorm";
 import { Logger } from "winston";
 import { CreateWalletInoutDto, UpdateWalletInoutDto } from "./dto/index";
 import { WalletInout } from "./wallet.inout.entity";
+import { WalletHistory } from "../wallet/wallet.history.entity";
 @Injectable()
 export class WalletInoutService {
 
     constructor(
         @InjectRepository(WalletInout)
         private walletInoutRepository: Repository<WalletInout>,
+        @InjectRepository(WalletHistory)
+        private walletHistoryRepository: Repository<WalletHistory>,
         @Inject("winston")
         private readonly logger: Logger
     ) { }
@@ -30,6 +33,50 @@ export class WalletInoutService {
         const object: any = JSON.parse(paginationQuery.keyword);
         try {
             const listData = await this.walletInoutRepository.findAndCount({
+                relations: ["user", "user.bookmaker"],
+                select: {
+                    user: {
+                        id: true,
+                        username: true,
+                        bookmaker: {
+                            id: true,
+                            name: true
+                        }
+                    }
+                },
+                where: this.getCondition(object),
+                take: +perPage,
+                skip,
+                order: {
+                    id: "DESC",
+                }
+            });
+            return new SuccessResponse(
+                STATUSCODE.COMMON_SUCCESS,
+                listData,
+                MESSAGE.LIST_SUCCESS
+            );
+        } catch (error) {
+            this.logger.debug(
+                `${WalletInoutService.name} is Logging error: ${JSON.stringify(error)}`
+            );
+            return new ErrorResponse(
+                STATUSCODE.COMMON_FAILED,
+                error,
+                MESSAGE.LIST_FAILED
+            );
+        }
+    }
+
+    async getWalletHistory(paginationQuery: PaginationQueryDto): Promise<any> {
+        const { take: perPage, skip: page } = paginationQuery;
+        if (page <= 0) {
+            return "The skip must be more than 0";
+        }
+        const skip = +perPage * +page - +perPage;
+        const object: any = JSON.parse(paginationQuery.keyword);
+        try {
+            const listData = await this.walletHistoryRepository.findAndCount({
                 relations: ["user", "user.bookmaker"],
                 select: {
                     user: {

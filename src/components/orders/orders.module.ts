@@ -17,10 +17,11 @@ import { GatewayModule } from '../gateway/gateway.module';
 import { WalletHandlerModule } from '../wallet-handler/wallet-handler.module';
 import { LotteryAwardModule } from '../lottery.award/lottery.award.module';
 import { HoldingNumbersModule } from '../holding-numbers/holding-numbers.module';
+import { WalletHistory } from '../wallet/wallet.history.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order, OrderRequest, SysConfig, User, OrderRequestHis, OrderCodeQueue]),
+    TypeOrmModule.forFeature([Order, OrderRequest, SysConfig, User, OrderRequestHis, OrderCodeQueue, WalletHistory]),
     BacklistModule,
     UserModule,
     SysConfigsModule,
