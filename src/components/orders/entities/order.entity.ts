@@ -10,6 +10,7 @@ import { User } from "../../user/user.entity";
 import { BaseEntity } from "src/common/mysql/base.entity";
 import { BookMaker } from "src/components/bookmaker/bookmaker.entity";
 import { WinningNumber } from "src/components/winning-numbers/entities/winning-number.entity";
+import { HoldingNumber } from "src/components/holding-numbers/entities/holding-number.entity";
 
 enum OrderStatus {
     closed = "closed",
@@ -26,6 +27,13 @@ export class Order extends BaseEntity {
     })
     @JoinColumn()
     user: User;
+
+    @ManyToOne(() => HoldingNumber, {
+        cascade: true,
+        createForeignKeyConstraints: false,
+    })
+    @JoinColumn()
+    holdingNumber: HoldingNumber;
 
     @ManyToOne(() => BookMaker, {
         cascade: true,

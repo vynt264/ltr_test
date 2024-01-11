@@ -30,6 +30,7 @@ import { AnalyticsModule } from "./analytics/analytics.module";
 import { AdminOrdersModule } from "./admin.orders/admin.orders.module";
 import { WinningNumbersModule } from './winning-numbers/winning-numbers.module';
 import { WalletInoutModule } from "./wallet.inout/wallet.inout.module";
+import { HoldingNumbersModule } from './holding-numbers/holding-numbers.module';
 @Module({
   imports: [
     AuthModule,
@@ -63,6 +64,7 @@ import { WalletInoutModule } from "./wallet.inout/wallet.inout.module";
     AdminOrdersModule,
     WinningNumbersModule,
     WalletInoutModule,
+    HoldingNumbersModule,
   ],
 })
 export class MainModule { }

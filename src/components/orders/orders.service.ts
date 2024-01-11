@@ -24,6 +24,7 @@ import { LotteryAwardService } from '../lottery.award/lottery.award.service';
 import { DateTimeHelper } from 'src/helpers/date-time';
 import { OrderValidate } from './validations/order.validate';
 import { OrderHelper } from 'src/common/helper';
+import { HoldingNumbersService } from '../holding-numbers/holding-numbers.service';
 
 @Injectable()
 export class OrdersService {
@@ -33,6 +34,7 @@ export class OrdersService {
     private readonly redisService: RedisCacheService,
     private readonly walletHandlerService: WalletHandlerService,
     private readonly lotteryAwardService: LotteryAwardService,
+    private readonly holdingNumbersService: HoldingNumbersService,
   ) { }
 
   async create(data: CreateListOrdersDto, member: any) {
@@ -63,7 +65,7 @@ export class OrdersService {
     }
 
     let promises = [];
-    const turnIndex = OrderHelper.getTurnIndex();
+    const turnIndex = OrderHelper.getTurnIndex(seconds);
     const bookmakerId = member?.bookmakerId || 1;
     await this.prepareDataToGenerateAward(data.orders, bookmakerId, turnIndex, member.usernameReal);
 
@@ -385,6 +387,102 @@ export class OrdersService {
       nextTime: openTime + (parseInt(query.seconds) * 1000),
       awardDetail: lotteryAward?.awardDetail || {},
     };
+  }
+
+  async generateFollowUpPlan(
+    {
+      boiSo,
+      cachLuot,
+      nhieuX,
+      soLuot,
+      order,
+    }: {
+      boiSo: number,
+      cachLuot: number,
+      nhieuX: number,
+      soLuot: number,
+      order: any,
+    }) {
+    const seconds = OrderHelper.getPlayingTimeByType(order.type);
+    const currentIndex = OrderHelper.getCurrentTurnIndex(seconds);
+    const { numberOfBets } = OrderHelper.getInfoDetailOfOrder(order);
+    const result: any = [];
+    let currentBoiSo = boiSo;
+    let openTime = OrderHelper.getOpenTime(seconds);
+    let nextTurnIndex = currentIndex;
+    let totalAmount = 0;
+
+    for (let i = 1; i <= soLuot; i++) {
+      if (i === 1) {
+        currentBoiSo = currentBoiSo * 1;
+      } else {
+        currentBoiSo = currentBoiSo * nhieuX;
+        nextTurnIndex += 1;
+        openTime += (seconds * 1000);
+      }
+      const tempBetAmount = OrderHelper.getBetAmount(currentBoiSo, order.childBetType, numberOfBets);
+      totalAmount += tempBetAmount;
+
+      result.push({
+        openTime,
+        turnIndex: `${DateTimeHelper.formatDate(new Date())}-${nextTurnIndex}`,
+        multiple: currentBoiSo,
+        betAmount: tempBetAmount,
+      });
+
+      if (cachLuot > 1) {
+        for (let j = 1; j < cachLuot; j++) {
+          openTime += (seconds * 1000);
+          nextTurnIndex += 1;
+          result.push({
+            openTime,
+            turnIndex: `${DateTimeHelper.formatDate(new Date())}-${nextTurnIndex}`,
+            multiple: 0,
+            betAmount: 0,
+          });
+        }
+      }
+    }
+
+    return {
+      orders: result,
+      totalAmount,
+      totalTurns: soLuot,
+    };
+  }
+
+  async confirmGenerateFollowUpPlan(data: any, user: any) {
+    const orders = data?.orders || [];
+    const isStop = data?.isStop || false;
+    const holdingNumber = await this.holdingNumbersService.create({
+      isStop,
+      name: "duplicated",
+    });
+
+    let promises = [];
+    for (const order of orders) {
+      order.turnIndex = order.turnIndex;
+      order.numericalOrder = OrderHelper.getRandomTradingCode();
+      const { betTypeName, childBetTypeName, numberOfBets } = OrderHelper.getInfoDetailOfOrder(order);
+      order.seconds = OrderHelper.getPlayingTimeByType(order.type);
+      order.type = OrderHelper.getTypeLottery(order.type);
+      order.revenue = OrderHelper.getBetAmount(order.multiple, order.childBetType, numberOfBets);
+      order.betTypeName = betTypeName;
+      order.childBetTypeName = childBetTypeName;
+      order.numberOfBets = numberOfBets;
+      order.user = user;
+      order.bookMaker = { id: user.bookmakerId } as any;
+      order.holdingNumber = { id: holdingNumber.id } as any;
+      if (user.usernameReal) {
+        order.isTestPlayer = true;
+      }
+
+      promises.push(this.orderRequestRepository.save(order));
+    }
+
+    if (promises.length === 0) return;
+
+    return Promise.all(promises);
   }
 
   async prepareDataToGenerateAward(orders: any, bookmakerId: string, turnIndex: string, usernameReal: string) {

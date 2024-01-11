@@ -1,3 +1,4 @@
+import { addHours, startOfDay } from "date-fns";
 import { DateTimeHelper } from "src/helpers/date-time";
 import { INIT_TIME_CREATE_JOB, TypeLottery } from "src/system/constants";
 import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, Lo2SoGiaiDacBietType, LoTruocType, LoXienType, PricePerScore, TroChoiThuViType } from "src/system/enums/lotteries";
@@ -924,11 +925,11 @@ export class OrderHelper {
         return totalBet;
     }
 
-    static getTurnIndex() {
+    static getTurnIndex(seconds: number) {
         const time = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
         const fromDate = new Date(time).getTime();
         const toDate = (new Date()).getTime();
-        const times = Math.ceil(((toDate - fromDate) / 1000) / 45);
+        const times = Math.ceil(((toDate - fromDate) / 1000) / seconds);
 
         return `${DateTimeHelper.formatDate(new Date())}-${times}`;
     }
@@ -966,6 +967,21 @@ export class OrderHelper {
         const secondsInCurrentRound = (toDate / 1000) % seconds;
 
         return secondsInCurrentRound;
+    }
+
+    static getCurrentTurnIndex(seconds: number) {
+        const timeStartDay = startOfDay(new Date());
+        const fromDate = addHours(timeStartDay, 7).getTime();
+        const toDate = (new Date()).getTime();
+
+        return Math.floor(((toDate - fromDate) / 1000) / seconds);
+    }
+
+    static getOpenTime(seconds: number) {
+        const toDate = (new Date()).getTime();
+        const secondsInCurrentRound = (toDate / 1000) % seconds;
+
+        return toDate - (secondsInCurrentRound * 1000);
     }
 
     static delay(ms: number) {
