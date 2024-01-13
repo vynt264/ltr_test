@@ -403,7 +403,7 @@ export class ScheduleService implements OnModuleInit {
             console.log(`userId ${userId} send event payment`);
             this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
         }
-        await this.redisService.del(keyOrdersOfBookmaker);
+        //await this.redisService.del(keyOrdersOfBookmaker);
     }
 
     async handlerHoldingNumbers({
@@ -529,7 +529,7 @@ export class ScheduleService implements OnModuleInit {
             console.log(`userId ${userId} test player send event payment`);
             this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
         }
-        await this.redisService.del(keyOrdersOfBookmaker);
+        //await this.redisService.del(keyOrdersOfBookmaker);
     }
 
     calcBalanceEachOrder({

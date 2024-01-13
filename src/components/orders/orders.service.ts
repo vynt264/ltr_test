@@ -579,19 +579,18 @@ export class OrdersService {
   }
 
   async saveEachOrderOfUserToRedis(orders: any, bookmakerId: number, userId: number, usernameReal: string) {
-    for (const order of orders) {
-      let keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookmakerId.toString(), `${order.type}${order.seconds}s`);
-      if (usernameReal) {
-        keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId.toString(), `${order.type}${order.seconds}s`);
-      }
-      const dataByBookmakerId: any = await this.redisService.get(keyOrdersOfBookmaker);
-      let initData: any = {};
-      if (!dataByBookmakerId) {
-        initData = {
-          [`user-id-${userId}-${order.turnIndex}`]: {
+    const type = orders?.[0]?.type;
+    const seconds = orders?.[0].seconds;
+    let keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookmakerId.toString(), `${type}${seconds}s`);
+    if (usernameReal) {
+      keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId.toString(), `${type}${seconds}s`);
+    }
+    let initData: any = {};
 
-          } as any,
-        } as any;
+    for (const order of orders) {
+      const dataByBookmakerId: any = await this.redisService.get(keyOrdersOfBookmaker);
+      if (!dataByBookmakerId) {
+        initData[`user-id-${userId}-${order.turnIndex}`] = {} as any;
       } else {
         initData = dataByBookmakerId as any;
       }
@@ -603,8 +602,8 @@ export class OrdersService {
       } else {
         initData[`user-id-${userId}-${order.turnIndex}`][keyByOrder] = this.transformOrderToObject(order);
       }
-      this.redisService.set(keyOrdersOfBookmaker, initData);
     }
+    this.redisService.set(keyOrdersOfBookmaker, initData);
   }
 
   transformOrderToObject(order: any) {
