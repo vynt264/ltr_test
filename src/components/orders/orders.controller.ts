@@ -45,7 +45,7 @@ export class OrdersController {
   }
 
   @Post('generate-follow-up-plan')
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+@UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   generateFollowUpPlan(
     @Body() data: any,
     @Request() req: any,

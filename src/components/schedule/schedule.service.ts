@@ -429,16 +429,13 @@ export class ScheduleService implements OnModuleInit {
             if (orders || orders.length === 0) return;
 
             for (const order of orders) {
-                await this.ordersService.removeOrder({
+                const tempOrder = await this.ordersService.findOne(order.id);
+                if (tempOrder.status === 'canceled' || tempOrder.status === 'closed') continue;
+
+                await this.ordersService.removeOrderFromRedis({
                     order,
                     bookmakerId,
                     userId,
-                    usernameReal,
-                });
-
-                await this.ordersService.removeOrder1({
-                    order,
-                    bookmakerId,
                     usernameReal,
                 });
 

@@ -310,7 +310,7 @@ export class OrdersService {
     });
   }
 
-  async removeOrder({
+  async removeOrderFromRedis({
     order,
     bookmakerId,
     userId,
@@ -331,13 +331,8 @@ export class OrdersService {
       dataByBookmakerId[`user-id-${userId}-${order.turnIndex}`] = result;
       await this.redisService.set(keyOrdersOfBookmaker, dataByBookmakerId);
     }
-  }
 
-  async removeOrder1({
-    order,
-    bookmakerId,
-    usernameReal,
-  }: any) {
+    // remove order from data prepare to generate award
     let keyToGetOrders = OrderHelper.getKeyPrepareOrders(bookmakerId, `${order.type}${order.seconds}s`, order.turnIndex);
     if (usernameReal) {
       keyToGetOrders = OrderHelper.getKeyPrepareOrdersOfTestPlayer(bookmakerId, `${order.type}${order.seconds}s`, order.turnIndex);
@@ -382,61 +377,12 @@ export class OrdersService {
         );
       }
 
-      await this.removeOrder({
+      await this.removeOrderFromRedis({
         order,
         bookmakerId: member.bookmakerId,
         userId: member.id,
         usernameReal: member.usernameReal,
       });
-
-      // let keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(member.bookmakerId.toString(), `${order.type}${order.seconds}s`);
-      // if (member.usernameReal) {
-      //   keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(member.bookmakerId.toString(), `${order.type}${order.seconds}s`);
-      // }
-      // const dataByBookmakerId: any = await this.redisService.get(keyOrdersOfBookmaker);
-      // if (dataByBookmakerId) {
-      //   const result: any = {};
-      //   const orders: any = dataByBookmakerId[`user-id-${member.id}-${order.turnIndex}`] || {};
-      //   for (const key in orders) {
-      //     if (key === OrderHelper.getKeySaveEachOrder(order)) continue;
-      //     result[key] = orders[key];
-      //   }
-      //   dataByBookmakerId[`user-id-${member.id}-${order.turnIndex}`] = result;
-      //   await this.redisService.set(keyOrdersOfBookmaker, dataByBookmakerId);
-      // }
-
-
-      await this.removeOrder1({
-        order,
-        bookmakerId: member.bookmakerId,
-        usernameReal: member.usernameReal,
-      });
-      // update data prepare to generate awards
-      // let keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(member.bookmakerId.toString(), `${order.type}${order.seconds}s`);
-      // if (member.usernameReal) {
-      //   keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(member.bookmakerId.toString(), `${order.type}${order.seconds}s`);
-      // }
-      // let data: any = await this.redisService.get(keyOrdersOfBookmaker);
-      // if (data) {
-      //   try {
-      //     const orderDetail = this.transformOrderToObject(order);
-      //     const availableOrders = data[order.betType][order.childBetType];
-      //     const resultFinal: any = {};
-      //     for (const key in availableOrders) {
-      //       if (orderDetail[key]) {
-      //         const remainScore = availableOrders[key] - orderDetail[key];
-      //         if (remainScore > 0) {
-      //           resultFinal[key] = remainScore;
-      //         }
-      //       } else {
-      //         resultFinal[key] = availableOrders[key];
-      //       }
-      //     }
-
-      //     data[order.betType][order.childBetType] = resultFinal;
-      //     await this.redisService.set(keyOrdersOfBookmaker, data);
-      //   } catch (err) { }
-      // }
 
       const wallet = await this.walletHandlerService.findWalletByUserId(member.id);
       const remainBalance = +wallet.balance + (+order.revenue);
