@@ -155,7 +155,7 @@ export class ScheduleService implements OnModuleInit {
 
     async processingData(time: number, turnIndex: string, nextTurnIndex: string, nextTime: number, gameType: string, bookmakerId: number) {
         // event reload tao ke hoach theo doi so
-        this.socketGateway.sendEventToClient(`${bookmakerId}-reload-list-tracked-number`, {});
+        this.socketGateway.sendEventToClient(`${bookmakerId}-${gameType}-reload-list-tracked-number`, {});
 
         const keyToGetOrders = OrderHelper.getKeyPrepareOrders(bookmakerId.toString(), gameType, turnIndex);
         const keyToGetOrdersOfTestPlayer = OrderHelper.getKeyPrepareOrdersOfTestPlayer(bookmakerId.toString(), gameType, turnIndex);
