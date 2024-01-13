@@ -148,9 +148,11 @@ export class OrdersService {
 
     const conditionGetOrders: any = {
       user: { id: member.id },
+      isDeleted: false,
     };
     const conditionCalcAllOrders: any = {
       userId: member.id,
+      isDeleted: false,
     };
 
     let query = 'orders.userId = :userId ';
