@@ -1,24 +1,16 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Query, Put } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { BacklistGuard } from '../backlist/backlist.guard';
 import { RateLimitGuard } from '../auth/rate.guard/rate.limit.guard';
-import { ListOrderRequestDto } from '../order.request/dto/create.list.dto';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import { ValidationPipe } from './validations/validation.pipe';
-import { Cron, Interval, SchedulerRegistry } from '@nestjs/schedule';
-import { SocketGatewayService } from '../gateway/gateway.service';
-import { CronJob } from 'cron';
 
 @Controller('api/v1/orders')
 export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
-    private readonly socketGateway: SocketGatewayService,
-    private readonly schedulerRegistry: SchedulerRegistry,
   ) { }
 
   @Post()

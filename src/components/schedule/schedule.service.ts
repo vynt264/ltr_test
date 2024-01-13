@@ -14,6 +14,7 @@ import { LotteryAwardService } from '../lottery.award/lottery.award.service';
 import { DateTimeHelper } from 'src/helpers/date-time';
 import { WinningNumbersService } from '../winning-numbers/winning-numbers.service';
 import { OrderHelper } from 'src/common/helper';
+import { HoldingNumbersService } from '../holding-numbers/holding-numbers.service';
 
 
 @Injectable()
@@ -28,6 +29,7 @@ export class ScheduleService implements OnModuleInit {
         private readonly walletHandlerService: WalletHandlerService,
         private readonly lotteryAwardService: LotteryAwardService,
         private readonly winningNumbersService: WinningNumbersService,
+        private readonly holdingNumbersService: HoldingNumbersService,
     ) { }
 
     onModuleInit() {
@@ -152,6 +154,12 @@ export class ScheduleService implements OnModuleInit {
     }
 
     async processingData(time: number, turnIndex: string, nextTurnIndex: string, nextTime: number, gameType: string, bookmakerId: number) {
+        // event reload tao ke hoach theo doi so
+        this.socketGateway.sendEventToClient(`${bookmakerId}-${gameType}-reload-list-tracked-number`, {
+            turnIndex,
+            nextTurnIndex,
+        });
+
         const keyToGetOrders = OrderHelper.getKeyPrepareOrders(bookmakerId.toString(), gameType, turnIndex);
         const keyToGetOrdersOfTestPlayer = OrderHelper.getKeyPrepareOrdersOfTestPlayer(bookmakerId.toString(), gameType, turnIndex);
         let data = await this.redisService.get(keyToGetOrders);
@@ -323,10 +331,12 @@ export class ScheduleService implements OnModuleInit {
             return;
         }
 
+        const winningPlayerOrders = []; // don hang users thang cuoc.
+
         for (const userId of userIds) {
             let ordersOfUser;
             if (userId) {
-                ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}`] || null;
+                ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}-${turnIndex}`] || null;
             }
 
             if (!ordersOfUser || Object.keys(ordersOfUser).length === 0) {
@@ -346,6 +356,9 @@ export class ScheduleService implements OnModuleInit {
                     orderId,
                     turnIndex,
                 });
+
+                // user win vs order hien tai
+                winningPlayerOrders.push(orderId);
 
                 totalBalance += winningAmount;
 
@@ -378,6 +391,14 @@ export class ScheduleService implements OnModuleInit {
 
             await Promise.all(promises);
 
+            // check nuoi so
+            this.handlerHoldingNumbers({
+                winningPlayerOrders,
+                bookmakerId,
+                userId,
+                usernameReal: false,
+            });
+
             const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
             const remainBalance = +wallet.balance + totalBalance;
             await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
@@ -385,7 +406,49 @@ export class ScheduleService implements OnModuleInit {
             console.log(`userId ${userId} send event payment`);
             this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
         }
-        await this.redisService.del(keyOrdersOfBookmaker);
+        //await this.redisService.del(keyOrdersOfBookmaker);
+    }
+
+    async handlerHoldingNumbers({
+        winningPlayerOrders,
+        bookmakerId,
+        userId,
+        usernameReal,
+    }: any) {
+        if (!winningPlayerOrders || winningPlayerOrders.length === 0) return;
+
+        const promises = [];
+
+        for (const orderId of winningPlayerOrders) {
+            const order = await this.ordersService.findOne(+orderId);
+            if (!order?.holdingNumber?.id) continue;
+
+            const holdingNumber = await this.holdingNumbersService.findOne(+order.holdingNumber.id);
+
+            if (!holdingNumber.isStop) return;
+
+            const orders = await this.ordersService.findOrdersByHoldingNumberId(holdingNumber.id);
+
+            if (orders || orders.length === 0) return;
+
+            for (const order of orders) {
+                const tempOrder = await this.ordersService.findOne(order.id);
+                if (tempOrder.status === 'canceled' || tempOrder.status === 'closed') continue;
+
+                await this.ordersService.removeOrderFromRedis({
+                    order,
+                    bookmakerId,
+                    userId,
+                    usernameReal,
+                });
+
+                promises.push(
+                    this.ordersService.delete(order.id),
+                );
+            }
+        }
+
+        await Promise.all(promises);
     }
 
     async handleBalanceFakeUsers({
@@ -411,7 +474,7 @@ export class ScheduleService implements OnModuleInit {
         for (const userId of userIds) {
             let ordersOfUser;
             if (userId) {
-                ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}`] || null;
+                ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}-${turnIndex}`] || null;
             }
 
             if (!ordersOfUser || Object.keys(ordersOfUser).length === 0) {
@@ -469,7 +532,7 @@ export class ScheduleService implements OnModuleInit {
             console.log(`userId ${userId} test player send event payment`);
             this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
         }
-        await this.redisService.del(keyOrdersOfBookmaker);
+        //await this.redisService.del(keyOrdersOfBookmaker);
     }
 
     calcBalanceEachOrder({
