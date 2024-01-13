@@ -17,5 +17,5 @@ export class HoldingNumber extends BaseEntity {
         nullable: true,
         default: true,
     })
-    isStop: boolean;
+    isStop: boolean; // dung cac order sau neu isStop = true
 }

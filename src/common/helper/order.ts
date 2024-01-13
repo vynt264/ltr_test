@@ -974,7 +974,7 @@ export class OrderHelper {
         const fromDate = addHours(timeStartDay, 7).getTime();
         const toDate = (new Date()).getTime();
 
-        return Math.floor(((toDate - fromDate) / 1000) / seconds);
+        return Math.ceil(((toDate - fromDate) / 1000) / seconds);
     }
 
     static getOpenTime(seconds: number) {

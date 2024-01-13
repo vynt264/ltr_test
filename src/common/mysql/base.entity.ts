@@ -17,10 +17,15 @@ export abstract class BaseEntity {
     @DeleteDateColumn()
     deletedAt: Date;
 
+    // @Column({
+    //     default: false,
+    // })
+    // isActive: boolean;
+
     @Column({
         default: false,
     })
-    isActive: boolean;
+    isDeleted: boolean;
 
     @Column({ nullable: true })
     createdBy: string;
