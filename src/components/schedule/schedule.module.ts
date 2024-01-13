@@ -8,6 +8,7 @@ import { OrdersModule } from '../orders/orders.module';
 import { WalletHandlerModule } from '../wallet-handler/wallet-handler.module';
 import { LotteryAwardModule } from '../lottery.award/lottery.award.module';
 import { WinningNumbersModule } from '../winning-numbers/winning-numbers.module';
+import { HoldingNumbersModule } from '../holding-numbers/holding-numbers.module';
 
 @Module({
     imports: [
@@ -19,6 +20,7 @@ import { WinningNumbersModule } from '../winning-numbers/winning-numbers.module'
         WalletHandlerModule,
         LotteryAwardModule,
         WinningNumbersModule,
+        HoldingNumbersModule,
     ],
     providers: [
         ScheduleService,

@@ -21,7 +21,11 @@ export class HoldingNumbersService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} holdingNumber`;
+    return this.holdingNumberRepository.findOne({
+      where: {
+        id,
+      },
+    });
   }
 
   update(id: number, updateHoldingNumberDto: UpdateHoldingNumberDto) {
