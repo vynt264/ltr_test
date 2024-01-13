@@ -57,7 +57,7 @@ import {
       type: Response<WalletInout[]>,
     })
     async GetWalletHistory(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
-      return this.walletInoutService.getAll(paginationQuery);
+      return this.walletInoutService.getWalletHistory(paginationQuery);
     }
   
     @Post("create")
