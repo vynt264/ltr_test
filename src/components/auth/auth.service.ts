@@ -276,7 +276,7 @@ export class AuthService {
         ...walletInout[walletInout?.length - 1],
         balanceOut: wallet?.balance,
         updatedBy: user.username,
-        timeOut: new Date()
+        timeOut: walletInout[walletInout?.length - 1].createdAt
       }
       await this.walletInoutRepository.save(walletInoutUp);
 
