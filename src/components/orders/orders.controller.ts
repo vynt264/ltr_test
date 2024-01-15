@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Query, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpStatus, Res, Param, Delete, UseGuards, Request, Query, Put } from '@nestjs/common';
+import { Response } from 'express';
+
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { BacklistGuard } from '../backlist/backlist.guard';
@@ -6,6 +8,14 @@ import { RateLimitGuard } from '../auth/rate.guard/rate.limit.guard';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import { ValidationPipe } from './validations/validation.pipe';
+
+import {
+  BaseResponse,
+  ErrorResponse,
+  SuccessResponse,
+} from "../../system/BaseResponse/index";
+import { ERROR, MESSAGE, STATUSCODE } from "../../system/constants";
+
 
 @Controller('api/v1/orders')
 export class OrdersController {
@@ -38,17 +48,40 @@ export class OrdersController {
 
   @Post('generate-follow-up-plan')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  generateFollowUpPlan(
-    @Body() data: any,
+  async generateFollowUpPlan(
+    @Res() response: Response,
     @Request() req: any,
+    @Body() data: any,
   ) {
-    return this.ordersService.generateFollowUpPlan({
-      boiSo: data.boiSo,
-      cachLuot: data.cachLuot,
-      nhieuX: data.nhieuX,
-      soLuot: data.soLuot,
-      order: data.order,
-    });
+    try {
+      const result = await this.ordersService.generateFollowUpPlan(
+        {
+          boiSo: data.boiSo,
+          cachLuot: data.cachLuot,
+          nhieuX: data.nhieuX,
+          soLuot: data.soLuot,
+          order: data.order,
+        },
+        req.user,
+      );
+
+      if (result.isValidAmount) {
+        return response.status(HttpStatus.CREATED).json({
+          data: result,
+          success: false,
+          statusCode: HttpStatus.CREATED,
+          message: ERROR.ACCOUNT_BALANCE_IS_INSUFFICIENT,
+        });
+      }
+
+      return response.status(HttpStatus.CREATED).json({
+        data: result,
+        success: true,
+        statusCode: HttpStatus.CREATED,
+        message: "success",
+      });
+
+    } catch (error) { }
   }
 
   @Post('confirm-generate-follow-up-plan')

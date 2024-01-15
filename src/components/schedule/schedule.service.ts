@@ -331,7 +331,7 @@ export class ScheduleService implements OnModuleInit {
             return;
         }
 
-        const winningPlayerOrders = []; // don hang users thang cuoc.
+        const winningPlayerOrders = []; // order users thang cuoc.
 
         for (const userId of userIds) {
             let ordersOfUser;
@@ -473,6 +473,8 @@ export class ScheduleService implements OnModuleInit {
             return;
         }
 
+        const winningPlayerOrders = []; // order users thang cuoc.
+
         for (const userId of userIds) {
             let ordersOfUser;
             if (userId) {
@@ -498,6 +500,11 @@ export class ScheduleService implements OnModuleInit {
                 });
 
                 totalBalance += winningAmount;
+
+                // user win vs order hien tai
+                if (realWinningAmount > 0) {
+                    winningPlayerOrders.push(orderId);
+                }
 
                 if (winningNumbers.length > 0) {
                     promisesCreateWinningNumbers.push(
@@ -526,6 +533,14 @@ export class ScheduleService implements OnModuleInit {
             // save winning numbers
             Promise.all(promisesCreateWinningNumbers);
             await Promise.all(promises);
+
+            // check nuoi so
+            this.handlerHoldingNumbers({
+                winningPlayerOrders,
+                bookmakerId,
+                userId,
+                usernameReal: true,
+            });
 
             const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
             const remainBalance = +wallet.balance + totalBalance;
