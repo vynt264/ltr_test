@@ -26,7 +26,7 @@ export class AdminDashboardService {
   async dataChartUser(paginationDto: PaginationQueryDto) {
     try {
       const object: any = JSON.parse(paginationDto.keyword);
-      let condition = "entity.usernameReal = ''";
+      let condition = "entity.usernameReal = '' && entity.role = 'member'";
       const conditionParams: any = {}
       if (object?.bookmakerId > 0) {
         condition = condition.concat(` AND bookmaker.id = :bookmarkerFind`);
