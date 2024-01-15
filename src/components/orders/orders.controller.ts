@@ -66,7 +66,7 @@ export class OrdersController {
       );
 
       if (result.isValidAmount) {
-        return response.status(HttpStatus.BAD_REQUEST).json({
+        return response.status(HttpStatus.CREATED).json({
           data: result,
           success: false,
           statusCode: HttpStatus.CREATED,
@@ -74,7 +74,7 @@ export class OrdersController {
         });
       }
 
-      return response.status(HttpStatus.OK).json({
+      return response.status(HttpStatus.CREATED).json({
         data: result,
         success: true,
         statusCode: HttpStatus.CREATED,
