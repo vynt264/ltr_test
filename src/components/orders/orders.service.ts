@@ -451,7 +451,11 @@ export class OrdersService {
       nhieuX: number,
       soLuot: number,
       order: any,
-    }) {
+    },
+    user: any,
+  ) {
+    const wallet = await this.walletHandlerService.findWalletByUserId(user.id);
+
     const seconds = OrderHelper.getPlayingTimeByType(order.type);
     const currentIndex = OrderHelper.getCurrentTurnIndex(seconds);
     const { numberOfBets } = OrderHelper.getInfoDetailOfOrder(order);
@@ -460,6 +464,7 @@ export class OrdersService {
     let openTime = OrderHelper.getOpenTime(seconds);
     let nextTurnIndex = currentIndex;
     let totalAmount = 0;
+    let isValidAmount = false;
 
     for (let i = 1; i <= soLuot; i++) {
       if (i === 1) {
@@ -471,6 +476,12 @@ export class OrdersService {
       }
       const tempBetAmount = OrderHelper.getBetAmount(currentBoiSo, order.childBetType, numberOfBets);
       totalAmount += tempBetAmount;
+
+      // check wallet
+      if (totalAmount > wallet.balance) {
+        isValidAmount = true;
+        break;
+      }
 
       result.push({
         openTime,
@@ -497,6 +508,7 @@ export class OrdersService {
       orders: result,
       totalAmount,
       totalTurns: soLuot,
+      isValidAmount,
     };
   }
 
