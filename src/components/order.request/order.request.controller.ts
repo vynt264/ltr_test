@@ -179,7 +179,7 @@ export class OrderRequestController {
   @ApiOkResponse({
     type: Response<OrderRequest>,
   })
-  @Roles(UserRoles.SUPPER)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
     return this.orderRequestService.getOneById(id);
   }
@@ -192,7 +192,7 @@ export class OrderRequestController {
     type: Response<OrderRequest>,
   })
   @UsePipes(ValidationPipe)
-  @Roles(UserRoles.SUPPER)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async update(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateOrderRequestDto: UpdateOrderRequestDto
@@ -204,7 +204,7 @@ export class OrderRequestController {
   @ApiOperation({
     description: "Delete OrderRequest",
   })
-  @Roles(UserRoles.SUPPER)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.orderRequestService.delete(id);
   }

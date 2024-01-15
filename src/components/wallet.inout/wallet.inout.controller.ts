@@ -69,7 +69,7 @@ import {
     })
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
     async create(@Body() userDto: CreateWalletInoutDto, @Request() req: any): Promise<any> {
       return this.walletInoutService.create(userDto, req.user);
     }
@@ -84,7 +84,7 @@ import {
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
     async updateWalletInout(
       @Param("id", ParseIntPipe) id: number,
       @Body() updateDto: UpdateWalletInoutDto,
@@ -99,7 +99,7 @@ import {
     })
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
     async delete(@Param("id") id: number): Promise<any> {
       return this.walletInoutService.delete(id);
     }

@@ -58,7 +58,7 @@ export class SysLayoutController {
   })
   @ApiBearerAuth("Authorization")
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async create(
     @Body() userDto: CreateSysLayoutDto,
     @Request() req: any
@@ -76,7 +76,7 @@ export class SysLayoutController {
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async updateSysLayout(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateDto: UpdateSysLayoutDto,
@@ -91,7 +91,7 @@ export class SysLayoutController {
   })
   @ApiBearerAuth("Authorization")
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.sysLayoutService.delete(id);
   }

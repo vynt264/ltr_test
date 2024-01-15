@@ -33,6 +33,7 @@ import { UserHistory } from "./user.history.entity";
 import { UserHistoryService } from "./user.history.service";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { Response as Resp } from "express";
+import { Cron } from "@nestjs/schedule";
 
 @Controller("/api/v1/user-history")
 @ApiTags("User-History")
@@ -49,7 +50,7 @@ export class UserHistoryController {
   @ApiOperation({
     description: " export  search (username, startDate, endDate)",
   })
-  @Roles(UserRoles.SUPPER)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async export(
     @Query() paginationQueryDto: PaginationQueryDto,
     @Res() res: Resp
@@ -65,7 +66,7 @@ export class UserHistoryController {
     type: Response<UserHistory>,
   })
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async create(@Body() userHistoryDto: CreateUserHistoryDto): Promise<any> {
     return this.userHisService.create(userHistoryDto);
   }
@@ -101,7 +102,7 @@ export class UserHistoryController {
     type: Response<UserHistory[]>,
   })
   @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_VIEW)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async GetAll(@Query() paginationQueryDto: PaginationQueryDto): Promise<any> {
     return this.userHisService.getAll(paginationQueryDto);
   }
@@ -114,7 +115,7 @@ export class UserHistoryController {
     type: Response<UserHistory>,
   })
   @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_VIEW)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
     return this.userHisService.getOneById(id);
   }
@@ -128,7 +129,7 @@ export class UserHistoryController {
   })
   @UsePipes(ValidationPipe)
   @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async update(
     @Param("id", ParseIntPipe) id: number,
     @Body() userHistoryDto: UpdateUserHistoryDto
@@ -141,8 +142,13 @@ export class UserHistoryController {
     description: "Delete User-History",
   })
   @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async delete(@Param("id") id: number): Promise<any> {
     return this.userHisService.delete(id);
+  }
+
+  @Cron("0 40 * * * *")
+  async handleCronDeleteData() {
+    await this.userHisService.deleteDataAuto();
   }
 }

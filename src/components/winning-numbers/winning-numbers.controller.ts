@@ -5,6 +5,8 @@ import { UpdateWinningNumberDto } from './dto/update-winning-number.dto';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { BacklistGuard } from '../backlist/backlist.guard';
 import { RateLimitGuard } from '../auth/rate.guard/rate.limit.guard';
+import { Roles } from '../auth/roles.guard/roles.decorator';
+import { UserRoles } from '../user/enums/user.enum';
 
 @Controller('api/v1/winning-numbers')
 export class WinningNumbersController {
@@ -32,6 +34,7 @@ export class WinningNumbersController {
   }
 
   @Delete(':id')
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   remove(@Param('id') id: string) {
     return this.winningNumbersService.remove(+id);
   }

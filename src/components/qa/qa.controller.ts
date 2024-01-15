@@ -55,7 +55,7 @@ export class QaController {
   })
   @ApiBearerAuth("Authorization")
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async create(@Body() userDto: CreateQaDto): Promise<any> {
     return this.qaService.create(userDto);
   }
@@ -70,7 +70,7 @@ export class QaController {
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async updateCommon(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateDto: UpdateQaDto,
@@ -85,7 +85,7 @@ export class QaController {
   })
   @ApiBearerAuth("Authorization")
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.qaService.delete(id);
   }

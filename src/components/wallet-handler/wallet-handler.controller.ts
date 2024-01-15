@@ -5,6 +5,8 @@ import { UpdateWalletHandlerDto } from './dto/update-wallet-handler.dto';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { BacklistGuard } from '../backlist/backlist.guard';
 import { RateLimitGuard } from '../auth/rate.guard/rate.limit.guard';
+import { Roles } from '../auth/roles.guard/roles.decorator';
+import { UserRoles } from '../user/enums/user.enum';
 
 @Controller('api/v1/wallet-handler')
 export class WalletHandlerController {
@@ -42,6 +44,7 @@ export class WalletHandlerController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   remove(@Param('id') id: string) {
     return this.walletHandlerService.remove(+id);
   }

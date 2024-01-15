@@ -1,8 +1,10 @@
 enum UserRoles {
   MEMBER = "member",
   SUPPER = "supper",
+  ADMINISTRATORS = "administrators",
   ADMIN_BOOKMAKER = "admin_bm",
-
+  ADMINISTRATORS_BOOKMAKER = "administrators_bm",
+  
 
 
 

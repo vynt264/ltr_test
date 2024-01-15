@@ -7,12 +7,14 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserHistory } from "./user.history.entity";
 import { UserHistoryController } from "./user.history.controller";
 import { UserHistoryService } from "./user.history.service";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserHistory, User, Device]),
     BacklistModule,
     UserModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [UserHistoryController],
   providers: [UserHistoryService],

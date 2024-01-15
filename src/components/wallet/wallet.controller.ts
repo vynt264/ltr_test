@@ -46,7 +46,7 @@ export class WalletController {
   @ApiOkResponse({
     type: Response<Wallet>,
   })
-  @Roles(UserRoles.SUPPER)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async create(
     @Body() createWalletDto: CreateWalletDto,
     @Request() req: any
@@ -84,7 +84,7 @@ export class WalletController {
   @ApiOkResponse({
     type: Response<Wallet[]>,
   })
-  @Roles(UserRoles.SUPPER, UserRoles.WALLET_VIEW)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async getAll(
     @Query() paginationQueryDto: PaginationQueryDto,
     @Request() req: any
@@ -122,7 +122,7 @@ export class WalletController {
   @ApiOkResponse({
     type: Response<Wallet[]>,
   })
-  @Roles(UserRoles.SUPPER, UserRoles.WALLET_VIEW)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async getAllHistory(
     @Query() paginationQueryDto: PaginationQueryDto,
     @Request() req: any
@@ -150,7 +150,7 @@ export class WalletController {
     type: Response<Wallet>,
   })
   @UsePipes(ValidationPipe)
-  @Roles(UserRoles.SUPPER, UserRoles.WALLET_VIEW_UDPATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async update(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateWalletDto: UpdateWalletDto,
@@ -163,7 +163,7 @@ export class WalletController {
   @ApiOperation({
     description: "Delete Wallet",
   })
-  @Roles(UserRoles.SUPPER)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.walletService.delete(id);
   }

@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { endOfDay, format, startOfDay } from "date-fns";
 import * as ExcelJS from "exceljs";
 import { Response } from "express";
-import { Between, Repository } from "typeorm";
+import { Between, LessThan, Repository } from "typeorm";
 import { Logger } from "winston";
 import { PaginationQueryDto } from "../../common/common.dto";
 import { User } from "../../components/user/user.entity";
@@ -334,6 +334,23 @@ export class UserHistoryService {
         error,
         ERROR.DELETE_FAILED
       );
+    }
+  }
+
+  async deleteDataAuto() {
+    const currentDate = new Date();
+    const timeCheck = new Date(currentDate);
+    timeCheck.setHours(currentDate.getHours() - 2);
+    // delete lotery request
+    const data = await this.userHistoryRepository.find({
+      where: {
+        createdAt: LessThan(timeCheck)
+      }
+    });
+    if (data?.length > 0) {
+      data.map(async (item) => {
+        await this.userHistoryRepository.delete(item?.id)
+      })
     }
   }
 }

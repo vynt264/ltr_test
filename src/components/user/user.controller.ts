@@ -80,7 +80,7 @@ export class UserController {
     type: Response<User>,
   })
   @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async create(@Body() userDto: CreateUserDto): Promise<any> {
     return this.userService.create(userDto);
   }
@@ -106,7 +106,7 @@ export class UserController {
     type: Response<User>,
   })
   @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_VIEW)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
     return this.userService.getOneById(id);
   }
@@ -120,7 +120,7 @@ export class UserController {
   })
   @UsePipes(ValidationPipe)
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async update(
     @Param("id", ParseIntPipe) id: number,
     @Body() userDto: UpdateUserDto
@@ -137,7 +137,7 @@ export class UserController {
   })
   @UsePipes(ValidationPipe)
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async updateRole(
     @Param("id", ParseIntPipe) id: number,
     @Body() roleDto: UpdateRoleDto
@@ -154,7 +154,7 @@ export class UserController {
   })
   @UsePipes(ValidationPipe)
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async updatePermission(
     @Param("id", ParseIntPipe) id: number,
     @Body() permissionDto: PermissionUserDto
@@ -184,7 +184,7 @@ export class UserController {
     description: "Delete user",
   })
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.userService.delete(id);
   }

@@ -86,7 +86,7 @@ import {
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER)
     async updateCoinWallet(
       @Param("id", ParseIntPipe) id: number,
       @Body() updateDto: UpdateCoinWalletDto
@@ -100,7 +100,7 @@ import {
     })
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER)
     async delete(@Param("id") id: number): Promise<any> {
       return this.coinWalletService.delete(id);
     }

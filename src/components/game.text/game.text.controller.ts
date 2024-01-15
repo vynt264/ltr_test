@@ -80,7 +80,7 @@ import {
     })
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
     async create(@Body() userDto: CreateGameTextDto): Promise<any> {
       return this.gameTextService.create(userDto);
     }
@@ -95,7 +95,7 @@ import {
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
     async updateGameText(
       @Param("id", ParseIntPipe) id: number,
       @Body() updateDto: UpdateGameTextDto
@@ -109,7 +109,7 @@ import {
     })
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
     async delete(@Param("id") id: number): Promise<any> {
       return this.gameTextService.delete(id);
     }

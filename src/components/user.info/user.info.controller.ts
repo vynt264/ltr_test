@@ -64,7 +64,7 @@ export class UserInfoController {
     type: Response<UserInfo>,
   })
   @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async create(@Body() userDto: CreateUserInfoDto): Promise<any> {
     return this.userInfoService.create(userDto);
   }
@@ -118,7 +118,7 @@ export class UserInfoController {
     description: "Delete user info",
   })
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async delete(@Param("id") id: number): Promise<any> {
     return this.userInfoService.delete(id);
   }

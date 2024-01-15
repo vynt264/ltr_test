@@ -58,7 +58,7 @@ import {
     })
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
     async create(@Body() userDto: CreatePromotionDto): Promise<any> {
       return this.promotionService.create(userDto);
     }
@@ -73,7 +73,7 @@ import {
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
     async updatePromotion(
       @Param("id", ParseIntPipe) id: number,
       @Body() updateDto: UpdatePromotionDto
@@ -87,7 +87,7 @@ import {
     })
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
     async delete(@Param("id") id: number): Promise<any> {
       return this.promotionService.delete(id);
     }

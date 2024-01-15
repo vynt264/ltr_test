@@ -45,6 +45,7 @@ import {
     @ApiOkResponse({
       type: Response<BookMaker[]>,
     })
+    @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER, UserRoles.ADMIN_BOOKMAKER)
     async GetAll(): Promise<any> {
       return this.bookMakerService.getAll();
     }
@@ -56,6 +57,7 @@ import {
     @ApiOkResponse({
       type: Response<BookMaker[]>,
     })
+    @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER, UserRoles.ADMIN_BOOKMAKER)
     async GetById(@Param("id", ParseIntPipe) id: number): Promise<any> {
       return this.bookMakerService.getById(id);
     }
@@ -69,7 +71,7 @@ import {
     })
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER)
     async create(@Body() userDto: CreateBookMakerDto): Promise<any> {
       return this.bookMakerService.create(userDto);
     }
@@ -84,7 +86,7 @@ import {
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER)
     async updateBookMaker(
       @Param("id", ParseIntPipe) id: number,
       @Body() updateDto: UpdateBookMakerDto,
@@ -99,7 +101,7 @@ import {
     })
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER)
     async delete(@Param("id") id: number): Promise<any> {
       return this.bookMakerService.delete(id);
     }

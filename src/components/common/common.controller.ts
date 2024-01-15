@@ -72,7 +72,7 @@ import {
     })
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER)
     async create(@Body() userDto: CreateCommonDto): Promise<any> {
       return this.commonService.create(userDto);
     }
@@ -87,7 +87,7 @@ import {
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER)
     async updateCommon(
       @Param("id", ParseIntPipe) id: number,
       @Body() updateDto: UpdateCommonDto,
@@ -102,7 +102,7 @@ import {
     })
     @ApiBearerAuth("Authorization")
     @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
+    @Roles(UserRoles.SUPPER)
     async delete(@Param("id") id: number): Promise<any> {
       return this.commonService.delete(id);
     }
