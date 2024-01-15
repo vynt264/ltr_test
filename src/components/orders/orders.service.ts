@@ -323,14 +323,15 @@ export class OrdersService {
       keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId.toString(), `${order.type}${order.seconds}s`);
     }
     const dataByBookmakerId: any = await this.redisService.get(keyOrdersOfBookmaker);
+    const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), order.turnIndex);
     if (dataByBookmakerId) {
       const result: any = {};
-      const orders: any = dataByBookmakerId[`user-id-${userId}-${order.turnIndex}`] || {};
+      const orders: any = dataByBookmakerId[keyByUserAndTurnIndex] || {};
       for (const key in orders) {
         if (key === OrderHelper.getKeySaveEachOrder(order)) continue;
         result[key] = orders[key];
       }
-      dataByBookmakerId[`user-id-${userId}-${order.turnIndex}`] = result;
+      dataByBookmakerId[keyByUserAndTurnIndex] = result;
       await this.redisService.set(keyOrdersOfBookmaker, dataByBookmakerId);
     }
 
@@ -603,16 +604,17 @@ export class OrdersService {
       dataByBookmakerId = {};
     }
     for (const order of orders) {
+      const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), order.turnIndex);
       if (Object.keys(dataByBookmakerId).length === 0) {
-        dataByBookmakerId[`user-id-${userId}-${order.turnIndex}`] = {} as any;
+        dataByBookmakerId[keyByUserAndTurnIndex] = {} as any;
       }
       const keyByOrder = OrderHelper.getKeySaveEachOrder(order);
-      if (!dataByBookmakerId[`user-id-${userId}-${order.turnIndex}`]) {
-        dataByBookmakerId[`user-id-${userId}-${order.turnIndex}`] = {
+      if (!dataByBookmakerId[keyByUserAndTurnIndex]) {
+        dataByBookmakerId[keyByUserAndTurnIndex] = {
           [keyByOrder]: this.transformOrderToObject(order)
         }
       } else {
-        dataByBookmakerId[`user-id-${userId}-${order.turnIndex}`][keyByOrder] = this.transformOrderToObject(order);
+        dataByBookmakerId[keyByUserAndTurnIndex][keyByOrder] = this.transformOrderToObject(order);
       }
     }
     this.redisService.set(keyOrdersOfBookmaker, dataByBookmakerId);

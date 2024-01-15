@@ -324,23 +324,24 @@ export class ScheduleService implements OnModuleInit {
         if (!userIds) return;
 
         // get orders of bookmaker by game type (example: sxmb45s)
-        const keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookmakerId.toString(), gameType);
-        const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
-        if (!ordersOfBookmaker || Object.keys(ordersOfBookmaker).length === 0) {
-            console.log(`orders of bookmakerId ${keyOrdersOfBookmaker}-${turnIndex} is not found.`);
+        const keyOrdersOfBookmakerAndGameType = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookmakerId.toString(), gameType);
+        const ordersOfBookmakerAndGameType: any = await this.redisService.get(keyOrdersOfBookmakerAndGameType);
+        if (!ordersOfBookmakerAndGameType || Object.keys(ordersOfBookmakerAndGameType).length === 0) {
+            console.log(`orders of bookmakerId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
             return;
         }
 
         const winningPlayerOrders = []; // order users thang cuoc.
 
         for (const userId of userIds) {
+            const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), turnIndex);
             let ordersOfUser;
             if (userId) {
-                ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}-${turnIndex}`] || null;
+                ordersOfUser = ordersOfBookmakerAndGameType?.[keyByUserAndTurnIndex] || null;
             }
 
             if (!ordersOfUser || Object.keys(ordersOfUser).length === 0) {
-                console.log(`orders of userId ${keyOrdersOfBookmaker}-${turnIndex} is not found.`);
+                console.log(`orders of userId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
                 continue;
             }
 

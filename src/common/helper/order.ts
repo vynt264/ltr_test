@@ -954,6 +954,10 @@ export class OrderHelper {
         return `${order.id.toString()}-${order.type}${order.seconds}s-${order.childBetType}`;
     }
 
+    static getKeyByUserAndTurnIndex(userId: string, turnIndex: string) {
+        return `user-id-${userId}-${turnIndex}`;
+    }
+
     static getKeyPrepareOrders(bookmakerId: string, type: string, turnIndex: string) {
         return `${bookmakerId}-${type}-${turnIndex}`;
     }
