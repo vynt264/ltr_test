@@ -358,7 +358,9 @@ export class ScheduleService implements OnModuleInit {
                 });
 
                 // user win vs order hien tai
-                winningPlayerOrders.push(orderId);
+                if (realWinningAmount > 0) {
+                    winningPlayerOrders.push(orderId);
+                }
 
                 totalBalance += winningAmount;
 
