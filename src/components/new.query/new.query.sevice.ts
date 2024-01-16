@@ -177,29 +177,29 @@ export class NewQueryService {
     const skip = +perPage * +page - +perPage;
     try {
       const listData: any = []
-      const listDataReal = await this.orderRepository
-        .createQueryBuilder("entity")
-        .select("entity.type as gameType")
-        .addSelect("entity.seconds as seconds")
-        .addSelect("COUNT(*) as count")
-        .addSelect("SUM(entity.revenue) as totalBet")
-        .groupBy("entity.type, entity.seconds")
-        .skip(skip)
-        .take(perPage)
-        .getRawMany();
+      // const listDataReal = await this.orderRepository
+      //   .createQueryBuilder("entity")
+      //   .select("entity.type as gameType")
+      //   .addSelect("entity.seconds as seconds")
+      //   .addSelect("COUNT(*) as count")
+      //   .addSelect("SUM(entity.revenue) as totalBet")
+      //   .groupBy("entity.type, entity.seconds")
+      //   .skip(skip)
+      //   .take(perPage)
+      //   .getRawMany();
 
-      listDataReal?.map((item: any) => {
-        const dataCv = {
-          gameType: `${item?.gameType}${
-            Number(item.seconds) == 0 ? "45" : item.seconds
-          }s`,
-          count: item?.count,
-          totalBet: item?.totalBet
-        }
-        listData.push(dataCv);
-      });
+      // listDataReal?.map((item: any) => {
+      //   const dataCv = {
+      //     gameType: `${item?.gameType}${
+      //       Number(item.seconds) == 0 ? "45" : item.seconds
+      //     }s`,
+      //     count: item?.count,
+      //     totalBet: item?.totalBet
+      //   }
+      //   listData.push(dataCv);
+      // });
 
-      const limitDataFake = Number(perPage) - listDataReal.length;
+      const limitDataFake = Number(perPage) - 0;
       if (limitDataFake <= Number(perPage) && limitDataFake > 0) {
         const dataFake: any = await this.dataFakeRepository.findAndCount({
           where: {
@@ -444,19 +444,50 @@ export class NewQueryService {
         revenue: this.getRandomNumberInRange(100000, 10000000),
       }
 
-      const newDtoFavourite = {
-        keyMode: KeyMode.FAVORITE_GAME,
-        gameType: this.getRandomValueFromArray(gameTypeList),
-        totalBet: this.getRandomNumberInRange(5000000, 100000000),
-        numbPlayer: this.getRandomNumber(50, 3000),
-      }
-
-      const listCrreateDto = [newDtoUserWin, newDtoUserPlay, newDtoFavourite];
+      const listCrreateDto = [newDtoUserWin, newDtoUserPlay];
       const createAll = listCrreateDto.map(async (dto: any) => {
         const createdDto = await this.dataFakeRepository.create(dto);
         await this.dataFakeRepository.save(createdDto);
       });
       await Promise.all(createAll);
+
+      const dataListFavorite = await this.dataFakeRepository.find({
+        where: {
+          keyMode: KeyMode.FAVORITE_GAME,
+        }
+      });
+
+      let newDtoFavourite;
+      if (dataListFavorite.length > 0) {
+        const gameTypeRandom = this.getRandomValueFromArray(gameTypeList)
+        if (dataListFavorite.find(x => x.gameType === gameTypeRandom)) {
+          const itemFind = dataListFavorite.find(x => x.gameType === gameTypeRandom);
+          newDtoFavourite = {
+            ...itemFind,
+            totalBet: this.getRandomNumberInRange(5000000, 100000000),
+            numbPlayer: this.getRandomNumber(50, 3000) 
+          }
+          await this.dataFakeRepository.save(newDtoFavourite);
+        } else {
+          newDtoFavourite = {
+            keyMode: KeyMode.FAVORITE_GAME,
+            gameType: gameTypeRandom,
+            totalBet: this.getRandomNumberInRange(5000000, 100000000),
+            numbPlayer: this.getRandomNumber(50, 3000),
+          }
+          const createdDto = await this.dataFakeRepository.create(newDtoFavourite);
+          await this.dataFakeRepository.save(createdDto);
+        }
+      } else {
+        newDtoFavourite = {
+          keyMode: KeyMode.FAVORITE_GAME,
+          gameType: this.getRandomValueFromArray(gameTypeList),
+          totalBet: this.getRandomNumberInRange(5000000, 100000000),
+          numbPlayer: this.getRandomNumber(50, 3000),
+        }
+        const createdDto = await this.dataFakeRepository.create(newDtoFavourite);
+        await this.dataFakeRepository.save(createdDto);
+      }
     } catch (error) {
       this.logger.debug(
         `${NewQueryService.name} is Logging error: ${JSON.stringify(error)}`
