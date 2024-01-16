@@ -45,6 +45,7 @@ export class OrdersService {
 
     const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
     const currentTime = OrderHelper.getCurrentTime(seconds);
+    const turnIndex = OrderHelper.getTurnIndex(seconds);
     if ((seconds - currentTime) < PERIOD_CANNOT_ORDER) {
       throw new HttpException(
         {
@@ -53,8 +54,9 @@ export class OrdersService {
         HttpStatus.BAD_REQUEST,
       );
     }
+    const orderBefore = await this.getNumberOfBetsFromTurnIndex(data.orders[0], turnIndex);
 
-    OrderValidate.validateOrders(data?.orders || []);
+    OrderValidate.validateOrders(data?.orders || [], (orderBefore?.numberOfBets || 0));
     // check balance
     const wallet = await this.walletHandlerService.findWalletByUserId(member.id);
     const totalBet = OrderHelper.getBalance(data.orders);
@@ -68,7 +70,6 @@ export class OrdersService {
     }
 
     let promises = [];
-    const turnIndex = OrderHelper.getTurnIndex(seconds);
     const bookmakerId = member?.bookmakerId || 1;
     await this.prepareDataToGenerateAward(data.orders, bookmakerId, turnIndex, member.usernameReal);
 
@@ -729,5 +730,17 @@ export class OrdersService {
     }
 
     return data;
+  }
+
+  getNumberOfBetsFromTurnIndex(order: any, turnIndex: string) {
+    const seconds = OrderHelper.getPlayingTimeByType(order.type);
+    const type = OrderHelper.getTypeLottery(order.type);
+    return this.orderRequestRepository.findOne({
+      where: {
+        turnIndex,
+        type,
+        seconds,
+      },
+    });
   }
 }
