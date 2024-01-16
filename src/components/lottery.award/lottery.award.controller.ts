@@ -39,17 +39,19 @@ import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 
 @Controller("/api/v1/lotteryAward")
 @ApiTags("lotteryAward")
-@ApiBearerAuth("Authorization")
-@UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
 export class LotteryAwardController {
   constructor(private lotteryAwardService: LotteryAwardService) { }
 
   @Post('')
+  @ApiBearerAuth("Authorization")
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   async createLotteryAward(@Body() createLotteryAwardDto: CreateLotteryAwardDto): Promise<any> {
     return this.lotteryAwardService.createLotteryAward(createLotteryAwardDto);
   }
 
   @Post("create")
+  @ApiBearerAuth("Authorization")
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @ApiOperation({
     description: "Create lotteryAward",
   })
@@ -162,6 +164,8 @@ export class LotteryAwardController {
   @ApiOkResponse({
     type: Response<LotteryAward[]>,
   })
+  @ApiBearerAuth("Authorization")
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   async userGetAll(
     @Query() paginationQueryDto: PaginationQueryDto,
     @Request() req: any
@@ -177,6 +181,8 @@ export class LotteryAwardController {
     type: Response<LotteryAward>,
   })
   @Roles(UserRoles.SUPPER)
+  @ApiBearerAuth("Authorization")
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
     return this.lotteryAwardService.getOneById(id);
   }
@@ -189,6 +195,8 @@ export class LotteryAwardController {
     type: Response<LotteryAward>,
   })
   @UsePipes(ValidationPipe)
+  @ApiBearerAuth("Authorization")
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @Roles(UserRoles.SUPPER)
   async update(
     @Param("id", ParseIntPipe) id: number,
@@ -201,6 +209,8 @@ export class LotteryAwardController {
   @ApiOperation({
     description: "Delete lotteryAward",
   })
+  @ApiBearerAuth("Authorization")
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @Roles(UserRoles.SUPPER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.lotteryAwardService.delete(id);
@@ -238,6 +248,8 @@ export class LotteryAwardController {
     type: Response<LotteryAward>,
   })
   @UsePipes(ValidationPipe)
+  @ApiBearerAuth("Authorization")
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @Roles(UserRoles.SUPPER)
   async getLotteryReal(
     @Body() getDataDto: GetLotteryAwardDto
