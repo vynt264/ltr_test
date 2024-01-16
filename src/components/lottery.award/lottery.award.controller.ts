@@ -99,6 +99,7 @@ export class LotteryAwardController {
     return this.lotteryAwardService.getAllNotCheckBookmaker(paginationQueryDto);
   }
 
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @Get("all")
   @ApiResponse({
     status: 2000,
