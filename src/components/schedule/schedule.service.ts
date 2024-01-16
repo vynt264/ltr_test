@@ -40,8 +40,9 @@ export class ScheduleService implements OnModuleInit {
     async initJobs() {
         let promises: any = [];
         await this.clearDataInRedis();
-        this.deleteAllJob();
+        // this.deleteAllJob();
         console.log("init job start");
+        promises = promises.concat(this.createJobs(10));
         promises = promises.concat(this.createJobs(45));
         promises = promises.concat(this.createJobs(60));
         promises = promises.concat(this.createJobs(90));
@@ -97,6 +98,15 @@ export class ScheduleService implements OnModuleInit {
     async handlerJobs(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number, seconds: number) {
         let gameType;
         switch (seconds) {
+            case 10:
+                gameType = [
+                    TypeLottery.XSMB_10S,
+                    TypeLottery.XSMT_10S,
+                    TypeLottery.XSMN_10S,
+                    TypeLottery.XSSPL_10S,
+                ];
+                break;
+
             case 45:
                 gameType = [
                     TypeLottery.XSMB_45S,
@@ -1004,6 +1014,15 @@ export class ScheduleService implements OnModuleInit {
     async createLotteryAwardInPastTime(turnIndex: string, seconds: number) {
         let gameType: any = [];
         switch (seconds) {
+            case 10:
+                gameType = [
+                    TypeLottery.XSMB_10S,
+                    TypeLottery.XSMT_10S,
+                    TypeLottery.XSMN_10S,
+                    TypeLottery.XSSPL_10S,
+                ];
+                break;
+
             case 45:
                 gameType = [
                     TypeLottery.XSMB_45S,

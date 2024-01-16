@@ -754,6 +754,13 @@ export class OrderHelper {
                 seconds = 1;
                 break;
 
+            case TypeLottery.XSMB_10S:
+            case TypeLottery.XSMT_10S:
+            case TypeLottery.XSMN_10S:
+            case TypeLottery.XSSPL_10S:
+                seconds = 10;
+                break;
+
             case TypeLottery.XSMB_45S:
             case TypeLottery.XSMN_45S:
             case TypeLottery.XSMT_45S:
@@ -794,24 +801,28 @@ export class OrderHelper {
         let typeLottery;
         switch (type) {
             case TypeLottery.XSMB_1S:
+            case TypeLottery.XSMB_10S:
             case TypeLottery.XSMB_45S:
             case TypeLottery.XSMB_180S:
                 typeLottery = 'xsmb';
                 break;
 
             case TypeLottery.XSMT_1S:
+            case TypeLottery.XSMT_10S:
             case TypeLottery.XSMT_45S:
             case TypeLottery.XSMT_180S:
                 typeLottery = 'xsmt';
                 break;
 
             case TypeLottery.XSMN_1S:
+            case TypeLottery.XSMN_10S:
             case TypeLottery.XSMN_45S:
             case TypeLottery.XSMN_180S:
                 typeLottery = 'xsmn';
                 break;
 
             case TypeLottery.XSSPL_1S:
+            case TypeLottery.XSSPL_10S:
             case TypeLottery.XSSPL_45S:
             case TypeLottery.XSSPL_60S:
             case TypeLottery.XSSPL_90S:
