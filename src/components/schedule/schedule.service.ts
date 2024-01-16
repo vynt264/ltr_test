@@ -432,7 +432,7 @@ export class ScheduleService implements OnModuleInit {
 
             const orders = await this.ordersService.findOrdersByHoldingNumberId(holdingNumber.id);
 
-            if (orders || orders.length === 0) return;
+            if (!orders || orders.length === 0) return;
 
             for (const order of orders) {
                 const tempOrder = await this.ordersService.findOne(order.id);

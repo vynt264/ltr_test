@@ -306,6 +306,7 @@ export class OrdersService {
 
   async findOne(id: number) {
     return this.orderRequestRepository.findOne({
+      relations: ["holdingNumber"],
       where: {
         id,
       },
@@ -407,7 +408,7 @@ export class OrdersService {
   }
 
   delete(id: number) {
-    return this.orderRequestRepository.update(id, { isDeleted: false });
+    return this.orderRequestRepository.update(id, { isDeleted: true });
   }
 
   remove(id: number) {
