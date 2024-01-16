@@ -430,11 +430,32 @@ export class NewQueryService {
         TypeLottery.XSSPL_360_S,
       ]
 
-      const newDtoUserWin = {
-        keyMode: KeyMode.USER_WIN,
-        username: this.getRandomValueFromArray(usernameFakeList),
-        gameType: this.getRandomValueFromArray(gameTypeList),
-        paymentWin: this.getRandomNumberInRange(10000000, 100000000),
+      const dataListUserWin = await this.dataFakeRepository.find({
+        where: {
+          keyMode: KeyMode.USER_WIN,
+        },
+        take: 10,
+        order: { id: "DESC" }
+      });
+      
+      let newDtoUserWin;
+      if (dataListUserWin.length > 0) {
+        let nameRandome = this.getRandomValueFromArray(usernameFakeList);
+        if (!dataListUserWin.find(x => x.username == nameRandome)) {
+          newDtoUserWin = {
+            keyMode: KeyMode.USER_WIN,
+            username: nameRandome,
+            gameType: this.getRandomValueFromArray(gameTypeList),
+            paymentWin: this.getRandomNumberInRange(10000000, 100000000),
+          }
+        }
+      } else {
+        newDtoUserWin = {
+          keyMode: KeyMode.USER_WIN,
+          username: this.getRandomValueFromArray(usernameFakeList),
+          gameType: this.getRandomValueFromArray(gameTypeList),
+          paymentWin: this.getRandomNumberInRange(10000000, 100000000),
+        }
       }
 
       const newDtoUserPlay = {
