@@ -53,6 +53,74 @@ export class LotteryAwardService {
     private readonly logger: Logger
   ) { }
 
+  async getAllNotCheckBookmaker(
+    paginationQueryDto: PaginationQueryDto,
+  ): Promise<any> {
+    try {
+      const object: any = JSON.parse(paginationQueryDto.keyword);
+      const { take: perPage, skip: page } = paginationQueryDto;
+      if (page <= 0) {
+        return "The skip must be more than 0";
+      }
+      const skip = +perPage * +page - +perPage;
+      const searching = await this.lotteryAwardRepository.findAndCount({
+        where: this.guestHoldQueryNoBookmaker(object),
+        take: +perPage,
+        skip,
+        order: { createdAt: paginationQueryDto.order },
+      });
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        searching,
+        MESSAGE.LIST_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        MESSAGE.LIST_FAILED
+      );
+    }
+  }
+
+  guestHoldQueryNoBookmaker(object: any = null) {
+    const data: any = {};
+    if (!object) return data;
+
+    for (const key in object) {
+      switch (key) {
+        case "type":
+          data.type = object.type;
+          break;
+        case "turnIndex":
+          data.turnIndex = object.turnIndex;
+          break;
+        default:
+          break;
+      }
+
+      if (key === "startDate" || key === "endDate") {
+        let startDate = startOfDay(new Date(object.startDate));
+        let endDate = endOfDay(new Date(object.endDate));
+        const now = new Date();
+        if (startDate.getTime() > now.getTime()) {
+          startDate = now;
+        } if (endDate.getTime() > now.getTime()) {
+          endDate = now;
+        }
+        data.openTime = Between(startDate, endDate);
+      }
+    }
+
+    console.log(data)
+
+    return data;
+  }
+
   async guestGetAll(
     paginationQueryDto: PaginationQueryDto,
     member: any
