@@ -131,7 +131,8 @@ export class LotteryAwardService {
       const lotteryAwards = await this.searchGuestGetAll(
         paginationQueryDto,
         object,
-        member.bookmakerId
+        member.bookmakerId,
+        member.usernameReal,
       );
 
       return new SuccessResponse(
@@ -371,6 +372,7 @@ export class LotteryAwardService {
         paginationQueryDto,
         object,
         member.bookmakerId,
+        member.usernameReal,
       );
 
       return new SuccessResponse(
@@ -393,7 +395,8 @@ export class LotteryAwardService {
   async searchGuestGetAll(
     paginationQuery: PaginationQueryDto,
     lotteryAwardDto: any,
-    bookMakerId: number
+    bookMakerId: number,
+    usernameReal: string,
   ) {
     const { take: perPage, skip: page } = paginationQuery;
     if (page <= 0) {
@@ -410,7 +413,7 @@ export class LotteryAwardService {
       //   turnIndex: true,
       //   id: true,
       // },
-      where: this.guestHoldQuery(lotteryAwardDto, bookMakerId),
+      where: this.guestHoldQuery(lotteryAwardDto, bookMakerId, usernameReal),
       take: +perPage,
       skip,
       order: { createdAt: paginationQuery.order },
@@ -422,7 +425,8 @@ export class LotteryAwardService {
   async searchUserGetAll(
     paginationQuery: PaginationQueryDto,
     lotteryAwardDto: any,
-    bookMakerId: number
+    bookMakerId: number,
+    usernameReal: string,
   ) {
     const { take: perPage, skip: page } = paginationQuery;
     if (page <= 0) {
@@ -443,7 +447,7 @@ export class LotteryAwardService {
         totalPay: true,
         totalRevenue: true,
       },
-      where: this.guestHoldQuery(lotteryAwardDto, bookMakerId),
+      where: this.guestHoldQuery(lotteryAwardDto, bookMakerId, usernameReal),
       take: +perPage,
       skip,
       order: { createdAt: paginationQuery.order },
@@ -452,7 +456,7 @@ export class LotteryAwardService {
     return searching;
   }
 
-  guestHoldQuery(object: any = null, bookMakerId: number) {
+  guestHoldQuery(object: any = null, bookMakerId: number, usernameReal: string) {
     const data: any = {};
     if (!object) return data;
 
@@ -481,7 +485,12 @@ export class LotteryAwardService {
       }
     }
 
+    let isTestPlayer = false;
+    if (usernameReal) {
+      isTestPlayer = true;
+    }
     data.bookmaker = { id: bookMakerId };
+    data.isTestPlayer = isTestPlayer;
 
     return data;
   }
