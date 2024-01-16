@@ -40,7 +40,7 @@ export class ScheduleService implements OnModuleInit {
     async initJobs() {
         let promises: any = [];
         await this.clearDataInRedis();
-        // this.deleteAllJob();
+        this.deleteAllJobCountDown();
         console.log("init job start");
         promises = promises.concat(this.createJobs(10));
         promises = promises.concat(this.createJobs(45));
@@ -307,15 +307,18 @@ export class ScheduleService implements OnModuleInit {
         console.log(`job ${name} finished!`);
     }
 
-    deleteAllJob() {
+    deleteAllJobCountDown() {
         console.log("delete all job.");
         const jobs = this.schedulerRegistry.getCronJobs();
         jobs.forEach((value, key, map) => {
-            this.schedulerRegistry.deleteCronJob(key);
+            const regex = `10-${(new Date()).getFullYear()}|45-${(new Date()).getFullYear()}|60-${(new Date()).getFullYear()}|90-${(new Date()).getFullYear()}|120-${(new Date()).getFullYear()}|180-${(new Date()).getFullYear()}|360-${(new Date()).getFullYear()}`
+            if (new RegExp(regex).test(key)) {
+                this.schedulerRegistry.deleteCronJob(key);
+            }
         });
     }
 
-    @Cron('40 6 * * * ')
+    @Cron('40 16 * * * ')
     cronJob() {
         console.log('cron job');
         this.initJobs();
