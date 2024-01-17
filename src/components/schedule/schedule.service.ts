@@ -42,7 +42,6 @@ export class ScheduleService implements OnModuleInit {
         await this.clearDataInRedis();
         this.deleteAllJobCountDown();
         console.log("init job start");
-        promises = promises.concat(this.createJobs(10));
         promises = promises.concat(this.createJobs(45));
         promises = promises.concat(this.createJobs(60));
         promises = promises.concat(this.createJobs(90));
