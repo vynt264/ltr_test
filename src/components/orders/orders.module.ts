@@ -18,6 +18,8 @@ import { WalletHandlerModule } from '../wallet-handler/wallet-handler.module';
 import { LotteryAwardModule } from '../lottery.award/lottery.award.module';
 import { HoldingNumbersModule } from '../holding-numbers/holding-numbers.module';
 import { WalletHistory } from '../wallet/wallet.history.entity';
+import { LotteriesModule } from '../lotteries/lotteries.module';
+import { WinningNumbersModule } from '../winning-numbers/winning-numbers.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { WalletHistory } from '../wallet/wallet.history.entity';
     WalletHandlerModule,
     LotteryAwardModule,
     HoldingNumbersModule,
+    LotteriesModule,
+    WinningNumbersModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

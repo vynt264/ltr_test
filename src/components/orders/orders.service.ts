@@ -26,6 +26,8 @@ import { OrderValidate } from './validations/order.validate';
 import { OrderHelper } from 'src/common/helper';
 import { HoldingNumbersService } from '../holding-numbers/holding-numbers.service';
 import { WalletHistory } from '../wallet/wallet.history.entity';
+import { LotteriesService } from '../lotteries/lotteries.service';
+import { WinningNumbersService } from '../winning-numbers/winning-numbers.service';
 
 @Injectable()
 export class OrdersService {
@@ -38,6 +40,8 @@ export class OrdersService {
     private readonly walletHandlerService: WalletHandlerService,
     private readonly lotteryAwardService: LotteryAwardService,
     private readonly holdingNumbersService: HoldingNumbersService,
+    private readonly lotteriesService: LotteriesService,
+    private readonly winningNumbersService: WinningNumbersService,
   ) { }
 
   async create(data: CreateListOrdersDto, member: any) {
@@ -214,6 +218,119 @@ export class OrdersService {
       totalRevenue: info.totalRevenue || 0,
       totalPaymentWin: info.totalPaymentWin || 0,
     }
+  }
+
+  async betOrdersImmediately(data: CreateListOrdersDto, user: any) {
+    if (!data || !data?.orders || data.orders.length === 0) return;
+
+    const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
+    const turnIndex = OrderHelper.getTurnIndex(seconds);
+
+    OrderValidate.validateOrders(data?.orders || [], 0);
+    // check balance
+    let wallet = await this.walletHandlerService.findWalletByUserId(user.id);
+    const totalBet = OrderHelper.getBalance(data.orders);
+    if (totalBet > wallet.balance) {
+      throw new HttpException(
+        {
+          message: ERROR.ACCOUNT_BALANCE_IS_INSUFFICIENT,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    let promises = [];
+    for (const order of data.orders) {
+      order.turnIndex = turnIndex;
+      order.numericalOrder = OrderHelper.getRandomTradingCode();
+      const { betTypeName, childBetTypeName, numberOfBets } = OrderHelper.getInfoDetailOfOrder(order);
+      order.seconds = OrderHelper.getPlayingTimeByType(order.type);
+      order.type = OrderHelper.getTypeLottery(order.type);
+      order.revenue = OrderHelper.getBetAmount(order.multiple, order.childBetType, numberOfBets);
+      order.betTypeName = betTypeName;
+      order.childBetTypeName = childBetTypeName;
+      order.numberOfBets = numberOfBets;
+      order.user = user;
+      order.bookMaker = { id: user.bookmakerId } as any;
+      if (user.usernameReal) {
+        order.isTestPlayer = true;
+      }
+
+      promises.push(this.orderRequestRepository.save(order));
+    }
+
+    if (promises.length === 0) return;
+
+    const result = await Promise.all(promises);
+
+    let initData = this.initData();
+    initData = this.getDataToGenerateAward(result, initData);
+    const dataTransform = OrderHelper.transformData(initData);
+    const prizes = this.lotteriesService.generatePrizes(dataTransform);
+    const finalResult = OrderHelper.randomPrizes(prizes);
+    let isTestPlayer = false;
+    if (user.usernameReal) {
+      isTestPlayer = true;
+    }
+
+    // create lottery award
+    this.lotteryAwardService.createLotteryAward({
+      turnIndex,
+      type: `${data.orders[0].type}${seconds}s`,
+      awardDetail: JSON.stringify(finalResult),
+      bookmaker: { id: user.bookmakerId } as any,
+      isTestPlayer,
+    });
+
+    const promisesCreateWinningNumbers = [];
+    const promisesUpdatedOrders = [];
+    let totalBalance = 0;
+    for (const order of result) {
+      const objOrder = this.transformOrderToObject(order);
+      const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
+        orders: objOrder,
+        typeBet: data.orders[0].betType,
+        prizes,
+      });
+
+      totalBalance += winningAmount;
+
+      if (winningNumbers.length > 0) {
+        promisesCreateWinningNumbers.push(
+          this.winningNumbersService.create({
+            winningNumbers: JSON.stringify(winningNumbers),
+            turnIndex,
+            order: {
+              id: order.id
+            } as any,
+            type: data.orders[0].type,
+            isTestPlayer,
+          }),
+        );
+      }
+
+      promisesUpdatedOrders.push(this.update(
+        +order.id,
+        {
+          paymentWin: realWinningAmount,
+          status: 'closed',
+        },
+        null,
+      ));
+    }
+
+    // save winning numbers
+    Promise.all(promisesCreateWinningNumbers);
+    await Promise.all(promisesUpdatedOrders);
+
+    wallet = await this.walletHandlerService.findWalletByUserId(user.id);
+    const remainBalance = +wallet.balance + totalBalance;
+    await this.walletHandlerService.updateWalletByUserId(user.id, { balance: remainBalance });
+
+    return {
+      type: `${data.orders[0].type}${seconds}s`,
+      awardDetail: finalResult,
+    };
   }
 
   async combineOrdersByDate(paginationDto: PaginationQueryDto, member: any) {
@@ -574,7 +691,34 @@ export class OrdersService {
     if (usernameReal) {
       key = OrderHelper.getKeyPrepareOrdersOfTestPlayer(bookmakerId, orders[0]?.type, turnIndex);
     }
-    const initData = await this.initData(key);
+    let initData = await this.redisService.get(key);
+    if (!initData) {
+      initData = this.initData();
+    }
+
+    initData = this.getDataToGenerateAward(orders, initData);
+
+    // const initData = await this.initData(key);
+
+    // for (const order of orders) {
+    //   const { numbers } = OrderHelper.getInfoDetailOfOrder(order);
+    //   for (const number of numbers) {
+    //     OrderHelper.addOrder({
+    //       typeBet: order.betType,
+    //       childBetType: order.childBetType,
+    //       multiple: order.multiple,
+    //       number,
+    //       initData,
+    //     });
+    //   }
+    // }
+
+    // save data to redis
+    await this.redisService.set(key, initData);
+  }
+
+  getDataToGenerateAward(orders: any, initData: any) {
+    // const initData = this.initData();
 
     for (const order of orders) {
       const { numbers } = OrderHelper.getInfoDetailOfOrder(order);
@@ -589,8 +733,7 @@ export class OrdersService {
       }
     }
 
-    // save data to redis
-    await this.redisService.set(key, initData);
+    return initData;
   }
 
   async saveEachOrderOfUserToRedis(orders: any, bookmakerId: number, userId: number, usernameReal: string) {
@@ -645,89 +788,89 @@ export class OrdersService {
     return result;
   }
 
-  async initData(key: string) {
-    let data = await this.redisService.get(key);
+  initData() {
+    // let data = await this.redisService.get(key);
 
-    if (!data) {
-      data = {
-        [CategoryLotteryType.BaoLo]: {
-          [BaoLoType.Lo2So]: {
+    // if (!data) {
+    let data = {
+      [CategoryLotteryType.BaoLo]: {
+        [BaoLoType.Lo2So]: {
 
-          } as any,
-          [BaoLoType.Lo2So1k]: {
+        } as any,
+        [BaoLoType.Lo2So1k]: {
 
-          } as any,
-          [BaoLoType.Lo3So]: {
+        } as any,
+        [BaoLoType.Lo3So]: {
 
-          } as any,
-          [BaoLoType.Lo4So]: {
+        } as any,
+        [BaoLoType.Lo4So]: {
 
-          } as any,
-        },
-        [CategoryLotteryType.DanhDe]: {
-          [DanhDeType.DeDacBiet]: {
+        } as any,
+      },
+      [CategoryLotteryType.DanhDe]: {
+        [DanhDeType.DeDacBiet]: {
 
-          } as any,
-          [DanhDeType.DeDauDuoi]: {
+        } as any,
+        [DanhDeType.DeDauDuoi]: {
 
-          } as any,
-          [DanhDeType.DeDau]: {
+        } as any,
+        [DanhDeType.DeDau]: {
 
-          } as any,
-        },
-        [CategoryLotteryType.DauDuoi]: {
-          [DauDuoiType.Dau]: {
+        } as any,
+      },
+      [CategoryLotteryType.DauDuoi]: {
+        [DauDuoiType.Dau]: {
 
-          } as any,
-          [DauDuoiType.Duoi]: {
+        } as any,
+        [DauDuoiType.Duoi]: {
 
-          } as any,
-        },
-        [CategoryLotteryType.Lo4Cang]: {
-          [BonCangType.BonCangDacBiet]: {
+        } as any,
+      },
+      [CategoryLotteryType.Lo4Cang]: {
+        [BonCangType.BonCangDacBiet]: {
 
-          } as any,
-        },
-        [CategoryLotteryType.Lo3Cang]: {
-          [BaCangType.BaCangDacBiet]: {
+        } as any,
+      },
+      [CategoryLotteryType.Lo3Cang]: {
+        [BaCangType.BaCangDacBiet]: {
 
-          } as any,
-          [BaCangType.BaCangDau]: {
+        } as any,
+        [BaCangType.BaCangDau]: {
 
-          } as any,
-          [BaCangType.BaCangDauDuoi]: {
+        } as any,
+        [BaCangType.BaCangDauDuoi]: {
 
-          } as any,
-        },
-        [CategoryLotteryType.LoXien]: {
-          [LoXienType.Xien2]: {
+        } as any,
+      },
+      [CategoryLotteryType.LoXien]: {
+        [LoXienType.Xien2]: {
 
-          } as any,
-          [LoXienType.Xien3]: {
+        } as any,
+        [LoXienType.Xien3]: {
 
-          } as any,
-          [LoXienType.Xien4]: {
+        } as any,
+        [LoXienType.Xien4]: {
 
-          } as any,
-        },
-        [CategoryLotteryType.LoTruot]: {
-          [LoTruocType.TruotXien4]: {
+        } as any,
+      },
+      [CategoryLotteryType.LoTruot]: {
+        [LoTruocType.TruotXien4]: {
 
-          } as any,
-          [LoTruocType.TruotXien8]: {
+        } as any,
+        [LoTruocType.TruotXien8]: {
 
-          } as any,
-          [LoTruocType.TruotXien10]: {
+        } as any,
+        [LoTruocType.TruotXien10]: {
 
-          } as any,
-        },
-        [CategoryLotteryType.TroChoiThuVi]: {
-          [TroChoiThuViType.Lo2SoGiaiDacBiet]: {
+        } as any,
+      },
+      [CategoryLotteryType.TroChoiThuVi]: {
+        [TroChoiThuViType.Lo2SoGiaiDacBiet]: {
 
-          } as any,
-        },
-      };
-    }
+        } as any,
+      },
+    };
+    // }
 
     return data;
   }
