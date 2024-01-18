@@ -44,7 +44,7 @@ export class WalletInoutService {
                         }
                     }
                 },
-                where: this.getCondition(object),
+                where: this.getCondition(object, false),
                 take: +perPage,
                 skip,
                 order: {
@@ -88,7 +88,7 @@ export class WalletInoutService {
                         }
                     }
                 },
-                where: this.getCondition(object),
+                where: this.getCondition(object, true),
                 take: +perPage,
                 skip,
                 order: {
@@ -112,15 +112,19 @@ export class WalletInoutService {
         }
     }
 
-    getCondition(object: any) {
+    getCondition(object: any, isWalletHis: boolean) {
         const data: any = {};
         if (!object) {
             return data;
         }
 
         for (const key in object) {
-            if (key === "username") {
+            if (key === "username" && !isWalletHis) {
                 data.user = { username: Like(`%${object.username}%`) };
+            }
+
+            if (key === "userId" && isWalletHis) {
+                data.user = { id: object.userId };
             }
 
             if (key === "startDate" || key === "endDate") {

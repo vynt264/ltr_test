@@ -15,11 +15,16 @@ import { DateTimeHelper } from 'src/helpers/date-time';
 import { WinningNumbersService } from '../winning-numbers/winning-numbers.service';
 import { OrderHelper } from 'src/common/helper';
 import { HoldingNumbersService } from '../holding-numbers/holding-numbers.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { WalletHistory } from '../wallet/wallet.history.entity';
 
 
 @Injectable()
 export class ScheduleService implements OnModuleInit {
     constructor(
+        @InjectRepository(WalletHistory)
+        private walletHistoryRepository: Repository<WalletHistory>,
         private readonly schedulerRegistry: SchedulerRegistry,
         private readonly redisService: RedisCacheService,
         private readonly lotteriesService: LotteriesService,
@@ -417,6 +422,16 @@ export class ScheduleService implements OnModuleInit {
             const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
             const remainBalance = +wallet.balance + totalBalance;
             await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
+
+            // save wallet history
+            const createWalletHis: any = {
+                id: wallet.id,
+                user: { id: userId },
+                balance: remainBalance,
+                createdBy: ""
+            }
+            const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+            await this.walletHistoryRepository.save(createdWalletHis);
 
             console.log(`userId ${userId} send event payment`);
             this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
