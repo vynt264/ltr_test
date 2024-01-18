@@ -100,6 +100,14 @@ export class AdminOrdersService {
       if (key === "status") {
         data.status = object.status
       }
+
+      if (key === "type") {
+        data.type = object.type;
+      }
+
+      if (key === "seconds") {
+        data.seconds = object.seconds;
+      }
     }
     return [data];
   }
