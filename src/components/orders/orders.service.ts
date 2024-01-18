@@ -330,14 +330,16 @@ export class OrdersService {
     return {
       type: `${data.orders[0].type}${seconds}s`,
       awardDetail: finalResult,
-      openTime: `
-                  ${(new Date()).getHours().toString().length === 2 ? (new Date()).getHours() : `0${(new Date()).getHours()}`}
-                  :
-                  ${(new Date()).getMinutes().toString().length === 2 ? (new Date()).getMinutes() : `0${(new Date()).getMinutes()}`}
-                  :
-                  ${(new Date()).getSeconds().toString().length === 2 ? (new Date()).getSeconds() : `0${(new Date()).getSeconds()}`}
-                `,
+      openTime: this.getCurrentTime(),
     };
+  }
+
+  getCurrentTime() {
+    const hours = `${(new Date()).getHours().toString().length === 2 ? (new Date()).getHours() : `0${(new Date()).getHours()}`}`;
+    const minutes = `${(new Date()).getMinutes().toString().length === 2 ? (new Date()).getMinutes() : `0${(new Date()).getMinutes()}`}`;
+    const seconds = `${(new Date()).getSeconds().toString().length === 2 ? (new Date()).getSeconds() : `0${(new Date()).getSeconds()}`}`;
+
+    return `${hours}:${minutes}:${seconds}`;
   }
 
   async combineOrdersByDate(paginationDto: PaginationQueryDto, member: any) {
