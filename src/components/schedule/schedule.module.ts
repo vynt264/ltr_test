@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 import { RedisCacheModule } from 'src/system/redis/redis.module';
-import { LotteriesModule } from 'src/lotteries/lotteries.module';
+import { LotteriesModule } from 'src/components/lotteries/lotteries.module';
 import { GatewayModule } from '../gateway/gateway.module';
 import { BookMakerModule } from '../bookmaker/bookmaker.module';
 import { OrdersModule } from '../orders/orders.module';

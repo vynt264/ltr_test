@@ -35,6 +35,12 @@ export class OrdersController {
     return this.ordersService.findAll(paginationDto, req.user);
   }
 
+  @Post('1s')
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  betOrdersImmediately(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
+    return this.ordersService.betOrdersImmediately(orders, req.user);
+  }
+
   @Get('combine-orders-by-date')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   combineOrdersByDate(@Query() paginationDto: PaginationQueryDto, @Request() req: any): Promise<any> {

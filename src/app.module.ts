@@ -7,7 +7,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Connection } from "typeorm";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { config } from "dotenv";
-import { LotteriesModule } from './lotteries/lotteries.module';
+import { LotteriesModule } from './components/lotteries/lotteries.module';
 import { RedisCacheModule } from "./system/redis/redis.module";
 
 config();
@@ -23,11 +23,11 @@ const configService = new ConfigService();
       inject: [ConfigService],
       useFactory: async (confService: ConfigService) => ({
         type: "mysql",
-        host: confService.get("DB_WRITE_HOST"),
-        port: confService.get("DB_WRITE_PORT"),
-        username: confService.get("DB_WRITE_USERNAME"),
-        password: confService.get("DB_WRITE_PASSWORD"),
-        database: confService.get("DB_WRITE_DATABASE"),
+        host: 'localhost',
+        port: 3308,
+        username: 'root',
+        password: 'root',
+        database: 'ohayo_community',
         entities: ["dist/components/**/*.entity.{js,ts}"],
         extra: {
           charset: "utf8mb4_unicode_ci",

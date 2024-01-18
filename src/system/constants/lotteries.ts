@@ -30,25 +30,21 @@ export const PERIOD_DELAY_TO_HANDLER_ORDERS = 1000; // miliseconds
 export enum TypeLottery {
     // mien bac
     XSMB_1S = "xsmb1s",
-    XSMB_10S = "xsmb10s",
     XSMB_45S = "xsmb45s",
     XSMB_180S = "xsmb180s",
 
     // mien trung
     XSMT_1S = "xsmt1s",
-    XSMT_10S = "xsmt10s",
     XSMT_45S = "xsmt45s",
     XSMT_180S = "xsmt180s",
 
     // mien nam
     XSMN_1S = "xsmn1s",
-    XSMN_10S = "xsmn10s",
     XSMN_45S = "xsmn45s",
     XSMN_180S = "xsmn180s",
 
     // supper rick lottery
     XSSPL_1S = "xsspl1s",
-    XSSPL_10S = "xsspl10s",
     XSSPL_45S = "xsspl45s",
     XSSPL_60S = "xsspl60s",
     XSSPL_90S = "xsspl90s",

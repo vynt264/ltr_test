@@ -4,7 +4,7 @@ import { CreateLotteryDto } from './dto/create-lottery.dto';
 import { UpdateLotteryDto } from './dto/update-lottery.dto';
 import {
   PRIZES,
-} from '../system/constants';
+} from '../../system/constants';
 import { OrderDto } from './dto/order.dto';
 import {
   BaCangType,
@@ -19,7 +19,7 @@ import {
   OddBet,
   PricePerScore,
   TroChoiThuViType,
-} from '../system/enums/lotteries';
+} from '../../system/enums/lotteries';
 
 @Injectable()
 export class LotteriesService {
@@ -3789,75 +3789,75 @@ export class LotteriesService {
     }, []);
   }
 
-  randomPrizes(prizes: any) {
-    if (!prizes) return {};
+  // randomPrizes(prizes: any) {
+  //   if (!prizes) return {};
 
-    const values = _.get(prizes, 'finalResult.values', []);
-    const specialPrize: string[] = [this.generateDigitsPrize(values?.[0]?.number || '', 6)];
-    const prize8: string[] = [this.generateDigitsPrize(values?.[1]?.number || '', 2)];
-    const prize7: string[] = [this.generateDigitsPrize(values?.[2]?.number || '', 3)];
-    const prize6: string[] = [
-      this.generateDigitsPrize(values?.[3]?.number || '', 4),
-      this.generateDigitsPrize(values?.[4]?.number || '', 4),
-      this.generateDigitsPrize(values?.[5]?.number || '', 4),
-    ];
-    const prize5: string[] = [
-      this.generateDigitsPrize(values?.[6]?.number || '', 4),
-    ];
-    const prize4: string[] = [
-      this.generateDigitsPrize(values?.[7]?.number || '', 5),
-      this.generateDigitsPrize(values?.[8]?.number || '', 5),
-      this.generateDigitsPrize(values?.[9]?.number || '', 5),
-      this.generateDigitsPrize(values?.[10]?.number || '', 5),
-      this.generateDigitsPrize(values?.[11]?.number || '', 5),
-      this.generateDigitsPrize(values?.[12]?.number || '', 5),
-      this.generateDigitsPrize(values?.[13]?.number || '', 5),
-    ];
-    const prize3: string[] = [
-      this.generateDigitsPrize(values?.[14]?.number || '', 5),
-      this.generateDigitsPrize(values?.[15]?.number || '', 5),
-    ];
-    const prize2: string[] = [
-      this.generateDigitsPrize(values?.[16]?.number || '', 5),
-    ];
-    const prize1: string[] = [
-      this.generateDigitsPrize(values?.[17]?.number || '', 5),
-    ];
+  //   const values = _.get(prizes, 'finalResult.values', []);
+  //   const specialPrize: string[] = [this.generateDigitsPrize(values?.[0]?.number || '', 6)];
+  //   const prize8: string[] = [this.generateDigitsPrize(values?.[1]?.number || '', 2)];
+  //   const prize7: string[] = [this.generateDigitsPrize(values?.[2]?.number || '', 3)];
+  //   const prize6: string[] = [
+  //     this.generateDigitsPrize(values?.[3]?.number || '', 4),
+  //     this.generateDigitsPrize(values?.[4]?.number || '', 4),
+  //     this.generateDigitsPrize(values?.[5]?.number || '', 4),
+  //   ];
+  //   const prize5: string[] = [
+  //     this.generateDigitsPrize(values?.[6]?.number || '', 4),
+  //   ];
+  //   const prize4: string[] = [
+  //     this.generateDigitsPrize(values?.[7]?.number || '', 5),
+  //     this.generateDigitsPrize(values?.[8]?.number || '', 5),
+  //     this.generateDigitsPrize(values?.[9]?.number || '', 5),
+  //     this.generateDigitsPrize(values?.[10]?.number || '', 5),
+  //     this.generateDigitsPrize(values?.[11]?.number || '', 5),
+  //     this.generateDigitsPrize(values?.[12]?.number || '', 5),
+  //     this.generateDigitsPrize(values?.[13]?.number || '', 5),
+  //   ];
+  //   const prize3: string[] = [
+  //     this.generateDigitsPrize(values?.[14]?.number || '', 5),
+  //     this.generateDigitsPrize(values?.[15]?.number || '', 5),
+  //   ];
+  //   const prize2: string[] = [
+  //     this.generateDigitsPrize(values?.[16]?.number || '', 5),
+  //   ];
+  //   const prize1: string[] = [
+  //     this.generateDigitsPrize(values?.[17]?.number || '', 5),
+  //   ];
 
-    return {
-      [PRIZES.SPECIAL_PRIZE]: specialPrize,
-      [PRIZES.PRIZE_1]: prize1,
-      [PRIZES.PRIZE_2]: prize2,
-      [PRIZES.PRIZE_3]: prize3,
-      [PRIZES.PRIZE_4]: prize4,
-      [PRIZES.PRIZE_5]: prize5,
-      [PRIZES.PRIZE_6]: prize6,
-      [PRIZES.PRIZE_7]: prize7,
-      [PRIZES.PRIZE_8]: prize8,
-    };
-  }
+  //   return {
+  //     [PRIZES.SPECIAL_PRIZE]: specialPrize,
+  //     [PRIZES.PRIZE_1]: prize1,
+  //     [PRIZES.PRIZE_2]: prize2,
+  //     [PRIZES.PRIZE_3]: prize3,
+  //     [PRIZES.PRIZE_4]: prize4,
+  //     [PRIZES.PRIZE_5]: prize5,
+  //     [PRIZES.PRIZE_6]: prize6,
+  //     [PRIZES.PRIZE_7]: prize7,
+  //     [PRIZES.PRIZE_8]: prize8,
+  //   };
+  // }
 
-  generateDigitsPrize(number: string, length: number) {
-    if (!length) return number;
+  // generateDigitsPrize(number: string, length: number) {
+  //   if (!length) return number;
 
-    const tempLength = length - number.length;
-    if (tempLength <= 0) return number;
+  //   const tempLength = length - number.length;
+  //   if (tempLength <= 0) return number;
 
-    let numberAdded;
-    if (tempLength === 1) {
-      numberAdded = Math.floor(Math.random() * 1);
-    } else if (tempLength === 2) {
-      numberAdded = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
-    } else if (tempLength === 3) {
-      numberAdded = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
-    } else if (tempLength === 4) {
-      numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-    } else if (tempLength === 5) {
-      numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 10000;
-    } else if (tempLength === 6) {
-      numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 100000;
-    }
+  //   let numberAdded;
+  //   if (tempLength === 1) {
+  //     numberAdded = Math.floor(Math.random() * 1);
+  //   } else if (tempLength === 2) {
+  //     numberAdded = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
+  //   } else if (tempLength === 3) {
+  //     numberAdded = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
+  //   } else if (tempLength === 4) {
+  //     numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+  //   } else if (tempLength === 5) {
+  //     numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 10000;
+  //   } else if (tempLength === 6) {
+  //     numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 100000;
+  //   }
 
-    return `${numberAdded}${number}`;
-  }
+  //   return `${numberAdded}${number}`;
+  // }
 }

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { endOfDay, startOfDay } from "date-fns";
 import { PaginationQueryDto } from "../../common/common.dto";
@@ -12,7 +12,7 @@ import { Logger } from "winston";
 import { CreateBookMakerDto, UpdateBookMakerDto } from "./dto/index";
 import { BookMaker } from "./bookmaker.entity";
 @Injectable()
-export class BookMakerService { 
+export class BookMakerService implements OnModuleInit {
 
   constructor(
     @InjectRepository(BookMaker)
@@ -20,6 +20,14 @@ export class BookMakerService {
     @Inject("winston")
     private readonly logger: Logger
   ) { }
+
+  async onModuleInit() {
+    const bookmakers = await this.getAllBookMaker();
+    if (bookmakers.length > 0) return;
+    await this.bookMakerRepository.save({
+      name: 'default bookmaker',
+    });
+  }
 
   async getAll(): Promise<any> {
     try {

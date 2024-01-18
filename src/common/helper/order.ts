@@ -1,7 +1,9 @@
 import { addHours, startOfDay } from "date-fns";
+import * as _ from "lodash";
+
 import { DateTimeHelper } from "src/helpers/date-time";
-import { INIT_TIME_CREATE_JOB, TypeLottery } from "src/system/constants";
-import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, Lo2SoGiaiDacBietType, LoTruocType, LoXienType, PricePerScore, TroChoiThuViType } from "src/system/enums/lotteries";
+import { INIT_TIME_CREATE_JOB, PRIZES, TypeLottery } from "src/system/constants";
+import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, Lo2SoGiaiDacBietType, LoTruocType, LoXienType, OddBet, PricePerScore, TroChoiThuViType } from "src/system/enums/lotteries";
 
 export class OrderHelper {
     static getQuantityOrdersOf2Number(ordersDetail: string) {
@@ -754,13 +756,6 @@ export class OrderHelper {
                 seconds = 1;
                 break;
 
-            case TypeLottery.XSMB_10S:
-            case TypeLottery.XSMT_10S:
-            case TypeLottery.XSMN_10S:
-            case TypeLottery.XSSPL_10S:
-                seconds = 10;
-                break;
-
             case TypeLottery.XSMB_45S:
             case TypeLottery.XSMN_45S:
             case TypeLottery.XSMT_45S:
@@ -801,28 +796,24 @@ export class OrderHelper {
         let typeLottery;
         switch (type) {
             case TypeLottery.XSMB_1S:
-            case TypeLottery.XSMB_10S:
             case TypeLottery.XSMB_45S:
             case TypeLottery.XSMB_180S:
                 typeLottery = 'xsmb';
                 break;
 
             case TypeLottery.XSMT_1S:
-            case TypeLottery.XSMT_10S:
             case TypeLottery.XSMT_45S:
             case TypeLottery.XSMT_180S:
                 typeLottery = 'xsmt';
                 break;
 
             case TypeLottery.XSMN_1S:
-            case TypeLottery.XSMN_10S:
             case TypeLottery.XSMN_45S:
             case TypeLottery.XSMN_180S:
                 typeLottery = 'xsmn';
                 break;
 
             case TypeLottery.XSSPL_1S:
-            case TypeLottery.XSSPL_10S:
             case TypeLottery.XSSPL_45S:
             case TypeLottery.XSSPL_60S:
             case TypeLottery.XSSPL_90S:
@@ -937,10 +928,18 @@ export class OrderHelper {
     }
 
     static getTurnIndex(seconds: number) {
+        if (!seconds) return '';
+
         const time = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
         const fromDate = new Date(time).getTime();
         const toDate = (new Date()).getTime();
-        const times = Math.ceil(((toDate - fromDate) / 1000) / seconds);
+        let times = (Math.ceil(((toDate - fromDate) / 1000) / seconds)).toString();
+        if (seconds === 1) {
+            const hours = (new Date()).getHours();
+            const minutes = (new Date()).getMinutes();
+            const seconds = (new Date()).getSeconds();
+            times = `${hours}:${minutes}:${seconds}`;
+        }
 
         return `${DateTimeHelper.formatDate(new Date())}-${times}`;
     }
@@ -1001,5 +1000,626 @@ export class OrderHelper {
 
     static delay(ms: number) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    static transformData(data: any) {
+        const orders: any = [];
+        let dataOrders: any = {};
+        for (const categoryLotteryType in data) {
+            dataOrders = {
+                categoryLotteryType,
+                data: [] as any,
+            };
+            for (const type in data[categoryLotteryType]) {
+                const dataChild = {
+                    type,
+                    data: [] as any,
+                };
+                switch (type) {
+                    case BaoLoType.Lo2So:
+                    case BaoLoType.Lo2So1k:
+                    case BaoLoType.Lo3So:
+                    case BaoLoType.Lo4So:
+                    case DanhDeType.DeDau:
+                    case DanhDeType.DeDacBiet:
+                    case DanhDeType.DeDauDuoi:
+                    case TroChoiThuViType.Lo2SoGiaiDacBiet:
+                        for (const number in data[categoryLotteryType][type]) {
+                            const item = {
+                                score: data[categoryLotteryType][type][number],
+                                number: number,
+                            };
+                            dataChild.data.push(item);
+                        }
+                        break;
+
+                    case LoXienType.Xien2:
+                    case LoXienType.Xien3:
+                    case LoXienType.Xien4:
+                    case LoTruocType.TruotXien4:
+                    case LoTruocType.TruotXien8:
+                    case LoTruocType.TruotXien10:
+                        for (const number in data[categoryLotteryType][type]) {
+                            const item = {
+                                score: data[categoryLotteryType][type][number],
+                                number: JSON.parse(number),
+                            };
+                            dataChild.data.push(item);
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+
+                dataOrders.data.push(dataChild);
+            }
+
+            orders.push(dataOrders);
+        }
+
+        return orders;
+    }
+
+    static randomPrizes(prizes: any) {
+        if (!prizes) return {};
+
+        const values = _.get(prizes, 'finalResult.values', []);
+        const specialPrize: string[] = [this.generateDigitsPrize(values?.[0]?.number || '', 6)];
+        const prize8: string[] = [this.generateDigitsPrize(values?.[1]?.number || '', 2)];
+        const prize7: string[] = [this.generateDigitsPrize(values?.[2]?.number || '', 3)];
+        const prize6: string[] = [
+            this.generateDigitsPrize(values?.[3]?.number || '', 4),
+            this.generateDigitsPrize(values?.[4]?.number || '', 4),
+            this.generateDigitsPrize(values?.[5]?.number || '', 4),
+        ];
+        const prize5: string[] = [
+            this.generateDigitsPrize(values?.[6]?.number || '', 4),
+        ];
+        const prize4: string[] = [
+            this.generateDigitsPrize(values?.[7]?.number || '', 5),
+            this.generateDigitsPrize(values?.[8]?.number || '', 5),
+            this.generateDigitsPrize(values?.[9]?.number || '', 5),
+            this.generateDigitsPrize(values?.[10]?.number || '', 5),
+            this.generateDigitsPrize(values?.[11]?.number || '', 5),
+            this.generateDigitsPrize(values?.[12]?.number || '', 5),
+            this.generateDigitsPrize(values?.[13]?.number || '', 5),
+        ];
+        const prize3: string[] = [
+            this.generateDigitsPrize(values?.[14]?.number || '', 5),
+            this.generateDigitsPrize(values?.[15]?.number || '', 5),
+        ];
+        const prize2: string[] = [
+            this.generateDigitsPrize(values?.[16]?.number || '', 5),
+        ];
+        const prize1: string[] = [
+            this.generateDigitsPrize(values?.[17]?.number || '', 5),
+        ];
+
+        return {
+            [PRIZES.SPECIAL_PRIZE]: specialPrize,
+            [PRIZES.PRIZE_1]: prize1,
+            [PRIZES.PRIZE_2]: prize2,
+            [PRIZES.PRIZE_3]: prize3,
+            [PRIZES.PRIZE_4]: prize4,
+            [PRIZES.PRIZE_5]: prize5,
+            [PRIZES.PRIZE_6]: prize6,
+            [PRIZES.PRIZE_7]: prize7,
+            [PRIZES.PRIZE_8]: prize8,
+        };
+    }
+
+    static generateDigitsPrize(number: string, length: number) {
+        if (!length) return number;
+
+        const tempLength = length - number.length;
+        if (tempLength <= 0) return number;
+
+        let numberAdded;
+        if (tempLength === 1) {
+            numberAdded = Math.floor(Math.random() * 1);
+        } else if (tempLength === 2) {
+            numberAdded = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
+        } else if (tempLength === 3) {
+            numberAdded = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
+        } else if (tempLength === 4) {
+            numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+        } else if (tempLength === 5) {
+            numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 10000;
+        } else if (tempLength === 6) {
+            numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 100000;
+        }
+
+        return `${numberAdded}${number}`;
+    }
+
+    static calcBalanceEachOrder({
+        orders,
+        typeBet,
+        prizes,
+    }: any) {
+        let winningPoint = 0;
+        let winningAmount = 0;
+        let betAmount = 0;
+        let totalPoint = 0;
+        let count = 0;
+        let winningNumbers: any = [];
+
+        for (const order in orders) {
+            totalPoint += orders[order];
+            ({ count, winningNumbers } = this.findNumberOccurrencesOfPrizes({ order, prizes, typeBet, winningNumbers }));
+            if (count > 0) {
+                winningPoint += (count * orders[order]);
+            }
+        }
+
+        switch (typeBet) {
+            case BaoLoType.Lo2So:
+                winningAmount += (winningPoint * (OddBet.Lo2So * 1000));
+                betAmount += (totalPoint * (PricePerScore.Lo2So));
+                break;
+
+            case BaoLoType.Lo2So1k:
+                winningAmount += (winningPoint * (OddBet.Lo2So1k * 1000));
+                betAmount += (totalPoint * (PricePerScore.Lo2So1k));
+                break;
+
+            case DanhDeType.DeDau:
+                winningAmount += (winningPoint * (OddBet.DeDau * 1000));
+                betAmount += (totalPoint * (PricePerScore.DeDau));
+                break;
+
+            case DanhDeType.DeDacBiet:
+                winningAmount += (winningPoint * (OddBet.DeDacBiet * 1000));
+                betAmount += (totalPoint * (PricePerScore.DeDacBiet));
+                break;
+
+            case DanhDeType.DeDauDuoi:
+                winningAmount += (winningPoint * (OddBet.DeDauDuoi * 1000));
+                betAmount += (totalPoint * (PricePerScore.DeDauDuoi));
+                break;
+
+            case BaoLoType.Lo3So:
+                winningAmount += (winningPoint * (OddBet.Lo3So * 1000));
+                betAmount += (totalPoint * (PricePerScore.Lo3So));
+                break;
+
+            case BaCangType.BaCangDau:
+                winningAmount += (winningPoint * (OddBet.BaCangDau * 1000));
+                betAmount += (totalPoint * (PricePerScore.BaCangDau));
+                break;
+
+            case BaCangType.BaCangDacBiet:
+                winningAmount += (winningPoint * (OddBet.BaCangDacBiet * 1000));
+                betAmount += (totalPoint * (PricePerScore.BaCangDacBiet));
+                break;
+
+            case BaCangType.BaCangDauDuoi:
+                winningAmount += (winningPoint * (OddBet.BaCangDauDuoi * 1000));
+                betAmount += (totalPoint * (PricePerScore.BaCangDauDuoi));
+                break;
+
+            case BaoLoType.Lo4So:
+                winningAmount += (winningPoint * (OddBet.Lo4So * 1000));
+                betAmount += (totalPoint * (PricePerScore.Lo4So));
+                break;
+
+            case BonCangType.BonCangDacBiet:
+                winningAmount += (winningPoint * (OddBet.BonCangDacBiet * 1000));
+                betAmount += (totalPoint * (PricePerScore.BonCangDacBiet));
+                break;
+
+            case LoXienType.Xien2:
+                winningAmount += (winningPoint * (OddBet.Xien2 * 1000));
+                betAmount += (totalPoint * (PricePerScore.Xien2));
+                break;
+
+            case LoXienType.Xien3:
+                winningAmount += (winningPoint * (OddBet.Xien3 * 1000));
+                betAmount += (totalPoint * (PricePerScore.Xien3));
+                break;
+
+            case LoXienType.Xien4:
+                winningAmount += (winningPoint * (OddBet.Xien4 * 1000));
+                betAmount += (totalPoint * (PricePerScore.Xien4));
+                break;
+
+            case LoTruocType.TruotXien4:
+                winningAmount += (winningPoint * (OddBet.TruotXien4 * 1000));
+                betAmount += (totalPoint * (PricePerScore.TruotXien4));
+                break;
+
+
+            case LoTruocType.TruotXien8:
+                winningAmount += (winningPoint * (OddBet.TruotXien8 * 1000));
+                betAmount += (totalPoint * (PricePerScore.TruotXien8));
+                break;
+
+            case LoTruocType.TruotXien10:
+                winningAmount += (winningPoint * (OddBet.TruotXien10 * 1000));
+                betAmount += (totalPoint * (PricePerScore.TruotXien10));
+                break;
+
+            case DauDuoiType.Dau:
+                winningAmount += (winningPoint * (OddBet.Dau * 1000));
+                betAmount += (totalPoint * (PricePerScore.Dau));
+                break;
+
+            case DauDuoiType.Duoi:
+                winningAmount += (winningPoint * (OddBet.Duoi * 1000));
+                betAmount += (totalPoint * (PricePerScore.Duoi));
+                break;
+
+            case TroChoiThuViType.Lo2SoGiaiDacBiet:
+                betAmount += (totalPoint * (PricePerScore.TroChoiThuVi));
+                if (winningNumbers.length > 0) {
+                    switch (winningNumbers[0]) {
+                        case Lo2SoGiaiDacBietType.Tai:
+                            winningAmount += (winningPoint * (OddBet.Tai * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Xiu:
+                            winningAmount += (winningPoint * (OddBet.Xiu * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Chan:
+                            winningAmount += (winningPoint * (OddBet.Chan * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Le:
+                            winningAmount += (winningPoint * (OddBet.Le * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong0:
+                            winningAmount += (winningPoint * (OddBet.Tong0 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong1:
+                            winningAmount += (winningPoint * (OddBet.Tong1 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong2:
+                            winningAmount += (winningPoint * (OddBet.Tong2 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong3:
+                            winningAmount += (winningPoint * (OddBet.Tong3 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong4:
+                            winningAmount += (winningPoint * (OddBet.Tong4 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong5:
+                            winningAmount += (winningPoint * (OddBet.Tong5 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong6:
+                            winningAmount += (winningPoint * (OddBet.Tong6 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong7:
+                            winningAmount += (winningPoint * (OddBet.Tong7 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong8:
+                            winningAmount += (winningPoint * (OddBet.Tong8 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong9:
+                            winningAmount += (winningPoint * (OddBet.Tong9 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong10:
+                            winningAmount += (winningPoint * (OddBet.Tong10 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong11:
+                            winningAmount += (winningPoint * (OddBet.Tong11 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong12:
+                            winningAmount += (winningPoint * (OddBet.Tong12 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong13:
+                            winningAmount += (winningPoint * (OddBet.Tong13 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong14:
+                            winningAmount += (winningPoint * (OddBet.Tong14 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong15:
+                            winningAmount += (winningPoint * (OddBet.Tong15 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong16:
+                            winningAmount += (winningPoint * (OddBet.Tong16 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong17:
+                            winningAmount += (winningPoint * (OddBet.Tong17 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.Tong18:
+                            winningAmount += (winningPoint * (OddBet.Tong18 * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.TongTai:
+                            winningAmount += (winningPoint * (OddBet.TongTai * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.TongXiu:
+                            winningAmount += (winningPoint * (OddBet.TongXiu * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.TongChan:
+                            winningAmount += (winningPoint * (OddBet.TongChan * 1000));
+                            break;
+
+                        case Lo2SoGiaiDacBietType.TongLe:
+                            winningAmount += (winningPoint * (OddBet.TongLe * 1000));
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        return {
+            winningAmount,
+            winningNumbers,
+            realWinningAmount: (winningAmount - betAmount),
+        };
+    }
+
+    static findNumberOccurrencesOfPrizes({
+        order,
+        prizes,
+        typeBet,
+        winningNumbers,
+    }: any) {
+        let count = 0;
+        let lastTwoDigits;
+        let isValidOrder = false;
+
+        switch (typeBet) {
+            case BaoLoType.Lo2So:
+            case BaoLoType.Lo2So1k:
+            case BaoLoType.Lo3So:
+            case BaoLoType.Lo4So:
+                for (let i = 0; i < 9; i++) {
+                    for (let j = 0; j < prizes[i].length; j++) {
+                        if (prizes[i][j].endsWith(order)) {
+                            count++;
+                            winningNumbers.push(order);
+                        }
+                    }
+                }
+                break;
+
+            case DanhDeType.DeDau:
+                for (let j = 0; j < prizes[8].length; j++) {
+                    if (prizes[8][j].endsWith(order)) {
+                        count++;
+                        winningNumbers.push(order);
+                    }
+                }
+                break;
+
+            case DanhDeType.DeDacBiet:
+                for (let j = 0; j < prizes[0].length; j++) {
+                    if (prizes[0][j].endsWith(order)) {
+                        count++;
+                        winningNumbers.push(order);
+                    }
+                }
+                break;
+
+            case DanhDeType.DeDauDuoi:
+                for (let j = 0; j < prizes[0].length; j++) {
+                    if (prizes[0][j].endsWith(order)) {
+                        count++;
+                        winningNumbers.push(order);
+                    }
+                }
+                for (let j = 0; j < prizes[8].length; j++) {
+                    if (prizes[8][j].endsWith(order)) {
+                        count++;
+                        winningNumbers.push(order);
+                    }
+                }
+                break;
+
+            case BaCangType.BaCangDau:
+                for (let j = 0; j < prizes[7].length; j++) {
+                    if (prizes[7][j].endsWith(order)) {
+                        count++;
+                        winningNumbers.push(order);
+                    }
+                }
+                break;
+
+            case BaCangType.BaCangDacBiet:
+                for (let j = 0; j < prizes[0].length; j++) {
+                    if (prizes[0][j].endsWith(order)) {
+                        count++;
+                        winningNumbers.push(order);
+                    }
+                }
+                break;
+
+            case BaCangType.BaCangDauDuoi:
+                for (let j = 0; j < prizes[0].length; j++) {
+                    if (prizes[0][j].endsWith(order)) {
+                        count++;
+                        winningNumbers.push(order);
+                    }
+                }
+                for (let j = 0; j < prizes[7].length; j++) {
+                    if (prizes[7][j].endsWith(order)) {
+                        count++;
+                        winningNumbers.push(order);
+                    }
+                }
+                break;
+
+            case BonCangType.BonCangDacBiet:
+                for (let j = 0; j < prizes[0].length; j++) {
+                    if (prizes[0][j].endsWith(order)) {
+                        count++;
+                        winningNumbers.push(order);
+                    }
+                }
+                break;
+
+            case LoXienType.Xien2:
+            case LoXienType.Xien3:
+            case LoXienType.Xien4:
+                let tempCount = 0;
+                const numbers = order.split(',');
+                for (let i = 0; i < 9; i++) {
+                    for (let j = 0; j < prizes[i].length; j++) {
+                        for (const number of numbers) {
+                            if (prizes[i][j].endsWith(number.trim())) {
+                                tempCount++;
+                            }
+                        }
+                    }
+                }
+
+                if (tempCount === numbers.length) {
+                    count++;
+                    winningNumbers.push(order);
+                }
+                break;
+
+            case LoTruocType.TruotXien4:
+            case LoTruocType.TruotXien8:
+            case LoTruocType.TruotXien10:
+                let tempCountTruotXien = 0;
+                const numbersTruotXien = order.split(',');
+                for (let i = 0; i < 9; i++) {
+                    for (let j = 0; j < prizes[i].length; j++) {
+                        for (const number of numbersTruotXien) {
+                            if (!prizes[i][j].endsWith(number.trim())) {
+                                tempCountTruotXien++;
+                            }
+                        }
+                    }
+                }
+
+                if (tempCountTruotXien === numbersTruotXien.length) {
+                    count++;
+                    winningNumbers.push(order);
+                }
+                break;
+
+            case DauDuoiType.Dau:
+                lastTwoDigits = prizes[0][0].slice(-2);
+                isValidOrder = false;
+                if (order) {
+                    isValidOrder = lastTwoDigits.startsWith(order.toString());
+                }
+
+                if (isValidOrder) {
+                    count++;
+                    winningNumbers.push(order);
+                }
+                break;
+
+            case DauDuoiType.Duoi:
+                lastTwoDigits = prizes[0][0].slice(-2);
+                isValidOrder = false;
+                if (order) {
+                    isValidOrder = lastTwoDigits.endsWith(order.toString());
+                }
+
+                if (isValidOrder) {
+                    count++;
+                    winningNumbers.push(order);
+                }
+                break;
+
+            case TroChoiThuViType.Lo2SoGiaiDacBiet:
+                const winningPatterns = OrderHelper.getWinningPatternsFromPrizes(prizes);
+                const hasNumber = winningPatterns.find((ord: any) => ord === order);
+                if (hasNumber) {
+                    count++;
+                    winningNumbers.push(order);
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        return {
+            count,
+            winningNumbers,
+        };
+    }
+
+    static getGameTypesBySeconds(seconds: number) {
+        let gameType: any = [];
+        switch (seconds) {
+            case 1:
+                gameType = [
+                    TypeLottery.XSMB_1S,
+                    TypeLottery.XSMT_1S,
+                    TypeLottery.XSMN_1S,
+                    TypeLottery.XSSPL_1S,
+                ];
+                break;
+
+            case 45:
+                gameType = [
+                    TypeLottery.XSMB_45S,
+                    TypeLottery.XSMT_45S,
+                    TypeLottery.XSMN_45S,
+                    TypeLottery.XSSPL_45S,
+                ];
+                break;
+
+            case 60:
+                gameType = [
+                    TypeLottery.XSSPL_60S,
+                ];
+                break;
+
+            case 90:
+                gameType = [
+                    TypeLottery.XSSPL_90S,
+                ];
+                break;
+
+            case 120:
+                gameType = [
+                    TypeLottery.XSSPL_120S,
+                ];
+                break;
+
+            case 180:
+                gameType = [
+                    TypeLottery.XSMB_180S,
+                    TypeLottery.XSMT_180S,
+                    TypeLottery.XSMN_180S,
+                ];
+                break;
+
+            case 360:
+                gameType = [
+                    TypeLottery.XSSPL_360S,
+                ];
+                break;
+        }
+
+        return gameType;
     }
 }
