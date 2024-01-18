@@ -97,7 +97,7 @@ export enum LoTruocType {
 
 export enum BetTypeName {
     Lo2So = 'Lô 2 Số',
-    Lo2So1k = 'Lô 2 Số 1k',
+    Lo2So1k = 'Lô 2 Số 1K',
     Lo3So = 'Lô 3 Số',
     Lo4So = 'Lô 4 Số',
     Xien2 = 'Xiên 2',
