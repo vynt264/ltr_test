@@ -315,7 +315,7 @@ export class OrdersService {
     return {
       type: `${data.orders[0].type}${seconds}s`,
       awardDetail: finalResult,
-      openTime: OrderHelper.getCurrentTime(),
+      openTime: turnIndex.split('-')[1],
     };
   }
 
