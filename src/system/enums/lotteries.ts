@@ -103,7 +103,7 @@ export enum BetTypeName {
     Xien2 = 'Xiên 2',
     Xien3 = 'Xiên 3',
     Xien4 = 'Xiên 4',
-    DeDau = 'Đề Đầu',
+    DeDau = 'Đề Giải 8',
     DeDacBiet = 'Đề Đặc Biệt',
     DeDauDuoi = 'Đề Đầu Đuôi',
     Dau = 'Đầu',
