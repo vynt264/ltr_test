@@ -108,7 +108,7 @@ export enum BetTypeName {
     DeDauDuoi = 'Đề Đầu Đuôi',
     Dau = 'Đầu',
     Duoi = 'Đuôi',
-    BaCangDau = '3 Càng Đầu',
+    BaCangDau = '3 Càng Giải 7',
     BaCangDacBiet = '3 Càng Đặc Biệt',
     BaCangDauDuoi = '3 Càng Đầu Đuôi',
     BonCangDacBiet = '4 Càng Đặc Biệt',
