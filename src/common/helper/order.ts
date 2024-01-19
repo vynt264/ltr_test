@@ -1,8 +1,9 @@
+import { HttpException, HttpStatus } from "@nestjs/common";
 import { addHours, startOfDay } from "date-fns";
 import * as _ from "lodash";
 
 import { DateTimeHelper } from "src/helpers/date-time";
-import { INIT_TIME_CREATE_JOB, PRIZES, TypeLottery } from "src/system/constants";
+import { ERROR, INIT_TIME_CREATE_JOB, PERIOD_CANNOT_ORDER, PRIZES, TypeLottery } from "src/system/constants";
 import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, Lo2SoGiaiDacBietType, LoTruocType, LoXienType, OddBet, PricePerScore, TroChoiThuViType } from "src/system/enums/lotteries";
 
 export class OrderHelper {
@@ -100,14 +101,10 @@ export class OrderHelper {
 
     static isValid2SoDacBiet(ordersDetail: string) {
         if (
-            ordersDetail.includes(Lo2SoGiaiDacBietType.Tai)
-            && ordersDetail.includes(Lo2SoGiaiDacBietType.Xiu)
-            && ordersDetail.includes(Lo2SoGiaiDacBietType.Chan)
-            && ordersDetail.includes(Lo2SoGiaiDacBietType.Le)
-            && ordersDetail.includes(Lo2SoGiaiDacBietType.TongTai)
-            && ordersDetail.includes(Lo2SoGiaiDacBietType.TongXiu)
-            && ordersDetail.includes(Lo2SoGiaiDacBietType.TongChan)
-            && ordersDetail.includes(Lo2SoGiaiDacBietType.TongLe)
+            (ordersDetail.includes(Lo2SoGiaiDacBietType.Tai) && ordersDetail.includes(Lo2SoGiaiDacBietType.Xiu)) ||
+            (ordersDetail.includes(Lo2SoGiaiDacBietType.Chan) && ordersDetail.includes(Lo2SoGiaiDacBietType.Le)) ||
+            (ordersDetail.includes(Lo2SoGiaiDacBietType.TongTai) && ordersDetail.includes(Lo2SoGiaiDacBietType.TongXiu)) ||
+            (ordersDetail.includes(Lo2SoGiaiDacBietType.TongChan) && ordersDetail.includes(Lo2SoGiaiDacBietType.TongLe))
         ) {
             return false;
         }
@@ -976,7 +973,7 @@ export class OrderHelper {
         return `${bookmakerId}-${type}-${turnIndex}-test-player`;
     }
 
-    static getCurrentTime(seconds: number) {
+    static getCurrentTimeInRound(seconds: number) {
         const toDate = (new Date()).getTime();
         const secondsInCurrentRound = (toDate / 1000) % seconds;
 
@@ -1621,5 +1618,24 @@ export class OrderHelper {
         }
 
         return gameType;
+    }
+
+    static getCurrentTime() {
+        const hours = `${(new Date()).getHours().toString().length === 2 ? (new Date()).getHours() : `0${(new Date()).getHours()}`}`;
+        const minutes = `${(new Date()).getMinutes().toString().length === 2 ? (new Date()).getMinutes() : `0${(new Date()).getMinutes()}`}`;
+        const seconds = `${(new Date()).getSeconds().toString().length === 2 ? (new Date()).getSeconds() : `0${(new Date()).getSeconds()}`}`;
+
+        return `${hours}:${minutes}:${seconds}`;
+    }
+
+    static isValidTimeOrder(currentTime: number, secondsOfRound: number) {
+        if ((secondsOfRound - currentTime) < PERIOD_CANNOT_ORDER) {
+            throw new HttpException(
+                {
+                    message: ERROR.MESSAGE_NOT_ORDER,
+                },
+                HttpStatus.BAD_REQUEST,
+            );
+        }
     }
 }

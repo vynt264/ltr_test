@@ -46,32 +46,21 @@ export class OrdersService {
 
   async create(data: CreateListOrdersDto, member: any) {
     if (!data || !data?.orders || data.orders.length === 0) return;
-
+    
+    // prevent time order
     const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
-    const currentTime = OrderHelper.getCurrentTime(seconds);
-    const turnIndex = OrderHelper.getTurnIndex(seconds);
-    if ((seconds - currentTime) < PERIOD_CANNOT_ORDER) {
-      throw new HttpException(
-        {
-          message: ERROR.MESSAGE_NOT_ORDER,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const orderBefore = await this.getNumberOfBetsFromTurnIndex(data.orders[0], turnIndex);
+    const currentTime = OrderHelper.getCurrentTimeInRound(seconds);
+    await OrderHelper.isValidTimeOrder(currentTime, seconds);
 
-    OrderValidate.validateOrders(data?.orders || [], (orderBefore?.numberOfBets || 0));
+    // validate orders
+    const turnIndex = OrderHelper.getTurnIndex(seconds);
+    const ordersBefore = await this.getNumberOfBetsFromTurnIndex(data.orders[0], turnIndex);
+    await OrderValidate.validateOrders(data?.orders || [], ordersBefore);
+
     // check balance
     const wallet = await this.walletHandlerService.findWalletByUserId(member.id);
     const totalBet = OrderHelper.getBalance(data.orders);
-    if (totalBet > wallet.balance) {
-      throw new HttpException(
-        {
-          message: ERROR.ACCOUNT_BALANCE_IS_INSUFFICIENT,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    await this.checkBalance(totalBet, wallet);
 
     let promises = [];
     const bookmakerId = member?.bookmakerId || 1;
@@ -223,21 +212,15 @@ export class OrdersService {
   async betOrdersImmediately(data: CreateListOrdersDto, user: any) {
     if (!data || !data?.orders || data.orders.length === 0) return;
 
+    // validate orders
     const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
     const turnIndex = OrderHelper.getTurnIndex(seconds);
-
-    OrderValidate.validateOrders(data?.orders || [], 0);
+    await OrderValidate.validateOrders(data?.orders || [], []);
+  
     // check balance
     let wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     const totalBet = OrderHelper.getBalance(data.orders);
-    if (totalBet > wallet.balance) {
-      throw new HttpException(
-        {
-          message: ERROR.ACCOUNT_BALANCE_IS_INSUFFICIENT,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    await this.checkBalance(totalBet, wallet);
 
     let promises = [];
     for (const order of data.orders) {
@@ -321,8 +304,10 @@ export class OrdersService {
 
     // save winning numbers
     Promise.all(promisesCreateWinningNumbers);
+    // update status orders
     await Promise.all(promisesUpdatedOrders);
 
+    // update balance
     wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     const remainBalance = +wallet.balance + totalBalance;
     await this.walletHandlerService.updateWalletByUserId(user.id, { balance: remainBalance });
@@ -330,16 +315,8 @@ export class OrdersService {
     return {
       type: `${data.orders[0].type}${seconds}s`,
       awardDetail: finalResult,
-      openTime: this.getCurrentTime(),
+      openTime: OrderHelper.getCurrentTime(),
     };
-  }
-
-  getCurrentTime() {
-    const hours = `${(new Date()).getHours().toString().length === 2 ? (new Date()).getHours() : `0${(new Date()).getHours()}`}`;
-    const minutes = `${(new Date()).getMinutes().toString().length === 2 ? (new Date()).getMinutes() : `0${(new Date()).getMinutes()}`}`;
-    const seconds = `${(new Date()).getSeconds().toString().length === 2 ? (new Date()).getSeconds() : `0${(new Date()).getSeconds()}`}`;
-
-    return `${hours}:${minutes}:${seconds}`;
   }
 
   async combineOrdersByDate(paginationDto: PaginationQueryDto, member: any) {
@@ -498,7 +475,7 @@ export class OrdersService {
     });
 
     if (member) {
-      const currentTime = OrderHelper.getCurrentTime(order.seconds);
+      const currentTime = OrderHelper.getCurrentTimeInRound(order.seconds);
       if ((order.seconds - currentTime) < PERIOD_CANNOT_CANCELED) {
         throw new HttpException(
           {
@@ -652,7 +629,6 @@ export class OrdersService {
     const promises = [];
     const promisesPrepareDataToGenerateAward = [];
     for (const order of orders) {
-      // order.turnIndex = order.turnIndex;
       promisesPrepareDataToGenerateAward.push(this.prepareDataToGenerateAward([order], user.bookmakerId, order.turnIndex, user.usernameReal));
 
       order.numericalOrder = OrderHelper.getRandomTradingCode();
@@ -706,22 +682,6 @@ export class OrdersService {
     }
 
     initData = this.getDataToGenerateAward(orders, initData);
-
-    // const initData = await this.initData(key);
-
-    // for (const order of orders) {
-    //   const { numbers } = OrderHelper.getInfoDetailOfOrder(order);
-    //   for (const number of numbers) {
-    //     OrderHelper.addOrder({
-    //       typeBet: order.betType,
-    //       childBetType: order.childBetType,
-    //       multiple: order.multiple,
-    //       number,
-    //       initData,
-    //     });
-    //   }
-    // }
-
     // save data to redis
     await this.redisService.set(key, initData);
   }
@@ -887,12 +847,23 @@ export class OrdersService {
   getNumberOfBetsFromTurnIndex(order: any, turnIndex: string) {
     const seconds = OrderHelper.getPlayingTimeByType(order.type);
     const type = OrderHelper.getTypeLottery(order.type);
-    return this.orderRequestRepository.findOne({
+    return this.orderRequestRepository.find({
       where: {
         turnIndex,
         type,
         seconds,
       },
     });
+  }
+
+  async checkBalance(totalBet: number, wallet: any) {
+    if (totalBet > wallet.balance) {
+      throw new HttpException(
+        {
+          message: ERROR.ACCOUNT_BALANCE_IS_INSUFFICIENT,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

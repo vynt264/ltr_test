@@ -5,17 +5,33 @@ import { ERROR } from '../../../system/constants/messageError';
 import { MAX_ORDERS_LO2SO, MAX_ORDERS_LO3SO, MAX_ORDERS_LO4SO, MAX_ORDERS_DAU_DUOI } from "src/system/constants";
 
 export class OrderValidate {
-    static validateOrders(orders: any, numberOfBets: number) {
-        let numberOfOrders = numberOfBets;
-        for (const order of orders) {
+    static validateOrders(orders: any, ordersBefore: Array<any>) {
+        let numbers: any = [];
+        let tempOrders = orders;
+        let orderDetailLo2SoGiaiDacBiet = '';
+
+        if (ordersBefore && ordersBefore.length > 0) {
+            for (const ord of ordersBefore) {
+                tempOrders.push({
+                    betType: ord.betType,
+                    childBetType: ord.childBetType,
+                    detail: ord.detail,
+                    multiple: ord.multiple,
+                    type: `${ord.type}${ord.seconds}s`,
+                });
+            }
+        }
+
+        for (const order of tempOrders) {
             switch (order.childBetType) {
                 case BaoLoType.Lo2So:
                 case BaoLoType.Lo2So1k:
                 case DanhDeType.DeDau:
                 case DanhDeType.DeDacBiet:
                 case DanhDeType.DeDauDuoi:
-                    numberOfOrders += OrderHelper.getQuantityOrdersOf2Number(order.detail);
-                    if (numberOfOrders > MAX_ORDERS_LO2SO) {
+                    const tempOrders2Digit = OrderHelper.getNumbersOfOrder2Digit(order.detail);
+                    numbers = [...new Set([...numbers, ...tempOrders2Digit])]
+                    if (numbers.length > MAX_ORDERS_LO2SO) {
                         throw new HttpException(
                             {
                                 message: ERROR.MESSAGE_LO_2_S0_INVALID,
@@ -29,8 +45,9 @@ export class OrderValidate {
                 case BaCangType.BaCangDau:
                 case BaCangType.BaCangDacBiet:
                 case BaCangType.BaCangDauDuoi:
-                    numberOfOrders += OrderHelper.getQuantityOrdersOf3Number(order.detail);
-                    if (numberOfOrders > MAX_ORDERS_LO3SO) {
+                    const tempOrders3Digit = OrderHelper.getNumbersOfOrder3Digit(order.detail);
+                    numbers = [...new Set([...numbers, ...tempOrders3Digit])]
+                    if (numbers.length > MAX_ORDERS_LO3SO) {
                         throw new HttpException(
                             {
                                 message: ERROR.MESSAGE_LO_3_S0_INVALID,
@@ -42,8 +59,9 @@ export class OrderValidate {
 
                 case BaoLoType.Lo4So:
                 case BonCangType.BonCangDacBiet:
-                    numberOfOrders += OrderHelper.getQuantityOrdersOf4Number(order.detail);
-                    if (numberOfOrders > MAX_ORDERS_LO4SO) {
+                    const tempOrders4Digit = OrderHelper.getNumbersOfOrder4Digit(order.detail);
+                    numbers = [...new Set([...numbers, ...tempOrders4Digit])]
+                    if (numbers.length > MAX_ORDERS_LO4SO) {
                         throw new HttpException(
                             {
                                 message: ERROR.MESSAGE_LO_4_S0_INVALID,
@@ -55,8 +73,9 @@ export class OrderValidate {
 
                 case DauDuoiType.Dau:
                 case DauDuoiType.Duoi:
-                    numberOfOrders += OrderHelper.getQuantityOrdersOf2Number(order.detail);
-                    if (numberOfOrders > MAX_ORDERS_DAU_DUOI) {
+                    const tempOrders2DigitDauDuoi = OrderHelper.getNumbersOfOrder2Digit(order.detail);
+                    numbers = [...new Set([...numbers, ...tempOrders2DigitDauDuoi])]
+                    if (numbers.length > MAX_ORDERS_DAU_DUOI) {
                         throw new HttpException(
                             {
                                 message: ERROR.MESSAGE_DAU_CUOI_INVALID,
@@ -67,7 +86,12 @@ export class OrderValidate {
                     break;
 
                 case TroChoiThuViType.Lo2SoGiaiDacBiet:
-                    const isValid = OrderHelper.isValid2SoDacBiet(order.detail);
+                    if (orderDetailLo2SoGiaiDacBiet) {
+                        orderDetailLo2SoGiaiDacBiet = orderDetailLo2SoGiaiDacBiet + ',' + order.detail;
+                    } else {
+                        orderDetailLo2SoGiaiDacBiet = order.detail;
+                    }
+                    const isValid = OrderHelper.isValid2SoDacBiet(orderDetailLo2SoGiaiDacBiet);
                     if (!isValid) {
                         throw new HttpException(
                             {
