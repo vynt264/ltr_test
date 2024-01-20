@@ -9,11 +9,6 @@ import { PaginationQueryDto } from 'src/common/common.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import { ValidationPipe } from './validations/validation.pipe';
 
-import {
-  BaseResponse,
-  ErrorResponse,
-  SuccessResponse,
-} from "../../system/BaseResponse/index";
 import { ERROR, MESSAGE, STATUSCODE } from "../../system/constants";
 
 

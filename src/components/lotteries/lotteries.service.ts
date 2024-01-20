@@ -49,7 +49,7 @@ export class LotteriesService {
     } = this.transformOrdersNumber(orders);
 
     const totalBetAmount = this.getTotalBetAmount(orders);
-    console.log("Tong tien users dat cuoc", totalBetAmount);
+    // console.log("Tong tien users dat cuoc", totalBetAmount);
 
     const finalResult = this.getPrizes({
       ordersLo2So,
