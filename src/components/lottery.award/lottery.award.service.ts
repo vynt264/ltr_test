@@ -88,7 +88,7 @@ export class LotteryAwardService {
   }
 
   guestHoldQueryNoBookmaker(object: any = null) {
-    const data: any = {};
+    const data: any = { isTestPlayer: 0 };
     if (!object) return data;
 
     for (const key in object) {
@@ -115,8 +115,6 @@ export class LotteryAwardService {
         data.openTime = Between(startDate, endDate);
       }
     }
-
-    console.log(data)
 
     return data;
   }
