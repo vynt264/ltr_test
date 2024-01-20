@@ -46,11 +46,11 @@ export class ScheduleService implements OnModuleInit {
         this.deleteAllJobCountDown();
         console.log("init job start");
         promises = promises.concat(this.createJobs(45));
-        // promises = promises.concat(this.createJobs(60));
-        // promises = promises.concat(this.createJobs(90));
-        // promises = promises.concat(this.createJobs(120));
-        // promises = promises.concat(this.createJobs(180));
-        // promises = promises.concat(this.createJobs(360));
+        promises = promises.concat(this.createJobs(60));
+        promises = promises.concat(this.createJobs(90));
+        promises = promises.concat(this.createJobs(120));
+        promises = promises.concat(this.createJobs(180));
+        promises = promises.concat(this.createJobs(360));
         console.log("init job finished");
 
         console.log("create awards start");
