@@ -46,7 +46,7 @@ export class OrdersService {
 
   async create(data: CreateListOrdersDto, member: any) {
     if (!data || !data?.orders || data.orders.length === 0) return;
-    
+
     // prevent time order
     const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
     const currentTime = OrderHelper.getCurrentTimeInRound(seconds);
@@ -216,7 +216,7 @@ export class OrdersService {
     const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
     const turnIndex = OrderHelper.getTurnIndex(seconds);
     await OrderValidate.validateOrders(data?.orders || [], []);
-  
+
     // check balance
     let wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     const totalBet = OrderHelper.getBalance(data.orders);
@@ -533,7 +533,15 @@ export class OrdersService {
     if (user?.usernameReal) {
       isTestPlayer = true;
     }
+    console.log("=========start get current turn index==========");
+    console.log("type", query.type);
+    console.log("isTestPlayer", isTestPlayer);
+    console.log("turnIndex", `${DateTimeHelper.formatDate(new Date())}-${times}`);
+
     const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${DateTimeHelper.formatDate(new Date())}-${times}`, query.type, isTestPlayer);
+
+    console.log("awardDetail", lotteryAward?.awardDetail ? JSON.stringify(lotteryAward?.awardDetail) : {});
+    console.log("=========end get current turn index==========");
 
     return {
       turnIndex: `${DateTimeHelper.formatDate(new Date())}-${times}`,
