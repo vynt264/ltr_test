@@ -112,12 +112,14 @@ export class AnalyticsService {
                     // const numbers = el.split(",");
                     // Duyệt qua mảng dữ liệu và thực hiện việc lấy 3 chữ số cuối và đếm
                     for (const number of item[el]) {
-                        const lastThreeDigits = number.slice(-3).toString();
-                        if (countMap.hasOwnProperty(lastThreeDigits)) {
-                            countMap[lastThreeDigits] = 0;
-                            countMapShow[lastThreeDigits] = countMap[lastThreeDigits]
-                        } else {
-                            countMap[lastThreeDigits] == countMapShow[lastThreeDigits]++
+                        if (number.length > 2) {
+                            const lastThreeDigits = number.slice(-3).toString();
+                            if (countMap.hasOwnProperty(lastThreeDigits)) {
+                                countMap[lastThreeDigits] = 0;
+                                countMapShow[lastThreeDigits] = countMap[lastThreeDigits]
+                            } else {
+                                countMap[lastThreeDigits] == countMapShow[lastThreeDigits]++
+                            } 
                         }
                     }
                 }
@@ -269,6 +271,18 @@ export class AnalyticsService {
         this.analytic1.ngan = {}
         this.analytic1.tram = {}
         let analytic2: { [key: string]: number }
+        const dataDf = {
+            '0': 0,
+            '1': 0,
+            '2': 0,
+            '3': 0,
+            '4': 0,
+            '5': 0,
+            '6': 0,
+            '7': 0,
+            '8': 0,
+            '9': 0,
+        }
 
         for (const item of arrAwards) {
             const award = item[0][0]
@@ -276,7 +290,7 @@ export class AnalyticsService {
             if (body.subPlayType === DauDuoiType.Dau) {
                 this.analytic1.duoi = {}
                 const dauNum = award.charAt(4)
-                for (const key in this.analytic1.dau) {
+                for (const key in dataDf) {
                     if (key === dauNum) {
                         this.analytic1.dau[dauNum] = 0
                     } else {
@@ -286,7 +300,7 @@ export class AnalyticsService {
             } else {
                 this.analytic1.dau = {}
                 const duoiNum = award.charAt(5)
-                for (const key in this.analytic1.duoi) {
+                for (const key in dataDf) {
                     if (key === duoiNum) {
                         this.analytic1.duoi[duoiNum] = 0
                     } else {
@@ -409,7 +423,7 @@ export class AnalyticsService {
             const dauNum = award.charAt(2)
             const duoiNum = award.charAt(3)
 
-            for (const key in this.analytic1.ngan) {
+            for (const key in this.analytic1.duoi) {
                 if (key === nganNum) {
                     this.analytic1.ngan[nganNum] = 0
                 } else {
