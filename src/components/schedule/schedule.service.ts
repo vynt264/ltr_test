@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { Cron, SchedulerRegistry } from '@nestjs/schedule';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,6 +17,7 @@ import { WinningNumbersService } from '../winning-numbers/winning-numbers.servic
 import { OrderHelper } from 'src/common/helper';
 import { HoldingNumbersService } from '../holding-numbers/holding-numbers.service';
 import { WalletHistory } from '../wallet/wallet.history.entity';
+import { Logger } from 'winston';
 
 @Injectable()
 export class ScheduleService implements OnModuleInit {
@@ -33,29 +34,33 @@ export class ScheduleService implements OnModuleInit {
         private readonly lotteryAwardService: LotteryAwardService,
         private readonly winningNumbersService: WinningNumbersService,
         private readonly holdingNumbersService: HoldingNumbersService,
+        @Inject("winston")
+        private readonly logger: Logger
     ) { }
 
     async onModuleInit() {
-        console.log("init schedule");
+        this.logger.info("==============================init schedule==============================");
         await this.initJobs();
+        this.logger.info("==============================finish schedule==============================");
     }
 
     async initJobs() {
         let promises: any = [];
         await this.clearDataInRedis();
-        this.deleteAllJobCountDown();
-        console.log("init job start");
+        await this.deleteAllJobCountDown();
+        this.logger.info("init job start");
         promises = promises.concat(this.createJobs(45));
         promises = promises.concat(this.createJobs(60));
         promises = promises.concat(this.createJobs(90));
         promises = promises.concat(this.createJobs(120));
         promises = promises.concat(this.createJobs(180));
         promises = promises.concat(this.createJobs(360));
-        console.log("init job finished");
+        this.logger.info("init job finished");
 
-        console.log("create awards start");
+        this.logger.info("create awards start");
+
         await Promise.all(promises);
-        console.log("create awards finished");
+        this.logger.info("create awards finished");
     }
 
     async createJobs(seconds: number) {
@@ -99,9 +104,7 @@ export class ScheduleService implements OnModuleInit {
 
     async handlerJobs(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number, seconds: number) {
         let gameType = OrderHelper.getGameTypesBySeconds(seconds);
-
         const bookMakers = await this.bookMakerService.getAllBookMaker();
-
         let promises = [];
         for (const bookMaker of bookMakers) {
             for (const type of gameType) {
@@ -111,7 +114,7 @@ export class ScheduleService implements OnModuleInit {
 
         await Promise.all(promises);
 
-        this.finishJob(jobName);
+        this.finishJob(jobName, time);
     }
 
     async processingData(time: number, turnIndex: string, nextTurnIndex: string, nextTime: number, gameType: string, bookmakerId: number) {
@@ -192,15 +195,19 @@ export class ScheduleService implements OnModuleInit {
 
     deleteCron(name: string) {
         this.schedulerRegistry.deleteCronJob(name);
-        console.log(`job ${name} deleted!`);
+        this.logger.info(`job ${name} deleted!`);
     }
 
-    finishJob(name: string) {
-        console.log(`job ${name} finished!`);
+    startJob(name: string) {
+        this.logger.info(`job ${name} started!`);
     }
 
-    deleteAllJobCountDown() {
-        console.log("delete all job.");
+    finishJob(name: string, time: number) {
+        this.logger.info(`job ${name} finished at ${(new Date(time)).toLocaleTimeString()}`);
+    }
+
+    async deleteAllJobCountDown() {
+        this.logger.info("delete all job.");
         const jobs = this.schedulerRegistry.getCronJobs();
         jobs.forEach((value, key, map) => {
             const regex = `10-${(new Date()).getFullYear()}|45-${(new Date()).getFullYear()}|60-${(new Date()).getFullYear()}|90-${(new Date()).getFullYear()}|120-${(new Date()).getFullYear()}|180-${(new Date()).getFullYear()}|360-${(new Date()).getFullYear()}`
@@ -210,9 +217,10 @@ export class ScheduleService implements OnModuleInit {
         });
     }
 
-    @Cron('40 16 * * * ')
+    @Cron('40 6 * * * ')
     cronJob() {
-        console.log('cron job');
+        // console.log('cron job');
+        this.logger.info("cron job.");
         this.initJobs();
     }
 
@@ -232,7 +240,7 @@ export class ScheduleService implements OnModuleInit {
         const keyOrdersOfBookmakerAndGameType = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookmakerId.toString(), gameType);
         const ordersOfBookmakerAndGameType: any = await this.redisService.get(keyOrdersOfBookmakerAndGameType);
         if (!ordersOfBookmakerAndGameType || Object.keys(ordersOfBookmakerAndGameType).length === 0) {
-            console.log(`orders of bookmakerId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
+            this.logger.info(`orders of bookmakerId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
             return;
         }
 
@@ -246,7 +254,7 @@ export class ScheduleService implements OnModuleInit {
             }
 
             if (!ordersOfUser || Object.keys(ordersOfUser).length === 0) {
-                console.log(`orders of userId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
+                this.logger.info(`orders of userId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
                 continue;
             }
 
@@ -259,8 +267,6 @@ export class ScheduleService implements OnModuleInit {
                     orders: ordersOfUser[key],
                     typeBet,
                     prizes,
-                    // orderId,
-                    // turnIndex,
                 });
 
                 // user win vs order hien tai
@@ -321,7 +327,7 @@ export class ScheduleService implements OnModuleInit {
             const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
             await this.walletHistoryRepository.save(createdWalletHis);
 
-            console.log(`userId ${userId} send event payment`);
+            this.logger.info(`userId ${userId} send event payment`);
             this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
         }
         //await this.redisService.del(keyOrdersOfBookmaker);
@@ -385,7 +391,7 @@ export class ScheduleService implements OnModuleInit {
         const keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId.toString(), gameType);
         const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
         if (!ordersOfBookmaker || Object.keys(ordersOfBookmaker).length === 0) {
-            console.log(`orders fake of bookmakerId ${keyOrdersOfBookmaker}-${turnIndex} is not found.`);
+            this.logger.info(`orders fake of bookmakerId ${keyOrdersOfBookmaker}-${turnIndex} is not found.`);
             return;
         }
 
@@ -398,7 +404,7 @@ export class ScheduleService implements OnModuleInit {
             }
 
             if (!ordersOfUser || Object.keys(ordersOfUser).length === 0) {
-                console.log(`orders fake of userId ${keyOrdersOfBookmaker}-${turnIndex} is not found.`);
+                this.logger.info(`orders fake of userId ${keyOrdersOfBookmaker}-${turnIndex} is not found.`);
                 continue;
             }
 
@@ -460,14 +466,14 @@ export class ScheduleService implements OnModuleInit {
             const remainBalance = +wallet.balance + totalBalance;
             await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
 
-            console.log(`userId ${userId} test player send event payment`);
+            this.logger.info(`userId ${userId} test player send event payment`);
             this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
         }
         //await this.redisService.del(keyOrdersOfBookmaker);
     }
 
     async clearDataInRedis() {
-        console.log("clear data in redis");
+        this.logger.info(`clear data in redis.`);
         const bookMakers = await this.bookMakerService.getAllBookMaker();
         const typeLottery = Object.values(TypeLottery);
         const promises = [];

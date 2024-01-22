@@ -1,12 +1,11 @@
-import { OnModuleInit } from '@nestjs/common';
+import { Inject, OnModuleInit } from '@nestjs/common';
 import {
-  MessageBody,
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { FE_URL_1, FE_URL_2 } from 'src/system/config.system/config.default';
+import { Logger } from 'winston';
 
 @WebSocketGateway({
   cors: {
@@ -18,10 +17,14 @@ export class SocketGatewayService implements OnModuleInit {
   @WebSocketServer()
   server: Server;
 
+  constructor(
+    @Inject("winston")
+    private readonly logger: Logger
+) { }
+
   onModuleInit() {
     this.server.on('connection', (socket) => {
-      console.log(socket.id);
-      console.log('socket connected');
+      this.logger.info("socket connected.");
     });
   }
 
