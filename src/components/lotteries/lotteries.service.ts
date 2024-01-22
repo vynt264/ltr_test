@@ -720,20 +720,6 @@ export class LotteriesService {
     // const sortedPrize = Object.fromEntries(sortedPrizeMap);
 
     return sortedPrizeMap;
-
-
-    // let result = [];
-    // for (const key of Object.keys(arrayOf9999Numbers)) {
-    //   result.push({
-    //     number: key,
-    //     payOut: arrayOf9999Numbers[key]
-    //   });
-    // }
-
-    // // result = result.filter((prize: any) => (prize.payOut < totalBetAmount && prize.payOut != 0));
-    // result.sort((a: any, b: any) => a.payOut - b.payOut);
-
-    // return result;
   }
 
   generatePrizes8({
@@ -781,18 +767,6 @@ export class LotteriesService {
     // const sortedPrize = Object.fromEntries(sortedPrizeMap);
 
     return sortedPrizeMap;
-
-    // let result = [];
-    // for (const key of Object.keys(arrayOf99Numbers)) {
-    //   result.push({
-    //     number: key,
-    //     payOut: arrayOf99Numbers[key]
-    //   });
-    // }
-
-    // result.sort((a: any, b: any) => a.payOut - b.payOut);
-
-    // return result;
   }
 
   generatePrizes7({
@@ -851,18 +825,6 @@ export class LotteriesService {
     // const sortedPrize = Object.fromEntries(sortedPrizeMap);
 
     return sortedPrizeMap;
-
-    // let result = [];
-    // for (const key of Object.keys(arrayOf999Numbers)) {
-    //   result.push({
-    //     number: key,
-    //     payOut: arrayOf999Numbers[key]
-    //   });
-    // }
-
-    // result.sort((a: any, b: any) => a.payOut - b.payOut);
-
-    // return result;
   }
 
   generateRemainPrizes({
@@ -906,19 +868,6 @@ export class LotteriesService {
     // const sortedPrize = Object.fromEntries(sortedPrizeMap);
 
     return sortedPrizeMap;
-
-    // let result = [];
-    // for (const key of Object.keys(arrayOf9999Numbers)) {
-    //   result.push({
-    //     number: key,
-    //     payOut: arrayOf9999Numbers[key]
-    //   });
-    // }
-
-    // // result = result.filter((prize: any) => (prize.payOut < totalBetAmount && prize.payOut != 0));
-    // result.sort((a: any, b: any) => a.payOut - b.payOut);
-
-    // return result;
   }
 
   processingXien2({ ordersXien2, prizesFinal, prizes, type, xien2Checked }: any) {
@@ -1443,14 +1392,6 @@ export class LotteriesService {
         }
       }
 
-      // if (exist) {
-      //   // totalBetAmount += (OddBet.XienTruot8 * 1000 * (currentValue?.score || 0));
-      //   if (!ordersXien3HasCounted?.[currentIndex.toString()] && ordersXien3HasCounted?.[currentIndex.toString()] !== 0) {
-      //     totalBetAmount += (OddBet.XienTruot8 * 1000 * (currentValue?.score || 0));
-      //     ordersXien3HasCounted[currentIndex] = (OddBet.XienTruot8 * 1000 * (currentValue?.score || 0));
-      //   }
-      // }
-
       if (exist) {
         const hasIndex = ordersXien3HasCounted.some((index: any) => index == currentIndex);
         if (!hasIndex) {
@@ -1458,11 +1399,6 @@ export class LotteriesService {
           ordersXien3HasCounted.push(currentIndex);
         }
       }
-      // else {
-      //   result.push(currentValue);
-      // }
-
-
 
       result.push(currentValue);
 
@@ -1501,13 +1437,6 @@ export class LotteriesService {
           break;
         }
       }
-      // if (exist) {
-      //   // totalBetAmount += (OddBet.XienTruot10 * 1000 * (currentValue?.score || 0));
-      //   if (!ordersXien4HasCounted?.[currentIndex.toString()] && ordersXien4HasCounted?.[currentIndex.toString()] !== 0) {
-      //     totalBetAmount += (OddBet.XienTruot10 * 1000 * (currentValue?.score || 0));
-      //     ordersXien4HasCounted[currentIndex] = (OddBet.XienTruot10 * 1000 * (currentValue?.score || 0));
-      //   }
-      // }
 
       if (exist) {
         const hasIndex = ordersXien4HasCounted.some((index: any) => index == currentIndex);
@@ -1517,12 +1446,6 @@ export class LotteriesService {
         }
       }
 
-      // else {
-      //   result.push(currentValue);
-      // }
-
-
-
       result.push(currentValue);
 
       return result;
@@ -1531,12 +1454,6 @@ export class LotteriesService {
     for (const orders of ordersTruotXien10) {
       const firstItem = orders.number[0];
       const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
-      // for (const prize of prizes) {
-      //   const exist = prize?.number?.endsWith(firstItem);
-      //   if (exist && !hasInFinalResult) {
-      //     prize.payOut -= ((orders.score || 0) * (OddBet.XienTruot10 * 1000));
-      //   }
-      // }
 
       for (let i = 0; i <= 99; i++) {
         let key = i.toString();
@@ -1564,8 +1481,6 @@ export class LotteriesService {
         payOut: value
       });
     });
-
-    // prizes.sort((a: any, b: any) => a.payOut - b.payOut);
 
     return {
       totalBetAmount,
@@ -1692,13 +1607,6 @@ export class LotteriesService {
       ordersXien4HasCounted,
       type: 'giai-7',
     }));
-
-    // prizes7.forEach((value: any, key: any) => {
-    //   resultLoTruotOfPrize7.push({
-    //     number: key,
-    //     payOut: value
-    //   });
-    // });
 
     // transform data
     const tempResultLoTruotOfPrize7 = resultLoTruotOfPrize7.reduce((init: any, currentValue: any) => {
@@ -1840,20 +1748,6 @@ export class LotteriesService {
       const prizes: any = [];
 
       remainPrizes.forEach((value: number, key: string) => {
-        // if (value == 0) {
-        //   mang0.push({
-        //     number: key,
-        //     payOut: value,
-        //   });
-        // } else {
-        //   if ((totalPayout - (item.payOut || 0) + value) < ((totalBetAmount * 95) / 100)) {
-        //     mangKhac0.push({
-        //       number: key,
-        //       payOut: value,
-        //     });
-        //   }
-        // }
-
         if ((totalPayout - (item.payOut || 0) + value) < ((totalBetAmount * 95) / 100)) {
           prizes.push({
             number: key,
@@ -1864,14 +1758,6 @@ export class LotteriesService {
 
       let index = (Math.floor(Math.random() * prizes.length)).toString();
       let order = prizes[index];
-
-      // if (mangKhac0.length > 0) {
-      //   index = (Math.floor(Math.random() * mangKhac0.length)).toString();
-      //   order = mangKhac0[index];
-      // } else {
-      //   index = (Math.floor(Math.random() * mang0.length)).toString();
-      //   order = mang0[index];
-      // }
 
       if (order) {
         prizesSpecialAnd8And7 = prizesSpecialAnd8And7.filter((prize: any) => {
@@ -1944,25 +1830,6 @@ export class LotteriesService {
     let totalPayout = 0;
     //resultLoTruotOfRemainSpecial danh sach 10000
     for (const order of resultLoTruotOfRemainSpecial) {
-
-      // ({
-      //   totalBetAmount,
-      //   ordersTruotXien4,
-      //   ordersTruotXien8,
-      //   ordersTruotXien10,
-      //   prizes: resultLoTruotOfRemainSpecial,
-      // } = this.checkLoTruot({
-      //   totalBetAmount,
-      //   finalResult: prizesSpecialAnd8And7,
-      //   ordersTruotXien4,
-      //   ordersTruotXien8,
-      //   ordersTruotXien10,
-      //   prizes: remainPrizes,
-      //   ordersXien2HasCounted,
-      //   ordersXien3HasCounted,
-      //   ordersXien4HasCounted,
-      // }));
-      // 
 
       if (count2 === 18) break;
 
@@ -2158,72 +2025,6 @@ export class LotteriesService {
       ordersTruotXien10,
       prizesSpecialAnd8,
     };
-
-    // let resultLoTruotOfPrize8;
-    // ({
-    //   totalBetAmount,
-    //   ordersTruotXien4,
-    //   ordersTruotXien8,
-    //   ordersTruotXien10,
-    //   prizes: resultLoTruotOfPrize8,
-    // } = this.checkLoTruot({
-    //   totalBetAmount,
-    //   finalResult: finalPrizeSpecial,
-    //   ordersTruotXien4,
-    //   ordersTruotXien8,
-    //   ordersTruotXien10,
-    //   prizes: prizes8,
-    //   ordersXien2HasCounted,
-    //   ordersXien3HasCounted,
-    //   ordersXien4HasCounted,
-    // }));
-
-    // let count = 0;
-    // const prizesSpecialAnd8 = [];
-
-    // // transform data
-    // const tempResultLoTruotOfPrize8 = resultLoTruotOfPrize8.reduce((init: any, currentValue: any) => {
-    //   if (!currentValue.payOut || currentValue.payOut === 0) {
-    //     init.resultHavePayout0.push(currentValue);
-    //   } else {
-    //     init.resultNotHavePayout0.push(currentValue);
-    //   }
-
-    //   return init;
-    // }, { resultHavePayout0: [], resultNotHavePayout0: [] });
-    // resultLoTruotOfPrize8 = [...tempResultLoTruotOfPrize8.resultNotHavePayout0, ...tempResultLoTruotOfPrize8.resultHavePayout0];
-
-    // resultLoTruotOfPrize8 = [...finalPrizeSpecial, ...resultLoTruotOfPrize8];
-    // let totalPayout = 0;
-    // for (const order of resultLoTruotOfPrize8) {
-    //   if (count === 2) break;
-
-    //   if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
-    //     continue;
-    //   }
-
-    //   let lastTwoDigits = order?.number.slice(-2);
-    //   prizesSpecialAnd8.push(order);
-    //   count++;
-    //   totalPayout += order?.payOut;
-
-    //   this.checkXien({
-    //     ordersXien2,
-    //     ordersXien3,
-    //     ordersXien4,
-    //     prizesFinal: prizesSpecialAnd8,
-    //     mergeResult: resultLoTruotOfPrize8,
-    //     number: lastTwoDigits,
-    //   });
-    // }
-
-    // return {
-    //   totalBetAmount,
-    //   ordersTruotXien4,
-    //   ordersTruotXien8,
-    //   ordersTruotXien10,
-    //   prizesSpecialAnd8,
-    // };
   }
 
   getPrizeSpecial({
@@ -3415,25 +3216,15 @@ export class LotteriesService {
       } else {
 
         for (const excludeNumber of options.excludeNumbers) {
-          // let tempExcludeNumber = excludeNumber;
-          // if (excludeNumber.length === 1) {
-          //   tempExcludeNumber = `0${excludeNumber}`;
-          // }
-
-
           if (newNumber.length >= 2) {
             const lastTwoDigits = newNumber.substr(-2);
             const lastTwoDigitsOfExcludeNumber = excludeNumber.substr(-2);
             condition = lastTwoDigits == lastTwoDigitsOfExcludeNumber;
 
-
             if (condition) break;
           }
         }
       }
-
-
-
     } while (condition)
     const tempLength = length - newNumber.length;
     for (let i = 0; i < tempLength; i++) {
@@ -3459,26 +3250,18 @@ export class LotteriesService {
             switch (ordersOfBalo.type) {
               case BaoLoType.Lo2So:
                 totalBetAmount += (totalScore * PricePerScore.Lo2So);
-                // console.log("Total score 2so", totalScore);
-                // console.log("Tong tien users dat cuoc: 2so", (totalScore * PricePerScore.Lo2So));
                 break;
 
               case BaoLoType.Lo2So1k:
                 totalBetAmount += (totalScore * PricePerScore.Lo2So1k);
-                // console.log("Total score 2so 1k", totalScore);
-                // console.log("Tong tien users dat cuoc: 2so1k", (totalScore * PricePerScore.Lo2So1k));
                 break;
 
               case BaoLoType.Lo3So:
                 totalBetAmount += (totalScore * PricePerScore.Lo3So);
-                // console.log("Total score 3so", totalScore);
-                // console.log("Tong tien users dat cuoc: 3so", (totalScore * PricePerScore.Lo3So));
                 break;
 
               case BaoLoType.Lo4So:
                 totalBetAmount += (totalScore * PricePerScore.Lo4So);
-                // console.log("Total score 4so", totalScore);
-                // console.log("Tong tien users dat cuoc: 4so", (totalScore * PricePerScore.Lo4So));
                 break;
 
               default:
@@ -3494,20 +3277,14 @@ export class LotteriesService {
             switch (ordersOfLoXien.type) {
               case LoXienType.Xien2:
                 totalBetAmount += (totalScore * PricePerScore.Xien2);
-                // console.log("Total score xien 2", totalScore);
-                // console.log("Tong tien users dat cuoc: xien 2", (totalScore * PricePerScore.Xien2));
                 break;
 
               case LoXienType.Xien3:
                 totalBetAmount += (totalScore * PricePerScore.Xien3);
-                // console.log("Total score xien 3", totalScore);
-                // console.log("Tong tien users dat cuoc: xien 3", (totalScore * PricePerScore.Xien3));
                 break;
 
               case LoXienType.Xien4:
                 totalBetAmount += (totalScore * PricePerScore.Xien4);
-                // console.log("Total score xien 4", totalScore);
-                // console.log("Tong tien users dat cuoc: xien 4", (totalScore * PricePerScore.Xien4));
                 break;
 
               default:
@@ -3523,20 +3300,14 @@ export class LotteriesService {
             switch (ordersOfDanhDe?.type) {
               case DanhDeType.DeDau:
                 totalBetAmount += (totalScore * PricePerScore.DeDau);
-                // console.log("Total score de dau", totalScore);
-                // console.log("Tong tien users dat cuoc: de dau", (totalScore * PricePerScore.DeDau));
                 break;
 
               case DanhDeType.DeDacBiet:
                 totalBetAmount += (totalScore * PricePerScore.DeDacBiet);
-                // console.log("Total score de dac biet", totalScore);
-                // console.log("Tong tien users dat cuoc: de dac biet", (totalScore * PricePerScore.DeDacBiet));
                 break;
 
               case DanhDeType.DeDauDuoi:
                 totalBetAmount += (totalScore * PricePerScore.DeDauDuoi);
-                // console.log("Total score de dau duoi", totalScore);
-                // console.log("Tong tien users dat cuoc: de dau duoi", (totalScore * PricePerScore.DeDauDuoi));
                 break;
 
               default:
@@ -3552,14 +3323,10 @@ export class LotteriesService {
             switch (ordersOfDauDuoi?.type) {
               case DauDuoiType.Duoi:
                 totalBetAmount += (totalScore * PricePerScore.Duoi);
-                // console.log("Total score duoi", totalScore);
-                // console.log("Tong tien users dat cuoc: duoi", (totalScore * PricePerScore.Duoi));
                 break;
 
               case DauDuoiType.Dau:
                 totalBetAmount += (totalScore * PricePerScore.Dau);
-                // console.log("Total score dau", totalScore);
-                // console.log("Tong tien users dat cuoc: dau", (totalScore * PricePerScore.Dau));
                 break;
 
               default:
@@ -3575,14 +3342,10 @@ export class LotteriesService {
             switch (ordersOf3Cang?.type) {
               case BaCangType.BaCangDacBiet:
                 totalBetAmount += (totalScore * PricePerScore.BaCangDacBiet);
-                // console.log("Total score 3 cang dat biet", totalScore);
-                // console.log("Tong tien users dat cuoc: 3 cang dac biet", (totalScore * PricePerScore.BaCangDacBiet));
                 break;
 
               case BaCangType.BaCangDauDuoi:
                 totalBetAmount += (totalScore * PricePerScore.BaCangDauDuoi);
-                // console.log("Total score 3 cang dau duoi", totalScore);
-                // console.log("Tong tien users dat cuoc: 3 cang dau duoi", (totalScore * PricePerScore.BaCangDauDuoi));
                 break;
 
               default:
@@ -3598,8 +3361,6 @@ export class LotteriesService {
             switch (ordersOf4Cang?.type) {
               case BonCangType.BonCangDacBiet:
                 totalBetAmount += (totalScore * PricePerScore.BonCangDacBiet);
-                // console.log("Total score 4 cang dat biet", totalScore);
-                // console.log("Tong tien users dat cuoc: 4 cang dac biet", (totalScore * PricePerScore.BaCangDauDuoi));
                 break;
 
               default:
@@ -3615,20 +3376,14 @@ export class LotteriesService {
             switch (ordersOfLoTruot.type) {
               case LoTruocType.TruotXien4:
                 totalBetAmount += (totalScore * PricePerScore.TruotXien4);
-                // console.log("Total score truot xien 4", totalScore);
-                // console.log("Tong tien users dat cuoc: truot 4", (totalScore * PricePerScore.XienTruot4));
                 break;
 
               case LoTruocType.TruotXien8:
                 totalBetAmount += (totalScore * PricePerScore.TruotXien8);
-                // console.log("Total score truot xien 8", totalScore);
-                // console.log("Tong tien users dat cuoc: truot 8", (totalScore * PricePerScore.XienTruot8));
                 break;
 
               case LoTruocType.TruotXien10:
                 totalBetAmount += (totalScore * PricePerScore.TruotXien10);
-                // console.log("Total score truot xien 10", totalScore);
-                // console.log("Tong tien users dat cuoc: truot 10", (totalScore * PricePerScore.XienTruot10));
                 break;
 
               default:
@@ -3788,76 +3543,4 @@ export class LotteriesService {
       return accumulator;
     }, []);
   }
-
-  // randomPrizes(prizes: any) {
-  //   if (!prizes) return {};
-
-  //   const values = _.get(prizes, 'finalResult.values', []);
-  //   const specialPrize: string[] = [this.generateDigitsPrize(values?.[0]?.number || '', 6)];
-  //   const prize8: string[] = [this.generateDigitsPrize(values?.[1]?.number || '', 2)];
-  //   const prize7: string[] = [this.generateDigitsPrize(values?.[2]?.number || '', 3)];
-  //   const prize6: string[] = [
-  //     this.generateDigitsPrize(values?.[3]?.number || '', 4),
-  //     this.generateDigitsPrize(values?.[4]?.number || '', 4),
-  //     this.generateDigitsPrize(values?.[5]?.number || '', 4),
-  //   ];
-  //   const prize5: string[] = [
-  //     this.generateDigitsPrize(values?.[6]?.number || '', 4),
-  //   ];
-  //   const prize4: string[] = [
-  //     this.generateDigitsPrize(values?.[7]?.number || '', 5),
-  //     this.generateDigitsPrize(values?.[8]?.number || '', 5),
-  //     this.generateDigitsPrize(values?.[9]?.number || '', 5),
-  //     this.generateDigitsPrize(values?.[10]?.number || '', 5),
-  //     this.generateDigitsPrize(values?.[11]?.number || '', 5),
-  //     this.generateDigitsPrize(values?.[12]?.number || '', 5),
-  //     this.generateDigitsPrize(values?.[13]?.number || '', 5),
-  //   ];
-  //   const prize3: string[] = [
-  //     this.generateDigitsPrize(values?.[14]?.number || '', 5),
-  //     this.generateDigitsPrize(values?.[15]?.number || '', 5),
-  //   ];
-  //   const prize2: string[] = [
-  //     this.generateDigitsPrize(values?.[16]?.number || '', 5),
-  //   ];
-  //   const prize1: string[] = [
-  //     this.generateDigitsPrize(values?.[17]?.number || '', 5),
-  //   ];
-
-  //   return {
-  //     [PRIZES.SPECIAL_PRIZE]: specialPrize,
-  //     [PRIZES.PRIZE_1]: prize1,
-  //     [PRIZES.PRIZE_2]: prize2,
-  //     [PRIZES.PRIZE_3]: prize3,
-  //     [PRIZES.PRIZE_4]: prize4,
-  //     [PRIZES.PRIZE_5]: prize5,
-  //     [PRIZES.PRIZE_6]: prize6,
-  //     [PRIZES.PRIZE_7]: prize7,
-  //     [PRIZES.PRIZE_8]: prize8,
-  //   };
-  // }
-
-  // generateDigitsPrize(number: string, length: number) {
-  //   if (!length) return number;
-
-  //   const tempLength = length - number.length;
-  //   if (tempLength <= 0) return number;
-
-  //   let numberAdded;
-  //   if (tempLength === 1) {
-  //     numberAdded = Math.floor(Math.random() * 1);
-  //   } else if (tempLength === 2) {
-  //     numberAdded = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
-  //   } else if (tempLength === 3) {
-  //     numberAdded = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
-  //   } else if (tempLength === 4) {
-  //     numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-  //   } else if (tempLength === 5) {
-  //     numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 10000;
-  //   } else if (tempLength === 6) {
-  //     numberAdded = Math.floor(Math.random() * (9999 - 1000 + 1)) + 100000;
-  //   }
-
-  //   return `${numberAdded}${number}`;
-  // }
 }
