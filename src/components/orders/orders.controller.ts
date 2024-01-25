@@ -8,9 +8,7 @@ import { RateLimitGuard } from '../auth/rate.guard/rate.limit.guard';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import { ValidationPipe } from './validations/validation.pipe';
-
-import { ERROR, MESSAGE, STATUSCODE } from "../../system/constants";
-
+import { ERROR } from "../../system/constants";
 
 @Controller('api/v1/orders')
 export class OrdersController {
