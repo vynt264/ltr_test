@@ -178,6 +178,18 @@ export class AnalyticsService {
         this.analytic1 = Ianalytic1
         this.analytic1.ngan = {}
         this.analytic1.tram = {}
+        const dataDf = {
+            '0': 0,
+            '1': 0,
+            '2': 0,
+            '3': 0,
+            '4': 0,
+            '5': 0,
+            '6': 0,
+            '7': 0,
+            '8': 0,
+            '9': 0,
+        }
 
         switch (body.subPlayType) {
 
@@ -188,14 +200,14 @@ export class AnalyticsService {
                     const dauNum = award.charAt(4)
                     const duoiNum = award.charAt(5)
 
-                    for (const key in this.analytic1.dau) {
+                    for (const key in dataDf) {
                         if (key === dauNum) {
                             this.analytic1.dau[dauNum] = 0
                         } else {
                             this.analytic1.dau[key] += 1
                         }
                     }
-                    for (const key in this.analytic1.duoi) {
+                    for (const key in dataDf) {
                         if (key === duoiNum) {
                             this.analytic1.duoi[duoiNum] = 0
                         } else {
@@ -224,14 +236,14 @@ export class AnalyticsService {
                         const dauNum = award.charAt(0)
                         const duoiNum = award.charAt(1)
 
-                        for (const key in this.analytic1.dau) {
+                        for (const key in dataDf) {
                             if (key === dauNum) {
                                 this.analytic1.dau[dauNum] = 0
                             } else {
                                 this.analytic1.dau[key] += 1
                             }
                         }
-                        for (const key in this.analytic1.duoi) {
+                        for (const key in dataDf) {
                             if (key === duoiNum) {
                                 this.analytic1.duoi[dauNum] = 0
                             } else {
@@ -270,7 +282,6 @@ export class AnalyticsService {
         this.analytic1 = Ianalytic1
         this.analytic1.ngan = {}
         this.analytic1.tram = {}
-        let analytic2: { [key: string]: number }
         const dataDf = {
             '0': 0,
             '1': 0,
@@ -324,6 +335,18 @@ export class AnalyticsService {
     ) {
         this.analytic1 = Ianalytic1
         this.analytic1.ngan = {}
+        const dataDf = {
+            '0': 0,
+            '1': 0,
+            '2': 0,
+            '3': 0,
+            '4': 0,
+            '5': 0,
+            '6': 0,
+            '7': 0,
+            '8': 0,
+            '9': 0,
+        }
 
         switch (body.subPlayType) {
 
@@ -335,21 +358,21 @@ export class AnalyticsService {
                     const dauNum = award.charAt(1)
                     const duoiNum = award.charAt(2)
 
-                    for (const key in this.analytic1.tram) {
+                    for (const key in dataDf) {
                         if (key === tramNum) {
                             this.analytic1.tram[tramNum] = 0
                         } else {
                             this.analytic1.tram[key] += 1
                         }
                     }
-                    for (const key in this.analytic1.dau) {
+                    for (const key in dataDf) {
                         if (key === dauNum) {
                             this.analytic1.dau[dauNum] = 0
                         } else {
                             this.analytic1.dau[key] += 1
                         }
                     }
-                    for (const key in this.analytic1.duoi) {
+                    for (const key in dataDf) {
                         if (key === duoiNum) {
                             this.analytic1.duoi[duoiNum] = 0
                         } else {
@@ -379,21 +402,21 @@ export class AnalyticsService {
                         const dauNum = award.charAt(1)
                         const duoiNum = award.charAt(2)
 
-                        for (const key in this.analytic1.tram) {
+                        for (const key in dataDf) {
                             if (key === tramNum) {
                                 this.analytic1.tram[tramNum] = 0
                             } else {
                                 this.analytic1.tram[key] += 1
                             }
                         }
-                        for (const key in this.analytic1.dau) {
+                        for (const key in dataDf) {
                             if (key === dauNum) {
                                 this.analytic1.dau[dauNum] = 0
                             } else {
                                 this.analytic1.dau[key] += 1
                             }
                         }
-                        for (const key in this.analytic1.duoi) {
+                        for (const key in dataDf) {
                             if (key === duoiNum) {
                                 this.analytic1.duoi[dauNum] = 0
                             } else {
@@ -415,6 +438,18 @@ export class AnalyticsService {
         body: BodyAnalyticsDto,
         arrAwards: any[],
     ) {
+        const dataDf = {
+            '0': 0,
+            '1': 0,
+            '2': 0,
+            '3': 0,
+            '4': 0,
+            '5': 0,
+            '6': 0,
+            '7': 0,
+            '8': 0,
+            '9': 0,
+        }
 
         for (const item of arrAwards) {
             const award: string = item[0][0].slice(-4)
@@ -423,28 +458,28 @@ export class AnalyticsService {
             const dauNum = award.charAt(2)
             const duoiNum = award.charAt(3)
 
-            for (const key in this.analytic1.duoi) {
+            for (const key in dataDf) {
                 if (key === nganNum) {
                     this.analytic1.ngan[nganNum] = 0
                 } else {
                     this.analytic1.ngan[key] += 1
                 }
             }
-            for (const key in this.analytic1.tram) {
+            for (const key in dataDf) {
                 if (key === tramNum) {
                     this.analytic1.tram[tramNum] = 0
                 } else {
                     this.analytic1.tram[key] += 1
                 }
             }
-            for (const key in this.analytic1.dau) {
+            for (const key in dataDf) {
                 if (key === dauNum) {
                     this.analytic1.dau[dauNum] = 0
                 } else {
                     this.analytic1.dau[key] += 1
                 }
             }
-            for (const key in this.analytic1.duoi) {
+            for (const key in dataDf) {
                 if (key === duoiNum) {
                     this.analytic1.duoi[duoiNum] = 0
                 } else {
