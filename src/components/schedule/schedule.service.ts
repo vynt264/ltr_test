@@ -18,6 +18,7 @@ import { OrderHelper } from 'src/common/helper';
 import { HoldingNumbersService } from '../holding-numbers/holding-numbers.service';
 import { WalletHistory } from '../wallet/wallet.history.entity';
 import { Logger } from 'winston';
+import { ManageBonusPriceService } from '../manage-bonus-price/manage-bonus-price.service';
 
 @Injectable()
 export class ScheduleService implements OnModuleInit {
@@ -34,17 +35,18 @@ export class ScheduleService implements OnModuleInit {
         private readonly lotteryAwardService: LotteryAwardService,
         private readonly winningNumbersService: WinningNumbersService,
         private readonly holdingNumbersService: HoldingNumbersService,
+        private readonly manageBonusPriceService: ManageBonusPriceService,
         @Inject("winston")
         private readonly logger: Logger
     ) { }
 
     async onModuleInit() {
         this.logger.info("==============================init schedule==============================");
-        await this.initJobs();
+        await this.init();
         this.logger.info("==============================finish schedule==============================");
     }
 
-    async initJobs() {
+    async init() {
         let promises: any = [];
         await this.clearDataInRedis();
         await this.deleteAllJobCountDown();
@@ -61,6 +63,8 @@ export class ScheduleService implements OnModuleInit {
 
         await Promise.all(promises);
         this.logger.info("create awards finished");
+
+        await this.manageBonusPriceService.initBonusPrice();
     }
 
     async createJobs(seconds: number) {
@@ -80,7 +84,7 @@ export class ScheduleService implements OnModuleInit {
                 this.addCronJob(jobName, seconds, timeMillisecondsStartRunJob, turnIndex, nextTurnIndex, nextTime);
             }
             else {
-                const tempPromises = await this.createLotteryAwardInPastTime(turnIndex, seconds);
+                const tempPromises = await this.createLotteryAwardInPastTime(turnIndex, seconds, timeMillisecondsStartRunJob);
                 promises = promises.concat(tempPromises);
             }
         }
@@ -138,7 +142,12 @@ export class ScheduleService implements OnModuleInit {
 
         // real users
         const dataTransform = OrderHelper.transformData(data);
-        const prizes = this.lotteriesService.generatePrizes(dataTransform);
+        const prizes = await this.lotteriesService.handlerPrizes({
+            type: gameType,
+            data: dataTransform,
+            isTestPlayer: false,
+        });
+
         const finalResult = OrderHelper.randomPrizes(prizes);
         this.lotteryAwardService.createLotteryAward({
             turnIndex,
@@ -146,6 +155,7 @@ export class ScheduleService implements OnModuleInit {
             awardDetail: JSON.stringify(finalResult),
             bookmaker: { id: bookmakerId } as any,
             isTestPlayer: false,
+            openTime: new Date(time),
         });
         const eventSendAwards = `${bookmakerId}-${gameType}-receive-prizes`;
         this.socketGateway.sendEventToClient(eventSendAwards, {
@@ -166,7 +176,12 @@ export class ScheduleService implements OnModuleInit {
 
         // fake users
         const dataTransformOfFakeUsers = OrderHelper.transformData(dataOfTestPlayer);
-        const prizesOfFakeUsers = this.lotteriesService.generatePrizes(dataTransformOfFakeUsers);
+        // const prizesOfFakeUsers = this.lotteriesService.generatePrizes(dataTransformOfFakeUsers);
+        const prizesOfFakeUsers = await this.lotteriesService.handlerPrizes({
+            type: gameType,
+            data: dataTransformOfFakeUsers,
+            isTestPlayer: true,
+        });
         const finalResultOfFakeUsers = OrderHelper.randomPrizes(prizesOfFakeUsers);
         this.lotteryAwardService.createLotteryAward({
             turnIndex,
@@ -174,6 +189,7 @@ export class ScheduleService implements OnModuleInit {
             awardDetail: JSON.stringify(finalResultOfFakeUsers),
             bookmaker: { id: bookmakerId } as any,
             isTestPlayer: true,
+            openTime: new Date(time),
         });
         const eventSendAwardsOfFakeUsers = `${bookmakerId}-${gameType}-test-player-receive-prizes`;
         this.socketGateway.sendEventToClient(eventSendAwardsOfFakeUsers, {
@@ -219,9 +235,8 @@ export class ScheduleService implements OnModuleInit {
 
     @Cron('40 6 * * * ')
     cronJob() {
-        // console.log('cron job');
         this.logger.info("cron job.");
-        this.initJobs();
+        this.init();
     }
 
     async handleBalance({
@@ -487,7 +502,7 @@ export class ScheduleService implements OnModuleInit {
         await Promise.all(promises);
     }
 
-    async createLotteryAwardInPastTime(turnIndex: string, seconds: number) {
+    async createLotteryAwardInPastTime(turnIndex: string, seconds: number, openTime: number) {
         let gameType: any = OrderHelper.getGameTypesBySeconds(seconds);
         const promises = [];
         const bookMakers = await this.bookMakerService.getAllBookMaker();
@@ -504,6 +519,7 @@ export class ScheduleService implements OnModuleInit {
                         awardDetail: JSON.stringify(finalResult),
                         bookmaker: { id: bookMaker.id } as any,
                         isTestPlayer: false,
+                        openTime: new Date(openTime),
                     })
                 )
 
@@ -514,6 +530,7 @@ export class ScheduleService implements OnModuleInit {
                         awardDetail: JSON.stringify(finalResult),
                         bookmaker: { id: bookMaker.id } as any,
                         isTestPlayer: true,
+                        openTime: new Date(openTime),
                     })
                 )
             }

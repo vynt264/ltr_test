@@ -3,6 +3,8 @@ import * as _ from "lodash";
 import { CreateLotteryDto } from './dto/create-lottery.dto';
 import { UpdateLotteryDto } from './dto/update-lottery.dto';
 import {
+  INIT_TIME_CREATE_JOB,
+  MAINTENANCE_PERIOD,
   PRIZES,
 } from '../../system/constants';
 import { OrderDto } from './dto/order.dto';
@@ -20,11 +22,15 @@ import {
   PricePerScore,
   TroChoiThuViType,
 } from '../../system/enums/lotteries';
+import { ManageBonusPriceService } from '../manage-bonus-price/manage-bonus-price.service';
 
 @Injectable()
 export class LotteriesService {
+  constructor(
+    private readonly manageBonusPriceService: ManageBonusPriceService
+  ) { }
 
-  generatePrizes(orders: any) {
+  generatePrizes(orders: any, bonusPrice?: number) {
     const {
       ordersLo2So,
       ordersLo2So1k,
@@ -48,7 +54,11 @@ export class LotteriesService {
       ordersLo2SoGiaiDacBiet,
     } = this.transformOrdersNumber(orders);
 
-    const totalBetAmount = this.getTotalBetAmount(orders);
+    let totalBetAmount = this.getTotalBetAmount(orders);
+    let temptotalBetAmount = totalBetAmount;
+    if (bonusPrice > 0) {
+      temptotalBetAmount = totalBetAmount + bonusPrice;
+    }
     // console.log("Tong tien users dat cuoc", totalBetAmount);
 
     const finalResult = this.getPrizes({
@@ -56,7 +66,7 @@ export class LotteriesService {
       ordersLo2So1k,
       ordersLo3So,
       ordersLo4So,
-      totalBetAmount,
+      totalBetAmount: temptotalBetAmount,
       ordersXien2,
       ordersXien3,
       ordersXien4,
@@ -111,6 +121,34 @@ export class LotteriesService {
 
   remove(id: number) {
     return `This action removes a #${id} lottery`;
+  }
+
+  async handlerPrizes({
+    isTestPlayer,
+    type,
+    data,
+  }: any) {
+    const timeStart = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
+    const fromDate = new Date(timeStart).getTime();
+    const toDate = fromDate + ((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) * 1000;
+    const dataBonusPrice = await this.manageBonusPriceService.findBonusPriceByType({
+      type,
+      toDate,
+      fromDate,
+      isTestPlayer,
+    });
+
+    const prizes = this.generatePrizes(data, dataBonusPrice.bonusPrice);
+    const totalBet = (dataBonusPrice?.totalBet || 0) + (prizes.totalBetAmount || 0);
+    const totalProfit = dataBonusPrice?.totalProfit + ((prizes?.totalBetAmount || 0) - (prizes?.finalResult?.totalPayout || 0));
+    const bonusPrice = totalProfit - (totalBet * 0.05);
+    dataBonusPrice.totalBet = totalBet;
+    dataBonusPrice.totalProfit = totalProfit;
+    dataBonusPrice.bonusPrice = bonusPrice;
+
+    await this.manageBonusPriceService.update(dataBonusPrice.id, dataBonusPrice);
+
+    return prizes;
   }
 
   calcPayoutPerOrderNumber({
@@ -2841,7 +2879,7 @@ export class LotteriesService {
     let ordersDuoi: any = [];
     let ordersLo2SoGiaiDacBiet: any = [];
 
-    for (const order of orders) {
+    for (const order of (orders || [])) {
       switch (order?.categoryLotteryType) {
         case CategoryLotteryType.BaoLo:
           for (const orderOfBalo of order?.data) {

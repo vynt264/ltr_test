@@ -31,4 +31,6 @@ export class CreateLotteryAwardDto {
   bookmaker: BookMaker;
 
   isTestPlayer: boolean;
+
+  openTime: Date;
 }

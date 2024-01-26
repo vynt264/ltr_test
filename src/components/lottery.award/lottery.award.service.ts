@@ -150,110 +150,110 @@ export class LotteryAwardService {
     }
   }
 
-  async getAllType(): Promise<BaseResponse> {
-    try {
-      const lotteryAwards: any = [];
-      const listType = [
-        // TypeLottery.XSMB_1_S,
-        TypeLottery.XSMB_45_S,
-        TypeLottery.XSMB_180_S,
-        // TypeLottery.XSMT_1_S,
-        TypeLottery.XSMT_45_S,
-        TypeLottery.XSMT_180_S,
-        // TypeLottery.XSMN_1_S,
-        TypeLottery.XSMN_45_S,
-        TypeLottery.XSMN_180_S,
-        // TypeLottery.XSSPL_1_S,
-        TypeLottery.XSSPL_45_S,
-        TypeLottery.XSSPL_60_S,
-        TypeLottery.XSSPL_90_S,
-        TypeLottery.XSSPL_120_S,
-        TypeLottery.XSSPL_360_S,
-      ]
-      const all = listType.map(async (type: string) => {
-        const dataRes = await this.getLottery(type);
-        const data = dataRes?.result;
-        lotteryAwards.push(data)
-      });
-      await Promise.all(all);
+  // async getAllType(): Promise<BaseResponse> {
+  //   try {
+  //     const lotteryAwards: any = [];
+  //     const listType = [
+  //       // TypeLottery.XSMB_1_S,
+  //       TypeLottery.XSMB_45_S,
+  //       TypeLottery.XSMB_180_S,
+  //       // TypeLottery.XSMT_1_S,
+  //       TypeLottery.XSMT_45_S,
+  //       TypeLottery.XSMT_180_S,
+  //       // TypeLottery.XSMN_1_S,
+  //       TypeLottery.XSMN_45_S,
+  //       TypeLottery.XSMN_180_S,
+  //       // TypeLottery.XSSPL_1_S,
+  //       TypeLottery.XSSPL_45_S,
+  //       TypeLottery.XSSPL_60_S,
+  //       TypeLottery.XSSPL_90_S,
+  //       TypeLottery.XSSPL_120_S,
+  //       TypeLottery.XSSPL_360_S,
+  //     ]
+  //     const all = listType.map(async (type: string) => {
+  //       const dataRes = await this.getLottery(type);
+  //       const data = dataRes?.result;
+  //       lotteryAwards.push(data)
+  //     });
+  //     await Promise.all(all);
 
-      return new SuccessResponse(
-        STATUSCODE.COMMON_SUCCESS,
-        lotteryAwards,
-        MESSAGE.LIST_SUCCESS
-      );
-    } catch (error) {
-      this.logger.debug(
-        `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
-      );
-      return new ErrorResponse(
-        STATUSCODE.COMMON_FAILED,
-        error,
-        MESSAGE.LIST_FAILED
-      );
-    }
-  }
+  //     return new SuccessResponse(
+  //       STATUSCODE.COMMON_SUCCESS,
+  //       lotteryAwards,
+  //       MESSAGE.LIST_SUCCESS
+  //     );
+  //   } catch (error) {
+  //     this.logger.debug(
+  //       `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
+  //     );
+  //     return new ErrorResponse(
+  //       STATUSCODE.COMMON_FAILED,
+  //       error,
+  //       MESSAGE.LIST_FAILED
+  //     );
+  //   }
+  // }
 
-  async getCurentXsmb(
-  ): Promise<BaseResponse> {
-    try {
-      const xsmbAward = await this.lotteryAwardRepository.findOne({
-        select: {
-          openTime: true,
-          awardDetail: true,
-          type: true,
-          awardTitle: true,
-          turnIndex: true,
-        },
-        where: {
-          type: `${TypeLottery.XSMB}`
-        },
-        order: {
-          id: "DESC"
-        }
-      });
-      const { nextTime, nextTurnIndex } = this.getNextTimeXsmb(xsmbAward);
+  // async getCurentXsmb(
+  // ): Promise<BaseResponse> {
+  //   try {
+  //     const xsmbAward = await this.lotteryAwardRepository.findOne({
+  //       select: {
+  //         openTime: true,
+  //         awardDetail: true,
+  //         type: true,
+  //         awardTitle: true,
+  //         turnIndex: true,
+  //       },
+  //       where: {
+  //         type: `${TypeLottery.XSMB}`
+  //       },
+  //       order: {
+  //         id: "DESC"
+  //       }
+  //     });
+  //     const { nextTime, nextTurnIndex } = this.getNextTimeXsmb(xsmbAward);
 
-      const xsmb = { award: xsmbAward, nextTime, nextTurnIndex };
+  //     const xsmb = { award: xsmbAward, nextTime, nextTurnIndex };
 
-      const xsmb45sAward = await this.lotteryAwardRepository.findOne({
-        select: {
-          openTime: true,
-          awardDetail: true,
-          type: true,
-          awardTitle: true,
-          turnIndex: true,
-        },
-        where: {
-          type: `${TypeLottery.XSMB_45_S}`
-        },
-        order: {
-          id: "DESC"
-        }
-      });
+  //     const xsmb45sAward = await this.lotteryAwardRepository.findOne({
+  //       select: {
+  //         openTime: true,
+  //         awardDetail: true,
+  //         type: true,
+  //         awardTitle: true,
+  //         turnIndex: true,
+  //       },
+  //       where: {
+  //         type: `${TypeLottery.XSMB_45_S}`
+  //       },
+  //       order: {
+  //         id: "DESC"
+  //       }
+  //     });
 
-      const { nextTime: nextTime45s, nextTurnIndex: nextTurnIndex45s } = this.getNextTimeXsBySecond(45000);
-      const xsmb45s = { award: xsmb45sAward, nextTime: nextTime45s, nextTurnIndex: nextTurnIndex45s };
-      const result: CurrentXsmb = {
-        xsmb,
-        xsmb45s
-      }
-      return new SuccessResponse(
-        STATUSCODE.COMMON_SUCCESS,
-        result,
-        MESSAGE.LIST_SUCCESS
-      );
-    } catch (error) {
-      this.logger.debug(
-        `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
-      );
-      return new ErrorResponse(
-        STATUSCODE.COMMON_FAILED,
-        error,
-        MESSAGE.LIST_FAILED
-      );
-    }
-  }
+  //     const { nextTime: nextTime45s, nextTurnIndex: nextTurnIndex45s } = this.getNextTimeXsBySecond(45000);
+  //     const xsmb45s = { award: xsmb45sAward, nextTime: nextTime45s, nextTurnIndex: nextTurnIndex45s };
+  //     const result: CurrentXsmb = {
+  //       xsmb,
+  //       xsmb45s
+  //     }
+  //     return new SuccessResponse(
+  //       STATUSCODE.COMMON_SUCCESS,
+  //       result,
+  //       MESSAGE.LIST_SUCCESS
+  //     );
+  //   } catch (error) {
+  //     this.logger.debug(
+  //       `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
+  //     );
+  //     return new ErrorResponse(
+  //       STATUSCODE.COMMON_FAILED,
+  //       error,
+  //       MESSAGE.LIST_FAILED
+  //     );
+  //   }
+  // }
 
   async getLottery(type: string): Promise<BaseResponse> {
     try {
@@ -261,10 +261,10 @@ export class LotteryAwardService {
       let nextTurnIndex = null;
       const lottery = await this.lotteryAwardRepository.findOne({
         select: {
-          openTime: true,
+          // openTime: true,
           awardDetail: true,
           type: true,
-          awardTitle: true,
+          // awardTitle: true,
           turnIndex: true,
           id: true,
         },
@@ -356,8 +356,8 @@ export class LotteryAwardService {
     return { nextTime, nextTurnIndex };
   }
 
-  // getNextTime() {
-  // }
+  getNextTime() {
+  }
 
   async userGetAll(
     paginationQueryDto: PaginationQueryDto,
@@ -433,17 +433,17 @@ export class LotteryAwardService {
     const skip = +perPage * +page - +perPage;
     const searching = await this.lotteryAwardRepository.findAndCount({
       select: {
-        openTime: true,
-        status: true,
+        // openTime: true,
+        // status: true,
         type: true,
         awardDetail: true,
-        awardTitle: true,
+        // awardTitle: true,
         turnIndex: true,
-        partnerCode: true,
+        // partnerCode: true,
         createdAt: true,
-        rateWin: true,
-        totalPay: true,
-        totalRevenue: true,
+        // rateWin: true,
+        // totalPay: true,
+        // totalRevenue: true,
       },
       where: this.guestHoldQuery(lotteryAwardDto, bookMakerId, usernameReal),
       take: +perPage,
@@ -570,39 +570,39 @@ export class LotteryAwardService {
     return { error: null, user };
   }
 
-  async processJobGetXsmb(fromDate: Date, toDate: Date, typeLotrery: string, isAuto: boolean = false) {
-    const body = await this.connectService.getDataLottery(typeLotrery, fromDate, toDate);
-    if (body && body instanceof Array && body.length > 0) {
-      for (let i = 0; i < body.length; i++) {
-        try {
-          const data = body[i];
-          const award = this.lotteryAwardRepository.create({});
-          const formatYYYMMDD = data?.ngay + '';
-          award.turnIndex = `${formatYYYMMDD.slice(8, 10)}/${formatYYYMMDD.slice(5, 7)}/${formatYYYMMDD.slice(0, 4)}`;
-          award.type = typeLotrery;
-          const arrAward = this.convertDetail(data?.ket_qua, typeLotrery);
+  // async processJobGetXsmb(fromDate: Date, toDate: Date, typeLotrery: string, isAuto: boolean = false) {
+  //   const body = await this.connectService.getDataLottery(typeLotrery, fromDate, toDate);
+  //   if (body && body instanceof Array && body.length > 0) {
+  //     for (let i = 0; i < body.length; i++) {
+  //       try {
+  //         const data = body[i];
+  //         const award = this.lotteryAwardRepository.create({});
+  //         const formatYYYMMDD = data?.ngay + '';
+  //         award.turnIndex = `${formatYYYMMDD.slice(8, 10)}/${formatYYYMMDD.slice(5, 7)}/${formatYYYMMDD.slice(0, 4)}`;
+  //         award.type = typeLotrery;
+  //         const arrAward = this.convertDetail(data?.ket_qua, typeLotrery);
 
-          if (arrAward.length == 0) {
-            return;
-          }
+  //         if (arrAward.length == 0) {
+  //           return;
+  //         }
 
-          award.awardDetail = JSON.stringify(arrAward);
-          award.awardTitle = arrAward[0];
-          award.openTime = this.convertOpenTime(typeLotrery, new Date(data.ngay));
-          await this.lotteryAwardRepository.save(award);
-        } catch (error) {
-          this.logger.debug(
-            `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
-          );
-        }
-      }
-    } else {
-      // await 10s
-      if (isAuto) {
-        await this.processJobGetXsmb(fromDate, toDate, typeLotrery);
-      }
-    }
-  }
+  //         award.awardDetail = JSON.stringify(arrAward);
+  //         award.awardTitle = arrAward[0];
+  //         award.openTime = this.convertOpenTime(typeLotrery, new Date(data.ngay));
+  //         await this.lotteryAwardRepository.save(award);
+  //       } catch (error) {
+  //         this.logger.debug(
+  //           `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
+  //         );
+  //       }
+  //     }
+  //   } else {
+  //     // await 10s
+  //     if (isAuto) {
+  //       await this.processJobGetXsmb(fromDate, toDate, typeLotrery);
+  //     }
+  //   }
+  // }
 
   // async processXsByType(type: string) {
   //   const turnIndex = this.getTurnIndex(type);
@@ -678,70 +678,70 @@ export class LotteryAwardService {
     return arrAwardStr;
   }
 
-  async processInitLotteryAward(createRequestDto: LotteryRequestDetailDto): Promise<BaseResponse> {
-    try {
-      createRequestDto.type = createRequestDto.type
-        ? createRequestDto.type
-        : `${TypeLottery.XSN_TEST}`;
-      let ft = "";
-      createRequestDto.turnIndex = this.getTurnIndex(createRequestDto.type);
-      let lotteryRequest = null;
-      const newLotteryRequest = {
-        detail: { ...createRequestDto },
-        status: `${StatusSend.INIT}`,
-      };
+  // async processInitLotteryAward(createRequestDto: LotteryRequestDetailDto): Promise<BaseResponse> {
+  //   try {
+  //     createRequestDto.type = createRequestDto.type
+  //       ? createRequestDto.type
+  //       : `${TypeLottery.XSN_TEST}`;
+  //     let ft = "";
+  //     createRequestDto.turnIndex = this.getTurnIndex(createRequestDto.type);
+  //     let lotteryRequest = null;
+  //     const newLotteryRequest = {
+  //       detail: { ...createRequestDto },
+  //       status: `${StatusSend.INIT}`,
+  //     };
 
-      const createdLotteryRequest =
-        this.lotteryRequestRepository.create(newLotteryRequest);
-      const ftQueue = await this.lotteryFtRepository.save({});
-      createdLotteryRequest.type = createRequestDto.type;
-      const lotteryFound = await this.lotteryRequestRepository.findOneBy({
-        type: createRequestDto.type,
-        turnIndex: createRequestDto.turnIndex,
-      });
+  //     const createdLotteryRequest =
+  //       this.lotteryRequestRepository.create(newLotteryRequest);
+  //     const ftQueue = await this.lotteryFtRepository.save({});
+  //     createdLotteryRequest.type = createRequestDto.type;
+  //     const lotteryFound = await this.lotteryRequestRepository.findOneBy({
+  //       type: createRequestDto.type,
+  //       turnIndex: createRequestDto.turnIndex,
+  //     });
 
-      if (lotteryFound) {
-        return new ErrorResponse(
-          STATUSCODE.REQUEST_DUPLICATE,
-          "request duplicated",
-          ERROR.CREATE_FAILED
-        );
-      }
+  //     if (lotteryFound) {
+  //       return new ErrorResponse(
+  //         STATUSCODE.REQUEST_DUPLICATE,
+  //         "request duplicated",
+  //         ERROR.CREATE_FAILED
+  //       );
+  //     }
 
-      ft = PrefixEnum.LOTTTERY_REQUEST + ftQueue.id;
-      createdLotteryRequest.turnIndex = createRequestDto.turnIndex;
-      lotteryRequest = await this.lotteryRequestRepository.save(
-        createdLotteryRequest
-      );
+  //     ft = PrefixEnum.LOTTTERY_REQUEST + ftQueue.id;
+  //     createdLotteryRequest.turnIndex = createRequestDto.turnIndex;
+  //     lotteryRequest = await this.lotteryRequestRepository.save(
+  //       createdLotteryRequest
+  //     );
 
-      const lotteryAward = await this.processInitAward(
-        createRequestDto,
-        lotteryRequest
-      );
-      // TODO remove log
-      if (lotteryAward.totalPay > 0) {
-        console.log(lotteryAward);
-      }
+  //     const lotteryAward = await this.processInitAward(
+  //       createRequestDto,
+  //       lotteryRequest
+  //     );
+  //     // TODO remove log
+  //     if (lotteryAward.totalPay > 0) {
+  //       console.log(lotteryAward);
+  //     }
 
-      return new SuccessResponse(
-        STATUSCODE.COMMON_CREATE_SUCCESS,
-        lotteryAward,
-        MESSAGE.CREATE_SUCCESS
-      );
-    } catch (error) {
-      console.log(error);
-      this.logger.debug(
-        `${LotteryAwardService.name} is Logging error: ${JSON.stringify(
-          error
-        )}`
-      );
-      return new ErrorResponse(
-        STATUSCODE.COMMON_FAILED,
-        error,
-        ERROR.CREATE_FAILED
-      );
-    }
-  }
+  //     return new SuccessResponse(
+  //       STATUSCODE.COMMON_CREATE_SUCCESS,
+  //       lotteryAward,
+  //       MESSAGE.CREATE_SUCCESS
+  //     );
+  //   } catch (error) {
+  //     console.log(error);
+  //     this.logger.debug(
+  //       `${LotteryAwardService.name} is Logging error: ${JSON.stringify(
+  //         error
+  //       )}`
+  //     );
+  //     return new ErrorResponse(
+  //       STATUSCODE.COMMON_FAILED,
+  //       error,
+  //       ERROR.CREATE_FAILED
+  //     );
+  //   }
+  // }
 
   getTurnIndex(type: string): string {
     const now = new Date(new Date().getTime() - 5000);
@@ -801,74 +801,74 @@ export class LotteryAwardService {
     return randomNumber;
   }
 
-  async processInitAward(
-    createRequestDto: LotteryRequestDetailDto,
-    lotteryRequest: LotteryRequest
-  ) {
-    let lotteryAward = null;
+  // async processInitAward(
+  //   createRequestDto: LotteryRequestDetailDto,
+  //   lotteryRequest: LotteryRequest
+  // ) {
+  //   let lotteryAward = null;
 
-    try {
-      const lotteryInfo: LotteryInfo = {
-        mapMatricInt: null,
-        matricMore2SoOther: [],
-        arrAwardInt: [],
-        arrAwardStr: [],
-        maxlength2so: 100,
-        minWinNhaCai: 0,
-        rateDeWin: 0.2,
-        rootTotalRevenue: 0,
-        totalRevenue: 0,
-        totalPayment: 0,
-      };
+  //   try {
+  //     const lotteryInfo: LotteryInfo = {
+  //       mapMatricInt: null,
+  //       matricMore2SoOther: [],
+  //       arrAwardInt: [],
+  //       arrAwardStr: [],
+  //       maxlength2so: 100,
+  //       minWinNhaCai: 0,
+  //       rateDeWin: 0.2,
+  //       rootTotalRevenue: 0,
+  //       totalRevenue: 0,
+  //       totalPayment: 0,
+  //     };
 
-      let totalRevenue = this.getTotalRevenue(createRequestDto, lotteryInfo);
-      lotteryInfo.rootTotalRevenue = totalRevenue;
-      lotteryInfo.minWinNhaCai = totalRevenue * 0.95;
+  //     let totalRevenue = this.getTotalRevenue(createRequestDto, lotteryInfo);
+  //     lotteryInfo.rootTotalRevenue = totalRevenue;
+  //     lotteryInfo.minWinNhaCai = totalRevenue * 0.95;
 
-      const { arrAwardInt, totalPay, arrAwardStr } = this.getArrAwardInt(
-        createRequestDto,
-        lotteryInfo
-      );
-      if (lotteryInfo.rootTotalRevenue != 0) {
-      }
+  //     const { arrAwardInt, totalPay, arrAwardStr } = this.getArrAwardInt(
+  //       createRequestDto,
+  //       lotteryInfo
+  //     );
+  //     if (lotteryInfo.rootTotalRevenue != 0) {
+  //     }
 
-      lotteryAward = this.lotteryAwardRepository.create({});
-      lotteryAward.totalRevenue = +lotteryInfo.rootTotalRevenue;
-      lotteryAward.awardTitle = arrAwardStr[0];
-      lotteryAward.totalPay = totalPay;
+  //     lotteryAward = this.lotteryAwardRepository.create({});
+  //     lotteryAward.totalRevenue = +lotteryInfo.rootTotalRevenue;
+  //     lotteryAward.awardTitle = arrAwardStr[0];
+  //     lotteryAward.totalPay = totalPay;
 
-      if (lotteryAward.totalRevenue != 0 && lotteryAward.totalPay != 0) {
-        lotteryAward.rateWin =
-          1 -
-          (1.0 * +lotteryAward.totalPay) / (1.0 * +lotteryAward.totalRevenue);
-      }
+  //     if (lotteryAward.totalRevenue != 0 && lotteryAward.totalPay != 0) {
+  //       lotteryAward.rateWin =
+  //         1 -
+  //         (1.0 * +lotteryAward.totalPay) / (1.0 * +lotteryAward.totalRevenue);
+  //     }
 
-      const detail1to8 = this.getDetail1to8(arrAwardStr);
-      lotteryAward.awardDetail = JSON.stringify(detail1to8);
-      lotteryAward.type = createRequestDto.type;
-      lotteryAward.turnIndex = createRequestDto.turnIndex;
-      lotteryAward.openTime = this.getOpenTime(lotteryAward.type);
+  //     const detail1to8 = this.getDetail1to8(arrAwardStr);
+  //     lotteryAward.awardDetail = JSON.stringify(detail1to8);
+  //     lotteryAward.type = createRequestDto.type;
+  //     lotteryAward.turnIndex = createRequestDto.turnIndex;
+  //     lotteryAward.openTime = this.getOpenTime(lotteryAward.type);
 
-      await this.lotteryAwardRepository.save(lotteryAward);
+  //     await this.lotteryAwardRepository.save(lotteryAward);
 
-      if (lotteryRequest.status != `${StatusSend.AUTO}`) {
-        lotteryRequest.lotteryAwardId = lotteryAward.id;
-        lotteryRequest.status = `${StatusSend.SUCCESS}`;
-        await this.lotteryRequestRepository.save(lotteryRequest);
-      }
-    } catch (error) {
-      console.log(error);
-      if (lotteryRequest.status != `${StatusSend.AUTO}`) {
-        lotteryRequest.status = `${StatusSend.ERROR}`;
-        const errorMessage = JSON.stringify(error);
-        lotteryRequest.errorReason =
-          errorMessage.length > 255 ? errorMessage.slice(0, 255) : errorMessage;
-        await this.lotteryRequestRepository.save(lotteryRequest);
-      }
-    }
+  //     if (lotteryRequest.status != `${StatusSend.AUTO}`) {
+  //       lotteryRequest.lotteryAwardId = lotteryAward.id;
+  //       lotteryRequest.status = `${StatusSend.SUCCESS}`;
+  //       await this.lotteryRequestRepository.save(lotteryRequest);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     if (lotteryRequest.status != `${StatusSend.AUTO}`) {
+  //       lotteryRequest.status = `${StatusSend.ERROR}`;
+  //       const errorMessage = JSON.stringify(error);
+  //       lotteryRequest.errorReason =
+  //         errorMessage.length > 255 ? errorMessage.slice(0, 255) : errorMessage;
+  //       await this.lotteryRequestRepository.save(lotteryRequest);
+  //     }
+  //   }
 
-    return lotteryAward;
-  }
+  //   return lotteryAward;
+  // }
 
   getOpenTime(type: string): Date {
     if (type == `${TypeLottery.XSN_TEST}`) {
@@ -1694,147 +1694,147 @@ export class LotteryAwardService {
     return await this.lotteryAwardRepository.save(createAwardDto);
   }
 
-  async create(createAwardDto: CreateLotteryAwardDto, username = ''): Promise<BaseResponse> {
-    try {
-      const lotteryAwardFound = await this.lotteryAwardRepository.findOneBy({
-        type: createAwardDto.type,
-        turnIndex: createAwardDto.turnIndex,
-      });
+  // async create(createAwardDto: CreateLotteryAwardDto, username = ''): Promise<BaseResponse> {
+  //   try {
+  //     const lotteryAwardFound = await this.lotteryAwardRepository.findOneBy({
+  //       type: createAwardDto.type,
+  //       turnIndex: createAwardDto.turnIndex,
+  //     });
 
-      if (lotteryAwardFound) {
-        return new ErrorResponse(
-          STATUSCODE.COMMON_FAILED,
-          `lotteryAward is already exist`,
-          ERROR.CREATE_FAILED
-        );
-      }
+  //     if (lotteryAwardFound) {
+  //       return new ErrorResponse(
+  //         STATUSCODE.COMMON_FAILED,
+  //         `lotteryAward is already exist`,
+  //         ERROR.CREATE_FAILED
+  //       );
+  //     }
 
-      const orders = await this.orderRequestService.getListOrders(createAwardDto);
-      const ordersAuth = [];
-      const ordersFake = [];
-      let totalRevenue = 0;
-      // TODO Auth fake
-      for (const order of orders) {
-        ordersAuth.push(order);
-        totalRevenue = totalRevenue + +order.revenue;
-        // if (order.user.isAuth) {
-        //   ordersAuth.push(order);
-        //   totalRevenue = totalRevenue + +order.revenue;
-        // } else {
-        //   ordersAuth.push(order);
-        //   totalRevenue = totalRevenue + +order.revenue;
-        //   ordersFake.push(order);
-        // }
-      }
+  //     const orders = await this.orderRequestService.getListOrders(createAwardDto);
+  //     const ordersAuth = [];
+  //     const ordersFake = [];
+  //     let totalRevenue = 0;
+  //     // TODO Auth fake
+  //     for (const order of orders) {
+  //       ordersAuth.push(order);
+  //       totalRevenue = totalRevenue + +order.revenue;
+  //       // if (order.user.isAuth) {
+  //       //   ordersAuth.push(order);
+  //       //   totalRevenue = totalRevenue + +order.revenue;
+  //       // } else {
+  //       //   ordersAuth.push(order);
+  //       //   totalRevenue = totalRevenue + +order.revenue;
+  //       //   ordersFake.push(order);
+  //       // }
+  //     }
 
-      // const lotteryCreate = {
-      //   type: createAwardDto.type,
-      //   turnIndex: createAwardDto.turnIndex,
-      //   createdAt: new Date(),
-      //   openTime: new Date(),
-      //   extraData: {},
-      //   totalRevenue,
-      //   status: +StatusLotteryAward.INIT,
-      // }
+  //     // const lotteryCreate = {
+  //     //   type: createAwardDto.type,
+  //     //   turnIndex: createAwardDto.turnIndex,
+  //     //   createdAt: new Date(),
+  //     //   openTime: new Date(),
+  //     //   extraData: {},
+  //     //   totalRevenue,
+  //     //   status: +StatusLotteryAward.INIT,
+  //     // }
 
-      // const lotteryAward = await this.lotteryAwardRepository.save(lotteryCreate);
-      let lotteryAward: any;
+  //     // const lotteryAward = await this.lotteryAwardRepository.save(lotteryCreate);
+  //     let lotteryAward: any;
 
-      const lotteryRequest = await this.initLotteryRequest(createAwardDto, ordersAuth);
-      // const { error: errorResponse, data: dataResponse } = await this.connectService.processInitLotteryAward(lotteryRequest);
-      const dataRes = await this.processInitLotteryAward(lotteryRequest);
-      const dataResponse = dataRes?.result?.data;
+  //     const lotteryRequest = await this.initLotteryRequest(createAwardDto, ordersAuth);
+  //     // const { error: errorResponse, data: dataResponse } = await this.connectService.processInitLotteryAward(lotteryRequest);
+  //     const dataRes = await this.processInitLotteryAward(lotteryRequest);
+  //     const dataResponse = dataRes?.result?.data;
 
-      lotteryAward.extraData = dataResponse;
-      await this.lotteryAwardRepository.save(lotteryAward);
+  //     lotteryAward.extraData = dataResponse;
+  //     await this.lotteryAwardRepository.save(lotteryAward);
 
-      // nếu data trả về là ko có kết quả
-      // if (!dataResponse?.awardDetail) {
-      //   if (orders.length > 0) {
-      //     if (ordersFake.length > 0) {
-      //       await this.orderRequestService.processRefundListFake(orders);
-      //     }
+  //     // nếu data trả về là ko có kết quả
+  //     // if (!dataResponse?.awardDetail) {
+  //     //   if (orders.length > 0) {
+  //     //     if (ordersFake.length > 0) {
+  //     //       await this.orderRequestService.processRefundListFake(orders);
+  //     //     }
 
-      //     if (ordersAuth.length > 0) {
-      //       // TODO auth
-      //       await this.orderRequestService.processRefundListFake(orders);
-      //     }
-      //   }
+  //     //     if (ordersAuth.length > 0) {
+  //     //       // TODO auth
+  //     //       await this.orderRequestService.processRefundListFake(orders);
+  //     //     }
+  //     //   }
 
-      //   lotteryAward.status = +StatusLotteryAward.ERROR;
-      //   lotteryAward.extraData = errorResponse;
-      //   await this.lotteryAwardRepository.save(lotteryAward);
+  //     //   lotteryAward.status = +StatusLotteryAward.ERROR;
+  //     //   lotteryAward.extraData = errorResponse;
+  //     //   await this.lotteryAwardRepository.save(lotteryAward);
 
-      //   return new ErrorResponse(
-      //     STATUSCODE.INIT_LOTTERY_AWARD_ERROR,
-      //     `lotteryAward init error`,
-      //     ERROR.CREATE_FAILED
-      //   );
-      // }
-      const arrOrderAuthWin = new Array;
-      const arrOrderFakeWin = new Array;
-      const arrOrderLoser = new Array;
-      let totalPayment = 0;
+  //     //   return new ErrorResponse(
+  //     //     STATUSCODE.INIT_LOTTERY_AWARD_ERROR,
+  //     //     `lotteryAward init error`,
+  //     //     ERROR.CREATE_FAILED
+  //     //   );
+  //     // }
+  //     const arrOrderAuthWin = new Array;
+  //     const arrOrderFakeWin = new Array;
+  //     const arrOrderLoser = new Array;
+  //     let totalPayment = 0;
 
-      const mapAward = new Map<string, any>();
-      for (const order of orders) {
-        await this.checkOrderWin(order, dataResponse.awardDetail);
-        if (+order.paymentWin > 0) {
-          const data = mapAward.get(order.detail);
-          if (data) {
-            data.amount = +data.amount + order.paymentWin;
-            mapAward.set(order.detail, data);
-          } else {
-            mapAward.set(order.detail, { "value": order.detail, "amount": order.paymentWin });
-          }
-          // TODO check total payment xem bên nào sai
-        }
-        if (order.paymentWin && +order.paymentWin > 0) {
-          totalPayment = totalPayment + +order.paymentWin;
-          arrOrderAuthWin.push(order);
-        } else {
-          order.status = StatusOrderRequest.LOSER;
-          arrOrderLoser.push(order);
-        }
-      }
-      if (arrOrderAuthWin.length > 0) {
-        await this.orderRequestService.processEarnListFake(arrOrderAuthWin);
-      }
+  //     const mapAward = new Map<string, any>();
+  //     for (const order of orders) {
+  //       await this.checkOrderWin(order, dataResponse.awardDetail);
+  //       if (+order.paymentWin > 0) {
+  //         const data = mapAward.get(order.detail);
+  //         if (data) {
+  //           data.amount = +data.amount + order.paymentWin;
+  //           mapAward.set(order.detail, data);
+  //         } else {
+  //           mapAward.set(order.detail, { "value": order.detail, "amount": order.paymentWin });
+  //         }
+  //         // TODO check total payment xem bên nào sai
+  //       }
+  //       if (order.paymentWin && +order.paymentWin > 0) {
+  //         totalPayment = totalPayment + +order.paymentWin;
+  //         arrOrderAuthWin.push(order);
+  //       } else {
+  //         order.status = StatusOrderRequest.LOSER;
+  //         arrOrderLoser.push(order);
+  //       }
+  //     }
+  //     if (arrOrderAuthWin.length > 0) {
+  //       await this.orderRequestService.processEarnListFake(arrOrderAuthWin);
+  //     }
 
-      lotteryAward.totalPay = totalPayment;
-      if (lotteryAward.totalRevenue != 0) {
-        if (totalPayment != 0) {
-          lotteryAward.rateWin = 1 - (totalPayment * 1.0) / (1.0 * lotteryAward.totalRevenue);
-        } else {
-          lotteryAward.rateWin = 1;
-        }
-      }
+  //     lotteryAward.totalPay = totalPayment;
+  //     if (lotteryAward.totalRevenue != 0) {
+  //       if (totalPayment != 0) {
+  //         lotteryAward.rateWin = 1 - (totalPayment * 1.0) / (1.0 * lotteryAward.totalRevenue);
+  //       } else {
+  //         lotteryAward.rateWin = 1;
+  //       }
+  //     }
 
-      lotteryAward.awardDetail = dataResponse?.awardDetail;
-      lotteryAward.awardTitle = dataResponse?.awardTitle;
-      await this.lotteryAwardRepository.save(lotteryAward);
+  //     lotteryAward.awardDetail = dataResponse?.awardDetail;
+  //     lotteryAward.awardTitle = dataResponse?.awardTitle;
+  //     await this.lotteryAwardRepository.save(lotteryAward);
 
-      if (arrOrderFakeWin.length > 0) {
-        await this.orderRequestService.processEarnListFake(arrOrderFakeWin);
-      }
-      await this.orderRequestService.orderRequestLoser(arrOrderLoser);
+  //     if (arrOrderFakeWin.length > 0) {
+  //       await this.orderRequestService.processEarnListFake(arrOrderFakeWin);
+  //     }
+  //     await this.orderRequestService.orderRequestLoser(arrOrderLoser);
 
-      return new SuccessResponse(
-        STATUSCODE.COMMON_CREATE_SUCCESS,
-        lotteryAward,
-        MESSAGE.CREATE_SUCCESS
-      );
-    } catch (error) {
-      this.logger.debug(
-        `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
-      );
-      return new ErrorResponse(
-        STATUSCODE.COMMON_FAILED,
-        error,
-        ERROR.CREATE_FAILED
-      );
-    }
-  }
+  //     return new SuccessResponse(
+  //       STATUSCODE.COMMON_CREATE_SUCCESS,
+  //       lotteryAward,
+  //       MESSAGE.CREATE_SUCCESS
+  //     );
+  //   } catch (error) {
+  //     this.logger.debug(
+  //       `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
+  //     );
+  //     return new ErrorResponse(
+  //       STATUSCODE.COMMON_FAILED,
+  //       error,
+  //       ERROR.CREATE_FAILED
+  //     );
+  //   }
+  // }
 
   async checkOrderWin(order: OrderRequest, awardDetail: string): Promise<boolean> {
     const { values } = convertOrderDetail(order);

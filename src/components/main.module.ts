@@ -32,6 +32,7 @@ import { WinningNumbersModule } from './winning-numbers/winning-numbers.module';
 import { WalletInoutModule } from "./wallet.inout/wallet.inout.module";
 import { HoldingNumbersModule } from './holding-numbers/holding-numbers.module';
 import { AdminDashboardModule } from "./admin.dashboard/admin.dashboard.module";
+import { ManageBonusPriceModule } from './manage-bonus-price/manage-bonus-price.module';
 @Module({
   imports: [
     AuthModule,
@@ -67,6 +68,7 @@ import { AdminDashboardModule } from "./admin.dashboard/admin.dashboard.module";
     WalletInoutModule,
     HoldingNumbersModule,
     AdminDashboardModule,
+    ManageBonusPriceModule,
   ],
 })
 export class MainModule { }
