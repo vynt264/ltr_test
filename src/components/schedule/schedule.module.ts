@@ -11,9 +11,9 @@ import { WinningNumbersModule } from '../winning-numbers/winning-numbers.module'
 import { HoldingNumbersModule } from '../holding-numbers/holding-numbers.module';
 import { WalletHistory } from '../wallet/wallet.history.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ManageBonusPriceModule } from '../manage-bonus-price/manage-bonus-price.module';
 
 @Module({
-    
     imports: [
         TypeOrmModule.forFeature([WalletHistory]),
         RedisCacheModule,
@@ -25,6 +25,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         LotteryAwardModule,
         WinningNumbersModule,
         HoldingNumbersModule,
+        ManageBonusPriceModule,
     ],
     providers: [
         ScheduleService,

@@ -38,7 +38,7 @@ export class AnalyticsService {
                 id: true,
                 type: true,
                 awardDetail: true,
-                awardTitle: true,
+                // awardTitle: true,
             },
             where: {
                 type: body.lottType,

@@ -7,7 +7,7 @@ import { MAX_ORDERS_LO2SO, MAX_ORDERS_LO3SO, MAX_ORDERS_LO4SO, MAX_ORDERS_DAU_DU
 export class OrderValidate {
     static validateOrders(orders: any, ordersBefore: Array<any>) {
         let numbers: any = [];
-        let tempOrders = orders;
+        let tempOrders = JSON.parse(JSON.stringify(orders));
         let orderDetailLo2SoGiaiDacBiet = '';
 
         if (ordersBefore && ordersBefore.length > 0) {

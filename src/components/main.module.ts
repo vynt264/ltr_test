@@ -33,6 +33,7 @@ import { WalletInoutModule } from "./wallet.inout/wallet.inout.module";
 import { HoldingNumbersModule } from './holding-numbers/holding-numbers.module';
 import { AdminDashboardModule } from "./admin.dashboard/admin.dashboard.module";
 import { IntegrationModule } from "./integration/integraion.module";
+import { ManageBonusPriceModule } from './manage-bonus-price/manage-bonus-price.module';
 @Module({
   imports: [
     AuthModule,
@@ -69,6 +70,7 @@ import { IntegrationModule } from "./integration/integraion.module";
     HoldingNumbersModule,
     AdminDashboardModule,
     IntegrationModule,
+    ManageBonusPriceModule,
   ],
 })
 export class MainModule { }

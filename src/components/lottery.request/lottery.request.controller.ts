@@ -42,22 +42,22 @@ import {
   export class LotteryRequestController {
     constructor(private lotteryRequestService: LotteryRequestService) {}
   
-    @Post("create")
-    @ApiOperation({
-      description: "Create LotteryRequest",
-    })
-    @ApiOkResponse({
-      type: Response<LotteryRequest>,
-    })
-    async create(@Body() requestDetail: RequestDetailDto): Promise<any> {
-      const now = new Date();
-      const ok = await this.lotteryRequestService.create(requestDetail);
-      // console.log(
-      //   "####time processed successfully ",
-      //   new Date().getTime() - now.getTime()
-      // );
-      return ok;
-    }
+    // @Post("create")
+    // @ApiOperation({
+    //   description: "Create LotteryRequest",
+    // })
+    // @ApiOkResponse({
+    //   type: Response<LotteryRequest>,
+    // })
+    // async create(@Body() requestDetail: RequestDetailDto): Promise<any> {
+    //   const now = new Date();
+    //   const ok = await this.lotteryRequestService.create(requestDetail);
+    //   // console.log(
+    //   //   "####time processed successfully ",
+    //   //   new Date().getTime() - now.getTime()
+    //   // );
+    //   return ok;
+    // }
   
     @Get("all")
     @ApiResponse({
@@ -147,21 +147,21 @@ import {
     // }
   
     // @Cron('*/15 * * * * *') // job 45s
-    async handleCronXsmb45s() {
-      const now = new Date();
-      const cycle = 45000;
-      const minutesSinceMidnight = now.getTime() - startOfDay(now).getTime();
-      const turn = Math.floor(minutesSinceMidnight / +cycle);
+    // async handleCronXsmb45s() {
+    //   const now = new Date();
+    //   const cycle = 45000;
+    //   const minutesSinceMidnight = now.getTime() - startOfDay(now).getTime();
+    //   const turn = Math.floor(minutesSinceMidnight / +cycle);
   
-      if (now.getTime() - startOfDay(now).getTime() - turn * cycle < 10000) {
-        const createRequestDto: RequestDetailDto = {
-          baoLo: null,
-          danhDe: null,
-          type: TypeLottery.XSMB_45_S,
-          turnIndex: null,
-        };
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        await this.lotteryRequestService.create(createRequestDto, true);
-      }
-    }
+    //   if (now.getTime() - startOfDay(now).getTime() - turn * cycle < 10000) {
+    //     const createRequestDto: RequestDetailDto = {
+    //       baoLo: null,
+    //       danhDe: null,
+    //       type: TypeLottery.XSMB_45_S,
+    //       turnIndex: null,
+    //     };
+    //     await new Promise((resolve) => setTimeout(resolve, 2000));
+    //     await this.lotteryRequestService.create(createRequestDto, true);
+    //   }
+    // }
   }

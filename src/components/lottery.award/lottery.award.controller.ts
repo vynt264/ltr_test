@@ -49,19 +49,19 @@ export class LotteryAwardController {
     return this.lotteryAwardService.createLotteryAward(createLotteryAwardDto);
   }
 
-  @Post("create")
-  @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  @ApiOperation({
-    description: "Create lotteryAward",
-  })
-  @ApiOkResponse({
-    type: Response<LotteryAward>,
-  })
-  @Roles(UserRoles.SUPPER, UserRoles.OPTION1)
-  async create(@Body() createlotteryAwardDto: CreateLotteryAwardDto): Promise<any> {
-    return this.lotteryAwardService.create(createlotteryAwardDto);
-  }
+  // @Post("create")
+  // @ApiBearerAuth("Authorization")
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  // @ApiOperation({
+  //   description: "Create lotteryAward",
+  // })
+  // @ApiOkResponse({
+  //   type: Response<LotteryAward>,
+  // })
+  // @Roles(UserRoles.SUPPER, UserRoles.OPTION1)
+  // async create(@Body() createlotteryAwardDto: CreateLotteryAwardDto): Promise<any> {
+  //   return this.lotteryAwardService.create(createlotteryAwardDto);
+  // }
 
   @Get("allResult")
   @ApiResponse({
@@ -137,26 +137,26 @@ export class LotteryAwardController {
     return this.lotteryAwardService.guestGetAll(paginationQueryDto, req.user);
   }
 
-  @Get("allType")
-  @ApiResponse({
-    status: 2000,
-    description: "Get list lotteryAward all type",
-  })
-  async getAllType(): Promise<any> {
-    return this.lotteryAwardService.getAllType();
-  }
+  // @Get("allType")
+  // @ApiResponse({
+  //   status: 2000,
+  //   description: "Get list lotteryAward all type",
+  // })
+  // async getAllType(): Promise<any> {
+  //   return this.lotteryAwardService.getAllType();
+  // }
 
-  @Get("xsmb")
-  @ApiOperation({
-    description: "Get xsmb",
-  })
-  @ApiOkResponse({
-    type: Response<CurrentAwardXsmb>,
-  })
-  async getCurentXsmb(
-  ): Promise<any> {
-    return this.lotteryAwardService.getCurentXsmb();
-  }
+  // @Get("xsmb")
+  // @ApiOperation({
+  //   description: "Get xsmb",
+  // })
+  // @ApiOkResponse({
+  //   type: Response<CurrentAwardXsmb>,
+  // })
+  // async getCurentXsmb(
+  // ): Promise<any> {
+  //   return this.lotteryAwardService.getCurentXsmb();
+  // }
 
   @Get(":type/info")
   @ApiOperation({
@@ -277,22 +277,22 @@ export class LotteryAwardController {
   //   }
   // }
 
-  @Post("real")
-  @ApiOperation({
-    description: "get lotteryAward",
-  })
-  @ApiOkResponse({
-    type: Response<LotteryAward>,
-  })
-  @UsePipes(ValidationPipe)
-  @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  @Roles(UserRoles.SUPPER)
-  async getLotteryReal(
-    @Body() getDataDto: GetLotteryAwardDto
-  ): Promise<any> {
-    return this.lotteryAwardService.processJobGetXsmb(new Date(getDataDto.fromDate), new Date(getDataDto.toDate), getDataDto.type);
-  }
+  // @Post("real")
+  // @ApiOperation({
+  //   description: "get lotteryAward",
+  // })
+  // @ApiOkResponse({
+  //   type: Response<LotteryAward>,
+  // })
+  // @UsePipes(ValidationPipe)
+  // @ApiBearerAuth("Authorization")
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  // @Roles(UserRoles.SUPPER)
+  // async getLotteryReal(
+  //   @Body() getDataDto: GetLotteryAwardDto
+  // ): Promise<any> {
+  //   return this.lotteryAwardService.processJobGetXsmb(new Date(getDataDto.fromDate), new Date(getDataDto.toDate), getDataDto.type);
+  // }
 
   // mien bac -- start
   // @Cron('*/45 * * * * *') // job 45s

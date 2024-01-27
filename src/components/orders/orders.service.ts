@@ -100,7 +100,7 @@ export class OrdersService {
       id: wallet.id,
       user: { id: member.id },
       balance: totalBetRemain,
-      createdBy: member.name
+      createdBy: member.name,
     }
     const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
     await this.walletHistoryRepository.save(createdWalletHis);
@@ -249,12 +249,16 @@ export class OrdersService {
     let initData = this.initData();
     initData = this.getDataToGenerateAward(result, initData);
     const dataTransform = OrderHelper.transformData(initData);
-    const prizes = this.lotteriesService.generatePrizes(dataTransform);
-    const finalResult = OrderHelper.randomPrizes(prizes);
     let isTestPlayer = false;
     if (user.usernameReal) {
       isTestPlayer = true;
     }
+    const prizes = await this.lotteriesService.handlerPrizes({
+      type: `${data.orders[0].type}${data.orders[0].seconds}s`,
+      data: dataTransform,
+      isTestPlayer,
+    });
+    const finalResult = OrderHelper.randomPrizes(prizes);
 
     // create lottery award
     this.lotteryAwardService.createLotteryAward({
@@ -263,6 +267,7 @@ export class OrdersService {
       awardDetail: JSON.stringify(finalResult),
       bookmaker: { id: user.bookmakerId } as any,
       isTestPlayer,
+      openTime: new Date(),
     });
 
     const promisesCreateWinningNumbers = [];
@@ -272,8 +277,8 @@ export class OrdersService {
       const objOrder = this.transformOrderToObject(order);
       const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
         orders: objOrder,
-        typeBet: data.orders[0].betType,
-        prizes,
+        typeBet: data.orders[0].childBetType,
+        prizes: finalResult,
       });
 
       totalBalance += winningAmount;
