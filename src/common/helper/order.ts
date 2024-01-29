@@ -651,7 +651,7 @@ export class OrderHelper {
         return result;
     }
 
-    static getBetTypeName(type: String) {
+    static getChildBetTypeName(type: String) {
 
         let typeName = '';
         switch (type) {
@@ -961,7 +961,7 @@ export class OrderHelper {
     }
 
     static getKeySaveEachOrder(order: any) {
-        return `${order.id.toString()}-${order.type}${order.seconds}s-${order.childBetType}`;
+        return `${order.id.toString()}-${order.type}${order.seconds}s-${order.betType}-${order.childBetType}`;
     }
 
     static getKeyByUserAndTurnIndex(userId: string, turnIndex: string) {
@@ -1135,7 +1135,7 @@ export class OrderHelper {
 
     static calcBalanceEachOrder({
         orders,
-        typeBet,
+        childBetType,
         prizes,
     }: any) {
         let winningPoint = 0;
@@ -1147,13 +1147,13 @@ export class OrderHelper {
 
         for (const order in orders) {
             totalPoint += orders[order];
-            ({ count, winningNumbers } = this.findNumberOccurrencesOfPrizes({ order, prizes, typeBet, winningNumbers }));
+            ({ count, winningNumbers } = this.findNumberOccurrencesOfPrizes({ order, prizes, childBetType, winningNumbers }));
             if (count > 0) {
                 winningPoint += (count * orders[order]);
             }
         }
 
-        switch (typeBet) {
+        switch (childBetType) {
             case BaoLoType.Lo2So:
                 winningAmount += (winningPoint * (OddBet.Lo2So * 1000));
                 betAmount += (totalPoint * (PricePerScore.Lo2So));
@@ -1382,14 +1382,14 @@ export class OrderHelper {
     static findNumberOccurrencesOfPrizes({
         order,
         prizes,
-        typeBet,
+        childBetType,
         winningNumbers,
     }: any) {
         let count = 0;
         let lastTwoDigits;
         let isValidOrder = false;
 
-        switch (typeBet) {
+        switch (childBetType) {
             case BaoLoType.Lo2So:
             case BaoLoType.Lo2So1k:
             case BaoLoType.Lo3So:
