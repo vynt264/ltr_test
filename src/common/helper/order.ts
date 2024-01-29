@@ -935,7 +935,10 @@ export class OrderHelper {
             const hours = (new Date()).getHours();
             const minutes = (new Date()).getMinutes();
             const seconds = (new Date()).getSeconds();
-            times = `${hours}:${minutes}:${seconds}`;
+            const tempHours = hours.toString().length === 2 ? hours : `0${hours}`;
+            const tempminutes = minutes.toString().length === 2 ? minutes : `0${minutes}`;
+            const tempSeconds = seconds.toString().length === 2 ? seconds : `0${seconds}`;
+            times = `${tempHours}:${tempminutes}:${tempSeconds}`;
         }
 
         return `${DateTimeHelper.formatDate(new Date())}-${times}`;

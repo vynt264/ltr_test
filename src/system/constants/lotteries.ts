@@ -16,6 +16,7 @@ export const MAX_ORDERS = 100;
 export const MINIUM_PROFIT = 5; // 5%
 export const MAX_ORDERS_DAU_DUOI = 7;
 export const MAX_ORDERS_LO2SO = 70;
+export const MAX_ORDERS_LOXIEN = 70;
 export const MAX_ORDERS_LO3SO = 700;
 export const MAX_ORDERS_LO4SO = 7000;
 export const MAX_NUMBER_PRIZES_OF_LO2SO = 18;

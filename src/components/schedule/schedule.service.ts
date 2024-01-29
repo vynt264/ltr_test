@@ -276,6 +276,7 @@ export class ScheduleService implements OnModuleInit {
             const promises = [];
             let totalBalance = 0;
             const promisesCreateWinningNumbers = [];
+            const ordersWin = [];
             for (const key in ordersOfUser) {
                 const [orderId, region, typeBet] = key.split('-');
                 const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
@@ -287,6 +288,12 @@ export class ScheduleService implements OnModuleInit {
                 // user win vs order hien tai
                 if (realWinningAmount > 0) {
                     winningPlayerOrders.push(orderId);
+                    ordersWin.push({
+                        typeBet,
+                        orderId,
+                        type: region,
+                        amount: realWinningAmount,
+                    });
                 }
 
                 totalBalance += winningAmount;
@@ -343,7 +350,9 @@ export class ScheduleService implements OnModuleInit {
             await this.walletHistoryRepository.save(createdWalletHis);
 
             this.logger.info(`userId ${userId} send event payment`);
-            this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
+            this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {
+                ordersWin,
+            });
         }
         //await this.redisService.del(keyOrdersOfBookmaker);
     }

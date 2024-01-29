@@ -574,7 +574,6 @@ export class OrdersService {
     user: any,
   ) {
     const wallet = await this.walletHandlerService.findWalletByUserId(user.id);
-
     const seconds = OrderHelper.getPlayingTimeByType(order.type);
     const currentIndex = OrderHelper.getCurrentTurnIndex(seconds);
     const { numberOfBets } = OrderHelper.getInfoDetailOfOrder(order);
@@ -639,6 +638,7 @@ export class OrdersService {
       name: "duplicated",
     });
 
+    let result: any = [];
     const promises = [];
     const promisesPrepareDataToGenerateAward = [];
     for (const order of orders) {
@@ -659,14 +659,11 @@ export class OrdersService {
         order.isTestPlayer = true;
       }
 
-      promises.push(this.orderRequestRepository.save(order));
+      const resultEachOrder = await this.orderRequestRepository.save(order);
+      result.push(resultEachOrder);
     }
 
     await Promise.all(promisesPrepareDataToGenerateAward);
-
-    if (promises.length === 0) return;
-
-    const result = await Promise.all(promises);
 
     await this.saveEachOrderOfUserToRedis(result, user.bookmakerId, user.id, user.usernameReal);
 

@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus } from "@nestjs/common";
 import { OrderHelper } from "src/common/helper";
-import { BaCangType, BaoLoType, BonCangType, DanhDeType, DauDuoiType, TroChoiThuViType } from "src/system/enums/lotteries";
+import { BaCangType, BaoLoType, BonCangType, DanhDeType, DauDuoiType, LoTruocType, LoXienType, TroChoiThuViType } from "src/system/enums/lotteries";
 import { ERROR } from '../../../system/constants/messageError';
-import { MAX_ORDERS_LO2SO, MAX_ORDERS_LO3SO, MAX_ORDERS_LO4SO, MAX_ORDERS_DAU_DUOI } from "src/system/constants";
+import { MAX_ORDERS_LO2SO, MAX_ORDERS_LO3SO, MAX_ORDERS_LO4SO, MAX_ORDERS_DAU_DUOI, MAX_ORDERS_LOXIEN } from "src/system/constants";
 
 export class OrderValidate {
     static validateOrders(orders: any, ordersBefore: Array<any>) {
@@ -79,6 +79,24 @@ export class OrderValidate {
                         throw new HttpException(
                             {
                                 message: ERROR.MESSAGE_DAU_CUOI_INVALID,
+                            },
+                            HttpStatus.BAD_REQUEST,
+                        );
+                    }
+                    break;
+
+                case LoTruocType.TruotXien4:
+                case LoTruocType.TruotXien8:
+                case LoTruocType.TruotXien10:
+                case LoXienType.Xien2:
+                case LoXienType.Xien3:
+                case LoXienType.Xien4:
+                    const tempOrders = order.detail.split(',');
+                    numbers = [...new Set([...numbers, ...tempOrders])];
+                    if (numbers.length > MAX_ORDERS_LOXIEN) {
+                        throw new HttpException(
+                            {
+                                message: ERROR.MESSAGE_LO_2_S0_INVALID,
                             },
                             HttpStatus.BAD_REQUEST,
                         );
