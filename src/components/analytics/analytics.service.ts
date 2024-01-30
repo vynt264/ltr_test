@@ -192,7 +192,57 @@ export class AnalyticsService {
         countMap: { [key: string]: number },
         countMapShow: { [key: string]: number }
     ) {
-        this.analytic1 = Ianalytic1
+        let litNumFind = [];
+        let analytic1: any = {
+            tram: {
+                '0': 0,
+                '1': 0,
+                '2': 0,
+                '3': 0,
+                '4': 0,
+                '5': 0,
+                '6': 0,
+                '7': 0,
+                '8': 0,
+                '9': 0,
+            },
+            ngan: {
+                '0': 0,
+                '1': 0,
+                '2': 0,
+                '3': 0,
+                '4': 0,
+                '5': 0,
+                '6': 0,
+                '7': 0,
+                '8': 0,
+                '9': 0,
+            },
+            dau: {
+                '0': 0,
+                '1': 0,
+                '2': 0,
+                '3': 0,
+                '4': 0,
+                '5': 0,
+                '6': 0,
+                '7': 0,
+                '8': 0,
+                '9': 0,
+            },
+            duoi: {
+                '0': 0,
+                '1': 0,
+                '2': 0,
+                '3': 0,
+                '4': 0,
+                '5': 0,
+                '6': 0,
+                '7': 0,
+                '8': 0,
+                '9': 0,
+            },
+        }
         this.analytic1.ngan = {}
         this.analytic1.tram = {}
         const dataDf = {
@@ -214,21 +264,21 @@ export class AnalyticsService {
             case DanhDeType.DeDacBiet:
                 for (const item of arrAwards) {
                     const award: string = (body.subPlayType === DanhDeType.DeDau) ? item[8][0] : item[0][0]
-                    const dauNum = award.charAt(4)
-                    const duoiNum = award.charAt(5)
+                    const dauNum = award.charAt(body.subPlayType === DanhDeType.DeDau ? 0 : 4)
+                    const duoiNum = award.charAt(body.subPlayType === DanhDeType.DeDau ? 1 : 5)
 
                     for (const key in dataDf) {
                         if (key === dauNum) {
-                            this.analytic1.dau[dauNum] = 0
+                            analytic1.dau[dauNum] = 0
                         } else {
-                            this.analytic1.dau[key] += 1
+                            analytic1.dau[key] += 1
                         }
                     }
                     for (const key in dataDf) {
                         if (key === duoiNum) {
-                            this.analytic1.duoi[duoiNum] = 0
+                            analytic1.duoi[duoiNum] = 0
                         } else {
-                            this.analytic1.duoi[key] += 1
+                            analytic1.duoi[key] += 1
                         }
                     }
                 }
@@ -236,13 +286,13 @@ export class AnalyticsService {
                 for (const item of arrAwards) {
                     const number: string = (body.subPlayType === DanhDeType.DeDau) ? item[8][0] : item[0][0]
                     const lastTwoDigits = number.slice(-2);
-
-                    if (countMap.hasOwnProperty(lastTwoDigits)) {
-                        countMap[lastTwoDigits] = 0;
-                        countMapShow[lastTwoDigits] = countMap[lastTwoDigits]
-                    } else {
-                        countMap[lastTwoDigits] == countMapShow[lastTwoDigits]++
-                    }
+                    litNumFind.push(lastTwoDigits)
+                    // if (countMap.hasOwnProperty(lastTwoDigits)) {
+                    //     countMap[lastTwoDigits] = 0;
+                    //     countMapShow[lastTwoDigits] = countMap[lastTwoDigits]
+                    // } else {
+                    //     countMap[lastTwoDigits] == countMapShow[lastTwoDigits]++
+                    // }
                 }
 
                 break;
@@ -255,22 +305,21 @@ export class AnalyticsService {
 
                         for (const key in dataDf) {
                             if (key === dauNum) {
-                                this.analytic1.dau[dauNum] = 0
+                                analytic1.dau[dauNum] = 0
                             } else {
-                                this.analytic1.dau[key] += 1
+                                analytic1.dau[key] += 1
                             }
                         }
                         for (const key in dataDf) {
                             if (key === duoiNum) {
-                                this.analytic1.duoi[dauNum] = 0
+                                analytic1.duoi[dauNum] = 0
                             } else {
-                                this.analytic1.duoi[key] += 1
+                                analytic1.duoi[key] += 1
                             }
                         }
                     }
                 }
                 // analytic2
-                const litNumFind = []
                 for (const item of arrAwards) {
                     for (const number of [item[8][0], item[0][0]]) {
                         const lastTwoDigits = number.slice(-2);
@@ -283,27 +332,26 @@ export class AnalyticsService {
                         // }
                     }
                 }
-
-                const resutl: any = {}
-                litNumFind.forEach((value) => {
-                    if (resutl[value] === undefined) {
-                        // Nếu giá trị chưa xuất hiện, tăng giá trị lên +1
-                        resutl[value] = (resutl[value] || 0) + 1;
-                    } else {
-                        // Nếu giá trị đã xuất hiện, đặt giá trị bằng 0
-                        resutl[value] = 0;
-                    }
-                });
-                Object.keys(countMapShow).forEach((key) => {
-                    // Nếu key không tồn tại trong object B, thiết lập giá trị là 50
-                    countMapShow[key] = resutl[key] !== undefined ? resutl[key] : 50;
-                });
-
                 break;
         }
 
+        const resutl: any = {}
+        litNumFind.forEach((value) => {
+            if (resutl[value] === undefined) {
+                // Nếu giá trị chưa xuất hiện, tăng giá trị lên +1
+                resutl[value] = (resutl[value] || 0) + 1;
+            } else {
+                // Nếu giá trị đã xuất hiện, đặt giá trị bằng 0
+                resutl[value] = 0;
+            }
+        });
+        Object.keys(countMapShow).forEach((key) => {
+            // Nếu key không tồn tại trong object B, thiết lập giá trị là 50
+            countMapShow[key] = resutl[key] !== undefined ? resutl[key] : 50;
+        });
+
         return {
-            analytic1: this.analytic1,
+            analytic1: analytic1,
             analytic2: countMapShow
         }
     }
@@ -312,7 +360,56 @@ export class AnalyticsService {
         body: BodyAnalyticsDto,
         arrAwards: any[],
     ) {
-        this.analytic1 = Ianalytic1
+        let analytic1: any = {
+            tram: {
+                '0': 0,
+                '1': 0,
+                '2': 0,
+                '3': 0,
+                '4': 0,
+                '5': 0,
+                '6': 0,
+                '7': 0,
+                '8': 0,
+                '9': 0,
+            },
+            ngan: {
+                '0': 0,
+                '1': 0,
+                '2': 0,
+                '3': 0,
+                '4': 0,
+                '5': 0,
+                '6': 0,
+                '7': 0,
+                '8': 0,
+                '9': 0,
+            },
+            dau: {
+                '0': 0,
+                '1': 0,
+                '2': 0,
+                '3': 0,
+                '4': 0,
+                '5': 0,
+                '6': 0,
+                '7': 0,
+                '8': 0,
+                '9': 0,
+            },
+            duoi: {
+                '0': 0,
+                '1': 0,
+                '2': 0,
+                '3': 0,
+                '4': 0,
+                '5': 0,
+                '6': 0,
+                '7': 0,
+                '8': 0,
+                '9': 0,
+            },
+        }
         this.analytic1.ngan = {}
         this.analytic1.tram = {}
         const dataDf = {
@@ -332,30 +429,30 @@ export class AnalyticsService {
             const award = item[0][0]
 
             if (body.subPlayType === DauDuoiType.Dau) {
-                this.analytic1.duoi = {}
+                analytic1.duoi = {}
                 const dauNum = award.charAt(4)
                 for (const key in dataDf) {
                     if (key === dauNum) {
-                        this.analytic1.dau[dauNum] = 0
+                        analytic1.dau[dauNum] = 0
                     } else {
-                        this.analytic1.dau[key] += 1
+                        analytic1.dau[key] += 1
                     }
                 }
             } else {
-                this.analytic1.dau = {}
+                analytic1.dau = {}
                 const duoiNum = award.charAt(5)
                 for (const key in dataDf) {
                     if (key === duoiNum) {
-                        this.analytic1.duoi[duoiNum] = 0
+                        analytic1.duoi[duoiNum] = 0
                     } else {
-                        this.analytic1.duoi[key] += 1
+                        analytic1.duoi[key] += 1
                     }
                 }
             }
         }
 
         return {
-            analytic1: this.analytic1,
+            analytic1: analytic1,
             analytic2: {}
         }
     }
@@ -366,7 +463,56 @@ export class AnalyticsService {
         countMap: { [key: string]: number },
         countMapShow: { [key: string]: number }
     ) {
-        this.analytic1 = Ianalytic1
+        let analytic1: any = {
+            tram: {
+                '0': 0,
+                '1': 0,
+                '2': 0,
+                '3': 0,
+                '4': 0,
+                '5': 0,
+                '6': 0,
+                '7': 0,
+                '8': 0,
+                '9': 0,
+            },
+            ngan: {
+                '0': 0,
+                '1': 0,
+                '2': 0,
+                '3': 0,
+                '4': 0,
+                '5': 0,
+                '6': 0,
+                '7': 0,
+                '8': 0,
+                '9': 0,
+            },
+            dau: {
+                '0': 0,
+                '1': 0,
+                '2': 0,
+                '3': 0,
+                '4': 0,
+                '5': 0,
+                '6': 0,
+                '7': 0,
+                '8': 0,
+                '9': 0,
+            },
+            duoi: {
+                '0': 0,
+                '1': 0,
+                '2': 0,
+                '3': 0,
+                '4': 0,
+                '5': 0,
+                '6': 0,
+                '7': 0,
+                '8': 0,
+                '9': 0,
+            },
+        }
         this.analytic1.ngan = {}
         const dataDf = {
             '0': 0,
@@ -393,23 +539,23 @@ export class AnalyticsService {
 
                     for (const key in dataDf) {
                         if (key === tramNum) {
-                            this.analytic1.tram[tramNum] = 0
+                            analytic1.tram[tramNum] = 0
                         } else {
-                            this.analytic1.tram[key] += 1
+                            analytic1.tram[key] += 1
                         }
                     }
                     for (const key in dataDf) {
                         if (key === dauNum) {
-                            this.analytic1.dau[dauNum] = 0
+                            analytic1.dau[dauNum] = 0
                         } else {
-                            this.analytic1.dau[key] += 1
+                            analytic1.dau[key] += 1
                         }
                     }
                     for (const key in dataDf) {
                         if (key === duoiNum) {
-                            this.analytic1.duoi[duoiNum] = 0
+                            analytic1.duoi[duoiNum] = 0
                         } else {
-                            this.analytic1.duoi[key] += 1
+                            analytic1.duoi[key] += 1
                         }
                     }
                 }
@@ -452,23 +598,23 @@ export class AnalyticsService {
 
                         for (const key in dataDf) {
                             if (key === tramNum) {
-                                this.analytic1.tram[tramNum] = 0
+                                analytic1.tram[tramNum] = 0
                             } else {
-                                this.analytic1.tram[key] += 1
+                                analytic1.tram[key] += 1
                             }
                         }
                         for (const key in dataDf) {
                             if (key === dauNum) {
-                                this.analytic1.dau[dauNum] = 0
+                                analytic1.dau[dauNum] = 0
                             } else {
-                                this.analytic1.dau[key] += 1
+                                analytic1.dau[key] += 1
                             }
                         }
                         for (const key in dataDf) {
                             if (key === duoiNum) {
-                                this.analytic1.duoi[dauNum] = 0
+                                analytic1.duoi[dauNum] = 0
                             } else {
-                                this.analytic1.duoi[key] += 1
+                                analytic1.duoi[key] += 1
                             }
                         }
                     }
@@ -477,7 +623,7 @@ export class AnalyticsService {
         }
 
         return {
-            analytic1: this.analytic1,
+            analytic1: analytic1,
             analytic2: countMapShow
         }
     }
