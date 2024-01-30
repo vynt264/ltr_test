@@ -33,7 +33,7 @@ export class AnalyticsService {
     }
 
     async getAnalytics(body: BodyAnalyticsDto) {
-        const searching = await this.lotteryAwardRepository.findAndCount({
+        const searching = await this.lotteryAwardRepository.find({
             select: {
                 id: true,
                 type: true,
@@ -63,7 +63,7 @@ export class AnalyticsService {
             }
         }
 
-        searching[0].forEach((e: any) => {
+        searching.forEach((e: any) => {
             arrAwards.push(JSON.parse(e?.awardDetail))
         })
 
@@ -105,8 +105,11 @@ export class AnalyticsService {
         arrAwards: any[],
         countMap: { [key: string]: number },
         countMapShow: { [key: string]: number }) {
+        
+        let litNumFind = []
 
         if (body.subPlayType == BaoLoType.Lo3So) {
+           litNumFind = []
             for (const item of arrAwards) {
                 for (const el in item) {
                     // const numbers = el.split(",");
@@ -114,29 +117,32 @@ export class AnalyticsService {
                     for (const number of item[el]) {
                         if (number.length > 2) {
                             const lastThreeDigits = number.slice(-3).toString();
-                            if (countMap.hasOwnProperty(lastThreeDigits)) {
-                                countMap[lastThreeDigits] = 0;
-                                countMapShow[lastThreeDigits] = countMap[lastThreeDigits]
-                            } else {
-                                countMap[lastThreeDigits] == countMapShow[lastThreeDigits]++
-                            } 
+                            litNumFind.push(lastThreeDigits);
+                            // if (countMap.hasOwnProperty(lastThreeDigits)) {
+                            //     countMap[lastThreeDigits] = 0;
+                            //     countMapShow[lastThreeDigits] = countMap[lastThreeDigits]
+                            // } else {
+                            //     countMap[lastThreeDigits] == countMapShow[lastThreeDigits]++
+                            // } 
                         }
                     }
                 }
             }
         } else if (body.subPlayType == BaoLoType.Lo2SoDau) {
+            litNumFind = []
             for (const item of arrAwards) {
                 for (const el in item) {
                     // const numbers = el.split(",");
                     // Duyệt qua mảng dữ liệu và thực hiện việc lấy 2 chữ số cuối và đếm
                     for (const number of item[el]) {
                         const firstTwoDigits = number.slice(0, 2);
-                        if (countMap.hasOwnProperty(firstTwoDigits)) {
-                            countMap[firstTwoDigits] = 0;
-                            countMapShow[firstTwoDigits] = countMap[firstTwoDigits]
-                        } else {
-                            countMap[firstTwoDigits] == countMapShow[firstTwoDigits]++
-                        }
+                        litNumFind.push(firstTwoDigits);
+                        // if (countMap.hasOwnProperty(firstTwoDigits)) {
+                        //     countMap[firstTwoDigits] = 0;
+                        //     countMapShow[firstTwoDigits] = countMap[firstTwoDigits]
+                        // } else {
+                        //     countMap[firstTwoDigits] == countMapShow[firstTwoDigits]++
+                        // }
                     }
                 }
             }
@@ -144,22 +150,33 @@ export class AnalyticsService {
         else if (body.subPlayType == BaoLoType.Lo4So) {
             countMapShow = {}
         } else {
+            litNumFind = []
             for (const item of arrAwards) {
                 for (const el in item) {
                     // const numbers = el.split(",");
                     // Duyệt qua mảng dữ liệu và thực hiện việc lấy 2 chữ số cuối và đếm
                     for (const number of item[el]) {
                         const lastTwoDigits = number.slice(-2);
-                        if (countMap.hasOwnProperty(lastTwoDigits)) {
-                            countMap[lastTwoDigits] = 0;
-                            countMapShow[lastTwoDigits] = countMap[lastTwoDigits]
-                        } else {
-                            countMap[lastTwoDigits] == countMapShow[lastTwoDigits]++
-                        }
+                        litNumFind.push(lastTwoDigits);
                     }
                 }
             }
         }
+
+        const resutl: any = {}
+        litNumFind.forEach((value) => {
+            if (resutl[value] === undefined) {
+                // Nếu giá trị chưa xuất hiện, tăng giá trị lên +1
+                resutl[value] = (resutl[value] || 0) + 1;
+            } else {
+                // Nếu giá trị đã xuất hiện, đặt giá trị bằng 0
+                resutl[value] = 0;
+            }
+        });
+        Object.keys(countMapShow).forEach((key) => {
+            // Nếu key không tồn tại trong object B, thiết lập giá trị là 50
+            countMapShow[key] = resutl[key] !== undefined ? resutl[key] : 50;
+        });
 
 
         return {
@@ -253,18 +270,34 @@ export class AnalyticsService {
                     }
                 }
                 // analytic2
+                const litNumFind = []
                 for (const item of arrAwards) {
                     for (const number of [item[8][0], item[0][0]]) {
                         const lastTwoDigits = number.slice(-2);
-
-                        if (countMap.hasOwnProperty(lastTwoDigits)) {
-                            countMap[lastTwoDigits] = 0;
-                            countMapShow[lastTwoDigits] = countMap[lastTwoDigits]
-                        } else {
-                            countMap[lastTwoDigits] == countMapShow[lastTwoDigits]++
-                        }
+                        litNumFind.push(lastTwoDigits)
+                        // if (countMap.hasOwnProperty(lastTwoDigits)) {
+                        //     countMap[lastTwoDigits] = 0;
+                        //     countMapShow[lastTwoDigits] = countMap[lastTwoDigits]
+                        // } else {
+                        //     countMap[lastTwoDigits] == countMapShow[lastTwoDigits]++
+                        // }
                     }
                 }
+
+                const resutl: any = {}
+                litNumFind.forEach((value) => {
+                    if (resutl[value] === undefined) {
+                        // Nếu giá trị chưa xuất hiện, tăng giá trị lên +1
+                        resutl[value] = (resutl[value] || 0) + 1;
+                    } else {
+                        // Nếu giá trị đã xuất hiện, đặt giá trị bằng 0
+                        resutl[value] = 0;
+                    }
+                });
+                Object.keys(countMapShow).forEach((key) => {
+                    // Nếu key không tồn tại trong object B, thiết lập giá trị là 50
+                    countMapShow[key] = resutl[key] !== undefined ? resutl[key] : 50;
+                });
 
                 break;
         }
@@ -381,17 +414,32 @@ export class AnalyticsService {
                     }
                 }
                 // analytic2
+                const litNumFind = []
                 for (const item of arrAwards) {
                     const number: string = (body.subPlayType === BaCangType.BaCangDau) ? item[7][0] : item[0][0]
                     const lastThreeDigits = number.slice(-3);
-
-                    if (countMap.hasOwnProperty(lastThreeDigits)) {
-                        countMap[lastThreeDigits] = 0;
-                        countMapShow[lastThreeDigits] = countMap[lastThreeDigits]
-                    } else {
-                        countMap[lastThreeDigits] == countMapShow[lastThreeDigits]++
-                    }
+                    litNumFind.push(lastThreeDigits);
+                    // if (countMap.hasOwnProperty(lastThreeDigits)) {
+                    //     countMap[lastThreeDigits] = 0;
+                    //     countMapShow[lastThreeDigits] = countMap[lastThreeDigits]
+                    // } else {
+                    //     countMap[lastThreeDigits] == countMapShow[lastThreeDigits]++
+                    // }
                 }
+                const resutl: any = {}
+                litNumFind.forEach((value) => {
+                    if (resutl[value] === undefined) {
+                        // Nếu giá trị chưa xuất hiện, tăng giá trị lên +1
+                        resutl[value] = (resutl[value] || 0) + 1;
+                    } else {
+                        // Nếu giá trị đã xuất hiện, đặt giá trị bằng 0
+                        resutl[value] = 0;
+                    }
+                });
+                Object.keys(countMapShow).forEach((key) => {
+                    // Nếu key không tồn tại trong object B, thiết lập giá trị là 50
+                    countMapShow[key] = resutl[key] !== undefined ? resutl[key] : 50;
+                });
 
                 break;
 
