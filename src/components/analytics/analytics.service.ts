@@ -31,7 +31,7 @@ export class AnalyticsService {
   }
 
   async getAnalytics(body: BodyAnalyticsDto) {
-    const searching = await this.lotteryAwardRepository.find({
+    let searching = await this.lotteryAwardRepository.find({
       select: {
         id: true,
         type: true,
@@ -44,6 +44,8 @@ export class AnalyticsService {
       take: 50,
       order: { createdAt: 'DESC' },
     });
+
+    searching = searching.sort((a: any, b: any) => a.id - b.id);
 
     let arrAwards: string[] = []
     const countMap: { [key: string]: number } = {};
