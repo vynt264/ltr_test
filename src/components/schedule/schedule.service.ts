@@ -436,11 +436,13 @@ export class ScheduleService implements OnModuleInit {
             const promises = [];
             let totalBalance = 0;
             const promisesCreateWinningNumbers = [];
+            const ordersWin = [];
             for (const key in ordersOfUser) {
-                const [orderId, region, typeBet] = key.split('-');
+                // const [orderId, region, typeBet] = key.split('-');
+                const [orderId, region, betType, childBetType] = key.split('-');
                 const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
                     orders: ordersOfUser[key],
-                    typeBet,
+                    childBetType,
                     prizes,
                 });
 
@@ -449,6 +451,13 @@ export class ScheduleService implements OnModuleInit {
                 // user win vs order hien tai
                 if (realWinningAmount > 0) {
                     winningPlayerOrders.push(orderId);
+                    ordersWin.push({
+                        typeBetName: OrderHelper.getCategoryLotteryTypeName(betType),
+                        childBetType: OrderHelper.getChildBetTypeName(childBetType),
+                        orderId,
+                        type: region,
+                        amount: realWinningAmount,
+                    });
                 }
 
                 if (winningNumbers.length > 0) {
