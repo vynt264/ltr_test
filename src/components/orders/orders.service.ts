@@ -631,15 +631,18 @@ export class OrdersService {
   }
 
   async confirmGenerateFollowUpPlan(data: any, user: any) {
+    // check balance
+    const wallet = await this.walletHandlerService.findWalletByUserId(user.id);
+    const totalBet = OrderHelper.getBalance(data.orders);
+    await this.checkBalance(totalBet, wallet);
+
+    const result: any = [];
     const orders = data?.orders || [];
     const isStop = data?.isStop || false;
     const holdingNumber = await this.holdingNumbersService.create({
       isStop,
       name: "duplicated",
     });
-
-    let result: any = [];
-    const promises = [];
     const promisesPrepareDataToGenerateAward = [];
     for (const order of orders) {
       promisesPrepareDataToGenerateAward.push(this.prepareDataToGenerateAward([order], user.bookmakerId, order.turnIndex, user.usernameReal));
@@ -664,8 +667,11 @@ export class OrdersService {
     }
 
     await Promise.all(promisesPrepareDataToGenerateAward);
-
     await this.saveEachOrderOfUserToRedis(result, user.bookmakerId, user.id, user.usernameReal);
+
+    // update balance
+    const totalBetRemain = wallet.balance - totalBet;
+    await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
 
     return result;
   }
@@ -697,8 +703,6 @@ export class OrdersService {
   }
 
   getDataToGenerateAward(orders: any, initData: any) {
-    // const initData = this.initData();
-
     for (const order of orders) {
       const { numbers } = OrderHelper.getInfoDetailOfOrder(order);
       for (const number of numbers) {
@@ -768,9 +772,6 @@ export class OrdersService {
   }
 
   initData() {
-    // let data = await this.redisService.get(key);
-
-    // if (!data) {
     let data = {
       [CategoryLotteryType.BaoLo]: {
         [BaoLoType.Lo2So]: {
@@ -849,7 +850,6 @@ export class OrdersService {
         } as any,
       },
     };
-    // }
 
     return data;
   }
