@@ -583,6 +583,7 @@ export class OrdersService {
     let nextTurnIndex = currentIndex;
     let totalAmount = 0;
     let isValidAmount = false;
+    let count = 0;
 
     for (let i = 1; i <= soLuot; i++) {
       if (i === 1) {
@@ -593,12 +594,14 @@ export class OrdersService {
         openTime += (seconds * 1000);
       }
       const tempBetAmount = OrderHelper.getBetAmount(currentBoiSo, order.childBetType, numberOfBets);
-      totalAmount += tempBetAmount;
 
       // check wallet
-      if (totalAmount > wallet.balance) {
+      if ((totalAmount + tempBetAmount) > wallet.balance) {
         isValidAmount = true;
         break;
+      } else {
+        count++;
+        totalAmount += tempBetAmount;
       }
 
       result.push({
@@ -625,7 +628,7 @@ export class OrdersService {
     return {
       orders: result,
       totalAmount,
-      totalTurns: soLuot,
+      totalTurns: count,
       isValidAmount,
     };
   }
@@ -670,7 +673,7 @@ export class OrdersService {
     await this.saveEachOrderOfUserToRedis(result, user.bookmakerId, user.id, user.usernameReal);
 
     // update balance
-    const totalBetRemain = wallet.balance - totalBet;
+    const totalBetRemain =  Number(wallet.balance) - totalBet;
     await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
 
     return result;
