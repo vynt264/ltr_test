@@ -30,7 +30,7 @@ export class AnalyticsService {
 
   }
 
-  async getAnalytics(body: BodyAnalyticsDto) {
+  async getAnalytics(body: BodyAnalyticsDto, member: any) {
     let searching = await this.lotteryAwardRepository.find({
       select: {
         id: true,
@@ -40,9 +40,10 @@ export class AnalyticsService {
       },
       where: {
         type: body.lottType,
+        isTestPlayer: member?.usernameReal == "" ? false : true,
       },
       take: 50,
-      order: { createdAt: 'DESC' },
+      order: { createdAt: "DESC" },
     });
 
     searching = searching.sort((a: any, b: any) => a.id - b.id);
@@ -107,7 +108,6 @@ export class AnalyticsService {
     countMapShow: { [key: string]: number }) {
 
     let litNumFind: any = []
-    const test: any = {}
 
     if (body.subPlayType == BaoLoType.Lo3So) {
       for (const item of arrAwards) {

@@ -11,6 +11,7 @@ import {
   UsePipes,
   UseGuards,
   ValidationPipe,
+  Request,
 } from "@nestjs/common";
 import { Cron, CronExpression, Interval } from "@nestjs/schedule";
 import {
@@ -39,8 +40,11 @@ export class AnalyticsController {
 
   @Post("latest-50rounds")
   // @Roles(UserRoles.MEMBER)
-  async getAnalyticsByType(@Body() bodyDto: BodyAnalyticsDto): Promise<any> {
-    return this.analyticsService.getAnalytics(bodyDto);
+  async getAnalyticsByType(
+    @Body() bodyDto: BodyAnalyticsDto,
+    @Request() req: any
+  ): Promise<any> {
+    return this.analyticsService.getAnalytics(bodyDto, req.user);
   }
 
 }
