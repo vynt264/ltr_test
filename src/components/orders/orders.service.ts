@@ -55,7 +55,7 @@ export class OrdersService {
     // validate orders
     const turnIndex = OrderHelper.getTurnIndex(seconds);
     const ordersBefore = await this.getNumberOfBetsFromTurnIndex(data.orders[0], turnIndex);
-    await OrderValidate.validateOrders(data?.orders || [], ordersBefore);
+    await OrderValidate.validateOrders(data?.orders || [], ordersBefore, turnIndex);
 
     // check balance
     const wallet = await this.walletHandlerService.findWalletByUserId(member.id);
@@ -215,7 +215,7 @@ export class OrdersService {
     // validate orders
     const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
     const turnIndex = OrderHelper.getTurnIndex(seconds);
-    await OrderValidate.validateOrders(data?.orders || [], []);
+    await OrderValidate.validateOrders(data?.orders || [], [], turnIndex);
 
     // check balance
     let wallet = await this.walletHandlerService.findWalletByUserId(user.id);
@@ -634,6 +634,16 @@ export class OrdersService {
   }
 
   async confirmGenerateFollowUpPlan(data: any, user: any) {
+    // prevent time order
+    const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
+    const currentTime = OrderHelper.getCurrentTimeInRound(seconds);
+    await OrderHelper.isValidTimeOrder(currentTime, seconds);
+
+    // validate orders
+    const turnIndex = OrderHelper.getTurnIndex(seconds);
+    const ordersBefore = await this.getNumberOfBetsFromTurnIndex(data.orders[0], turnIndex);
+    await OrderValidate.validateOrders(data?.orders || [], ordersBefore, turnIndex);
+
     // check balance
     const wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     const totalBet = OrderHelper.getBalance(data.orders);
@@ -673,7 +683,7 @@ export class OrdersService {
     await this.saveEachOrderOfUserToRedis(result, user.bookmakerId, user.id, user.usernameReal);
 
     // update balance
-    const totalBetRemain =  Number(wallet.balance) - totalBet;
+    const totalBetRemain = Number(wallet.balance) - totalBet;
     await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
 
     return result;
