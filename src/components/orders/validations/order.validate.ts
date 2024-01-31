@@ -24,7 +24,7 @@ export class OrderValidate {
         }
 
         for (const order of tempOrders) {
-            if (order.turnIndex !== turnIndex) continue;
+            if (order.turnIndex && order.turnIndex !== turnIndex) continue;
 
             switch (order.childBetType) {
                 case BaoLoType.Lo2So:
