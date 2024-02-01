@@ -924,13 +924,19 @@ export class OrderHelper {
         return totalBet;
     }
 
-    static getTurnIndex(seconds: number) {
+    static takeNumberOfTurns(seconds: number) {
         if (!seconds) return '';
 
         const time = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
         const fromDate = new Date(time).getTime();
         const toDate = (new Date()).getTime();
-        let times = (Math.ceil(((toDate - fromDate) / 1000) / seconds)).toString();
+        return (Math.ceil(((toDate - fromDate) / 1000) / seconds));
+    }
+
+    static getTurnIndex(seconds: number) {
+        if (!seconds) return '';
+
+        let times = this.takeNumberOfTurns(seconds).toString();
         if (seconds === 1) {
             const hours = (new Date()).getHours();
             const minutes = (new Date()).getMinutes();
@@ -996,6 +1002,24 @@ export class OrderHelper {
         const secondsInCurrentRound = (toDate / 1000) % seconds;
 
         return toDate - (secondsInCurrentRound * 1000);
+    }
+
+    static getOpenTimeByTurnIndex(turnIndex: string, seconds: number) {
+        if (!turnIndex) return 0;
+
+        const timeStart = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
+        const fromDate = new Date(timeStart).getTime();
+
+        const numberOfTurns = turnIndex.split('-')[1];
+
+        return (fromDate + ((Number(numberOfTurns) - 1) * seconds * 1000));
+    }
+
+    static getCloseTime(seconds: number) {
+        const toDate = (new Date()).getTime();
+        const secondsInCurrentRound = (toDate / 1000) % seconds;
+
+        return (toDate - (secondsInCurrentRound * 1000)) + (seconds * 1000);
     }
 
     static delay(ms: number) {

@@ -101,4 +101,10 @@ export class Order extends BaseEntity {
         default: false,
     })
     isTestPlayer: boolean;
+
+    @Column({ type: 'varchar' })
+    openTime: string;
+
+    @Column({ type: 'varchar' })
+    closeTime: string;
 }

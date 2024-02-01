@@ -78,4 +78,7 @@ export class CreateOrderDto {
     holdingNumber: HoldingNumber;
 
     isTestPlayer: boolean;
+
+    openTime: string;
+    closeTime: string;
 }
