@@ -164,7 +164,8 @@ export class OrdersService {
       conditionGetOrders.createdAt = Between(fromD, toD);
       conditionCalcAllOrders.fromD = fromD.toISOString();
       conditionCalcAllOrders.toD = toD.toISOString();
-      query += `AND orders.created_at between :fromD AND :toD `;
+      // query += `AND orders.created_at between :fromD AND :toD `;
+      query += `AND CONVERT_TZ(orders.created_at, 'UTC', '+7:00') between :fromD AND :toD `;
     }
     if (seconds) {
       conditionGetOrders.seconds = seconds;
