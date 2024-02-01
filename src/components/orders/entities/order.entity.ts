@@ -102,9 +102,9 @@ export class Order extends BaseEntity {
     })
     isTestPlayer: boolean;
 
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable: true })
     openTime: string;
 
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable: true })
     closeTime: string;
 }

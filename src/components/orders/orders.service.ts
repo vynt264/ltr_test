@@ -282,7 +282,7 @@ export class OrdersService {
       const objOrder = this.transformOrderToObject(order);
       const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
         orders: objOrder,
-        typeBet: data.orders[0].childBetType,
+        childBetType: data.orders[0].childBetType,
         prizes: finalResult,
       });
 
