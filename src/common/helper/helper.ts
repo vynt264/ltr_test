@@ -1,6 +1,8 @@
 import { Md5 } from "md5-typescript";
 import { ConfigSys } from "./config";
 
+const crypto = require("crypto");
+
 export class Helper {
   static convertTime(time: Date) {
     const date = new Date(`${time.toLocaleDateString()}`);
@@ -82,4 +84,25 @@ export class Helper {
 
     return `${year}${month}${day}`;
   }
+
+  static encryptData(data: string) {
+    const cipher = crypto.createCipher(
+      "aes-256-cbc",
+      ConfigSys.config().signUserName,
+    );
+    let encryptedData = cipher.update(JSON.stringify(data), "utf-8", "hex");
+    encryptedData += cipher.final("hex");
+    return encryptedData;
+  }
+
+  static decryptData(encryptedData: string): any {
+    const decipher = crypto.createDecipher(
+      "aes-256-cbc",
+      ConfigSys.config().signUserName
+    );
+    let decryptedData = decipher.update(encryptedData, "hex", "utf-8");
+    decryptedData += decipher.final("utf-8");
+    return JSON.parse(decryptedData);
+  }
+
 }

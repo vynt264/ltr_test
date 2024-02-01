@@ -25,4 +25,6 @@ export enum MESSAGE {
   WITHDRAW_FAILUTE = "Withdraw failure",
   CHECK_STATUS_TRANSACTION_SUCCESS = "Check status transaction success",
   CHECK_STATUS_TRANSACTION_FAILUTE = "Check status transaction failure",
+  GET_BET_INFO_SUCCESS = "Get bet info success",
+  GET_BET_INFO_FAILUTE = "Get bet info failure",
 }

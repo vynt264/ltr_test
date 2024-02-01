@@ -20,7 +20,6 @@ export class CheckStatusTransactionDto {
   @IsString()
   @IsNotEmpty()
   orderKey: string;
-;
 }
 
 export default CheckStatusTransactionDto;

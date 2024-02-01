@@ -9,6 +9,7 @@ import { BookMaker } from '../bookmaker/bookmaker.entity';
 import { Exchange } from './entities/exchange.entity';
 import { WalletHistory } from '../wallet/wallet.history.entity';
 import { WalletInout } from '../wallet.inout/wallet.inout.entity';
+import { Order } from '../orders/entities/order.entity';
 import VerifyAccountDto from './dto/verify.accout.dto';
 import GetRefundableBalanceDto from './dto/get.refundable.balance.dto';
 import DepositDto from './dto/deposit.dto';
@@ -18,6 +19,8 @@ import { ErrorResponse, SuccessResponse } from 'src/system/BaseResponse';
 import { Logger } from "winston";
 import { Helper } from 'src/common/helper';
 import { StatusExchange, TypeExchange } from './enums/exchange.enum';
+import GetBetInfoDto from './dto/get.bet.info.dto';
+import * as moment from "moment";
 
 @Injectable()
 export class IntegrationService {
@@ -34,13 +37,17 @@ export class IntegrationService {
     private walletHistoryRepository: Repository<WalletHistory>,
     @InjectRepository(WalletInout)
     private walletInoutRepository: Repository<WalletInout>,
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>,
     @Inject("winston")
     private readonly logger: Logger
   ) { }
 
   async verifyAccount(verifyAccountDto: VerifyAccountDto) {
     try {
-      const bookmaker = await this.bookmakerRepository.findOneBy({ id: verifyAccountDto.bookmakerId });
+      const bookmaker = await this.bookmakerRepository.findOneBy({
+        id: verifyAccountDto.bookmakerId,
+      });
       if (!bookmaker) {
         return new SuccessResponse(
           STATUSCODE.COMMON_BAD_REQUEST,
@@ -49,7 +56,9 @@ export class IntegrationService {
         );
       }
 
-      const signLocal = Helper.endCodeUsername(`${verifyAccountDto.username}|${verifyAccountDto.bookmakerId}`);
+      const signLocal = Helper.endCodeUsername(
+        `${verifyAccountDto.username}|${verifyAccountDto.bookmakerId}`
+      );
       if (verifyAccountDto.sign != signLocal) {
         return new SuccessResponse(
           STATUSCODE.COMMON_BAD_REQUEST,
@@ -58,18 +67,20 @@ export class IntegrationService {
         );
       }
 
+      const usernameEncrypt = Helper.encryptData(verifyAccountDto.username)
+
       let user = await this.userRepository.findOneBy({
-        username: verifyAccountDto.username,
+        username: usernameEncrypt,
         bookmaker: {
           id: verifyAccountDto.bookmakerId
         }
       })
       if (!user) {
         const userCreateDto = {
-          username: verifyAccountDto.username,
+          username: usernameEncrypt,
           password: process.env.USER_PASSWORD,
           isAuth: false,
-          usernameReal: '',
+          usernameReal: "",
           bookmaker: { id: verifyAccountDto.bookmakerId },
         };
         const createdUser = this.userRepository.create(userCreateDto);
@@ -78,16 +89,24 @@ export class IntegrationService {
         const walletDto = {
           walletCode: "",
           user: { id: user.id },
-          createdBy: user.username,
+          createdBy: usernameEncrypt,
           balance: 0,
         };
         const walletCreate = await this.walletRepository.create(walletDto);
         await this.walletRepository.save(walletCreate);
       }
 
+      const params = Helper.encryptData(
+        `username=${verifyAccountDto.bookmakerId}|${usernameEncrypt}`
+      );
+      const url = `http://vntop.game.game8b.com/?params=${params}`
+
       const userResponse = {
-        super: user?.id,
-        username: user?.username,
+        user: {
+          sub: user?.id,
+          username: usernameEncrypt,
+        },
+        url: url,
       } 
 
       return new SuccessResponse(
@@ -146,10 +165,10 @@ export class IntegrationService {
             id: user?.id
           }
         })
-        
+
         if (wallet) {
           const dataResponse = {
-            balance: wallet.balance
+            balance: parseFloat(wallet.balance.toString())
           }
 
           return new SuccessResponse(
@@ -257,7 +276,7 @@ export class IntegrationService {
           return new SuccessResponse(
             STATUSCODE.COMMON_SUCCESS,
             {
-              balance: balanceUp,
+              balance: parseFloat(balanceUp.toString()),
             },
             MESSAGE.DEPOSIT_SUCCESS
           );
@@ -277,7 +296,9 @@ export class IntegrationService {
 
   async withdraw(withdrawDto: WithdrawDto) {
     try {
-      const bookmaker = await this.bookmakerRepository.findOneBy({ id: withdrawDto.bookmakerId });
+      const bookmaker = await this.bookmakerRepository.findOneBy({
+        id: withdrawDto.bookmakerId,
+      });
       if (!bookmaker) {
         return new SuccessResponse(
           STATUSCODE.COMMON_BAD_REQUEST,
@@ -286,7 +307,11 @@ export class IntegrationService {
         );
       }
 
-      const signLocal = Helper.endCodeUsername(`${withdrawDto.username}|${withdrawDto.bookmakerId}|${withdrawDto.supplier}|${withdrawDto.amount.toFixed(2)}`);
+      const signLocal = Helper.endCodeUsername(
+        `${withdrawDto.username}|${withdrawDto.bookmakerId}|${
+          withdrawDto.supplier
+        }|${withdrawDto.amount.toFixed(2)}`
+      );
       if (withdrawDto.sign != signLocal) {
         return new SuccessResponse(
           STATUSCODE.COMMON_BAD_REQUEST,
@@ -318,7 +343,8 @@ export class IntegrationService {
         })
 
         if (walletUser) {
-          const balanceUp = Number(walletUser.balance) - Number(withdrawDto.amount);
+          const balanceUp =
+            Number(walletUser.balance) - Number(withdrawDto.amount);
           // check balance available
           if (balanceUp < 0) {
             return new SuccessResponse(
@@ -369,7 +395,7 @@ export class IntegrationService {
           return new SuccessResponse(
             STATUSCODE.COMMON_SUCCESS,
             {
-              balance: balanceUp,
+              balance: parseFloat(balanceUp.toString()),
             },
             MESSAGE.WITHDRAW_SUCCESS
           );
@@ -387,9 +413,13 @@ export class IntegrationService {
     }
   }
 
-  async checkStatusTransaction(checkStatusTransactionDto: CheckStatusTransactionDto) {
+  async checkStatusTransaction(
+    checkStatusTransactionDto: CheckStatusTransactionDto
+  ) {
     try {
-      const bookmaker = await this.bookmakerRepository.findOneBy({ id: checkStatusTransactionDto.bookmakerId });
+      const bookmaker = await this.bookmakerRepository.findOneBy({
+        id: checkStatusTransactionDto.bookmakerId,
+      });
       if (!bookmaker) {
         return new SuccessResponse(
           STATUSCODE.COMMON_BAD_REQUEST,
@@ -398,7 +428,9 @@ export class IntegrationService {
         );
       }
 
-      const signLocal = Helper.endCodeUsername(`${checkStatusTransactionDto.username}|${checkStatusTransactionDto.bookmakerId}`);
+      const signLocal = Helper.endCodeUsername(
+        `${checkStatusTransactionDto.username}|${checkStatusTransactionDto.bookmakerId}`
+      );
       if (checkStatusTransactionDto.sign != signLocal) {
         return new SuccessResponse(
           STATUSCODE.COMMON_BAD_REQUEST,
@@ -427,22 +459,142 @@ export class IntegrationService {
         let response: any;
         if (exchangeFind) {
           response = {
+            type: exchangeFind.type,
             status: exchangeFind.status,
-            amount: exchangeFind.amount
+            amount: parseFloat(exchangeFind.amount.toString())
           }
         } else {
           response = {
+            type: -1,
             status: StatusExchange.INEXISTENCE,
             amount: 0
           }
         }
-  
+
         return new SuccessResponse(
           STATUSCODE.COMMON_SUCCESS,
           response,
           MESSAGE.CHECK_STATUS_TRANSACTION_SUCCESS
         );
       }
+    } catch (error) {
+      this.logger.debug(
+        `${IntegrationService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        ERROR.SYSTEM_OCCURRENCE
+      );
+    }
+  }
+
+  async getBetInfo(getBetInfo: GetBetInfoDto) {
+    try {
+      const bookmaker = await this.bookmakerRepository.findOneBy({
+        id: getBetInfo.bookmakerId,
+      });
+      if (!bookmaker) {
+        return new SuccessResponse(
+          STATUSCODE.COMMON_BAD_REQUEST,
+          "Bookmaker is not exists",
+          MESSAGE.GET_BET_INFO_FAILUTE
+        );
+      }
+
+      const signLocal = Helper.endCodeUsername(
+        `${getBetInfo.bookmakerId}|${getBetInfo.timeStart}|${getBetInfo.timeEnd}`
+      );
+      if (getBetInfo.sign != signLocal) {
+        return new SuccessResponse(
+          STATUSCODE.COMMON_BAD_REQUEST,
+          "Sign is wrong",
+          MESSAGE.GET_BET_INFO_FAILUTE
+        );
+      }
+
+      const tiemStartCV = moment(getBetInfo.timeStart, "YYYYMMDDHHmmss").utcOffset(0).format("YYYY-MM-DD HH:mm:ss");
+      const timeEndCV = moment(getBetInfo.timeEnd, "YYYYMMDDHHmmss").utcOffset(0).format("YYYY-MM-DD HH:mm:ss");
+      const whereCondition: any = {};
+      let condition = "bookmaker.id = :bookmarkerFind AND (entity.created_at BETWEEN :timeStart AND :timeEnd)";
+      const conditionParams: any = { 
+        bookmarkerFind: bookmaker.id,
+        timeStart: tiemStartCV,
+        timeEnd: timeEndCV
+      }
+      if (getBetInfo.username) {
+        const userFind: User = await this.userRepository.findOneBy({
+          username: getBetInfo.username,
+          bookmaker: {
+            id: getBetInfo.bookmakerId
+          }
+        })
+
+        if (!userFind) {
+          return new SuccessResponse(
+            STATUSCODE.COMMON_BAD_REQUEST,
+            "Username is not exists",
+            MESSAGE.GET_BET_INFO_FAILUTE
+          );
+        } else {
+          condition = condition.concat(` AND user.id = :userId`);
+          conditionParams.userId = userFind.id;
+        }
+      }
+
+      const orders = await this.orderRepository
+        .createQueryBuilder("entity")
+        .leftJoinAndSelect("users", "user", "entity.userId = user.id")
+        .leftJoinAndSelect(
+          "bookmaker",
+          "bookmaker",
+          "entity.bookmakerId = bookmaker.id"
+        )
+        .select("bookmaker.id as bookmakerId")
+        .addSelect("user.username as username")
+        .addSelect("entity.type as type")
+        .addSelect("entity.seconds as seconds")
+        .addSelect("entity.revenue as revenue")
+        .addSelect("entity.betType as betType")
+        .addSelect("entity.betTypeName as betTypeName")
+        .addSelect("entity.childBetType as childBetType")
+        .addSelect("entity.childBetTypeName as childBetTypeName")
+        .addSelect("entity.detail as detail")
+        .addSelect("entity.multiple as multiple")
+        .addSelect("entity.created_at as created_at")
+        .addSelect("entity.status as status")
+        .addSelect("entity.paymentWin as paymentWin")
+        .addSelect("entity.updated_at as updated_at")
+        .where(condition, conditionParams)
+        .getRawMany();
+
+      const result: any = [];
+      orders.map((order: any) => {
+        const newIt = {
+          username: order?.username,
+          gameCategory: order?.type.indexOf("xs") > -1 ? 0 : 1, // 0: xoso
+          gameType: `${order?.type}${order.seconds}s`,
+          amount: parseFloat(order?.revenue.toString()),
+          betType: order?.betType,
+          betTypeName: order?.betTypeName,
+          childBetType: order?.childBetType,
+          childBetTypeName: order?.childBetTypeName,
+          detail: order?.detail,
+          multiple: order?.multiple,
+          timeCreate: moment(order?.created_at).utcOffset(7).format("yyyyMMDDHHmmss"),
+          test: moment(order?.created_at).utcOffset(7).format("yyyyMMDDHHmmss"),
+          status: order?.status,
+          paymentWin: order?.paymentWin ? parseFloat(order?.paymentWin.toString()) : 0.00,
+          timeResult: moment(order?.updated_at).utcOffset(7).format("yyyyMMDDHHmmss") // tính lại time kết thúc
+        };
+        result.push(newIt)
+      })
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        result,
+        MESSAGE.GET_BET_INFO_SUCCESS
+      );
     } catch (error) {
       this.logger.debug(
         `${IntegrationService.name} is Logging error: ${JSON.stringify(error)}`
