@@ -55,7 +55,10 @@ export class OrdersService {
     // validate orders
     const turnIndex = OrderHelper.getTurnIndex(seconds);
     const ordersBefore = await this.getNumberOfBetsFromTurnIndex(data.orders[0], turnIndex);
-    await OrderValidate.validateOrders(data?.orders || [], ordersBefore);
+    await OrderValidate.validateOrders(data?.orders || [], ordersBefore, turnIndex);
+
+    const openTime = OrderHelper.getOpenTime(seconds);
+    const closeTime = OrderHelper.getCloseTime(seconds);
 
     // check balance
     const wallet = await this.walletHandlerService.findWalletByUserId(member.id);
@@ -81,6 +84,8 @@ export class OrdersService {
       if (member.usernameReal) {
         order.isTestPlayer = true;
       }
+      order.openTime = openTime.toString();
+      order.closeTime = closeTime.toString();
 
       promises.push(this.orderRequestRepository.save(order));
     }
@@ -159,7 +164,8 @@ export class OrdersService {
       conditionGetOrders.createdAt = Between(fromD, toD);
       conditionCalcAllOrders.fromD = fromD.toISOString();
       conditionCalcAllOrders.toD = toD.toISOString();
-      query += `AND orders.created_at between :fromD AND :toD `;
+      // query += `AND orders.created_at between :fromD AND :toD `;
+      query += `AND CONVERT_TZ(orders.created_at, 'UTC', '+7:00') between :fromD AND :toD `;
     }
     if (seconds) {
       conditionGetOrders.seconds = seconds;
@@ -215,7 +221,7 @@ export class OrdersService {
     // validate orders
     const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
     const turnIndex = OrderHelper.getTurnIndex(seconds);
-    await OrderValidate.validateOrders(data?.orders || [], []);
+    await OrderValidate.validateOrders(data?.orders || [], [], turnIndex);
 
     // check balance
     let wallet = await this.walletHandlerService.findWalletByUserId(user.id);
@@ -277,7 +283,7 @@ export class OrdersService {
       const objOrder = this.transformOrderToObject(order);
       const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
         orders: objOrder,
-        typeBet: data.orders[0].childBetType,
+        childBetType: data.orders[0].childBetType,
         prizes: finalResult,
       });
 
@@ -634,6 +640,16 @@ export class OrdersService {
   }
 
   async confirmGenerateFollowUpPlan(data: any, user: any) {
+    // prevent time order
+    const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
+    const currentTime = OrderHelper.getCurrentTimeInRound(seconds);
+    await OrderHelper.isValidTimeOrder(currentTime, seconds);
+
+    // validate orders
+    const turnIndex = OrderHelper.getTurnIndex(seconds);
+    const ordersBefore = await this.getNumberOfBetsFromTurnIndex(data.orders[0], turnIndex);
+    await OrderValidate.validateOrders(data?.orders || [], ordersBefore, turnIndex);
+
     // check balance
     const wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     const totalBet = OrderHelper.getBalance(data.orders);
@@ -650,6 +666,8 @@ export class OrdersService {
     for (const order of orders) {
       promisesPrepareDataToGenerateAward.push(this.prepareDataToGenerateAward([order], user.bookmakerId, order.turnIndex, user.usernameReal));
 
+      order.openTime = OrderHelper.getOpenTimeByTurnIndex(order.turnIndex, seconds);
+      order.closeTime = order.openTime + (seconds * 1000);
       order.numericalOrder = OrderHelper.getRandomTradingCode();
       const { betTypeName, childBetTypeName, numberOfBets } = OrderHelper.getInfoDetailOfOrder(order);
       order.seconds = OrderHelper.getPlayingTimeByType(order.type);
@@ -673,7 +691,7 @@ export class OrdersService {
     await this.saveEachOrderOfUserToRedis(result, user.bookmakerId, user.id, user.usernameReal);
 
     // update balance
-    const totalBetRemain =  Number(wallet.balance) - totalBet;
+    const totalBetRemain = Number(wallet.balance) - totalBet;
     await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
 
     return result;

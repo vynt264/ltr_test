@@ -5,7 +5,7 @@ import { ERROR } from '../../../system/constants/messageError';
 import { MAX_ORDERS_LO2SO, MAX_ORDERS_LO3SO, MAX_ORDERS_LO4SO, MAX_ORDERS_DAU_DUOI, MAX_ORDERS_LOXIEN } from "src/system/constants";
 
 export class OrderValidate {
-    static validateOrders(orders: any, ordersBefore: Array<any>) {
+    static validateOrders(orders: any, ordersBefore: Array<any>, turnIndex: string) {
         let numbers: any = [];
         let tempOrders = JSON.parse(JSON.stringify(orders));
         let orderDetailLo2SoGiaiDacBiet = '';
@@ -18,11 +18,14 @@ export class OrderValidate {
                     detail: ord.detail,
                     multiple: ord.multiple,
                     type: `${ord.type}${ord.seconds}s`,
+                    turnIndex: ord.turnIndex,
                 });
             }
         }
 
         for (const order of tempOrders) {
+            if (order.turnIndex && order.turnIndex !== turnIndex) continue;
+
             switch (order.childBetType) {
                 case BaoLoType.Lo2So:
                 case BaoLoType.Lo2So1k:
