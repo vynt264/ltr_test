@@ -131,6 +131,7 @@ export class LotteryAwardService {
         object,
         member.bookmakerId,
         member.usernameReal,
+        member.id,
       );
 
       return new SuccessResponse(
@@ -395,6 +396,7 @@ export class LotteryAwardService {
     lotteryAwardDto: any,
     bookMakerId: number,
     usernameReal: string,
+    userId: number,
   ) {
     const { take: perPage, skip: page } = paginationQuery;
     if (page <= 0) {
@@ -411,7 +413,12 @@ export class LotteryAwardService {
       //   turnIndex: true,
       //   id: true,
       // },
-      where: this.guestHoldQuery(lotteryAwardDto, bookMakerId, usernameReal),
+      where: this.guestHoldQuery(
+        lotteryAwardDto,
+        bookMakerId,
+        usernameReal,
+        userId
+      ),
       take: +perPage,
       skip,
       order: { createdAt: paginationQuery.order },
@@ -454,7 +461,12 @@ export class LotteryAwardService {
     return searching;
   }
 
-  guestHoldQuery(object: any = null, bookMakerId: number, usernameReal: string) {
+  guestHoldQuery(
+    object: any = null,
+    bookMakerId: number,
+    usernameReal: string,
+    userId = 0,
+  ) {
     const data: any = {};
     if (!object) return data;
 
@@ -489,6 +501,11 @@ export class LotteryAwardService {
     }
     data.bookmaker = { id: bookMakerId };
     data.isTestPlayer = isTestPlayer;
+    if (object.type.indexOf("1s") > -1) {
+      data.user = {
+        id: userId
+      }
+    }
 
     return data;
   }
