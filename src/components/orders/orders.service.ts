@@ -161,11 +161,11 @@ export class OrdersService {
       query += `AND orders.status = :status `;
     }
     if (fromD && toD) {
-      conditionGetOrders.createdAt = Between(fromD, toD);
+      const offset = 7 * 60 * 60 * 1000; 
+      conditionGetOrders.createdAt = Between(new Date(fromD.getTime() - offset), new Date(toD.getTime() - offset));
       conditionCalcAllOrders.fromD = fromD.toISOString();
       conditionCalcAllOrders.toD = toD.toISOString();
-      // query += `AND orders.created_at between :fromD AND :toD `;
-      query += `AND CONVERT_TZ(orders.created_at, 'UTC', '+7:00') between :fromD AND :toD `;
+      query += `AND orders.created_at between :fromD AND :toD `;
     }
     if (seconds) {
       conditionGetOrders.seconds = seconds;
