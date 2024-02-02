@@ -582,10 +582,9 @@ export class IntegrationService {
           detail: order?.detail,
           multiple: order?.multiple,
           timeCreate: moment(order?.created_at).utcOffset(7).format("yyyyMMDDHHmmss"),
-          test: moment(order?.created_at).utcOffset(7).format("yyyyMMDDHHmmss"),
           status: order?.status,
           paymentWin: order?.paymentWin ? parseFloat(order?.paymentWin.toString()) : 0.00,
-          timeResult: moment(order?.updated_at).utcOffset(7).format("yyyyMMDDHHmmss") // tính lại time kết thúc
+          timeResult: order?.status != "pending" ? moment(order?.updated_at).utcOffset(7).format("yyyyMMDDHHmmss") : "" // tính lại time kết thúc
         };
         result.push(newIt)
       })
