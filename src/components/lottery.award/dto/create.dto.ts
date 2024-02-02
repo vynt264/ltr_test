@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsJSON, IsNotEmpty, IsString } from "class-validator";
+import { IsJSON, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { BookMaker } from "src/components/bookmaker/bookmaker.entity";
 import { JoinColumn } from "typeorm";
 
@@ -33,4 +33,7 @@ export class CreateLotteryAwardDto {
   isTestPlayer: boolean;
 
   openTime: Date;
+
+  @IsOptional()
+  userId?: string;
 }

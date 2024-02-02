@@ -274,6 +274,7 @@ export class OrdersService {
       bookmaker: { id: user.bookmakerId } as any,
       isTestPlayer,
       openTime: new Date(),
+      userId: user.id,
     });
 
     const promisesCreateWinningNumbers = [];

@@ -65,4 +65,7 @@ export class LotteryAward {
     default: false,
   })
   isTestPlayer: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  userId: string;
 }
