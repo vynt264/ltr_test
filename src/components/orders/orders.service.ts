@@ -230,6 +230,10 @@ export class OrdersService {
     const totalBet = OrderHelper.getBalance(data.orders);
     await this.checkBalance(totalBet, wallet);
 
+    // update balance
+    wallet = await this.walletHandlerService.findWalletByUserId(user.id);
+    await this.walletHandlerService.updateWalletByUserId(user.id, { balance: (+wallet.balance - totalBet) });
+
     let promises = [];
     for (const order of data.orders) {
       order.turnIndex = turnIndex;
