@@ -502,9 +502,7 @@ export class LotteryAwardService {
     data.bookmaker = { id: bookMakerId };
     data.isTestPlayer = isTestPlayer;
     if (object.type.indexOf("1s") > -1) {
-      data.user = {
-        id: userId
-      }
+      data.userId = userId
     }
 
     return data;
