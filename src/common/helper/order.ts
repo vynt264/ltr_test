@@ -1403,6 +1403,19 @@ export class OrderHelper {
         };
     }
 
+    static transformAwardsToArray(prizes: any): string[] {
+        if (!prizes) return [];
+
+        const numbers: string[] = [];
+        for (let i = 0; i < Object.keys(prizes).length; i++) {
+            for (let j = 0; j < prizes[i].length; j++) {
+                numbers.push(prizes[i][j]);
+            }
+        }
+
+        return numbers;
+    }
+
     static findNumberOccurrencesOfPrizes({
         order,
         prizes,
@@ -1508,10 +1521,15 @@ export class OrderHelper {
             case LoXienType.Xien4:
                 let tempCount = 0;
                 const numbers = order.split(',');
+                const tempNumbers: string[] = [];
                 for (let i = 0; i < 9; i++) {
                     for (let j = 0; j < prizes[i].length; j++) {
                         for (const number of numbers) {
+                            const hasNumber = tempNumbers.some((n: string) => n == number);
+                            if (hasNumber) continue;
+
                             if (prizes[i][j].endsWith(number.trim())) {
+                                tempNumbers.push(number);
                                 tempCount++;
                             }
                         }
@@ -1529,14 +1547,15 @@ export class OrderHelper {
             case LoTruocType.TruotXien10:
                 let tempCountTruotXien = 0;
                 const numbersTruotXien = order.split(',');
-                for (let i = 0; i < 9; i++) {
-                    for (let j = 0; j < prizes[i].length; j++) {
-                        for (const number of numbersTruotXien) {
-                            if (!prizes[i][j].endsWith(number.trim())) {
-                                tempCountTruotXien++;
-                            }
-                        }
+                const tempPrizes = this.transformAwardsToArray(prizes);
+                for (const number of numbersTruotXien) {
+                    let hasOrder = false;
+                    for (const numberPrize of tempPrizes) {
+                        hasOrder = numberPrize.endsWith(number.trim());
+                        if (hasOrder) break;
                     }
+
+                    if (!hasOrder) tempCountTruotXien++;
                 }
 
                 if (tempCountTruotXien === numbersTruotXien.length) {

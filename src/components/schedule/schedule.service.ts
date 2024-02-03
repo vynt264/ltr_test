@@ -176,7 +176,6 @@ export class ScheduleService implements OnModuleInit {
 
         // fake users
         const dataTransformOfFakeUsers = OrderHelper.transformData(dataOfTestPlayer);
-        // const prizesOfFakeUsers = this.lotteriesService.generatePrizes(dataTransformOfFakeUsers);
         const prizesOfFakeUsers = await this.lotteriesService.handlerPrizes({
             type: gameType,
             data: dataTransformOfFakeUsers,
