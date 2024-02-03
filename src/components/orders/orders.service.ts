@@ -54,7 +54,8 @@ export class OrdersService {
 
     // validate orders
     const turnIndex = OrderHelper.getTurnIndex(seconds);
-    const ordersBefore = await this.getNumberOfBetsFromTurnIndex(data.orders[0], turnIndex);
+    const childBetType = data.orders[0].childBetType;
+    const ordersBefore = await this.getNumberOfBetsFromTurnIndex(data.orders[0], turnIndex, childBetType);
     await OrderValidate.validateOrders(data?.orders || [], ordersBefore, turnIndex);
 
     const openTime = OrderHelper.getOpenTime(seconds);
@@ -654,7 +655,8 @@ export class OrdersService {
 
     // validate orders
     const turnIndex = OrderHelper.getTurnIndex(seconds);
-    const ordersBefore = await this.getNumberOfBetsFromTurnIndex(data.orders[0], turnIndex);
+    const childBetType = data.orders[0].childBetType;
+    const ordersBefore = await this.getNumberOfBetsFromTurnIndex(data.orders[0], turnIndex, childBetType);
     await OrderValidate.validateOrders(data?.orders || [], ordersBefore, turnIndex);
 
     // check balance
@@ -882,7 +884,7 @@ export class OrdersService {
     return data;
   }
 
-  getNumberOfBetsFromTurnIndex(order: any, turnIndex: string) {
+  getNumberOfBetsFromTurnIndex(order: any, turnIndex: string, childBetType: string) {
     const seconds = OrderHelper.getPlayingTimeByType(order.type);
     const type = OrderHelper.getTypeLottery(order.type);
     return this.orderRequestRepository.find({
@@ -890,6 +892,7 @@ export class OrdersService {
         turnIndex,
         type,
         seconds,
+        childBetType,
       },
     });
   }
