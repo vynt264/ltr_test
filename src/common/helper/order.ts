@@ -100,11 +100,12 @@ export class OrderHelper {
     }
 
     static isValid2SoDacBiet(ordersDetail: string) {
+        const orders = ordersDetail.split(',');
         if (
-            (ordersDetail.includes(Lo2SoGiaiDacBietType.Tai) && ordersDetail.includes(Lo2SoGiaiDacBietType.Xiu)) ||
-            (ordersDetail.includes(Lo2SoGiaiDacBietType.Chan) && ordersDetail.includes(Lo2SoGiaiDacBietType.Le)) ||
-            (ordersDetail.includes(Lo2SoGiaiDacBietType.TongTai) && ordersDetail.includes(Lo2SoGiaiDacBietType.TongXiu)) ||
-            (ordersDetail.includes(Lo2SoGiaiDacBietType.TongChan) && ordersDetail.includes(Lo2SoGiaiDacBietType.TongLe))
+            (orders.some((order: string) => order.trim() === Lo2SoGiaiDacBietType.Tai) && orders.some((order: string) => order.trim() === Lo2SoGiaiDacBietType.Xiu)) ||
+            (orders.some((order: string) => order.trim() === Lo2SoGiaiDacBietType.Chan) && orders.some((order: string) => order.trim() === Lo2SoGiaiDacBietType.Le)) ||
+            (orders.some((order: string) => order.trim() === Lo2SoGiaiDacBietType.TongTai) && orders.some((order: string) => order.trim() === Lo2SoGiaiDacBietType.TongXiu)) ||
+            (orders.some((order: string) => order.trim() === Lo2SoGiaiDacBietType.TongChan) && orders.some((order: string) => order.trim() === Lo2SoGiaiDacBietType.TongLe))
         ) {
             return false;
         }
