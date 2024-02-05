@@ -56,7 +56,7 @@ export class BacklistService {
   async deleteBacklist() {
     const currentDate = new Date();
     const timeCheck = new Date(currentDate);
-    timeCheck.setHours(currentDate.getHours() - 2);
+    timeCheck.setHours(currentDate.getHours() - 24);
     // delete lotery request
     const data = await this.backlistRepository.find({
       where: {
