@@ -17,7 +17,7 @@ import {
   LoXienType,
   TroChoiThuViType,
 } from 'src/system/enums/lotteries';
-import { ERROR, PERIOD_CANNOT_CANCELED, PERIOD_CANNOT_ORDER } from 'src/system/constants';
+import { ERROR, ORDER_STATUS, PERIOD_CANNOT_CANCELED, PERIOD_CANNOT_ORDER } from 'src/system/constants';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
@@ -54,8 +54,7 @@ export class OrdersService {
 
     // validate orders
     const turnIndex = OrderHelper.getTurnIndex(seconds);
-    const childBetType = data.orders[0].childBetType;
-    const ordersBefore = await this.getNumberOfBetsFromTurnIndex(data.orders[0], turnIndex, childBetType);
+    const ordersBefore = await this.getOrdersBeforeInTurn(data.orders, turnIndex);
     await OrderValidate.validateOrders(data?.orders || [], ordersBefore, turnIndex);
 
     const openTime = OrderHelper.getOpenTime(seconds);
@@ -315,7 +314,7 @@ export class OrdersService {
         +order.id,
         {
           paymentWin: realWinningAmount,
-          status: 'closed',
+          status: ORDER_STATUS.closed,
         },
         null,
       ));
@@ -525,7 +524,7 @@ export class OrdersService {
       await this.walletHistoryRepository.save(createdWalletHis);
     }
 
-    if (order.status !== 'pending') return;
+    if (order.status !== ORDER_STATUS.pending) return;
 
     return this.orderRequestRepository.update(id, updateOrderDto);
   }
@@ -655,8 +654,7 @@ export class OrdersService {
 
     // validate orders
     const turnIndex = OrderHelper.getTurnIndex(seconds);
-    const childBetType = data.orders[0].childBetType;
-    const ordersBefore = await this.getNumberOfBetsFromTurnIndex(data.orders[0], turnIndex, childBetType);
+    const ordersBefore = await this.getOrdersBeforeInTurn(data.orders, turnIndex);
     await OrderValidate.validateOrders(data?.orders || [], ordersBefore, turnIndex);
 
     // check balance
@@ -884,7 +882,7 @@ export class OrdersService {
     return data;
   }
 
-  getNumberOfBetsFromTurnIndex(order: any, turnIndex: string, childBetType: string) {
+  getNumberOfBetsFromTurnIndex(order: any, turnIndex: string) {
     const seconds = OrderHelper.getPlayingTimeByType(order.type);
     const type = OrderHelper.getTypeLottery(order.type);
     return this.orderRequestRepository.find({
@@ -892,7 +890,8 @@ export class OrdersService {
         turnIndex,
         type,
         seconds,
-        childBetType,
+        status: ORDER_STATUS.pending,
+        childBetType: order.childBetType,
       },
     });
   }
@@ -906,5 +905,23 @@ export class OrdersService {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  async getOrdersBeforeInTurn(orders: any, turnIndex: string) {
+    if (!orders) return [];
+
+    const promises = [];
+    for (const order of orders) {
+      promises.push(this.getNumberOfBetsFromTurnIndex(order, turnIndex));
+    }
+    const result = await Promise.all(promises);
+
+    return result.reduce((init: any, currentValue: any) => {
+      for (const order of currentValue) {
+        init.push(order);
+      }
+
+      return init;
+    }, []);
   }
 }
