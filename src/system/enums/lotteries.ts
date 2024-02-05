@@ -122,7 +122,7 @@ export enum OddBet {
     Lo2So = 99.6,
     Lo2So1k = 5.5,
     Lo3So = 980,
-    Lo4So = 9500,
+    Lo4So = 9000,
     Xien2 = 30,
     Xien3 = 165,
     Xien4 = 775,

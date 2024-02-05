@@ -8,7 +8,7 @@ import { LotteriesService } from 'src/components/lotteries/lotteries.service';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { SocketGatewayService } from '../gateway/gateway.service';
 import { BookMakerService } from '../bookmaker/bookmaker.service';
-import { INIT_TIME_CREATE_JOB, MAINTENANCE_PERIOD, PERIOD_DELAY_TO_HANDLER_ORDERS, TypeLottery } from 'src/system/constants';
+import { INIT_TIME_CREATE_JOB, MAINTENANCE_PERIOD, ORDER_STATUS, PERIOD_DELAY_TO_HANDLER_ORDERS, TypeLottery } from 'src/system/constants';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
@@ -316,7 +316,7 @@ export class ScheduleService implements OnModuleInit {
                     +orderId,
                     {
                         paymentWin: realWinningAmount,
-                        status: 'closed',
+                        status: ORDER_STATUS.closed,
                     },
                     null,
                 ));
@@ -381,7 +381,7 @@ export class ScheduleService implements OnModuleInit {
 
             for (const order of orders) {
                 const tempOrder = await this.ordersService.findOne(order.id);
-                if (tempOrder.status === 'canceled' || tempOrder.status === 'closed') continue;
+                if (tempOrder.status === ORDER_STATUS.canceled || tempOrder.status === ORDER_STATUS.closed) continue;
 
                 await this.ordersService.removeOrderFromRedis({
                     order,
@@ -477,7 +477,7 @@ export class ScheduleService implements OnModuleInit {
                     +orderId,
                     {
                         paymentWin: realWinningAmount,
-                        status: 'closed',
+                        status: ORDER_STATUS.closed,
                     },
                     null,
                 ));
