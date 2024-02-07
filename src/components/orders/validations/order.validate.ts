@@ -85,19 +85,19 @@ export class OrderValidate {
             // 3 so
             switch (order.childBetType) {
                 case BaoLoType.Lo3So:
-                    numbersLo3So = [...new Set([...numbersLo3So, ...(OrderHelper.getNumbersOfOrder2Digit(order.detail))])];
+                    numbersLo3So = [...new Set([...numbersLo3So, ...(OrderHelper.getNumbersOfOrder3Digit(order.detail))])];
                     break;
 
                 case BaCangType.BaCangDau:
-                    numbersBaCangDau = [...new Set([...numbersBaCangDau, ...(OrderHelper.getNumbersOfOrder2Digit(order.detail))])];
+                    numbersBaCangDau = [...new Set([...numbersBaCangDau, ...(OrderHelper.getNumbersOfOrder3Digit(order.detail))])];
                     break;
 
                 case BaCangType.BaCangDacBiet:
-                    numbersBaCangDacBiet = [...new Set([...numbersBaCangDacBiet, ...(OrderHelper.getNumbersOfOrder2Digit(order.detail))])];
+                    numbersBaCangDacBiet = [...new Set([...numbersBaCangDacBiet, ...(OrderHelper.getNumbersOfOrder3Digit(order.detail))])];
                     break;
 
                 case BaCangType.BaCangDauDuoi:
-                    numbersBaCangDauDuoi = [...new Set([...numbersBaCangDauDuoi, ...(OrderHelper.getNumbersOfOrder2Digit(order.detail))])];
+                    numbersBaCangDauDuoi = [...new Set([...numbersBaCangDauDuoi, ...(OrderHelper.getNumbersOfOrder3Digit(order.detail))])];
                     break;
             }
             if (
@@ -117,11 +117,11 @@ export class OrderValidate {
             // 4 so
             switch (order.childBetType) {
                 case BaoLoType.Lo4So:
-                    numbersLo4So = [...new Set([...numbersLo4So, ...(OrderHelper.getNumbersOfOrder2Digit(order.detail))])];
+                    numbersLo4So = [...new Set([...numbersLo4So, ...(OrderHelper.getNumbersOfOrder4Digit(order.detail))])];
                     break;
 
                 case BonCangType.BonCangDacBiet:
-                    numbersBonCangDacBiet = [...new Set([...numbersBonCangDacBiet, ...(OrderHelper.getNumbersOfOrder2Digit(order.detail))])];
+                    numbersBonCangDacBiet = [...new Set([...numbersBonCangDacBiet, ...(OrderHelper.getNumbersOfOrder4Digit(order.detail))])];
                     break;
             }
             if (
@@ -161,27 +161,27 @@ export class OrderValidate {
             // xien truot
             switch (order.childBetType) {
                 case LoTruocType.TruotXien4:
-                    numbersTruotXien4 = [...new Set([...numbersTruotXien4, ...(OrderHelper.getNumbersOfOrder2Digit(order.detail))])];
+                    numbersTruotXien4 = [...new Set([...numbersTruotXien4, ...(order.detail.split(','))])];
                     break;
 
                 case LoTruocType.TruotXien8:
-                    numbersTruotXien8 = [...new Set([...numbersTruotXien8, ...(OrderHelper.getNumbersOfOrder2Digit(order.detail))])];
+                    numbersTruotXien8 = [...new Set([...numbersTruotXien8, ...(order.detail.split(','))])];
                     break;
 
                 case LoTruocType.TruotXien10:
-                    numbersTruotXien10 = [...new Set([...numbersTruotXien10, ...(OrderHelper.getNumbersOfOrder2Digit(order.detail))])];
+                    numbersTruotXien10 = [...new Set([...numbersTruotXien10, ...(order.detail.split(','))])];
                     break;
 
                 case LoXienType.Xien2:
-                    numbersXien2 = [...new Set([...numbersXien2, ...(OrderHelper.getNumbersOfOrder2Digit(order.detail))])];
+                    numbersXien2 = [...new Set([...numbersXien2, ...(order.detail.split(','))])];
                     break;
 
                 case LoXienType.Xien3:
-                    numbersXien3 = [...new Set([...numbersXien3, ...(OrderHelper.getNumbersOfOrder2Digit(order.detail))])];
+                    numbersXien3 = [...new Set([...numbersXien3, ...(order.detail.split(','))])];
                     break;
 
                 case LoXienType.Xien4:
-                    numbersXien4 = [...new Set([...numbersXien4, ...(OrderHelper.getNumbersOfOrder2Digit(order.detail))])];
+                    numbersXien4 = [...new Set([...numbersXien4, ...(order.detail.split(','))])];
                     break;
             }
             if (
