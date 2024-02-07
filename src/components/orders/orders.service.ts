@@ -493,6 +493,13 @@ export class OrdersService {
     });
 
     if (member) {
+      const numberRequest = await this.redisService.incr(id.toString());
+      if (numberRequest > 1) return;
+
+      setTimeout(() => {
+        this.redisService.del(id);
+      }, 3000)
+
       const currentTime = OrderHelper.getCurrentTimeInRound(order.seconds);
       if ((order.seconds - currentTime) < PERIOD_CANNOT_CANCELED) {
         throw new HttpException(

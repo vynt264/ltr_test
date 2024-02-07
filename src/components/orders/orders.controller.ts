@@ -15,7 +15,6 @@ import { RedisCacheService } from 'src/system/redis/redis.service';
 export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
-    private readonly redisService: RedisCacheService,
   ) { }
 
   @Post()
@@ -103,13 +102,7 @@ export class OrdersController {
   @Put(':id')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   async update(@Param('id') id: string, @Body() updateOrderDto: any, @Request() req: any) {
-    const numberRequest = await this.redisService.incr(req.user.id);
-    if (numberRequest > 1) return;
-
-    const result = await this.ordersService.update(+id, updateOrderDto, req.user);
-    await this.redisService.del(req.user.id);
-
-    return result;
+    return this.ordersService.update(+id, updateOrderDto, req.user);
   }
 
   @Delete(':id')
