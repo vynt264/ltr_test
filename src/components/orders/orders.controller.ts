@@ -9,11 +9,13 @@ import { PaginationQueryDto } from 'src/common/common.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import { ValidationPipe } from './validations/validation.pipe';
 import { ERROR } from "../../system/constants";
+import { RedisCacheService } from 'src/system/redis/redis.service';
 
 @Controller('api/v1/orders')
 export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
+    private readonly redisService: RedisCacheService,
   ) { }
 
   @Post()
@@ -100,8 +102,14 @@ export class OrdersController {
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  update(@Param('id') id: string, @Body() updateOrderDto: any, @Request() req: any) {
-    return this.ordersService.update(+id, updateOrderDto, req.user);
+  async update(@Param('id') id: string, @Body() updateOrderDto: any, @Request() req: any) {
+    const numberRequest = await this.redisService.incr(req.user.id);
+    if (numberRequest > 1) return;
+
+    const result = await this.ordersService.update(+id, updateOrderDto, req.user);
+    await this.redisService.del(req.user.id);
+
+    return result;
   }
 
   @Delete(':id')
