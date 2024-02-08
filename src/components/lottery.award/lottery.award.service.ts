@@ -533,10 +533,11 @@ export class LotteryAwardService {
     return { member };
   }
 
-  async findOneBy(type: string, turnIndex: string, bookMakerId: number): Promise<LotteryAward> {
+  async findOneBy(type: string, turnIndex: string, bookMakerId: number, isTestPlayer: boolean): Promise<LotteryAward> {
     return this.lotteryAwardRepository.findOneBy({
       type,
       turnIndex,
+      isTestPlayer,
       bookmaker: { id: bookMakerId },
     });
   }

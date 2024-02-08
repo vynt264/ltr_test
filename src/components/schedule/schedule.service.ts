@@ -528,29 +528,33 @@ export class ScheduleService implements OnModuleInit {
         for (const bookMaker of bookMakers) {
             for (const type of gameType) {
                 const finalResult = OrderHelper.randomPrizes({});
-                const lottery = await this.lotteryAwardService.findOneBy(type, turnIndex, bookMaker.id);
-                if (lottery) continue;
-                promises.push(
-                    this.lotteryAwardService.createLotteryAward({
-                        turnIndex,
-                        type,
-                        awardDetail: JSON.stringify(finalResult),
-                        bookmaker: { id: bookMaker.id } as any,
-                        isTestPlayer: false,
-                        openTime: new Date(openTime),
-                    })
-                )
+                const lotteryReal = await this.lotteryAwardService.findOneBy(type, turnIndex, bookMaker.id, false);
+                if (!lotteryReal) {
+                    promises.push(
+                        this.lotteryAwardService.createLotteryAward({
+                            turnIndex,
+                            type,
+                            awardDetail: JSON.stringify(finalResult),
+                            bookmaker: { id: bookMaker.id } as any,
+                            isTestPlayer: false,
+                            openTime: new Date(openTime),
+                        })
+                    )
+                }
+                const lotteryTestPlayer = await this.lotteryAwardService.findOneBy(type, turnIndex, bookMaker.id, true);
 
-                promises.push(
-                    this.lotteryAwardService.createLotteryAward({
-                        turnIndex,
-                        type,
-                        awardDetail: JSON.stringify(finalResult),
-                        bookmaker: { id: bookMaker.id } as any,
-                        isTestPlayer: true,
-                        openTime: new Date(openTime),
-                    })
-                )
+                if (!lotteryTestPlayer) {
+                    promises.push(
+                        this.lotteryAwardService.createLotteryAward({
+                            turnIndex,
+                            type,
+                            awardDetail: JSON.stringify(finalResult),
+                            bookmaker: { id: bookMaker.id } as any,
+                            isTestPlayer: true,
+                            openTime: new Date(openTime),
+                        })
+                    )
+                }
             }
         }
 
