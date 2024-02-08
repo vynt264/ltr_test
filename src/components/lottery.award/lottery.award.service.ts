@@ -586,52 +586,6 @@ export class LotteryAwardService {
     return { error: null, user };
   }
 
-  // async processJobGetXsmb(fromDate: Date, toDate: Date, typeLotrery: string, isAuto: boolean = false) {
-  //   const body = await this.connectService.getDataLottery(typeLotrery, fromDate, toDate);
-  //   if (body && body instanceof Array && body.length > 0) {
-  //     for (let i = 0; i < body.length; i++) {
-  //       try {
-  //         const data = body[i];
-  //         const award = this.lotteryAwardRepository.create({});
-  //         const formatYYYMMDD = data?.ngay + '';
-  //         award.turnIndex = `${formatYYYMMDD.slice(8, 10)}/${formatYYYMMDD.slice(5, 7)}/${formatYYYMMDD.slice(0, 4)}`;
-  //         award.type = typeLotrery;
-  //         const arrAward = this.convertDetail(data?.ket_qua, typeLotrery);
-
-  //         if (arrAward.length == 0) {
-  //           return;
-  //         }
-
-  //         award.awardDetail = JSON.stringify(arrAward);
-  //         award.awardTitle = arrAward[0];
-  //         award.openTime = this.convertOpenTime(typeLotrery, new Date(data.ngay));
-  //         await this.lotteryAwardRepository.save(award);
-  //       } catch (error) {
-  //         this.logger.debug(
-  //           `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
-  //         );
-  //       }
-  //     }
-  //   } else {
-  //     // await 10s
-  //     if (isAuto) {
-  //       await this.processJobGetXsmb(fromDate, toDate, typeLotrery);
-  //     }
-  //   }
-  // }
-
-  // async processXsByType(type: string) {
-  //   const turnIndex = this.getTurnIndex(type);
-  //   const username = `${SystemEnum.SYSTEM}`;
-
-  //   const createLotteryAward: CreateLotteryAwardDto = {
-  //     type,
-  //     turnIndex,
-  //   }
-
-  //   const result = await this.create(createLotteryAward, username);
-  // }
-
   convertOpenTime(type: string, dateTime: Date): Date {
     if (type == this.xsmb) {
       const time0h = startOfDay(dateTime).getTime();
@@ -694,71 +648,6 @@ export class LotteryAwardService {
     return arrAwardStr;
   }
 
-  // async processInitLotteryAward(createRequestDto: LotteryRequestDetailDto): Promise<BaseResponse> {
-  //   try {
-  //     createRequestDto.type = createRequestDto.type
-  //       ? createRequestDto.type
-  //       : `${TypeLottery.XSN_TEST}`;
-  //     let ft = "";
-  //     createRequestDto.turnIndex = this.getTurnIndex(createRequestDto.type);
-  //     let lotteryRequest = null;
-  //     const newLotteryRequest = {
-  //       detail: { ...createRequestDto },
-  //       status: `${StatusSend.INIT}`,
-  //     };
-
-  //     const createdLotteryRequest =
-  //       this.lotteryRequestRepository.create(newLotteryRequest);
-  //     const ftQueue = await this.lotteryFtRepository.save({});
-  //     createdLotteryRequest.type = createRequestDto.type;
-  //     const lotteryFound = await this.lotteryRequestRepository.findOneBy({
-  //       type: createRequestDto.type,
-  //       turnIndex: createRequestDto.turnIndex,
-  //     });
-
-  //     if (lotteryFound) {
-  //       return new ErrorResponse(
-  //         STATUSCODE.REQUEST_DUPLICATE,
-  //         "request duplicated",
-  //         ERROR.CREATE_FAILED
-  //       );
-  //     }
-
-  //     ft = PrefixEnum.LOTTTERY_REQUEST + ftQueue.id;
-  //     createdLotteryRequest.turnIndex = createRequestDto.turnIndex;
-  //     lotteryRequest = await this.lotteryRequestRepository.save(
-  //       createdLotteryRequest
-  //     );
-
-  //     const lotteryAward = await this.processInitAward(
-  //       createRequestDto,
-  //       lotteryRequest
-  //     );
-  //     // TODO remove log
-  //     if (lotteryAward.totalPay > 0) {
-  //       console.log(lotteryAward);
-  //     }
-
-  //     return new SuccessResponse(
-  //       STATUSCODE.COMMON_CREATE_SUCCESS,
-  //       lotteryAward,
-  //       MESSAGE.CREATE_SUCCESS
-  //     );
-  //   } catch (error) {
-  //     console.log(error);
-  //     this.logger.debug(
-  //       `${LotteryAwardService.name} is Logging error: ${JSON.stringify(
-  //         error
-  //       )}`
-  //     );
-  //     return new ErrorResponse(
-  //       STATUSCODE.COMMON_FAILED,
-  //       error,
-  //       ERROR.CREATE_FAILED
-  //     );
-  //   }
-  // }
-
   getTurnIndex(type: string): string {
     const now = new Date(new Date().getTime() - 5000);
     const formattedDate = format(now, "dd/MM/yyyy");
@@ -816,75 +705,6 @@ export class LotteryAwardService {
     const randomNumber = Math.floor(randomDecimal * (max - min + 1)) + min;
     return randomNumber;
   }
-
-  // async processInitAward(
-  //   createRequestDto: LotteryRequestDetailDto,
-  //   lotteryRequest: LotteryRequest
-  // ) {
-  //   let lotteryAward = null;
-
-  //   try {
-  //     const lotteryInfo: LotteryInfo = {
-  //       mapMatricInt: null,
-  //       matricMore2SoOther: [],
-  //       arrAwardInt: [],
-  //       arrAwardStr: [],
-  //       maxlength2so: 100,
-  //       minWinNhaCai: 0,
-  //       rateDeWin: 0.2,
-  //       rootTotalRevenue: 0,
-  //       totalRevenue: 0,
-  //       totalPayment: 0,
-  //     };
-
-  //     let totalRevenue = this.getTotalRevenue(createRequestDto, lotteryInfo);
-  //     lotteryInfo.rootTotalRevenue = totalRevenue;
-  //     lotteryInfo.minWinNhaCai = totalRevenue * 0.95;
-
-  //     const { arrAwardInt, totalPay, arrAwardStr } = this.getArrAwardInt(
-  //       createRequestDto,
-  //       lotteryInfo
-  //     );
-  //     if (lotteryInfo.rootTotalRevenue != 0) {
-  //     }
-
-  //     lotteryAward = this.lotteryAwardRepository.create({});
-  //     lotteryAward.totalRevenue = +lotteryInfo.rootTotalRevenue;
-  //     lotteryAward.awardTitle = arrAwardStr[0];
-  //     lotteryAward.totalPay = totalPay;
-
-  //     if (lotteryAward.totalRevenue != 0 && lotteryAward.totalPay != 0) {
-  //       lotteryAward.rateWin =
-  //         1 -
-  //         (1.0 * +lotteryAward.totalPay) / (1.0 * +lotteryAward.totalRevenue);
-  //     }
-
-  //     const detail1to8 = this.getDetail1to8(arrAwardStr);
-  //     lotteryAward.awardDetail = JSON.stringify(detail1to8);
-  //     lotteryAward.type = createRequestDto.type;
-  //     lotteryAward.turnIndex = createRequestDto.turnIndex;
-  //     lotteryAward.openTime = this.getOpenTime(lotteryAward.type);
-
-  //     await this.lotteryAwardRepository.save(lotteryAward);
-
-  //     if (lotteryRequest.status != `${StatusSend.AUTO}`) {
-  //       lotteryRequest.lotteryAwardId = lotteryAward.id;
-  //       lotteryRequest.status = `${StatusSend.SUCCESS}`;
-  //       await this.lotteryRequestRepository.save(lotteryRequest);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     if (lotteryRequest.status != `${StatusSend.AUTO}`) {
-  //       lotteryRequest.status = `${StatusSend.ERROR}`;
-  //       const errorMessage = JSON.stringify(error);
-  //       lotteryRequest.errorReason =
-  //         errorMessage.length > 255 ? errorMessage.slice(0, 255) : errorMessage;
-  //       await this.lotteryRequestRepository.save(lotteryRequest);
-  //     }
-  //   }
-
-  //   return lotteryAward;
-  // }
 
   getOpenTime(type: string): Date {
     if (type == `${TypeLottery.XSN_TEST}`) {
