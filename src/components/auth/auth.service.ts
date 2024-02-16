@@ -244,6 +244,10 @@ export class AuthService {
       throw new ForbiddenException("Access Denied");
     }
 
+    if (user && user.isBlocked) {
+      throw new ForbiddenException("User is blocked");
+    }
+
     let wallet, walletInout;
     if (user) {
       wallet = await this.walletHandlerService.findWalletByUserId(user.id);
