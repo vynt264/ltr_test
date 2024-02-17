@@ -4,7 +4,8 @@ import { UpdateManageBonusPriceDto } from './dto/update-manage-bonus-price.dto';
 import { ManageBonusPrice } from './entities/manage-bonus-price.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { INIT_TIME_CREATE_JOB, MAINTENANCE_PERIOD, TypeLottery } from 'src/system/constants';
+import { MAINTENANCE_PERIOD, START_TIME_CREATE_JOB, TypeLottery } from 'src/system/constants';
+import { addHours, startOfDay } from 'date-fns';
 
 @Injectable()
 export class ManageBonusPriceService {
@@ -49,7 +50,7 @@ export class ManageBonusPriceService {
     return `This action removes a #${id} manageBonusPrice`;
   }
 
-  async initBonusPrice() {
+  async initBonusPrice(date: Date) {
     const gameTypes = [
       TypeLottery.XSMB_1S,
       TypeLottery.XSMT_1S,
@@ -67,8 +68,8 @@ export class ManageBonusPriceService {
       TypeLottery.XSMN_180S,
       TypeLottery.XSSPL_360S,
     ];
-    const timeStart = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
-    const fromDate = new Date(timeStart).getTime();
+    const timeStartDay = startOfDay(date);
+    let fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
     const toDate = fromDate + ((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) * 1000;
     const promise = [];
 

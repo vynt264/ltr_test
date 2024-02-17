@@ -6,6 +6,7 @@ import {
   INIT_TIME_CREATE_JOB,
   MAINTENANCE_PERIOD,
   PRIZES,
+  START_TIME_CREATE_JOB,
 } from '../../system/constants';
 import { OrderDto } from './dto/order.dto';
 import {
@@ -23,6 +24,7 @@ import {
   TroChoiThuViType,
 } from '../../system/enums/lotteries';
 import { ManageBonusPriceService } from '../manage-bonus-price/manage-bonus-price.service';
+import { addHours, startOfDay } from 'date-fns';
 
 @Injectable()
 export class LotteriesService {
@@ -128,8 +130,11 @@ export class LotteriesService {
     type,
     data,
   }: any) {
-    const timeStart = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
-    const fromDate = new Date(timeStart).getTime();
+    // const timeStart = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
+    // const fromDate = new Date(timeStart).getTime();
+
+    const timeStartDay = startOfDay(new Date());
+    const fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
     const toDate = fromDate + ((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) * 1000;
     const dataBonusPrice = await this.manageBonusPriceService.findBonusPriceByType({
       type,

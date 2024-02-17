@@ -3,7 +3,7 @@ import { addHours, startOfDay } from "date-fns";
 import * as _ from "lodash";
 
 import { DateTimeHelper } from "src/helpers/date-time";
-import { ERROR, INIT_TIME_CREATE_JOB, PERIOD_CANNOT_ORDER, PRIZES, TypeLottery } from "src/system/constants";
+import { ERROR, INIT_TIME_CREATE_JOB, MAINTENANCE_PERIOD, PERIOD_CANNOT_ORDER, PRIZES, START_TIME_CREATE_JOB, TypeLottery } from "src/system/constants";
 import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, Lo2SoGiaiDacBietType, LoTruocType, LoXienType, OddBet, PricePerScore, TroChoiThuViType } from "src/system/enums/lotteries";
 
 export class OrderHelper {
@@ -928,8 +928,8 @@ export class OrderHelper {
     static takeNumberOfTurns(seconds: number) {
         if (!seconds) return '';
 
-        const time = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
-        const fromDate = new Date(time).getTime();
+        const timeStartDay = startOfDay(new Date());
+        const fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
         const toDate = (new Date()).getTime();
         return (Math.ceil(((toDate - fromDate) / 1000) / seconds));
     }
@@ -992,7 +992,7 @@ export class OrderHelper {
 
     static getCurrentTurnIndex(seconds: number) {
         const timeStartDay = startOfDay(new Date());
-        const fromDate = addHours(timeStartDay, 7).getTime();
+        const fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
         const toDate = (new Date()).getTime();
 
         return Math.ceil(((toDate - fromDate) / 1000) / seconds);
@@ -1008,8 +1008,8 @@ export class OrderHelper {
     static getOpenTimeByTurnIndex(turnIndex: string, seconds: number) {
         if (!turnIndex) return 0;
 
-        const timeStart = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
-        const fromDate = new Date(timeStart).getTime();
+        const timeStartDay = startOfDay(new Date());
+        const fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
 
         const numberOfTurns = turnIndex.split('-')[1];
 
@@ -1684,5 +1684,9 @@ export class OrderHelper {
                 HttpStatus.BAD_REQUEST,
             );
         }
+    }
+
+    static getNumberOfTurnsInDay(seconds: number) {
+        return Math.round((((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) / seconds));
     }
 }

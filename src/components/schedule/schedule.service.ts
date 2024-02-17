@@ -3,12 +3,13 @@ import { Cron, SchedulerRegistry } from '@nestjs/schedule';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CronJob } from 'cron';
+import { addHours, startOfDay, addDays, addMinutes } from "date-fns";
 
 import { LotteriesService } from 'src/components/lotteries/lotteries.service';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { SocketGatewayService } from '../gateway/gateway.service';
 import { BookMakerService } from '../bookmaker/bookmaker.service';
-import { INIT_TIME_CREATE_JOB, MAINTENANCE_PERIOD, ORDER_STATUS, PERIOD_DELAY_TO_HANDLER_ORDERS, TypeLottery } from 'src/system/constants';
+import { INIT_TIME_CREATE_JOB, MAINTENANCE_PERIOD, ORDER_STATUS, PERIOD_DELAY_TO_HANDLER_ORDERS, START_TIME_CREATE_JOB, TypeLottery } from 'src/system/constants';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
@@ -47,30 +48,45 @@ export class ScheduleService implements OnModuleInit {
     }
 
     async init() {
-        let promises: any = [];
-        await this.clearDataInRedis();
-        await this.deleteAllJobCountDown();
+        // create jobs current day
+        await this.createJobs();
+        // create jobs next day
+        this.createJobsNextDay();
+        await this.manageBonusPriceService.initBonusPrice(new Date());
+    }
+
+    async createJobs(startDate?: Date) {
+        let awardsPromises: any = [];
+        if (!startDate) {
+            startDate = startOfDay(new Date());
+        }
         this.logger.info("init job start");
-        promises = promises.concat(this.createJobs(45));
-        promises = promises.concat(this.createJobs(60));
-        promises = promises.concat(this.createJobs(90));
-        promises = promises.concat(this.createJobs(120));
-        promises = promises.concat(this.createJobs(180));
-        promises = promises.concat(this.createJobs(360));
+        awardsPromises = awardsPromises.concat(this.createJobsInGame(45, startDate));
+        awardsPromises = awardsPromises.concat(this.createJobsInGame(60, startDate));
+        awardsPromises = awardsPromises.concat(this.createJobsInGame(90, startDate));
+        awardsPromises = awardsPromises.concat(this.createJobsInGame(120, startDate));
+        awardsPromises = awardsPromises.concat(this.createJobsInGame(180, startDate));
+        awardsPromises = awardsPromises.concat(this.createJobsInGame(360, startDate));
         this.logger.info("init job finished");
 
         this.logger.info("create awards start");
-
-        await Promise.all(promises);
+        await Promise.all(awardsPromises);
         this.logger.info("create awards finished");
-
-        await this.manageBonusPriceService.initBonusPrice();
     }
 
-    async createJobs(seconds: number) {
-        const timeStartRunJob = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
-        let timeMillisecondsStartRunJob = new Date(timeStartRunJob).getTime();
-        const numberOfTurns = Math.round((((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) / seconds));
+    async createJobsNextDay() {
+        const currentDate = new Date();
+        let timeStartCreateJob = addHours(currentDate, 6);
+        timeStartCreateJob = addMinutes(timeStartCreateJob, 40);
+        if (currentDate < timeStartCreateJob) return;
+
+        const nextDate = addDays(currentDate, 1);
+        this.createJobs(startOfDay(nextDate));
+    }
+
+    async createJobsInGame(seconds: number, startDate: Date) {
+        let timeMillisecondsStartRunJob = addHours(startDate, START_TIME_CREATE_JOB).getTime();
+        const numberOfTurns = OrderHelper.getNumberOfTurnsInDay(seconds);
         let count = 0;
         let promises: any = [];
         for (let i = 0; i < numberOfTurns; i++) {
@@ -82,8 +98,7 @@ export class ScheduleService implements OnModuleInit {
                 const nextTurnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${count + 1}`;
                 const nextTime = (timeMillisecondsStartRunJob + (seconds * 1000));
                 this.addCronJob(jobName, seconds, timeMillisecondsStartRunJob, turnIndex, nextTurnIndex, nextTime);
-            }
-            else {
+            } else {
                 const tempPromises = await this.createLotteryAwardInPastTime(turnIndex, seconds, timeMillisecondsStartRunJob);
                 promises = promises.concat(tempPromises);
             }
@@ -221,21 +236,47 @@ export class ScheduleService implements OnModuleInit {
         this.logger.info(`job ${name} finished at ${(new Date(time)).toLocaleTimeString()}`);
     }
 
-    async deleteAllJobCountDown() {
+    async deleteJobsBeforeDay() {
         this.logger.info("delete all job.");
         const jobs = this.schedulerRegistry.getCronJobs();
+        const year = (new Date()).getFullYear();
+        let month = (((new Date()).getMonth()) + 1).toString();
+        if (month.length === 1) {
+            month = `0${month}`;
+        }
+        let day = (new Date()).getDate().toString();
+        if (day.length === 1) {
+            day = `0${day}`;
+        }
+        const dateCurrentString = `${year}${month}${day}`;
+
         jobs.forEach((value, key, map) => {
-            const regex = `10-${(new Date()).getFullYear()}|45-${(new Date()).getFullYear()}|60-${(new Date()).getFullYear()}|90-${(new Date()).getFullYear()}|120-${(new Date()).getFullYear()}|180-${(new Date()).getFullYear()}|360-${(new Date()).getFullYear()}`
-            if (new RegExp(regex).test(key)) {
+            const regex = `10-${dateCurrentString}|45-${dateCurrentString}|60-${dateCurrentString}|90-${dateCurrentString}|120-${dateCurrentString}|180-${dateCurrentString}|360-${dateCurrentString}`
+            const dateString = key.split('-')[1] || '';
+            if (
+                new RegExp(regex).test(key)
+                && dateString !== dateCurrentString
+            ) {
                 this.schedulerRegistry.deleteCronJob(key);
             }
         });
     }
 
     @Cron('40 6 * * * ')
-    cronJob() {
+    async cronJob() {
         this.logger.info("cron job.");
-        this.init();
+        await this.clearDataInRedis();
+        await this.createJobsNextDay();
+
+        // create bonus price next day
+        const currentDate = new Date();
+        const nextDate = addDays(currentDate, 1);
+        await this.manageBonusPriceService.initBonusPrice(nextDate);
+    }
+
+    @Cron('10 00 * * *')
+    deleteJobs() {
+        this.deleteJobsBeforeDay();
     }
 
     async handleBalance({
@@ -512,8 +553,13 @@ export class ScheduleService implements OnModuleInit {
         const promises = [];
         for (const bookMaker of bookMakers) {
             for (const key in typeLottery) {
-                promises.push(this.redisService.del(`bookmaker-id-${bookMaker.id}-${typeLottery[key]}`));
-                promises.push(this.redisService.del(`${bookMaker.id}-${typeLottery[key]}`));
+                const keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookMaker.id, typeLottery[key]);
+                const keyOrdersOfBookmakerIsTestPlayer = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookMaker.id, typeLottery[key]);
+                // const keyToGetOrders = OrderHelper.getKeyPrepareOrders();
+                promises.push(this.redisService.del(keyOrdersOfBookmaker));
+                promises.push(this.redisService.del(keyOrdersOfBookmakerIsTestPlayer));
+                // delete key prepare orders
+                // promises.push(this.redisService.del(`${bookMaker.id}-${typeLottery[key]}`));
             }
         }
 

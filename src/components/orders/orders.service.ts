@@ -17,7 +17,7 @@ import {
   LoXienType,
   TroChoiThuViType,
 } from 'src/system/enums/lotteries';
-import { ERROR, ORDER_STATUS, PERIOD_CANNOT_CANCELED, PERIOD_CANNOT_ORDER } from 'src/system/constants';
+import { ERROR, ORDER_STATUS, PERIOD_CANNOT_CANCELED, PERIOD_CANNOT_ORDER, START_TIME_CREATE_JOB } from 'src/system/constants';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
@@ -548,8 +548,8 @@ export class OrdersService {
     if (!query.seconds) {
       return {};
     }
-    const startOf7AM = startOfDay(new Date());
-    const fromDate = addHours(startOf7AM, 7).getTime();
+    const startTime = startOfDay(new Date());
+    const fromDate = addHours(startTime, START_TIME_CREATE_JOB).getTime();
     const toDate = (new Date()).getTime();
     const times = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
     const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
