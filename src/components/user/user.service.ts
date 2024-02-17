@@ -44,6 +44,7 @@ export class UserService {
         password: true,
         role: true,
         isAuth: true,
+        isBlocked: true,
       },
       where: {
         username,
