@@ -42,7 +42,7 @@ export class OrdersController {
   }
 
   @Get('get-turn-index')
-  getCurrentTurnIndex(@Query() query: { seconds: string, type: string }, @Request() req: any) {
+  getCurrentTurnIndex(@Query() query: { seconds: string, type: string, isTestPlayerClient: boolean }, @Request() req: any) {
     return this.ordersService.getCurrentTurnIndex(query, req.user);
   }
 

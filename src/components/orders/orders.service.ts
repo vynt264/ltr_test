@@ -544,7 +544,7 @@ export class OrdersService {
     return this.orderRequestRepository.delete(id);
   }
 
-  async getCurrentTurnIndex(query: { seconds: string, type: string }, user: any) {
+  async getCurrentTurnIndex(query: { seconds: string, type: string, isTestPlayerClient: boolean }, user: any) {
     if (!query.seconds) {
       return {};
     }
@@ -557,6 +557,9 @@ export class OrdersService {
     let isTestPlayer = false;
     if (user?.usernameReal) {
       isTestPlayer = true;
+    }
+    if (query.isTestPlayerClient) {
+      isTestPlayer = query.isTestPlayerClient;
     }
     console.log("=========start get current turn index==========");
     console.log("type", query.type);
