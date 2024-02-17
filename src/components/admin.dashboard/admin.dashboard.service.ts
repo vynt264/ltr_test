@@ -34,28 +34,28 @@ export class AdminDashboardService {
       }
       if (object?.startDate) {
         const startDate = new Date(object.startDate);
-        condition = condition.concat(` AND (entity.createdAt >= :timeStart)`);
+        condition = condition.concat(` AND (entity.updatedAt >= :timeStart)`);
         conditionParams.timeStart = startOfDay(startDate);
       }
       if (object?.endDate) {
         const endDate = new Date(object.endDate);
-        condition = condition.concat(` AND (entity.createdAt <= :timeEnd)`);
+        condition = condition.concat(` AND (entity.updatedAt <= :timeEnd)`);
         conditionParams.timeEnd = endOfDay(endDate);
       }
       if (object?.startDate && object?.endDate) {
         const startDate = new Date(object.startDate);
         const endDate = new Date(object.endDate);
-        condition = condition.concat(` AND (entity.createdAt BETWEEN :timeStart AND :timeEnd)`);
+        condition = condition.concat(` AND (entity.updatedAt BETWEEN :timeStart AND :timeEnd)`);
         conditionParams.timeStart = startOfDay(startDate);
         conditionParams.timeEnd = endOfDay(endDate);
       }
 
       const addSelectDateFm = 
         object?.typeFilter == "day" ?
-        `DATE_FORMAT(entity.createdAt, "%Y-%m-%d") as timeFilter` :
+        `DATE_FORMAT(entity.updatedAt, "%Y-%m-%d") as timeFilter` :
         object?.typeFilter == "month" ?
-        `DATE_FORMAT(entity.createdAt, "%Y-%m") as timeFilter` : 
-        `DATE_FORMAT(entity.createdAt, "%Y") as timeFilter`;
+        `DATE_FORMAT(entity.updatedAt, "%Y-%m") as timeFilter` : 
+        `DATE_FORMAT(entity.updatedAt, "%Y") as timeFilter`;
 
       const listUser = await this.userRepository
         .createQueryBuilder("entity")

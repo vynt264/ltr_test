@@ -254,6 +254,11 @@ export class AuthService {
       walletInout = await this.walletInoutRepository.findBy({
         user: { id: user.id }
       });
+      const userUp = {
+        ...user,
+        updatedAt: new Date(),
+      };
+      await this.userRepository.save(userUp);
     }
     if (user && !wallet) {
       await this.walletHandlerService.create({
