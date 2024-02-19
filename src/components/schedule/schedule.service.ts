@@ -384,6 +384,9 @@ export class ScheduleService implements OnModuleInit {
             const createWalletHis: any = {
                 id: wallet.id,
                 user: { id: userId },
+                subOrAdd: 1,
+                amount: totalBalance,
+                detail: `Xổ số nhanh - Cộng tiền thắng`,
                 balance: remainBalance,
                 createdBy: ""
             }

@@ -316,7 +316,11 @@ export class AuthService {
         balance: 30000000,
         createdBy: user?.username,
       });
-      await this.walletHistoryRepository.save(walletCreate);
+      const walletHis = {
+        ...walletCreate,
+        detail: "Tạo mới ví",
+      }
+      await this.walletHistoryRepository.save(walletHis);
       const userInfoDt: any = {
         avatar: null,
         nickname: username,

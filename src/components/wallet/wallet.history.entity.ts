@@ -27,6 +27,21 @@ export class WalletHistory {
   @Column({ length: 63, nullable: true })
   walletCode: string;
 
+  @Column({ nullable: true })
+  subOrAdd: number;
+
+  @Column({ nullable: true })
+  detail: string;
+
+  @Column({
+    type: "decimal",
+    precision: 65,
+    scale: 5,
+    nullable: true,
+    default: 0,
+  })
+  amount: number;
+
   @Column({
     type: "decimal",
     precision: 65,

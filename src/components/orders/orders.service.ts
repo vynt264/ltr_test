@@ -104,6 +104,9 @@ export class OrdersService {
     const createWalletHis: any = {
       id: wallet.id,
       user: { id: member.id },
+      subOrAdd: 0,
+      amount: totalBet,
+      detail: `Xổ số nhanh - Trừ tiền cược`,
       balance: totalBetRemain,
       createdBy: member.name,
     }
@@ -234,6 +237,19 @@ export class OrdersService {
     wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     await this.walletHandlerService.updateWalletByUserId(user.id, { balance: (+wallet.balance - totalBet) });
 
+    // save wallet history
+    const createWalletHis: any = {
+      id: wallet.id,
+      user: { id: user.id },
+      subOrAdd: 0,
+      amount: totalBet,
+      detail: `Xổ số nhanh - Trừ tiền cược`,
+      balance: +wallet.balance - totalBet,
+      createdBy: user.name
+    }
+    const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+    await this.walletHistoryRepository.save(createdWalletHis);
+
     let promises = [];
     for (const order of data.orders) {
       order.turnIndex = turnIndex;
@@ -329,6 +345,19 @@ export class OrdersService {
     wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     const remainBalance = +wallet.balance + totalBalance;
     await this.walletHandlerService.updateWalletByUserId(user.id, { balance: remainBalance });
+
+    // save wallet history
+    const createWalletHisWin: any = {
+      id: wallet.id,
+      user: { id: user.id },
+      subOrAdd: 1,
+      amount: totalBalance,
+      detail: `Xổ số nhanh - Cộng tiền thắng`,
+      balance: remainBalance,
+      createdBy: user.name
+    }
+    const createdWalletHisWin = await this.walletHistoryRepository.create(createWalletHisWin);
+    await this.walletHistoryRepository.save(createdWalletHisWin);
 
     return {
       type: `${data.orders[0].type}${seconds}s`,
@@ -524,6 +553,9 @@ export class OrdersService {
       const createWalletHis: any = {
         id: wallet.id,
         user: { id: member.id },
+        subOrAdd: 1,
+        amount: +order.revenue,
+        detail: `Xổ số nhanh - Hoàn tiền cược`,
         balance: remainBalance,
         createdBy: member.name
       }
