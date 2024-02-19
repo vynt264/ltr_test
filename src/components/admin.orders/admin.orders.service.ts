@@ -293,4 +293,52 @@ export class AdminOrdersService {
       );
     }
   }
+
+  async getUserInfo(bookmakerId: number, username: string) {
+    try {
+      let condition = "";
+      const conditionParams: any = {}
+      if (bookmakerId > 0) {
+        condition = condition.concat(`bookmaker.id = :bookmarkerFind`);
+        conditionParams.bookmarkerFind = bookmakerId;
+      }
+      if (username) {
+        condition = condition.concat(` AND user.username LIKE :usernameFind`);
+        conditionParams.usernameFind = `%${username}%`;
+      }
+
+      const listDataReal = await this.orderRepository
+        .createQueryBuilder("entity")
+        .leftJoinAndSelect("users", "user", "entity.userId = user.id")
+        .leftJoinAndSelect(
+          "bookmaker",
+          "bookmaker",
+          "user.bookmakerId = bookmaker.id"
+        )
+        .select("bookmaker.name as bookmakerName")
+        .addSelect("user.username as username")
+        .addSelect("COUNT(entity.id) as count")
+        .addSelect("SUM(entity.revenue) as totalBet")
+        .addSelect("SUM(entity.paymentWin) as totalPaymentWin")
+        .where(condition, conditionParams)
+        .groupBy("bookmakerName, username")
+        .orderBy("username", "ASC")
+        .getRawMany();
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        listDataReal,
+        MESSAGE.LIST_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${AdminOrdersService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        MESSAGE.LIST_FAILED
+      );
+    }
+  }
 }

@@ -21,6 +21,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Roles } from "../auth/roles.guard/roles.decorator";
 import { UserRoles } from "../user/enums/user.enum";
 import { ReportQueryDto } from "./dto/report.query.dto";
+import { UserInfoQueryDto } from "./dto/admin.query.dto";
 
 @Controller("api/v1/admin-orders")
 @ApiTags("Admin-ordres")
@@ -67,4 +68,16 @@ export class AdminOrdersController {
       reportQueryDto?.timeFillter
     );
   }
+
+  @Get("user-info")
+  @ApiOperation({
+    description: "Get user info",
+  })
+  async GetUserInfo(@Query() userInfoQueryDto: UserInfoQueryDto): Promise<any> {
+    return this.adminOrdersService.getUserInfo(
+      userInfoQueryDto?.bookmakerId,
+      userInfoQueryDto?.username
+    );
+  }
+
 }

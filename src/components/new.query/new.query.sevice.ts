@@ -256,7 +256,6 @@ export class NewQueryService {
           id: "DESC",
         }
       })
-      console.log("listData: ", listData)
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
         listData,
