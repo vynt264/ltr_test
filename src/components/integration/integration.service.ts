@@ -254,6 +254,9 @@ export class IntegrationService {
             const walletHis = {
               id: walletUser.id,
               user: { id: user.id },
+              subOrAdd: 1,
+              amount: Number(depostDto.amount),
+              detail: `Chuyển tiền vào ví`,
               balance: balanceUp,
               createdBy: user.username
             }
@@ -373,6 +376,9 @@ export class IntegrationService {
             const walletHis = {
               id: walletUser.id,
               user: { id: user.id },
+              subOrAdd: 0,
+              amount: Number(withdrawDto.amount),
+              detail: `Rút tiền vào ví`,
               balance: balanceUp,
               createdBy: user.username
             }
