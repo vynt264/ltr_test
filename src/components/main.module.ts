@@ -34,6 +34,7 @@ import { HoldingNumbersModule } from './holding-numbers/holding-numbers.module';
 import { AdminDashboardModule } from "./admin.dashboard/admin.dashboard.module";
 import { IntegrationModule } from "./integration/integraion.module";
 import { ManageBonusPriceModule } from './manage-bonus-price/manage-bonus-price.module';
+import { MaintenanceModule } from './maintenance/maintenance.module';
 @Module({
   imports: [
     AuthModule,
@@ -71,6 +72,7 @@ import { ManageBonusPriceModule } from './manage-bonus-price/manage-bonus-price.
     AdminDashboardModule,
     IntegrationModule,
     ManageBonusPriceModule,
+    MaintenanceModule,
   ],
 })
 export class MainModule { }
