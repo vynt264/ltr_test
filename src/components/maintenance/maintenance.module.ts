@@ -11,6 +11,7 @@ import { BacklistModule } from '../backlist/backlist.module';
     BacklistModule,
   ],
   controllers: [MaintenanceController],
-  providers: [MaintenanceService]
+  providers: [MaintenanceService],
+  exports: [MaintenanceService]
 })
 export class MaintenanceModule {}
