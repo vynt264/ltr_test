@@ -92,7 +92,7 @@ export class WalletInoutService {
                 take: +perPage,
                 skip,
                 order: {
-                    id: "DESC",
+                    hisId: "DESC",
                 }
             });
             return new SuccessResponse(
@@ -113,13 +113,15 @@ export class WalletInoutService {
     }
 
     getCondition(object: any, isWalletHis: boolean) {
+        console.log("object: ", object)
+        console.log("isWalletHis: ", isWalletHis)
         const data: any = {};
         if (!object) {
             return data;
         }
 
         for (const key in object) {
-            if (key === "username" && !isWalletHis) {
+            if (key === "username") {
                 data.user = { username: Like(`%${object.username}%`) };
             }
 
