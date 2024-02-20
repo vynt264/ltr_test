@@ -35,6 +35,8 @@ import { AdminDashboardModule } from "./admin.dashboard/admin.dashboard.module";
 import { IntegrationModule } from "./integration/integraion.module";
 import { ManageBonusPriceModule } from './manage-bonus-price/manage-bonus-price.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
+import { AdminPokerModule } from "./admin.poker/admin.poker.module";
+import { AdminHiloModule } from "./admin.hilo/admin.hilo.module";
 @Module({
   imports: [
     AuthModule,
@@ -73,6 +75,8 @@ import { MaintenanceModule } from './maintenance/maintenance.module';
     IntegrationModule,
     ManageBonusPriceModule,
     MaintenanceModule,
+    AdminPokerModule,
+    AdminHiloModule,
   ],
 })
 export class MainModule { }
