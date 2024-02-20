@@ -80,4 +80,16 @@ export class AdminOrdersController {
     );
   }
 
+  @Get("data-game-lottery")
+  @ApiOperation({
+    description: "Get data lottery by game type",
+  })
+  async GetDataGameLottery(
+    @Query() reportQueryDto: ReportQueryDto
+  ): Promise<any> {
+    return this.adminOrdersService.reportChartByGame(
+      reportQueryDto?.bookmakerId
+    );
+  }
+
 }

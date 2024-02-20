@@ -246,6 +246,50 @@ export class AdminOrdersService {
     }
   }
 
+  async reportChartByGame(bookmakerId: number) {
+    try {
+      let condition = "user.usernameReal = ''";
+      const conditionParams: any = {}
+      if (bookmakerId > 0) {
+        condition = condition.concat(` AND bookmaker.id = :bookmarkerFind`);
+        conditionParams.bookmarkerFind = bookmakerId;
+      }
+
+      const dataLottery = await this.orderRepository
+        .createQueryBuilder("entity")
+        .leftJoinAndSelect("users", "user", "entity.userId = user.id")
+        .leftJoinAndSelect(
+          "bookmaker",
+          "bookmaker",
+          "user.bookmakerId = bookmaker.id"
+        )
+        .select("bookmaker.name as bookmakerName")
+        .addSelect("entity.type as typeGame")
+        .addSelect("entity.seconds as secondsGame")
+        .addSelect("COUNT(entity.id) as count")
+        .addSelect("SUM(entity.revenue) as totalBet")
+        .addSelect("SUM(entity.paymentWin) as totalPaymentWin")
+        .where(condition, conditionParams)
+        .groupBy("bookmakerName, typeGame, secondsGame")
+        .getRawMany();
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        dataLottery,
+        MESSAGE.LIST_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${AdminOrdersService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        MESSAGE.LIST_FAILED
+      );
+    }
+  }
+
   async reportDetailByTime(bookmakerId: number, type: string) {
     try {
       let condition = "user.usernameReal = '' AND entity.status = 'closed' AND entity.created_at > DATE_SUB(now(), INTERVAL 6 MONTH)";
@@ -296,10 +340,10 @@ export class AdminOrdersService {
 
   async getUserInfo(bookmakerId: number, username: string) {
     try {
-      let condition = "";
+      let condition = "user.usernameReal = ''";
       const conditionParams: any = {}
       if (bookmakerId > 0) {
-        condition = condition.concat(`bookmaker.id = :bookmarkerFind`);
+        condition = condition.concat(`AND bookmaker.id = :bookmarkerFind`);
         conditionParams.bookmarkerFind = bookmakerId;
       }
       if (username) {
