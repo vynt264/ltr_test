@@ -38,14 +38,17 @@ export class LotteryAward {
   @Column({ type: 'timestamp', nullable: true })
   openTime: Date;
 
-  // @Column({ type: 'decimal', precision: 65, scale: 5, nullable: true })
-  // totalRevenue: number;
+  @Column({ type: 'int', nullable: true })
+  totalRevenue: number;
 
-  // @Column({ type: 'decimal', precision: 65, scale: 5, nullable: true })
-  // totalPay: number;
+  @Column({ type: 'int', nullable: true })
+  totalPayout: number;
 
-  // @Column({ type: 'decimal', precision: 65, scale: 5, nullable: true })
-  // rateWin: number;
+  @Column({ type: 'int', nullable: true })
+  totalProfit: number;
+
+  @Column({ type: 'int', nullable: true })
+  bonusPrice: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable: true })
   createdAt: Date;

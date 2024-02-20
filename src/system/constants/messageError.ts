@@ -18,4 +18,5 @@ export enum ERROR {
   MESSAGE_TRO_CHOI_THU_VI_INVALID = "Bạn không thể đặt cược tài và xỉu hoặc chẵn và lẻ cùng một kỳ và cùng một khoảng thời gian",
   MESSAGE_NOT_ORDER = "Đã quá thời gian đặt cược của kỳ này",
   MESSAGE_NOT_CANCEL = "Không được hủy",
+  MESSAGE_MAINTENANCE = "Hệ thống đang bảo trì",
 }

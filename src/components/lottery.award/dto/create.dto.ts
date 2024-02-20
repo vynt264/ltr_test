@@ -36,4 +36,12 @@ export class CreateLotteryAwardDto {
 
   @IsOptional()
   userId?: string;
+
+  totalRevenue: number;
+
+  totalPayout: number;
+
+  totalProfit: number;
+
+  bonusPrice: number;
 }
