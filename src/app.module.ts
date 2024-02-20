@@ -1,5 +1,5 @@
 import { WinsModule } from "./system/logger/loggerModule";
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { MainModule } from "./components/main.module";
 import { ConfigSystemModule } from "./system/config.system/config.module";
 import { ConfigModule, ConfigService } from "@nestjs/config";
@@ -9,11 +9,15 @@ import { ThrottlerModule } from "@nestjs/throttler";
 import { config } from "dotenv";
 import { LotteriesModule } from './components/lotteries/lotteries.module';
 import { RedisCacheModule } from "./system/redis/redis.module";
+import { MaintenanceMiddleware } from "./system/middleware/maintenance.middleware";
+import { MaintenanceService } from "./components/maintenance/maintenance.service";
+import { Maintenance } from "./components/maintenance/entities/maintenance.entity";
 
 config();
 const configService = new ConfigService();
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Maintenance]),
     ConfigSystemModule,
     RedisCacheModule,
     ConfigModule.forRoot({
@@ -47,7 +51,13 @@ const configService = new ConfigService();
     }),
     LotteriesModule,
   ],
+  providers: [
+    MaintenanceService,
+    MaintenanceMiddleware,
+  ],
 })
-export class AppModule {
-  constructor(private readonly connection: Connection) {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(MaintenanceMiddleware).forRoutes('*');
+  }
 }
