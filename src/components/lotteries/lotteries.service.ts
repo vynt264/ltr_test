@@ -61,7 +61,6 @@ export class LotteriesService {
     if (bonusPrice > 0) {
       temptotalBetAmount = totalBetAmount + bonusPrice;
     }
-    // console.log("Tong tien users dat cuoc", totalBetAmount);
 
     const finalResult = this.getPrizes({
       ordersLo2So,
@@ -130,9 +129,6 @@ export class LotteriesService {
     type,
     data,
   }: any) {
-    // const timeStart = `${(new Date()).toLocaleDateString()}, ${INIT_TIME_CREATE_JOB}`;
-    // const fromDate = new Date(timeStart).getTime();
-
     const timeStartDay = startOfDay(new Date());
     const fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
     const toDate = fromDate + ((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) * 1000;
@@ -143,17 +139,28 @@ export class LotteriesService {
       isTestPlayer,
     });
 
+    // TODO: !dataBonusPrice
     const prizes = this.generatePrizes(data, dataBonusPrice.bonusPrice);
+    const bonusPriceCurrent = dataBonusPrice.bonusPrice;
     const totalBet = (dataBonusPrice?.totalBet || 0) + (prizes.totalBetAmount || 0);
     const totalProfit = dataBonusPrice?.totalProfit + ((prizes?.totalBetAmount || 0) - (prizes?.finalResult?.totalPayout || 0));
     const bonusPrice = totalProfit - (totalBet * 0.05);
+
     dataBonusPrice.totalBet = totalBet;
     dataBonusPrice.totalProfit = totalProfit;
     dataBonusPrice.bonusPrice = bonusPrice;
 
     await this.manageBonusPriceService.update(dataBonusPrice.id, dataBonusPrice);
+    const totalRevenue = _.get(prizes, 'totalBetAmount', 0);
+    const totalPayout = _.get(prizes, 'finalResult.totalPayout', 0);
 
-    return prizes;
+    return {
+      prizes,
+      totalRevenue,
+      totalPayout,
+      bonusPrice: bonusPriceCurrent,
+      totalProfit: totalRevenue - totalPayout,
+    };
   }
 
   calcPayoutPerOrderNumber({

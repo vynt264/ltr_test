@@ -265,7 +265,13 @@ export class OrdersService {
     if (user.usernameReal) {
       isTestPlayer = true;
     }
-    const prizes = await this.lotteriesService.handlerPrizes({
+    const {
+      prizes,
+      totalRevenue,
+      totalPayout,
+      bonusPrice,
+      totalProfit,
+    } = await this.lotteriesService.handlerPrizes({
       type: `${data.orders[0].type}${data.orders[0].seconds}s`,
       data: dataTransform,
       isTestPlayer,
@@ -281,6 +287,10 @@ export class OrdersService {
       isTestPlayer,
       openTime: new Date(),
       userId: user.id,
+      totalRevenue,
+      totalPayout,
+      bonusPrice,
+      totalProfit,
     });
 
     const promisesCreateWinningNumbers = [];

@@ -14,7 +14,7 @@ export class MaintenanceMiddleware implements NestMiddleware {
                 statusCode: HttpStatus.BAD_REQUEST,
                 success: false,
                 data: {
-                    isMaintained: maintenance?.immediateMaintenance
+                    isMaintained: maintenance?.immediateMaintenance || false,
                 },
                 message: {
                     message: ERROR.MESSAGE_MAINTENANCE
