@@ -315,19 +315,37 @@ export class AdminOrdersService {
           "bookmaker",
           "user.bookmakerId = bookmaker.id"
         )
+        .leftJoinAndSelect("wallet", "wallet", "user.id = wallet.userId")
         .select("bookmaker.name as bookmakerName")
         .addSelect("user.username as username")
+        .addSelect("wallet.balance as balance")
         .addSelect("COUNT(entity.id) as count")
         .addSelect("SUM(entity.revenue) as totalBet")
         .addSelect("SUM(entity.paymentWin) as totalPaymentWin")
         .where(condition, conditionParams)
-        .groupBy("bookmakerName, username")
+        .groupBy("bookmakerName, username, balance")
         .orderBy("username", "ASC")
         .getRawMany();
 
+      const response: any = [];
+      if (listDataReal.length > 0) {
+        listDataReal.map((item) => {
+          const res = {
+            currentBalance: item.balance,
+            bookmakerName: item.bookmakerName,
+            username: item?.username,
+            countBet: item?.count,
+            totalBet: item?.totalBet,
+            totalWin: item?.totalPaymentWin,
+            totalLoss: -1 * item?.totalPaymentWin
+          }
+          response.push(res);
+        })
+      }
+
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
-        listDataReal,
+        response,
         MESSAGE.LIST_SUCCESS
       );
     } catch (error) {
