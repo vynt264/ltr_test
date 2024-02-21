@@ -29,7 +29,7 @@ export class OrdersController {
     return this.ordersService.findAll(paginationDto, req.user);
   }
 
-  @Post('1s/validation-orders')
+  @Post('1s/validation')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   validationOrdersImmediate(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
     return this.ordersService.validationOrdersImmediate(orders, req.user);
