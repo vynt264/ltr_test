@@ -143,7 +143,7 @@ export class LotteriesService {
     const prizes = this.generatePrizes(data, dataBonusPrice.bonusPrice);
     const bonusPriceCurrent = dataBonusPrice.bonusPrice;
     const totalBet = (dataBonusPrice?.totalBet || 0) + (prizes.totalBetAmount || 0);
-    const totalProfit = dataBonusPrice?.totalProfit + ((prizes?.totalBetAmount || 0) - (prizes?.finalResult?.totalPayout || 0));
+    const totalProfit = (dataBonusPrice?.totalProfit || 0) + ((prizes?.totalBetAmount || 0) - (prizes?.finalResult?.totalPayout || 0));
     const bonusPrice = totalProfit - (totalBet * 0.05);
 
     dataBonusPrice.totalBet = totalBet;
