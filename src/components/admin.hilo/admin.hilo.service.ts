@@ -6,7 +6,7 @@ import { PlayHistoryHilo } from "./entities/play.history.hilo.entity";
 import { SysConfigHilo } from "./entities/sys.config.hilo.entity";
 import { PaginationQueryDto } from "src/common/common.dto";
 import { PaginationDto } from "src/common/dto/pagination.dto";
-import { MESSAGE, STATUSCODE, TypeLottery } from "src/system/constants";
+import { ERROR, MESSAGE, STATUSCODE, TypeLottery } from "src/system/constants";
 import { ErrorResponse, SuccessResponse } from "src/system/BaseResponse";
 import { Logger } from "winston";
 
@@ -77,5 +77,71 @@ export class AdminHiloService {
     }
 
     return [data];
+  }
+
+  async getConfig() {
+    try {
+      const listData = await this.sysConfigHiloRepository.find({})
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        listData,
+        MESSAGE.LIST_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${AdminHiloService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        MESSAGE.LIST_FAILED
+      );
+    }
+  }
+
+  async updateConfig(
+    id: number,
+    sysConfigHiloDto: any,
+    member: any
+  ): Promise<any> {
+    try {
+      let foundSysConfigHilo = await this.sysConfigHiloRepository.findOneBy({
+        id,
+      });
+
+      if (!foundSysConfigHilo) {
+        return new ErrorResponse(
+          STATUSCODE.COMMON_NOT_FOUND,
+          `SysConfigHilo with id: ${id} not found!`,
+          ERROR.NOT_FOUND
+        );
+      }
+
+      if (sysConfigHiloDto) {
+        foundSysConfigHilo = {
+          ...foundSysConfigHilo,
+          ...sysConfigHiloDto,
+          updatedBy: member.name,
+          updatedAt: new Date(),
+        };
+      }
+
+      await this.sysConfigHiloRepository.save(foundSysConfigHilo);
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_UPDATE_SUCCESS,
+        "",
+        MESSAGE.UPDATE_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${AdminHiloService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        ERROR.UPDATE_FAILED
+      );
+    }
   }
 }

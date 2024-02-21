@@ -28,6 +28,7 @@ import { AdminPokerService } from "./admin.poker.service";
 import { PaginationQueryDto } from "./../../common/common.dto/pagination.query.dto";
 import { UserRoles } from "../user/enums/user.enum";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
+import { UpdateSysConfigsDto } from "../sys.config/dto";
 @Controller("/api/v1/adminPoker")
 @ApiTags("AdminPoker")
 export class AdminPokerController {
@@ -45,5 +46,38 @@ export class AdminPokerController {
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.adminPokerService.getHistory(paginationQuery);
+  }
+
+  
+  @Get("getConfig")
+  @ApiOperation({
+    description: "Get config poker",
+  })
+  @ApiOkResponse({
+    type: Response<any[]>,
+  })
+  @ApiBearerAuth("Authorization")
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
+  async GetConfig(): Promise<any> {
+    return this.adminPokerService.getConfig();
+  }
+
+  @Patch("updateConfig/:id")
+  @ApiOperation({
+    description: "Update config poker",
+  })
+  @ApiOkResponse({
+    type: Response<any[]>,
+  })
+  @ApiBearerAuth("Authorization")
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
+  async UpdateConfig(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateDto: UpdateSysConfigsDto,
+    @Request() req: any
+  ): Promise<any> {
+    return this.adminPokerService.updateConfig(id, updateDto, req.user);
   }
 }

@@ -6,7 +6,7 @@ import { PlayHistoryPoker } from "./entities/play.history.poker.entity";
 import { SysConfigPoker } from "./entities/sys.config.poker.entity";
 import { PaginationQueryDto } from "src/common/common.dto";
 import { PaginationDto } from "src/common/dto/pagination.dto";
-import { MESSAGE, STATUSCODE, TypeLottery } from "src/system/constants";
+import { ERROR, MESSAGE, STATUSCODE, TypeLottery } from "src/system/constants";
 import { ErrorResponse, SuccessResponse } from "src/system/BaseResponse";
 import { Logger } from "winston";
 
@@ -77,5 +77,71 @@ export class AdminPokerService {
     }
 
     return [data];
+  }
+
+  async getConfig() {
+    try {
+      const listData = await this.sysConfigPokerRepository.find({})
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        listData,
+        MESSAGE.LIST_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${AdminPokerService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        MESSAGE.LIST_FAILED
+      );
+    }
+  }
+
+  async updateConfig(
+    id: number,
+    sysConfigPokerDto: any,
+    member: any
+  ): Promise<any> {
+    try {
+      let foundSysConfigPoker = await this.sysConfigPokerRepository.findOneBy({
+        id,
+      });
+
+      if (!foundSysConfigPoker) {
+        return new ErrorResponse(
+          STATUSCODE.COMMON_NOT_FOUND,
+          `SysConfigHilo with id: ${id} not found!`,
+          ERROR.NOT_FOUND
+        );
+      }
+
+      if (sysConfigPokerDto) {
+        foundSysConfigPoker = {
+          ...foundSysConfigPoker,
+          ...sysConfigPokerDto,
+          updatedBy: member.name,
+          updatedAt: new Date(),
+        };
+      }
+
+      await this.sysConfigPokerRepository.save(foundSysConfigPoker);
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_UPDATE_SUCCESS,
+        "",
+        MESSAGE.UPDATE_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${AdminPokerService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        ERROR.UPDATE_FAILED
+      );
+    }
   }
 }
