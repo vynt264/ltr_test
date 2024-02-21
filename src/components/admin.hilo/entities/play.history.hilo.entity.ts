@@ -12,6 +12,9 @@ export class PlayHistoryHilo {
   id: number;
 
   @Column({ nullable: false })
+  bookmakerId: number;
+
+  @Column({ nullable: false })
   userId: number;
 
   @Column({ nullable: false })
