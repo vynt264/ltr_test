@@ -237,7 +237,9 @@ export class OrdersService {
     wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     await this.walletHandlerService.updateWalletByUserId(user.id, { balance: (+wallet.balance - totalBet) });
 
-    return {};
+    return {
+      balance: (+wallet.balance - totalBet),
+    };
   }
 
   async betOrdersImmediate(data: CreateListOrdersDto, user: any) {
@@ -384,6 +386,7 @@ export class OrdersService {
       type: `${data.orders[0].type}${seconds}s`,
       awardDetail: finalResult,
       openTime: turnIndex.split('-')[1],
+      balance: remainBalance,
     };
   }
 
