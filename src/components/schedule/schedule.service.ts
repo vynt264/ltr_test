@@ -83,7 +83,7 @@ export class ScheduleService implements OnModuleInit {
         const currentDate = new Date();
         let timeStartCreateJob = addHours(currentDate, 6);
         timeStartCreateJob = addMinutes(timeStartCreateJob, 40);
-        if (currentDate < timeStartCreateJob) return;
+        if (currentDate > timeStartCreateJob) return;
 
         const nextDate = addDays(currentDate, 1);
         this.createJobs(startOfDay(nextDate));

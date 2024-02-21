@@ -220,7 +220,7 @@ export class OrdersService {
     }
   }
 
-  async betOrdersImmediately(data: CreateListOrdersDto, user: any) {
+  async validationOrdersImmediate(data: CreateListOrdersDto, user: any) {
     if (!data || !data?.orders || data.orders.length === 0) return;
 
     // validate orders
@@ -237,6 +237,19 @@ export class OrdersService {
     wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     await this.walletHandlerService.updateWalletByUserId(user.id, { balance: (+wallet.balance - totalBet) });
 
+    return {
+      balance: (+wallet.balance - totalBet),
+    };
+  }
+
+  async betOrdersImmediate(data: CreateListOrdersDto, user: any) {
+    if (!data || !data?.orders || data.orders.length === 0) return;
+
+    const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
+    const turnIndex = OrderHelper.getTurnIndex(seconds);
+    let wallet = await this.walletHandlerService.findWalletByUserId(user.id);
+    const totalBet = OrderHelper.getBalance(data.orders);
+
     // save wallet history
     const createWalletHis: any = {
       id: wallet.id,
@@ -245,10 +258,10 @@ export class OrdersService {
       amount: totalBet,
       detail: `Xổ số nhanh - Trừ tiền cược`,
       balance: +wallet.balance - totalBet,
-      createdBy: user.name
+      createdBy: user.name,
     }
     const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
-    await this.walletHistoryRepository.save(createdWalletHis);
+    this.walletHistoryRepository.save(createdWalletHis);
 
     let promises = [];
     for (const order of data.orders) {
@@ -367,12 +380,13 @@ export class OrdersService {
       createdBy: user.name
     }
     const createdWalletHisWin = await this.walletHistoryRepository.create(createWalletHisWin);
-    await this.walletHistoryRepository.save(createdWalletHisWin);
+    this.walletHistoryRepository.save(createdWalletHisWin);
 
     return {
       type: `${data.orders[0].type}${seconds}s`,
       awardDetail: finalResult,
       openTime: turnIndex.split('-')[1],
+      balance: remainBalance,
     };
   }
 

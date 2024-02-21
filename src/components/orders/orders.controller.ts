@@ -29,10 +29,16 @@ export class OrdersController {
     return this.ordersService.findAll(paginationDto, req.user);
   }
 
+  @Post('1s/validation')
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  validationOrdersImmediate(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
+    return this.ordersService.validationOrdersImmediate(orders, req.user);
+  }
+
   @Post('1s')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  betOrdersImmediately(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
-    return this.ordersService.betOrdersImmediately(orders, req.user);
+  betOrdersImmediate(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
+    return this.ordersService.betOrdersImmediate(orders, req.user);
   }
 
   @Get('combine-orders-by-date')
