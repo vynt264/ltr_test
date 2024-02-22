@@ -105,7 +105,6 @@ export class SysLayoutController {
   })
   @UseInterceptors(FileInterceptor("image"))
   async uploadFile(@UploadedFile() image: Express.Multer.File): Promise<any> {
-    // console.log(image)
     return this.sysLayoutService.uploadImage(image);
   }
 }

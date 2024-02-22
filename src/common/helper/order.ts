@@ -931,7 +931,13 @@ export class OrderHelper {
         const timeStartDay = startOfDay(new Date());
         const fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
         const toDate = (new Date()).getTime();
-        return (Math.ceil(((toDate - fromDate) / 1000) / seconds));
+        let numbers = (Math.ceil(((toDate - fromDate) / 1000) / seconds)).toString();
+        const remainNumber = 4 - numbers.length;
+        for (let i = 0; i < remainNumber; i++) {
+            numbers = `0${numbers}`;
+        }
+
+        return numbers;
     }
 
     static getTurnIndex(seconds: number) {
