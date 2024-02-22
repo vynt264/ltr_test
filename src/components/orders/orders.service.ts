@@ -617,15 +617,8 @@ export class OrdersService {
     if (query.isTestPlayerClient) {
       isTestPlayer = query.isTestPlayerClient;
     }
-    console.log("=========start get current turn index==========");
-    console.log("type", query.type);
-    console.log("isTestPlayer", isTestPlayer);
-    console.log("turnIndex", `${DateTimeHelper.formatDate(new Date())}-${times}`);
 
     const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${DateTimeHelper.formatDate(new Date())}-${times}`, query.type, isTestPlayer);
-
-    console.log("awardDetail", lotteryAward?.awardDetail ? JSON.stringify(lotteryAward?.awardDetail) : {});
-    console.log("=========end get current turn index==========");
 
     return {
       turnIndex: `${DateTimeHelper.formatDate(new Date())}-${times}`,
