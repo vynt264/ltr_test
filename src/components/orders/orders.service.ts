@@ -607,7 +607,7 @@ export class OrdersService {
     const startTime = startOfDay(new Date());
     const fromDate = addHours(startTime, START_TIME_CREATE_JOB).getTime();
     const toDate = (new Date()).getTime();
-    const times = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
+    const numberOfTurn = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
     const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
     const openTime = toDate - (secondsInCurrentRound * 1000);
     let isTestPlayer = false;
@@ -618,11 +618,12 @@ export class OrdersService {
       isTestPlayer = query.isTestPlayerClient;
     }
 
-    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${DateTimeHelper.formatDate(new Date())}-${times}`, query.type, isTestPlayer);
+    const tempNumberOfTurn = OrderHelper.getFullCharOfTurn(numberOfTurn.toString());
+    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${DateTimeHelper.formatDate(new Date())}-${tempNumberOfTurn}`, query.type, isTestPlayer);
 
     return {
-      turnIndex: `${DateTimeHelper.formatDate(new Date())}-${times}`,
-      nextTurnIndex: `${DateTimeHelper.formatDate(new Date())}-${times + 1}`,
+      turnIndex: `${DateTimeHelper.formatDate(new Date())}-${tempNumberOfTurn}`,
+      nextTurnIndex: `${DateTimeHelper.formatDate(new Date())}-${Number(tempNumberOfTurn) + 1}`,
       openTime: toDate - (secondsInCurrentRound * 1000),
       nextTime: openTime + (parseInt(query.seconds) * 1000),
       awardDetail: lotteryAward?.awardDetail || {},
