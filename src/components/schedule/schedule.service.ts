@@ -195,6 +195,7 @@ export class ScheduleService implements OnModuleInit {
             nextTurnIndex,
             openTime: time,
             awardDetail: finalResult,
+            isTestPlayer: false,
         });
 
         // calc balance
@@ -239,6 +240,7 @@ export class ScheduleService implements OnModuleInit {
             nextTurnIndex,
             openTime: time,
             awardDetail: finalResultOfFakeUsers,
+            isTestPlayer: true,
         });
         // calc balance of fake users
         this.handleBalanceIsTestPlayer({
