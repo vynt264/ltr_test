@@ -97,10 +97,12 @@ export class ScheduleService implements OnModuleInit {
         for (let i = 0; i < numberOfTurns; i++) {
             timeMillisecondsStartRunJob = timeMillisecondsStartRunJob + (seconds * 1000);
             count++;
-            const turnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${count}`;
+            const turn = OrderHelper.getFullCharOfTurn(count.toString());
+            const turnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${turn}`;
             if (timeMillisecondsStartRunJob > (new Date()).getTime()) {
-                const jobName = `${seconds}-${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${count}`;
-                const nextTurnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${count + 1}`;
+                const jobName = `${seconds}-${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${turn}`;
+                const nextTurn = OrderHelper.getFullCharOfTurn((count + 1).toString());
+                const nextTurnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${nextTurn}`;
                 const nextTime = (timeMillisecondsStartRunJob + (seconds * 1000));
                 this.addCronJob(jobName, seconds, timeMillisecondsStartRunJob, turnIndex, nextTurnIndex, nextTime);
             } else {

@@ -932,12 +932,18 @@ export class OrderHelper {
         const fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
         const toDate = (new Date()).getTime();
         let numbers = (Math.ceil(((toDate - fromDate) / 1000) / seconds)).toString();
-        const remainNumber = 4 - numbers.length;
-        for (let i = 0; i < remainNumber; i++) {
-            numbers = `0${numbers}`;
-        }
+        numbers = this.getFullCharOfTurn(numbers);
 
         return numbers;
+    }
+
+    static getFullCharOfTurn(turn: string) {
+        const remainNumber = 4 - turn.length;
+        for (let i = 0; i < remainNumber; i++) {
+            turn = `0${turn}`;
+        }
+
+        return turn;
     }
 
     static getTurnIndex(seconds: number) {
