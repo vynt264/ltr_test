@@ -619,11 +619,12 @@ export class OrdersService {
     }
 
     const tempNumberOfTurn = OrderHelper.getFullCharOfTurn(numberOfTurn.toString());
+    const nextTurnIndex = OrderHelper.getFullCharOfTurn((numberOfTurn + 1).toString());
     const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${DateTimeHelper.formatDate(new Date())}-${tempNumberOfTurn}`, query.type, isTestPlayer);
 
     return {
       turnIndex: `${DateTimeHelper.formatDate(new Date())}-${tempNumberOfTurn}`,
-      nextTurnIndex: `${DateTimeHelper.formatDate(new Date())}-${Number(tempNumberOfTurn) + 1}`,
+      nextTurnIndex: `${DateTimeHelper.formatDate(new Date())}-${nextTurnIndex}`,
       openTime: toDate - (secondsInCurrentRound * 1000),
       nextTime: openTime + (parseInt(query.seconds) * 1000),
       awardDetail: lotteryAward?.awardDetail || {},
