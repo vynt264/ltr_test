@@ -23,11 +23,7 @@ export class OrdersController {
   @Post()
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   async create(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
-    try {
-      return await this.ordersService.create(orders, req.user);
-    } catch (error) {
-      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
-    }
+    return await this.ordersService.create(orders, req.user);
   }
 
   @Get()
@@ -43,21 +39,13 @@ export class OrdersController {
   @Post('1s/validation')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   async validationOrdersImmediate(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
-    try {
-      return await this.ordersService.validationOrdersImmediate(orders, req.user);
-    } catch (error) {
-      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
-    }
+    return await this.ordersService.validationOrdersImmediate(orders, req.user);
   }
 
   @Post('1s')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   async betOrdersImmediate(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
-    try {
-      return await this.ordersService.betOrdersImmediate(orders, req.user);
-    } catch (error) {
-      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
-    }
+    return await this.ordersService.betOrdersImmediate(orders, req.user);
   }
 
   @Get('combine-orders-by-date')
@@ -125,11 +113,7 @@ export class OrdersController {
     @Body() data: any,
     @Request() req: any,
   ) {
-    try {
-      return await this.ordersService.confirmGenerateFollowUpPlan(data, req.user);
-    } catch (error) {
-      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
-    }
+    return await this.ordersService.confirmGenerateFollowUpPlan(data, req.user);
   }
 
   @Get(':id')
