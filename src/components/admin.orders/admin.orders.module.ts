@@ -8,6 +8,7 @@ import { SysConfigsModule } from "../sys.config/sys.config.module";
 import { ConnectModule } from "../connect/connect.module";
 import { Order } from "../orders/entities/order.entity";
 import { ScheduleModule } from "@nestjs/schedule";
+import { LotteryAwardModule } from "../lottery.award/lottery.award.module";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ScheduleModule } from "@nestjs/schedule";
     SysConfigsModule,
     ConnectModule,
     ScheduleModule.forRoot(),
+    LotteryAwardModule
   ],
   controllers: [AdminOrdersController],
   providers: [AdminOrdersService],

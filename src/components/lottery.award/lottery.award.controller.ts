@@ -189,24 +189,6 @@ export class LotteryAwardController {
     return this.lotteryAwardService.getOneById(id);
   }
 
-  @Patch(":id")
-  @ApiOperation({
-    description: "Update lotteryAward",
-  })
-  @ApiOkResponse({
-    type: Response<LotteryAward>,
-  })
-  @UsePipes(ValidationPipe)
-  @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  @Roles(UserRoles.SUPPER)
-  async update(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() updatelotteryAwardDto: UpdateLotteryAwardDto
-  ): Promise<any> {
-    return this.lotteryAwardService.update(id, updatelotteryAwardDto);
-  }
-
   @Delete(":id")
   @ApiOperation({
     description: "Delete lotteryAward",

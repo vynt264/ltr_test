@@ -53,6 +53,15 @@ export class LotteryAwardService {
     private readonly logger: Logger
   ) { }
 
+  async getLotteryAwardByTurn(turnIndex: string, type: string) {
+    return this.lotteryAwardRepository.findOne({
+      where: {
+        turnIndex,
+        type
+      },
+    });
+  }
+
   async getAllNotCheckBookmaker(
     paginationQueryDto: PaginationQueryDto,
   ): Promise<any> {
@@ -151,111 +160,6 @@ export class LotteryAwardService {
       );
     }
   }
-
-  // async getAllType(): Promise<BaseResponse> {
-  //   try {
-  //     const lotteryAwards: any = [];
-  //     const listType = [
-  //       // TypeLottery.XSMB_1_S,
-  //       TypeLottery.XSMB_45_S,
-  //       TypeLottery.XSMB_180_S,
-  //       // TypeLottery.XSMT_1_S,
-  //       TypeLottery.XSMT_45_S,
-  //       TypeLottery.XSMT_180_S,
-  //       // TypeLottery.XSMN_1_S,
-  //       TypeLottery.XSMN_45_S,
-  //       TypeLottery.XSMN_180_S,
-  //       // TypeLottery.XSSPL_1_S,
-  //       TypeLottery.XSSPL_45_S,
-  //       TypeLottery.XSSPL_60_S,
-  //       TypeLottery.XSSPL_90_S,
-  //       TypeLottery.XSSPL_120_S,
-  //       TypeLottery.XSSPL_360_S,
-  //     ]
-  //     const all = listType.map(async (type: string) => {
-  //       const dataRes = await this.getLottery(type);
-  //       const data = dataRes?.result;
-  //       lotteryAwards.push(data)
-  //     });
-  //     await Promise.all(all);
-
-  //     return new SuccessResponse(
-  //       STATUSCODE.COMMON_SUCCESS,
-  //       lotteryAwards,
-  //       MESSAGE.LIST_SUCCESS
-  //     );
-  //   } catch (error) {
-  //     this.logger.debug(
-  //       `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
-  //     );
-  //     return new ErrorResponse(
-  //       STATUSCODE.COMMON_FAILED,
-  //       error,
-  //       MESSAGE.LIST_FAILED
-  //     );
-  //   }
-  // }
-
-  // async getCurentXsmb(
-  // ): Promise<BaseResponse> {
-  //   try {
-  //     const xsmbAward = await this.lotteryAwardRepository.findOne({
-  //       select: {
-  //         openTime: true,
-  //         awardDetail: true,
-  //         type: true,
-  //         awardTitle: true,
-  //         turnIndex: true,
-  //       },
-  //       where: {
-  //         type: `${TypeLottery.XSMB}`
-  //       },
-  //       order: {
-  //         id: "DESC"
-  //       }
-  //     });
-  //     const { nextTime, nextTurnIndex } = this.getNextTimeXsmb(xsmbAward);
-
-  //     const xsmb = { award: xsmbAward, nextTime, nextTurnIndex };
-
-  //     const xsmb45sAward = await this.lotteryAwardRepository.findOne({
-  //       select: {
-  //         openTime: true,
-  //         awardDetail: true,
-  //         type: true,
-  //         awardTitle: true,
-  //         turnIndex: true,
-  //       },
-  //       where: {
-  //         type: `${TypeLottery.XSMB_45_S}`
-  //       },
-  //       order: {
-  //         id: "DESC"
-  //       }
-  //     });
-
-  //     const { nextTime: nextTime45s, nextTurnIndex: nextTurnIndex45s } = this.getNextTimeXsBySecond(45000);
-  //     const xsmb45s = { award: xsmb45sAward, nextTime: nextTime45s, nextTurnIndex: nextTurnIndex45s };
-  //     const result: CurrentXsmb = {
-  //       xsmb,
-  //       xsmb45s
-  //     }
-  //     return new SuccessResponse(
-  //       STATUSCODE.COMMON_SUCCESS,
-  //       result,
-  //       MESSAGE.LIST_SUCCESS
-  //     );
-  //   } catch (error) {
-  //     this.logger.debug(
-  //       `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
-  //     );
-  //     return new ErrorResponse(
-  //       STATUSCODE.COMMON_FAILED,
-  //       error,
-  //       MESSAGE.LIST_FAILED
-  //     );
-  //   }
-  // }
 
   async getLottery(type: string): Promise<BaseResponse> {
     try {
@@ -1531,148 +1435,6 @@ export class LotteryAwardService {
     return await this.lotteryAwardRepository.save(createAwardDto);
   }
 
-  // async create(createAwardDto: CreateLotteryAwardDto, username = ''): Promise<BaseResponse> {
-  //   try {
-  //     const lotteryAwardFound = await this.lotteryAwardRepository.findOneBy({
-  //       type: createAwardDto.type,
-  //       turnIndex: createAwardDto.turnIndex,
-  //     });
-
-  //     if (lotteryAwardFound) {
-  //       return new ErrorResponse(
-  //         STATUSCODE.COMMON_FAILED,
-  //         `lotteryAward is already exist`,
-  //         ERROR.CREATE_FAILED
-  //       );
-  //     }
-
-  //     const orders = await this.orderRequestService.getListOrders(createAwardDto);
-  //     const ordersAuth = [];
-  //     const ordersFake = [];
-  //     let totalRevenue = 0;
-  //     // TODO Auth fake
-  //     for (const order of orders) {
-  //       ordersAuth.push(order);
-  //       totalRevenue = totalRevenue + +order.revenue;
-  //       // if (order.user.isAuth) {
-  //       //   ordersAuth.push(order);
-  //       //   totalRevenue = totalRevenue + +order.revenue;
-  //       // } else {
-  //       //   ordersAuth.push(order);
-  //       //   totalRevenue = totalRevenue + +order.revenue;
-  //       //   ordersFake.push(order);
-  //       // }
-  //     }
-
-  //     // const lotteryCreate = {
-  //     //   type: createAwardDto.type,
-  //     //   turnIndex: createAwardDto.turnIndex,
-  //     //   createdAt: new Date(),
-  //     //   openTime: new Date(),
-  //     //   extraData: {},
-  //     //   totalRevenue,
-  //     //   status: +StatusLotteryAward.INIT,
-  //     // }
-
-  //     // const lotteryAward = await this.lotteryAwardRepository.save(lotteryCreate);
-  //     let lotteryAward: any;
-
-  //     const lotteryRequest = await this.initLotteryRequest(createAwardDto, ordersAuth);
-  //     // const { error: errorResponse, data: dataResponse } = await this.connectService.processInitLotteryAward(lotteryRequest);
-  //     const dataRes = await this.processInitLotteryAward(lotteryRequest);
-  //     const dataResponse = dataRes?.result?.data;
-
-  //     lotteryAward.extraData = dataResponse;
-  //     await this.lotteryAwardRepository.save(lotteryAward);
-
-  //     // nếu data trả về là ko có kết quả
-  //     // if (!dataResponse?.awardDetail) {
-  //     //   if (orders.length > 0) {
-  //     //     if (ordersFake.length > 0) {
-  //     //       await this.orderRequestService.processRefundListFake(orders);
-  //     //     }
-
-  //     //     if (ordersAuth.length > 0) {
-  //     //       // TODO auth
-  //     //       await this.orderRequestService.processRefundListFake(orders);
-  //     //     }
-  //     //   }
-
-  //     //   lotteryAward.status = +StatusLotteryAward.ERROR;
-  //     //   lotteryAward.extraData = errorResponse;
-  //     //   await this.lotteryAwardRepository.save(lotteryAward);
-
-  //     //   return new ErrorResponse(
-  //     //     STATUSCODE.INIT_LOTTERY_AWARD_ERROR,
-  //     //     `lotteryAward init error`,
-  //     //     ERROR.CREATE_FAILED
-  //     //   );
-  //     // }
-  //     const arrOrderAuthWin = new Array;
-  //     const arrOrderFakeWin = new Array;
-  //     const arrOrderLoser = new Array;
-  //     let totalPayment = 0;
-
-  //     const mapAward = new Map<string, any>();
-  //     for (const order of orders) {
-  //       await this.checkOrderWin(order, dataResponse.awardDetail);
-  //       if (+order.paymentWin > 0) {
-  //         const data = mapAward.get(order.detail);
-  //         if (data) {
-  //           data.amount = +data.amount + order.paymentWin;
-  //           mapAward.set(order.detail, data);
-  //         } else {
-  //           mapAward.set(order.detail, { "value": order.detail, "amount": order.paymentWin });
-  //         }
-  //         // TODO check total payment xem bên nào sai
-  //       }
-  //       if (order.paymentWin && +order.paymentWin > 0) {
-  //         totalPayment = totalPayment + +order.paymentWin;
-  //         arrOrderAuthWin.push(order);
-  //       } else {
-  //         order.status = StatusOrderRequest.LOSER;
-  //         arrOrderLoser.push(order);
-  //       }
-  //     }
-  //     if (arrOrderAuthWin.length > 0) {
-  //       await this.orderRequestService.processEarnListFake(arrOrderAuthWin);
-  //     }
-
-  //     lotteryAward.totalPay = totalPayment;
-  //     if (lotteryAward.totalRevenue != 0) {
-  //       if (totalPayment != 0) {
-  //         lotteryAward.rateWin = 1 - (totalPayment * 1.0) / (1.0 * lotteryAward.totalRevenue);
-  //       } else {
-  //         lotteryAward.rateWin = 1;
-  //       }
-  //     }
-
-  //     lotteryAward.awardDetail = dataResponse?.awardDetail;
-  //     lotteryAward.awardTitle = dataResponse?.awardTitle;
-  //     await this.lotteryAwardRepository.save(lotteryAward);
-
-  //     if (arrOrderFakeWin.length > 0) {
-  //       await this.orderRequestService.processEarnListFake(arrOrderFakeWin);
-  //     }
-  //     await this.orderRequestService.orderRequestLoser(arrOrderLoser);
-
-  //     return new SuccessResponse(
-  //       STATUSCODE.COMMON_CREATE_SUCCESS,
-  //       lotteryAward,
-  //       MESSAGE.CREATE_SUCCESS
-  //     );
-  //   } catch (error) {
-  //     this.logger.debug(
-  //       `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
-  //     );
-  //     return new ErrorResponse(
-  //       STATUSCODE.COMMON_FAILED,
-  //       error,
-  //       ERROR.CREATE_FAILED
-  //     );
-  //   }
-  // }
-
   async checkOrderWin(order: OrderRequest, awardDetail: string): Promise<boolean> {
     const { values } = convertOrderDetail(order);
     const arrayAward = JSON.parse(awardDetail);
@@ -1887,46 +1649,6 @@ export class LotteryAwardService {
     }
 
     return lotteryRequest;
-  }
-
-
-
-  async update(id: number, updatelotteryAwardDto: UpdateLotteryAwardDto): Promise<any> {
-    try {
-      // let foundlotteryAward = await this.lotteryAwardRepository.findOneBy({
-      //   id,
-      // });
-
-      // if (!foundlotteryAward) {
-      //   return new ErrorResponse(
-      //     STATUSCODE.COMMON_NOT_FOUND,
-      //     `lotteryAward with id: ${id} not found!`,
-      //     ERROR.NOT_FOUND
-      //   );
-      // }
-
-      // foundlotteryAward = {
-      //   ...foundlotteryAward,
-      //   ...updatelotteryAwardDto,
-      //   updatedAt: new Date(),
-      // };
-      // await this.lotteryAwardRepository.save(foundlotteryAward);
-
-      // return new SuccessResponse(
-      //   STATUSCODE.COMMON_UPDATE_SUCCESS,
-      //   foundlotteryAward,
-      //   MESSAGE.UPDATE_SUCCESS
-      // );
-    } catch (error) {
-      this.logger.debug(
-        `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
-      );
-      return new ErrorResponse(
-        STATUSCODE.COMMON_FAILED,
-        error,
-        ERROR.UPDATE_FAILED
-      );
-    }
   }
 
   async delete(id: number): Promise<BaseResponse> {
