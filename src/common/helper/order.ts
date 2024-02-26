@@ -1701,4 +1701,8 @@ export class OrderHelper {
     static getNumberOfTurnsInDay(seconds: number) {
         return Math.round((((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) / seconds));
     }
+
+    static getPayOut(betAmount: number) {
+        return ((betAmount * (100 - Number(process.env.PROFIT_PERCENTAGE))) / 100);
+    }
 }
