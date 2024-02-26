@@ -25,6 +25,7 @@ import {
 } from '../../system/enums/lotteries';
 import { ManageBonusPriceService } from '../manage-bonus-price/manage-bonus-price.service';
 import { addHours, startOfDay } from 'date-fns';
+import { OrderHelper } from 'src/common/helper';
 
 @Injectable()
 export class LotteriesService {
@@ -144,7 +145,7 @@ export class LotteriesService {
     const bonusPriceCurrent = dataBonusPrice.bonusPrice;
     const totalBet = (dataBonusPrice?.totalBet || 0) + (prizes.totalBetAmount || 0);
     const totalProfit = (dataBonusPrice?.totalProfit || 0) + ((prizes?.totalBetAmount || 0) - (prizes?.finalResult?.totalPayout || 0));
-    const bonusPrice = totalProfit - (totalBet * 0.05);
+    const bonusPrice = totalProfit - (totalBet * ((Number(process.env.PROFIT_PERCENTAGE) / 100)));
 
     dataBonusPrice.totalBet = totalBet;
     dataBonusPrice.totalProfit = totalProfit;
@@ -1587,7 +1588,8 @@ export class LotteriesService {
       if (!value) {
         map2.set(key, value);
       } else {
-        if ((value + amountPaid) < (totalBetAmount * 95) / 100) {
+        // if ((value + amountPaid) < (totalBetAmount * 95) / 100) {
+        if ((value + amountPaid) < OrderHelper.getPayOut(totalBetAmount)) {
           map1.set(key, value);
         }
       }
@@ -1677,7 +1679,8 @@ export class LotteriesService {
     for (const order of resultLoTruotOfPrize7) {
       if (count1 === 3) break;
 
-      if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+      // if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+      if ((totalPayout + order?.payOut) >= (OrderHelper.getPayOut(totalBetAmount))) {
         continue;
       }
 
@@ -1798,7 +1801,8 @@ export class LotteriesService {
       const prizes: any = [];
 
       remainPrizes.forEach((value: number, key: string) => {
-        if ((totalPayout - (item.payOut || 0) + value) < ((totalBetAmount * 95) / 100)) {
+        // if ((totalPayout - (item.payOut || 0) + value) < ((totalBetAmount * 95) / 100)) {
+        if ((totalPayout - (item.payOut || 0) + value) < (OrderHelper.getPayOut(totalBetAmount))) {
           prizes.push({
             number: key,
             payOut: value,
@@ -1883,7 +1887,8 @@ export class LotteriesService {
 
       if (count2 === 18) break;
 
-      if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+      // if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+      if ((totalPayout + order?.payOut) >= OrderHelper.getPayOut(totalBetAmount)) {
         continue;
       }
 
@@ -1958,7 +1963,8 @@ export class LotteriesService {
       if (!value) {
         map2.set(key, value);
       } else {
-        if ((value + amountPaid) < (totalBetAmount * 95) / 100) {
+        // if ((value + amountPaid) < (totalBetAmount * 95) / 100) {
+        if ((value + amountPaid) < OrderHelper.getPayOut(totalBetAmount)) {
           map1.set(key, value);
         }
       }
@@ -2049,7 +2055,8 @@ export class LotteriesService {
     for (const order of resultLoTruotOfPrize8) {
       if (count === 2) break;
 
-      if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+      // if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+      if ((totalPayout + order?.payOut) >= OrderHelper.getPayOut(totalBetAmount)) {
         continue;
       }
 
@@ -2116,7 +2123,8 @@ export class LotteriesService {
       if (!value) {
         map2.set(key, value);
       } else {
-        if (value < (totalBetAmount * 95) / 100) {
+        // if (value < (totalBetAmount * 95) / 100) {
+        if (value < OrderHelper.getPayOut(totalBetAmount)) {
           map1.set(key, value);
         }
       }
@@ -2328,7 +2336,8 @@ export class LotteriesService {
     for (const order of resultLoTruotOfPrize8) {
       if (count === 2) break;
 
-      if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+      // if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+      if ((totalPayout + order?.payOut) >= (OrderHelper.getPayOut(totalBetAmount))) {
         continue;
       }
 
@@ -2382,7 +2391,9 @@ export class LotteriesService {
     for (const order of resultLoTruotOfPrize7) {
       if (count1 === 3) break;
 
-      if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+      // if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+      if ((totalPayout + order?.payOut) >= (OrderHelper.getPayOut(totalBetAmount))) {
+
         continue;
       }
 
@@ -2437,7 +2448,8 @@ export class LotteriesService {
     for (const order of resultLoTruotOfRemainSpecial) {
       if (count2 === 18) break;
 
-      if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+      // if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
+      if ((totalPayout + order?.payOut) >= OrderHelper.getPayOut(totalBetAmount)) {
         continue;
       }
 

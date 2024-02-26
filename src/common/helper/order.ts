@@ -931,7 +931,19 @@ export class OrderHelper {
         const timeStartDay = startOfDay(new Date());
         const fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
         const toDate = (new Date()).getTime();
-        return (Math.ceil(((toDate - fromDate) / 1000) / seconds));
+        let numbers = (Math.ceil(((toDate - fromDate) / 1000) / seconds)).toString();
+        numbers = this.getFullCharOfTurn(numbers);
+
+        return numbers;
+    }
+
+    static getFullCharOfTurn(turn: string) {
+        const remainNumber = 4 - turn.length;
+        for (let i = 0; i < remainNumber; i++) {
+            turn = `0${turn}`;
+        }
+
+        return turn;
     }
 
     static getTurnIndex(seconds: number) {
@@ -1688,5 +1700,9 @@ export class OrderHelper {
 
     static getNumberOfTurnsInDay(seconds: number) {
         return Math.round((((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) / seconds));
+    }
+
+    static getPayOut(betAmount: number) {
+        return ((betAmount * (100 - Number(process.env.PROFIT_PERCENTAGE))) / 100);
     }
 }

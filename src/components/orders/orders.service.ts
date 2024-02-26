@@ -245,6 +245,7 @@ export class OrdersService {
   async betOrdersImmediate(data: CreateListOrdersDto, user: any) {
     if (!data || !data?.orders || data.orders.length === 0) return;
 
+    const openTime = new Date();
     const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
     const turnIndex = OrderHelper.getTurnIndex(seconds);
     let wallet = await this.walletHandlerService.findWalletByUserId(user.id);
@@ -314,7 +315,8 @@ export class OrdersService {
       awardDetail: JSON.stringify(finalResult),
       bookmaker: { id: user.bookmakerId } as any,
       isTestPlayer,
-      openTime: new Date(),
+      openTime,
+      createdAt: openTime,
       userId: user.id,
       totalRevenue,
       totalPayout,
@@ -607,7 +609,7 @@ export class OrdersService {
     const startTime = startOfDay(new Date());
     const fromDate = addHours(startTime, START_TIME_CREATE_JOB).getTime();
     const toDate = (new Date()).getTime();
-    const times = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
+    const numberOfTurn = Math.floor(((toDate - fromDate) / 1000) / parseInt(query.seconds));
     const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
     const openTime = toDate - (secondsInCurrentRound * 1000);
     let isTestPlayer = false;
@@ -617,19 +619,14 @@ export class OrdersService {
     if (query.isTestPlayerClient) {
       isTestPlayer = query.isTestPlayerClient;
     }
-    console.log("=========start get current turn index==========");
-    console.log("type", query.type);
-    console.log("isTestPlayer", isTestPlayer);
-    console.log("turnIndex", `${DateTimeHelper.formatDate(new Date())}-${times}`);
 
-    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${DateTimeHelper.formatDate(new Date())}-${times}`, query.type, isTestPlayer);
-
-    console.log("awardDetail", lotteryAward?.awardDetail ? JSON.stringify(lotteryAward?.awardDetail) : {});
-    console.log("=========end get current turn index==========");
+    const tempNumberOfTurn = OrderHelper.getFullCharOfTurn(numberOfTurn.toString());
+    const nextTurnIndex = OrderHelper.getFullCharOfTurn((numberOfTurn + 1).toString());
+    const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurnIndex(`${DateTimeHelper.formatDate(new Date())}-${tempNumberOfTurn}`, query.type, isTestPlayer);
 
     return {
-      turnIndex: `${DateTimeHelper.formatDate(new Date())}-${times}`,
-      nextTurnIndex: `${DateTimeHelper.formatDate(new Date())}-${times + 1}`,
+      turnIndex: `${DateTimeHelper.formatDate(new Date())}-${tempNumberOfTurn}`,
+      nextTurnIndex: `${DateTimeHelper.formatDate(new Date())}-${nextTurnIndex}`,
       openTime: toDate - (secondsInCurrentRound * 1000),
       nextTime: openTime + (parseInt(query.seconds) * 1000),
       awardDetail: lotteryAward?.awardDetail || {},

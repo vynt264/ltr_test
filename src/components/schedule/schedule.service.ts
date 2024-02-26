@@ -97,14 +97,17 @@ export class ScheduleService implements OnModuleInit {
         for (let i = 0; i < numberOfTurns; i++) {
             timeMillisecondsStartRunJob = timeMillisecondsStartRunJob + (seconds * 1000);
             count++;
-            const turnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${count}`;
+            const turn = OrderHelper.getFullCharOfTurn(count.toString());
+            const turnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${turn}`;
+            const nextTime = (timeMillisecondsStartRunJob + (seconds * 1000));
             if (timeMillisecondsStartRunJob > (new Date()).getTime()) {
-                const jobName = `${seconds}-${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${count}`;
-                const nextTurnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${count + 1}`;
-                const nextTime = (timeMillisecondsStartRunJob + (seconds * 1000));
+                const jobName = `${seconds}-${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${turn}`;
+                const nextTurn = OrderHelper.getFullCharOfTurn((count + 1).toString());
+                const nextTurnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${nextTurn}`;
+                // const nextTime = (timeMillisecondsStartRunJob + (seconds * 1000));
                 this.addCronJob(jobName, seconds, timeMillisecondsStartRunJob, turnIndex, nextTurnIndex, nextTime);
             } else {
-                const tempPromises = await this.createLotteryAwardInPastTime(turnIndex, seconds, timeMillisecondsStartRunJob);
+                const tempPromises = await this.createLotteryAwardInPastTime(turnIndex, seconds, timeMillisecondsStartRunJob, nextTime);
                 promises = promises.concat(tempPromises);
             }
         }
@@ -182,6 +185,7 @@ export class ScheduleService implements OnModuleInit {
             bookmaker: { id: bookmakerId } as any,
             isTestPlayer: false,
             openTime: new Date(time),
+            createdAt: new Date(time),
             totalRevenue,
             totalPayout,
             bonusPrice,
@@ -195,6 +199,7 @@ export class ScheduleService implements OnModuleInit {
             nextTurnIndex,
             openTime: time,
             awardDetail: finalResult,
+            isTestPlayer: false,
         });
 
         // calc balance
@@ -226,6 +231,7 @@ export class ScheduleService implements OnModuleInit {
             bookmaker: { id: bookmakerId } as any,
             isTestPlayer: true,
             openTime: new Date(time),
+            createdAt: new Date(time),
             totalRevenue: totalRevenueOfTestPlayer,
             totalPayout: totalPayoutOfTestPlayer,
             bonusPrice: bonusPriceOfTestPlayer,
@@ -239,6 +245,7 @@ export class ScheduleService implements OnModuleInit {
             nextTurnIndex,
             openTime: time,
             awardDetail: finalResultOfFakeUsers,
+            isTestPlayer: true,
         });
         // calc balance of fake users
         this.handleBalanceIsTestPlayer({
@@ -595,7 +602,7 @@ export class ScheduleService implements OnModuleInit {
         await Promise.all(promises);
     }
 
-    async createLotteryAwardInPastTime(turnIndex: string, seconds: number, openTime: number) {
+    async createLotteryAwardInPastTime(turnIndex: string, seconds: number, openTime: number, nextTime: number) {
         let gameType: any = OrderHelper.getGameTypesBySeconds(seconds);
         const promises = [];
         const bookMakers = await this.bookMakerService.getAllBookMaker();
@@ -613,6 +620,7 @@ export class ScheduleService implements OnModuleInit {
                             bookmaker: { id: bookMaker.id } as any,
                             isTestPlayer: false,
                             openTime: new Date(openTime),
+                            createdAt: new Date(openTime),
                             totalRevenue: 0,
                             totalPayout: 0,
                             bonusPrice: 0,
@@ -631,6 +639,7 @@ export class ScheduleService implements OnModuleInit {
                             bookmaker: { id: bookMaker.id } as any,
                             isTestPlayer: true,
                             openTime: new Date(openTime),
+                            createdAt: new Date(openTime),
                             totalRevenue: 0,
                             totalPayout: 0,
                             bonusPrice: 0,

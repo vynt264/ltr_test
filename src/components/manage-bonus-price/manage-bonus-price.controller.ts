@@ -1,34 +1,59 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Inject } from '@nestjs/common';
 import { ManageBonusPriceService } from './manage-bonus-price.service';
 import { CreateManageBonusPriceDto } from './dto/create-manage-bonus-price.dto';
 import { UpdateManageBonusPriceDto } from './dto/update-manage-bonus-price.dto';
+import { Logger } from 'winston';
 
 @Controller('/api/v1/manage-bonus-price')
 export class ManageBonusPriceController {
-  constructor(private readonly manageBonusPriceService: ManageBonusPriceService) {}
+  constructor(
+    private readonly manageBonusPriceService: ManageBonusPriceService,
+    @Inject("winston")
+    private readonly logger: Logger,
+  ) {}
 
   @Post()
-  create(@Body() createManageBonusPriceDto: CreateManageBonusPriceDto) {
-    return this.manageBonusPriceService.create(createManageBonusPriceDto);
+  async create(@Body() createManageBonusPriceDto: CreateManageBonusPriceDto) {
+    try {
+      return await this.manageBonusPriceService.create(createManageBonusPriceDto);
+    } catch (error) {
+      this.logger.error(`${ManageBonusPriceController.name} is Logging error: ${JSON.stringify(error)}`);
+    }
   }
 
   @Get()
-  findAll() {
-    return this.manageBonusPriceService.findAll();
+  async findAll() {
+    try {
+      return await this.manageBonusPriceService.findAll();
+    } catch (error) {
+      this.logger.error(`${ManageBonusPriceController.name} is Logging error: ${JSON.stringify(error)}`);
+    }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.manageBonusPriceService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    try {
+      return await this.manageBonusPriceService.findOne(+id);
+    } catch (error) {
+      this.logger.error(`${ManageBonusPriceController.name} is Logging error: ${JSON.stringify(error)}`);
+    }
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateManageBonusPriceDto: UpdateManageBonusPriceDto) {
-    return this.manageBonusPriceService.update(+id, updateManageBonusPriceDto);
+  async update(@Param('id') id: string, @Body() updateManageBonusPriceDto: UpdateManageBonusPriceDto) {
+    try {
+      return await this.manageBonusPriceService.update(+id, updateManageBonusPriceDto);
+    } catch (error) {
+      this.logger.error(`${ManageBonusPriceController.name} is Logging error: ${JSON.stringify(error)}`);
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.manageBonusPriceService.remove(+id);
+  async remove(@Param('id') id: string) {
+    try {
+      return await this.manageBonusPriceService.remove(+id);
+    } catch (error) {
+      this.logger.error(`${ManageBonusPriceController.name} is Logging error: ${JSON.stringify(error)}`);
+    }
   }
 }

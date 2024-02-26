@@ -37,6 +37,7 @@ import { ManageBonusPriceModule } from './manage-bonus-price/manage-bonus-price.
 import { MaintenanceModule } from './maintenance/maintenance.module';
 import { AdminPokerModule } from "./admin.poker/admin.poker.module";
 import { AdminHiloModule } from "./admin.hilo/admin.hilo.module";
+import { SettingsModule } from './settings/settings.module';
 @Module({
   imports: [
     AuthModule,
@@ -77,6 +78,7 @@ import { AdminHiloModule } from "./admin.hilo/admin.hilo.module";
     MaintenanceModule,
     AdminPokerModule,
     AdminHiloModule,
+    SettingsModule,
   ],
 })
 export class MainModule { }

@@ -44,4 +44,6 @@ export class CreateLotteryAwardDto {
   totalProfit: number;
 
   bonusPrice: number;
+
+  createdAt?: Date;
 }

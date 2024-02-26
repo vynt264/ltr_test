@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, HttpStatus, Res, Param, Delete, UseGuards, Request, Query, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpStatus, Res, Param, Delete, UseGuards, Request, Query, Put, Inject } from '@nestjs/common';
 import { Response } from 'express';
 
 import { OrdersService } from './orders.service';
@@ -10,46 +10,61 @@ import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import { ValidationPipe } from './validations/validation.pipe';
 import { ERROR } from "../../system/constants";
 import { RedisCacheService } from 'src/system/redis/redis.service';
+import { Logger } from 'winston';
 
 @Controller('api/v1/orders')
 export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
+    @Inject("winston")
+    private readonly logger: Logger
   ) { }
 
   @Post()
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  create(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
-    return this.ordersService.create(orders, req.user);
+  async create(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
+    return await this.ordersService.create(orders, req.user);
   }
 
   @Get()
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  findAll(@Query() paginationDto: PaginationQueryDto, @Request() req: any): Promise<any> {
-    return this.ordersService.findAll(paginationDto, req.user);
+  async findAll(@Query() paginationDto: PaginationQueryDto, @Request() req: any): Promise<any> {
+    try {
+      return await this.ordersService.findAll(paginationDto, req.user);
+    } catch (error) {
+      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+    }
   }
 
   @Post('1s/validation')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  validationOrdersImmediate(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
-    return this.ordersService.validationOrdersImmediate(orders, req.user);
+  async validationOrdersImmediate(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
+    return await this.ordersService.validationOrdersImmediate(orders, req.user);
   }
 
   @Post('1s')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  betOrdersImmediate(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
-    return this.ordersService.betOrdersImmediate(orders, req.user);
+  async betOrdersImmediate(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
+    return await this.ordersService.betOrdersImmediate(orders, req.user);
   }
 
   @Get('combine-orders-by-date')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  combineOrdersByDate(@Query() paginationDto: PaginationQueryDto, @Request() req: any): Promise<any> {
-    return this.ordersService.combineOrdersByDate(paginationDto, req.user);
+  async combineOrdersByDate(@Query() paginationDto: PaginationQueryDto, @Request() req: any): Promise<any> {
+    try {
+      return await this.ordersService.combineOrdersByDate(paginationDto, req.user);
+    } catch (error) {
+      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+    }
   }
 
   @Get('get-turn-index')
-  getCurrentTurnIndex(@Query() query: { seconds: string, type: string, isTestPlayerClient: boolean }, @Request() req: any) {
-    return this.ordersService.getCurrentTurnIndex(query, req.user);
+  async getCurrentTurnIndex(@Query() query: { seconds: string, type: string, isTestPlayerClient: boolean }, @Request() req: any) {
+    try {
+      return this.ordersService.getCurrentTurnIndex(query, req.user);
+    } catch (error) {
+      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+    }
   }
 
   @Post('generate-follow-up-plan')
@@ -87,33 +102,47 @@ export class OrdersController {
         message: "success",
       });
 
-    } catch (error) { }
+    } catch (error) {
+      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+    }
   }
 
   @Post('confirm-generate-follow-up-plan')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  confirmGenerateFollowUpPlan(
+  async confirmGenerateFollowUpPlan(
     @Body() data: any,
     @Request() req: any,
   ) {
-    return this.ordersService.confirmGenerateFollowUpPlan(data, req.user);
+    return await this.ordersService.confirmGenerateFollowUpPlan(data, req.user);
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  findOne(@Param('id') id: string) {
-    return this.ordersService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    try {
+      return await this.ordersService.findOne(+id);
+    } catch (error) {
+      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+    }
   }
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   async update(@Param('id') id: string, @Body() updateOrderDto: any, @Request() req: any) {
-    return this.ordersService.update(+id, updateOrderDto, req.user);
+    try {
+      return await this.ordersService.update(+id, updateOrderDto, req.user);
+    } catch (error) {
+      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+    }
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  remove(@Param('id') id: string) {
-    return this.ordersService.remove(+id);
+  async remove(@Param('id') id: string) {
+    try {
+      return await this.ordersService.remove(+id);
+    } catch (error) {
+      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+    }
   }
 }

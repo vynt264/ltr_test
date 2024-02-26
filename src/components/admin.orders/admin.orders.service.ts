@@ -10,6 +10,7 @@ import { MESSAGE, STATUSCODE, TypeLottery } from "src/system/constants";
 import { UserService } from "../user/user.service";
 import { ErrorResponse, SuccessResponse } from "src/system/BaseResponse";
 import { Logger } from "winston";
+import { LotteryAwardService } from "../lottery.award/lottery.award.service";
 
 @Injectable()
 export class AdminOrdersService {
@@ -18,7 +19,8 @@ export class AdminOrdersService {
     private orderRepository: Repository<Order>,
     private userService: UserService,
     @Inject("winston")
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private lotteryAwardService: LotteryAwardService,
   ) {}
 
   async findAll(paginationDto: PaginationQueryDto) {
@@ -51,7 +53,13 @@ export class AdminOrdersService {
         order: {
           createdAt: "DESC"
         }
-      });
+      }) as any;
+
+      for (const order of (listDataReal?.[0] || [])) {
+        const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurn(order.turnIndex, `${order.type}${order.seconds}s`);
+        order.awardDetail = lotteryAward?.awardDetail;
+        order.bonusPrice = lotteryAward?.bonusPrice;
+      }
 
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
