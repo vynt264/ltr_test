@@ -245,6 +245,7 @@ export class OrdersService {
   async betOrdersImmediate(data: CreateListOrdersDto, user: any) {
     if (!data || !data?.orders || data.orders.length === 0) return;
 
+    const openTime = new Date();
     const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
     const turnIndex = OrderHelper.getTurnIndex(seconds);
     let wallet = await this.walletHandlerService.findWalletByUserId(user.id);
@@ -314,7 +315,8 @@ export class OrdersService {
       awardDetail: JSON.stringify(finalResult),
       bookmaker: { id: user.bookmakerId } as any,
       isTestPlayer,
-      openTime: new Date(),
+      openTime,
+      createdAt: openTime,
       userId: user.id,
       totalRevenue,
       totalPayout,
