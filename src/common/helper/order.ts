@@ -872,6 +872,14 @@ export class OrderHelper {
                     amount = (numberOfBets * PricePerScore.DeDauDuoi) * order.multiple;
                     break;
 
+                case DauDuoiType.Dau:
+                    amount = (numberOfBets * PricePerScore.Dau) * order.multiple;
+                    break;
+
+                case DauDuoiType.Duoi:
+                    amount = (numberOfBets * PricePerScore.Duoi) * order.multiple;
+                    break;
+
                 case BaCangType.BaCangDau:
                     amount = (numberOfBets * PricePerScore.BaCangDau) * order.multiple;
                     break;
