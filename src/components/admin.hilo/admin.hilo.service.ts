@@ -74,6 +74,10 @@ export class AdminHiloService {
       if (key === "bookmakerId") {
         data.bookmakerId = object.bookmakerId;
       }
+
+      if (key === "code") {
+        data.code = object.code;
+      }
     }
 
     return [data];
