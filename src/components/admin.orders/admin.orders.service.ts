@@ -116,6 +116,10 @@ export class AdminOrdersService {
       if (key === "seconds") {
         data.seconds = object.seconds;
       }
+
+      if (key === "numericalOrder") {
+        data.numericalOrder = object.numericalOrder;
+      }
     }
     return [data];
   }
