@@ -3,6 +3,7 @@ import { addHours, startOfDay } from "date-fns";
 import * as _ from "lodash";
 
 import { DateTimeHelper } from "src/helpers/date-time";
+import { PROFIT_PERCENTAGE } from "src/system/config.system/config.default";
 import { ERROR, INIT_TIME_CREATE_JOB, MAINTENANCE_PERIOD, PERIOD_CANNOT_ORDER, PRIZES, START_TIME_CREATE_JOB, TypeLottery } from "src/system/constants";
 import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, Lo2SoGiaiDacBietType, LoTruocType, LoXienType, OddBet, PricePerScore, TroChoiThuViType } from "src/system/enums/lotteries";
 
@@ -1703,6 +1704,6 @@ export class OrderHelper {
     }
 
     static getPayOut(betAmount: number) {
-        return ((betAmount * (100 - Number(process.env.PROFIT_PERCENTAGE))) / 100);
+        return ((betAmount * (100 - Number(PROFIT_PERCENTAGE))) / 100);
     }
 }
