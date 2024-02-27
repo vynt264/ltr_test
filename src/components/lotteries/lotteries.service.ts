@@ -26,6 +26,7 @@ import {
 import { ManageBonusPriceService } from '../manage-bonus-price/manage-bonus-price.service';
 import { addHours, startOfDay } from 'date-fns';
 import { OrderHelper } from 'src/common/helper';
+import { PROFIT_PERCENTAGE } from 'src/system/config.system/config.default';
 
 @Injectable()
 export class LotteriesService {
@@ -145,7 +146,7 @@ export class LotteriesService {
     const bonusPriceCurrent = dataBonusPrice.bonusPrice;
     const totalBet = (dataBonusPrice?.totalBet || 0) + (prizes.totalBetAmount || 0);
     const totalProfit = (dataBonusPrice?.totalProfit || 0) + ((prizes?.totalBetAmount || 0) - (prizes?.finalResult?.totalPayout || 0));
-    const bonusPrice = totalProfit - (totalBet * ((Number(process.env.PROFIT_PERCENTAGE) / 100)));
+    const bonusPrice = totalProfit - (totalBet * ((Number(PROFIT_PERCENTAGE) / 100)));
 
     dataBonusPrice.totalBet = totalBet;
     dataBonusPrice.totalProfit = totalProfit;
