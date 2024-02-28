@@ -657,7 +657,7 @@ export class AnalyticsService {
           litNumFindNe = []
           for (const number of [item[7][0], item[0][0]]) {
             const lastThreeDigits = number.slice(-3)
-            litNumFind.push(lastThreeDigits)
+            litNumFindNe.push(lastThreeDigits)
           }
 
           Object.keys(countMapShow).forEach((key: any) => {
