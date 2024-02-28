@@ -997,11 +997,19 @@ export class OrderHelper {
     }
 
     static getKeyPrepareOrders(bookmakerId: string, type: string, turnIndex: string) {
-        return `${bookmakerId}-${type}-${turnIndex}`;
+        return `${bookmakerId}-${type}-${turnIndex}-add-orders`;
     }
 
     static getKeyPrepareOrdersOfTestPlayer(bookmakerId: string, type: string, turnIndex: string) {
-        return `${bookmakerId}-${type}-${turnIndex}-test-player`;
+        return `${bookmakerId}-${type}-${turnIndex}-add-orders-test-player`;
+    }
+
+    static getKeyCancelOrders(bookmakerId: string, type: string, turnIndex: string) {
+        return `${bookmakerId}-${type}-${turnIndex}-cancel-orders`;
+    }
+
+    static getKeyCancelOrdersOfTestPlayer(bookmakerId: string, type: string, turnIndex: string) {
+        return `${bookmakerId}-${type}-${turnIndex}-cancel-orders-test-player`;
     }
 
     static getCurrentTimeInRound(seconds: number) {
@@ -1713,5 +1721,124 @@ export class OrderHelper {
 
     static getPayOut(betAmount: number) {
         return ((betAmount * (100 - Number(PROFIT_PERCENTAGE))) / 100);
+    }
+
+    static initData() {
+        let data = {
+            [CategoryLotteryType.BaoLo]: {
+                [BaoLoType.Lo2So]: {
+
+                } as any,
+                [BaoLoType.Lo2So1k]: {
+
+                } as any,
+                [BaoLoType.Lo3So]: {
+
+                } as any,
+                [BaoLoType.Lo4So]: {
+
+                } as any,
+            },
+            [CategoryLotteryType.DanhDe]: {
+                [DanhDeType.DeDacBiet]: {
+
+                } as any,
+                [DanhDeType.DeDauDuoi]: {
+
+                } as any,
+                [DanhDeType.DeDau]: {
+
+                } as any,
+            },
+            [CategoryLotteryType.DauDuoi]: {
+                [DauDuoiType.Dau]: {
+
+                } as any,
+                [DauDuoiType.Duoi]: {
+
+                } as any,
+            },
+            [CategoryLotteryType.Lo4Cang]: {
+                [BonCangType.BonCangDacBiet]: {
+
+                } as any,
+            },
+            [CategoryLotteryType.Lo3Cang]: {
+                [BaCangType.BaCangDacBiet]: {
+
+                } as any,
+                [BaCangType.BaCangDau]: {
+
+                } as any,
+                [BaCangType.BaCangDauDuoi]: {
+
+                } as any,
+            },
+            [CategoryLotteryType.LoXien]: {
+                [LoXienType.Xien2]: {
+
+                } as any,
+                [LoXienType.Xien3]: {
+
+                } as any,
+                [LoXienType.Xien4]: {
+
+                } as any,
+            },
+            [CategoryLotteryType.LoTruot]: {
+                [LoTruocType.TruotXien4]: {
+
+                } as any,
+                [LoTruocType.TruotXien8]: {
+
+                } as any,
+                [LoTruocType.TruotXien10]: {
+
+                } as any,
+            },
+            [CategoryLotteryType.TroChoiThuVi]: {
+                [TroChoiThuViType.Lo2SoGiaiDacBiet]: {
+
+                } as any,
+            },
+        };
+
+        return data;
+    }
+
+    static splitOrders(data: any) {
+        if (!data) return {};
+
+        const initData = this.initData();
+        for (const key in data) {
+            const [orderId, betType, childBetType] = key.split('-');
+            const numbers = JSON.parse(data[key]);
+            for (const key in numbers) {
+                OrderHelper.addOrder({
+                    typeBet: betType,
+                    childBetType: childBetType,
+                    multiple: numbers[key],
+                    number: key,
+                    initData,
+                });
+            }
+        }
+
+        return initData;
+    }
+
+    static cancelOrders(dataReal: any, ordersCancelOfUserReal: any) {
+
+        for (const key in ordersCancelOfUserReal) {
+            const [, betType, childBetType] = key.split('-');
+            const numbers = JSON.parse(ordersCancelOfUserReal[key]);
+            for (const key in numbers) {
+                if (dataReal[betType][childBetType][key] > 0) {
+                    dataReal[betType][childBetType][key] = dataReal[betType][childBetType][key] - numbers[key];
+                }
+            }
+        }
+
+        return dataReal;
     }
 }

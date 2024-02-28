@@ -27,6 +27,18 @@ export class RedisCacheService {
     return this.redisClient.incr(key);
   }
 
+  public async hgetall(key: string) {
+    return this.redisClient.hgetall(key);
+  }
+
+  public async hset(key: string, field: string, value: any) {
+    return this.redisClient.hset(key, field, value);
+  }
+
+  public async append(key: string, value: any) {
+    return this.redisClient.append(key, value);
+  }
+
   public async lock(key: string) {
     this.cacheManager.set(key, key, 50); // ttl :50s
   }

@@ -104,7 +104,6 @@ export class ScheduleService implements OnModuleInit {
                 const jobName = `${seconds}-${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${turn}`;
                 const nextTurn = OrderHelper.getFullCharOfTurn((count + 1).toString());
                 const nextTurnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${nextTurn}`;
-                // const nextTime = (timeMillisecondsStartRunJob + (seconds * 1000));
                 this.addCronJob(jobName, seconds, timeMillisecondsStartRunJob, turnIndex, nextTurnIndex, nextTime);
             } else {
                 const tempPromises = await this.createLotteryAwardInPastTime(turnIndex, seconds, timeMillisecondsStartRunJob, nextTime);
@@ -151,20 +150,37 @@ export class ScheduleService implements OnModuleInit {
             nextTurnIndex,
         });
 
-        const keyToGetOrders = OrderHelper.getKeyPrepareOrders(bookmakerId.toString(), gameType, turnIndex);
+        // let data = await this.redisService.get(keyToGetOrders);
+        // let dataOfTestPlayer = await this.redisService.get(keyToGetOrdersOfTestPlayer);
+
+        // real users
+        const keyToGetOrdersOfRealUser = OrderHelper.getKeyPrepareOrders(bookmakerId.toString(), gameType, turnIndex);
+        const ordersReal = await this.redisService.hgetall(keyToGetOrdersOfRealUser);
+        const keyCancelOrdersRealUsers = OrderHelper.getKeyCancelOrders(bookmakerId.toString(), gameType, turnIndex);
+        const ordersCancelOfUserReal = await this.redisService.hgetall(keyCancelOrdersRealUsers);
+        let dataReal = OrderHelper.splitOrders(ordersReal);
+        dataReal = OrderHelper.cancelOrders(dataReal, ordersCancelOfUserReal);
+
+        // test users
         const keyToGetOrdersOfTestPlayer = OrderHelper.getKeyPrepareOrdersOfTestPlayer(bookmakerId.toString(), gameType, turnIndex);
-        let data = await this.redisService.get(keyToGetOrders);
-        let dataOfTestPlayer = await this.redisService.get(keyToGetOrdersOfTestPlayer);
-        await this.redisService.del(keyToGetOrders);
-        if (!data) {
-            data = {};
+        const ordersTestPlayer = await this.redisService.hgetall(keyToGetOrdersOfTestPlayer);
+        const keyCancelOrdersTestPlayer = OrderHelper.getKeyCancelOrdersOfTestPlayer(bookmakerId.toString(), gameType, turnIndex);
+        const ordersCancelOfTestPlayer = await this.redisService.hgetall(keyCancelOrdersTestPlayer);
+        let dataOfTestPlayer = OrderHelper.splitOrders(ordersTestPlayer);
+        dataOfTestPlayer = OrderHelper.cancelOrders(dataOfTestPlayer, ordersCancelOfTestPlayer);
+
+        await this.redisService.del(keyToGetOrdersOfRealUser);
+        await this.redisService.del(keyToGetOrdersOfTestPlayer);
+
+        if (!dataReal) {
+            dataReal = {};
         }
         if (!dataOfTestPlayer) {
             dataOfTestPlayer = {};
         }
 
         // real users
-        const dataTransform = OrderHelper.transformData(data);
+        const dataTransform = OrderHelper.transformData(dataReal);
         const {
             prizes,
             totalRevenue,
@@ -326,34 +342,40 @@ export class ScheduleService implements OnModuleInit {
 
         // get orders of bookmaker by game type (example: sxmb45s)
         const keyOrdersOfBookmakerAndGameType = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookmakerId.toString(), gameType);
-        const ordersOfBookmakerAndGameType: any = await this.redisService.get(keyOrdersOfBookmakerAndGameType);
-        if (!ordersOfBookmakerAndGameType || Object.keys(ordersOfBookmakerAndGameType).length === 0) {
-            this.logger.info(`orders of bookmakerId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
-            return;
-        }
+        // const ordersOfBookmakerAndGameType: any = await this.redisService.get(keyOrdersOfBookmakerAndGameType);
+        // if (!ordersOfBookmakerAndGameType || Object.keys(ordersOfBookmakerAndGameType).length === 0) {
+        //     this.logger.info(`orders of bookmakerId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
+        //     return;
+        // }
 
         const winningPlayerOrders = []; // order users thang cuoc.
 
         for (const userId of userIds) {
             const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), turnIndex);
-            let ordersOfUser;
-            if (userId) {
-                ordersOfUser = ordersOfBookmakerAndGameType?.[keyByUserAndTurnIndex] || null;
-            }
+            // let ordersOfUser;
+            // if (userId) {
+            //     ordersOfUser = ordersOfBookmakerAndGameType?.[keyByUserAndTurnIndex] || null;
+            // }
+
+            const mergeKey = `${keyOrdersOfBookmakerAndGameType}-${keyByUserAndTurnIndex}`;
+            const ordersOfUser = await this.redisService.hgetall(mergeKey);
 
             if (!ordersOfUser || Object.keys(ordersOfUser).length === 0) {
                 this.logger.info(`orders of userId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
                 continue;
             }
 
+            const ordersCancel = await this.redisService.hgetall(`${mergeKey}-cancel-orders`);
             const promises = [];
             let totalBalance = 0;
             const promisesCreateWinningNumbers = [];
             const ordersWin = [];
             for (const key in ordersOfUser) {
+                if (ordersCancel[key] && Object.keys(ordersCancel[key]).length > 0) continue;
+
                 const [orderId, region, betType, childBetType] = key.split('-');
                 const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
-                    orders: ordersOfUser[key],
+                    orders: JSON.parse(ordersOfUser[key]),
                     childBetType,
                     prizes,
                 });
@@ -490,34 +512,40 @@ export class ScheduleService implements OnModuleInit {
 
         // get orders of bookmaker by game type (example: sxmb45s)
         const keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId.toString(), gameType);
-        const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
-        if (!ordersOfBookmaker || Object.keys(ordersOfBookmaker).length === 0) {
-            this.logger.info(`orders fake of bookmakerId ${keyOrdersOfBookmaker}-${turnIndex} is not found.`);
-            return;
-        }
+        // const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
+        // if (!ordersOfBookmaker || Object.keys(ordersOfBookmaker).length === 0) {
+        //     this.logger.info(`orders fake of bookmakerId ${keyOrdersOfBookmaker}-${turnIndex} is not found.`);
+        //     return;
+        // }
 
         const winningPlayerOrders = []; // order users thang cuoc.
 
         for (const userId of userIds) {
-            let ordersOfUser;
-            if (userId) {
-                ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}-${turnIndex}`] || null;
-            }
+            const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), turnIndex);
+            // let ordersOfUser;
+            // if (userId) {
+            //     ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}-${turnIndex}`] || null;
+            // }
+
+            const mergeKey = `${keyOrdersOfBookmaker}-${keyByUserAndTurnIndex}`;
+            const ordersOfUser = await this.redisService.hgetall(mergeKey);
 
             if (!ordersOfUser || Object.keys(ordersOfUser).length === 0) {
                 this.logger.info(`orders fake of userId ${keyOrdersOfBookmaker}-${turnIndex} is not found.`);
                 continue;
             }
 
+            const ordersCancel = await this.redisService.hgetall(`${mergeKey}-cancel-orders`);
             const promises = [];
             let totalBalance = 0;
             const promisesCreateWinningNumbers = [];
             const ordersWin = [];
             for (const key in ordersOfUser) {
-                // const [orderId, region, typeBet] = key.split('-');
+                if (ordersCancel[key] && Object.keys(ordersCancel[key]).length > 0) continue;
+
                 const [orderId, region, betType, childBetType] = key.split('-');
                 const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
-                    orders: ordersOfUser[key],
+                    orders: JSON.parse(ordersOfUser[key]),
                     childBetType,
                     prizes,
                 });

@@ -67,7 +67,7 @@ export class OrdersService {
 
     let promises = [];
     const bookmakerId = member?.bookmakerId || 1;
-    await this.prepareDataToGenerateAward(data.orders, bookmakerId, turnIndex, member.usernameReal);
+    // await this.prepareDataToGenerateAward(data.orders, bookmakerId, turnIndex, member.usernameReal);
 
     for (const order of data.orders) {
       order.turnIndex = turnIndex;
@@ -94,7 +94,9 @@ export class OrdersService {
 
     const result = await Promise.all(promises);
 
-    await this.saveEachOrderOfUserToRedis(result, bookmakerId, member.id, member.usernameReal);
+    await this.prepareDataToGeneratePrizes(result, bookmakerId, turnIndex, member.usernameReal);
+    // await this.saveEachOrderOfUserToRedis(result, bookmakerId, member.id, member.usernameReal);
+    await this.saveOrdersOfUserToRedis(result, bookmakerId, member.id, member.usernameReal);
 
     // update balance
     const totalBetRemain = wallet.balance - totalBet;
@@ -288,7 +290,7 @@ export class OrdersService {
 
     const result = await Promise.all(promises);
 
-    let initData = this.initData();
+    let initData = OrderHelper.initData();
     initData = this.getDataToGenerateAward(result, initData);
     const dataTransform = OrderHelper.transformData(initData);
     let isTestPlayer = false;
@@ -500,44 +502,64 @@ export class OrdersService {
     if (usernameReal) {
       keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId.toString(), `${order.type}${order.seconds}s`);
     }
-    const dataByBookmakerId: any = await this.redisService.get(keyOrdersOfBookmaker);
+    // const dataByBookmakerId: any = await this.redisService.get(keyOrdersOfBookmaker);
     const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), order.turnIndex);
-    if (dataByBookmakerId) {
-      const result: any = {};
-      const orders: any = dataByBookmakerId[keyByUserAndTurnIndex] || {};
-      for (const key in orders) {
-        if (key === OrderHelper.getKeySaveEachOrder(order)) continue;
-        result[key] = orders[key];
-      }
-      dataByBookmakerId[keyByUserAndTurnIndex] = result;
-      await this.redisService.set(keyOrdersOfBookmaker, dataByBookmakerId);
-    }
+    // if (dataByBookmakerId) {
+    //   const result: any = {};
+    //   const orders: any = dataByBookmakerId[keyByUserAndTurnIndex] || {};
+    //   for (const key in orders) {
+    //     if (key === OrderHelper.getKeySaveEachOrder(order)) continue;
+    //     result[key] = orders[key];
+    //   }
+    //   dataByBookmakerId[keyByUserAndTurnIndex] = result;
+    //   await this.redisService.set(keyOrdersOfBookmaker, dataByBookmakerId);
+    // }
+
+    const mergeKey = `${keyOrdersOfBookmaker}-${keyByUserAndTurnIndex}-cancel-orders`;
+    const keyByOrder = OrderHelper.getKeySaveEachOrder(order);
+    const data = this.transformOrderToObject(order);
+    await this.redisService.hset(`${mergeKey}`, `${keyByOrder}`, JSON.stringify(data));
+
+    // const result1 = await this.redisService.hgetall(mergeKey);
 
     // remove order from data prepare to generate award
-    let keyToGetOrders = OrderHelper.getKeyPrepareOrders(bookmakerId, `${order.type}${order.seconds}s`, order.turnIndex);
+    let key = OrderHelper.getKeyCancelOrders(bookmakerId, `${order.type}${order.seconds}s`, order.turnIndex);
     if (usernameReal) {
-      keyToGetOrders = OrderHelper.getKeyPrepareOrdersOfTestPlayer(bookmakerId, `${order.type}${order.seconds}s`, order.turnIndex);
+      key = OrderHelper.getKeyCancelOrdersOfTestPlayer(bookmakerId, `${order.type}${order.seconds}s`, order.turnIndex);
     }
 
-    let data: any = await this.redisService.get(keyToGetOrders);
-    if (!data) return;
-
-    const orderDetail = this.transformOrderToObject(order);
-    const availableOrders = data[order.betType][order.childBetType];
-    const resultFinal: any = {};
-    for (const key in availableOrders) {
-      if (orderDetail[key]) {
-        const remainScore = availableOrders[key] - orderDetail[key];
-        if (remainScore > 0) {
-          resultFinal[key] = remainScore;
-        }
-      } else {
-        resultFinal[key] = availableOrders[key];
-      }
+    const { numbers } = OrderHelper.getInfoDetailOfOrder(order);
+    const result: any = {};
+    for (const num of numbers) {
+      result[num] = order.multiple
     }
 
-    data[order.betType][order.childBetType] = resultFinal;
-    await this.redisService.set(keyToGetOrders, data);
+    return this.redisService.hset(`${key}`, `${order.id}-${order.betType}-${order.childBetType}`, JSON.stringify(result));
+
+    // let keyToGetOrders = OrderHelper.getKeyPrepareOrders(bookmakerId, `${order.type}${order.seconds}s`, order.turnIndex);
+    // if (usernameReal) {
+    //   keyToGetOrders = OrderHelper.getKeyPrepareOrdersOfTestPlayer(bookmakerId, `${order.type}${order.seconds}s`, order.turnIndex);
+    // }
+
+    // let data: any = await this.redisService.get(keyToGetOrders);
+    // if (!data) return;
+
+    // const orderDetail = this.transformOrderToObject(order);
+    // const availableOrders = data[order.betType][order.childBetType];
+    // const resultFinal: any = {};
+    // for (const key in availableOrders) {
+    //   if (orderDetail[key]) {
+    //     const remainScore = availableOrders[key] - orderDetail[key];
+    //     if (remainScore > 0) {
+    //       resultFinal[key] = remainScore;
+    //     }
+    //   } else {
+    //     resultFinal[key] = availableOrders[key];
+    //   }
+    // }
+
+    // data[order.betType][order.childBetType] = resultFinal;
+    // await this.redisService.set(keyToGetOrders, data);
   }
 
   async update(id: number, updateOrderDto: any, member: any) {
@@ -734,7 +756,7 @@ export class OrdersService {
     });
     const promisesPrepareDataToGenerateAward = [];
     for (const order of orders) {
-      promisesPrepareDataToGenerateAward.push(this.prepareDataToGenerateAward([order], user.bookmakerId, order.turnIndex, user.usernameReal));
+      // promisesPrepareDataToGenerateAward.push(this.prepareDataToGenerateAward([order], user.bookmakerId, order.turnIndex, user.usernameReal));
 
       order.openTime = OrderHelper.getOpenTimeByTurnIndex(order.turnIndex, seconds);
       order.closeTime = order.openTime + (seconds * 1000);
@@ -754,11 +776,13 @@ export class OrdersService {
       }
 
       const resultEachOrder = await this.orderRequestRepository.save(order);
+      promisesPrepareDataToGenerateAward.push(this.prepareDataToGeneratePrizes([resultEachOrder], user.bookmakerId, order.turnIndex, user.usernameReal));
       result.push(resultEachOrder);
     }
 
     await Promise.all(promisesPrepareDataToGenerateAward);
-    await this.saveEachOrderOfUserToRedis(result, user.bookmakerId, user.id, user.usernameReal);
+    // await this.saveEachOrderOfUserToRedis(result, user.bookmakerId, user.id, user.usernameReal);
+    await this.saveOrdersOfUserToRedis(result, user.bookmakerId, user.id, user.usernameReal);
 
     // update balance
     const totalBetRemain = Number(wallet.balance) - totalBet;
@@ -785,12 +809,33 @@ export class OrdersService {
     }
     let initData = await this.redisService.get(key);
     if (!initData) {
-      initData = this.initData();
+      initData = OrderHelper.initData();
     }
 
     initData = this.getDataToGenerateAward(orders, initData);
     // save data to redis
     await this.redisService.set(key, initData);
+  }
+
+  async prepareDataToGeneratePrizes(orders: any, bookmakerId: string, turnIndex: string, usernameReal: string) {
+    if (!orders || orders.length === 0) return;
+
+    let key = OrderHelper.getKeyPrepareOrders(bookmakerId, `${orders[0]?.type}${orders[0].seconds}s`, turnIndex);
+    if (usernameReal) {
+      key = OrderHelper.getKeyPrepareOrdersOfTestPlayer(bookmakerId, orders[0]?.type, turnIndex);
+    }
+
+    const promises = [];
+    for (const order of orders) {
+      const { numbers } = OrderHelper.getInfoDetailOfOrder(order);
+      const result: any = {};
+      for (const num of numbers) {
+        result[num] = order.multiple
+      }
+      promises.push(this.redisService.hset(`${key}`, `${order.id}-${order.betType}-${order.childBetType}`, JSON.stringify(result)));
+    }
+
+    return Promise.all(promises);
   }
 
   getDataToGenerateAward(orders: any, initData: any) {
@@ -838,6 +883,46 @@ export class OrdersService {
     }
     this.redisService.set(keyOrdersOfBookmaker, dataByBookmaker);
   }
+
+  async saveOrdersOfUserToRedis(orders: any, bookmakerId: number, userId: number, usernameReal: string) {
+    const type = orders?.[0]?.type;
+    const seconds = orders?.[0].seconds;
+    let keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookmakerId.toString(), `${type}${seconds}s`);
+    if (usernameReal) {
+      keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId.toString(), `${type}${seconds}s`);
+    }
+
+    // let dataByBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
+    // if (!dataByBookmaker) {
+    //   dataByBookmaker = {};
+    // }
+
+    const promises = [];
+    let keyByUserAndTurnIndex;
+    for (const order of orders) {
+      keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), order.turnIndex);
+      const mergeKey = `${keyOrdersOfBookmaker}-${keyByUserAndTurnIndex}`;
+      const keyByOrder = OrderHelper.getKeySaveEachOrder(order);
+      const data = this.transformOrderToObject(order);
+
+      promises.push(this.redisService.hset(`${mergeKey}`, `${keyByOrder}`, JSON.stringify(data)));
+
+
+      // if (!dataByBookmaker[keyByUserAndTurnIndex]) {
+      //   dataByBookmaker[keyByUserAndTurnIndex] = {
+      //     [keyByOrder]: this.transformOrderToObject(order)
+      //   }
+      // } else {
+      //   dataByBookmaker[keyByUserAndTurnIndex][keyByOrder] = this.transformOrderToObject(order);
+      // }
+    }
+
+    return Promise.all(promises);
+    // const mergeKey1 = `${keyOrdersOfBookmaker}-${keyByUserAndTurnIndex}-t`;
+    // const result = await this.redisService.hgetall(mergeKey1);
+    // this.redisService.set(keyOrdersOfBookmaker, dataByBookmaker);
+  }
+
 
   transformOrderToObject(order: any) {
     const { numbers } = OrderHelper.getInfoDetailOfOrder(order);
