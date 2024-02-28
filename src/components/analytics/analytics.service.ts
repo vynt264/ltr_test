@@ -651,6 +651,28 @@ export class AnalyticsService {
             }
           }
         }
+
+        let litNumFindNe: any = []
+        for (const item of arrAwards) {
+          litNumFindNe = []
+          for (const number of [item[7][0], item[0][0]]) {
+            const lastThreeDigits = number.slice(-3)
+            litNumFind.push(lastThreeDigits)
+          }
+
+          Object.keys(countMapShow).forEach((key: any) => {
+            if (!litNumFindNe.includes(key)) {
+              countMapShow[key] += 1;
+            }
+          });
+  
+          litNumFindNe.forEach((key: any) => {
+            if (countMapShow.hasOwnProperty(key)) {
+              countMapShow[key] = 0;
+            }
+          });
+        }
+        
         break;
     }
 
