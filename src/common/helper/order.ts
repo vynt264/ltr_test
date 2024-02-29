@@ -973,11 +973,11 @@ export class OrderHelper {
     }
 
     static getKeySaveUserIdsByBookmaker(bookmakerId: string) {
-        return `bookmaker-id-${bookmakerId}-users`;
+        return `bookmaker-id-${bookmakerId}-real-users`;
     }
 
     static getKeySaveUserIdsFakeByBookmaker(bookmakerId: string) {
-        return `bookmaker-id-${bookmakerId}-fake-users`;
+        return `bookmaker-id-${bookmakerId}-test-player`;
     }
 
     static getKeySaveOrdersOfBookmakerAndTypeGame(bookmakerId: string, gameType: string) {
@@ -1840,5 +1840,16 @@ export class OrderHelper {
         }
 
         return dataReal;
+    }
+
+    static getUserIdsOfBookmaker(userIds: any) {
+        if (!userIds) return;
+
+        const ids = [];
+        for (const key in userIds) {
+            ids.push(key.toString());
+        }
+
+        return ids;
     }
 }

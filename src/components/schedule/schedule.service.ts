@@ -337,7 +337,9 @@ export class ScheduleService implements OnModuleInit {
 
         // get all userId of bookmaker
         const keyGetUserIds = OrderHelper.getKeySaveUserIdsByBookmaker(bookmakerId.toString());
-        let userIds: any = await this.redisService.get(keyGetUserIds);
+        let userIds: any = await this.redisService.hgetall(keyGetUserIds);
+        userIds = OrderHelper.getUserIdsOfBookmaker(userIds);
+        // let userIds: any = await this.redisService.get(keyGetUserIds);
         if (!userIds) return;
 
         // get orders of bookmaker by game type (example: sxmb45s)
@@ -438,7 +440,7 @@ export class ScheduleService implements OnModuleInit {
             // save wallet history
             const createWalletHis: any = {
                 id: wallet.id,
-                user: { id: userId },
+                user: { id: Number(userId) },
                 subOrAdd: 1,
                 amount: totalBalance,
                 detail: `Xổ số nhanh - Cộng tiền thắng`,
@@ -507,7 +509,9 @@ export class ScheduleService implements OnModuleInit {
 
         // get all userId of bookmaker
         const keyGetUserIds = OrderHelper.getKeySaveUserIdsFakeByBookmaker(bookmakerId.toString());
-        let userIds: any = await this.redisService.get(keyGetUserIds);
+        // let userIds: any = await this.redisService.get(keyGetUserIds);
+        let userIds: any = await this.redisService.hgetall(keyGetUserIds);
+        userIds = OrderHelper.getUserIdsOfBookmaker(userIds);
         if (!userIds) return;
 
         // get orders of bookmaker by game type (example: sxmb45s)

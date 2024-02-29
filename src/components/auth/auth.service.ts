@@ -133,16 +133,31 @@ export class AuthService {
     if (user.usernameReal) {
       key = OrderHelper.getKeySaveUserIdsFakeByBookmaker(bookmakerId);
     }
-    let userIds: any = await this.redisService.get(key);
-    if (!userIds) {
-      userIds = [];
+
+    const userIds = await this.redisService.hgetall(`${key}`);
+    let hasUserId = false;
+
+    for (const key in userIds) {
+      if (key.toString() === user.id.toString()) {
+        hasUserId = true;
+        break;
+      }
     }
-    userIds = userIds.filter((id: string) => id !== null);
-    const hasUserId = userIds.some((id: any) => id.toString() === user.id.toString());
+
     if (!hasUserId) {
-      userIds.push(user.id);
+      await this.redisService.hset(`${key}`, `${user.id.toString()}`, JSON.stringify(user?.username));
     }
-    await this.redisService.set(key, userIds);
+
+    // let userIds: any = await this.redisService.get(key);
+    // if (!userIds) {
+    //   userIds = [];
+    // }
+    // userIds = userIds.filter((id: string) => id !== null);
+    // const hasUserId = userIds.some((id: any) => id.toString() === user.id.toString());
+    // if (!hasUserId) {
+    //   userIds.push(user.id);
+    // }
+    // await this.redisService.set(key, userIds);
 
     let userHistoryDto = new CreateUserHistoryDto();
     userHistoryDto = {
