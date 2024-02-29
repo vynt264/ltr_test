@@ -17,9 +17,12 @@ export class MaintenanceService {
   }
 
   async findAll() {
-    const result = await this.maintenanceRepository.find();
-
-    return result?.[0] || {};
+    const result = await this.maintenanceRepository.find({
+      where: {
+        isDeleted: false,
+      }
+    });
+    return result;
   }
 
   findOne(id: number) {
@@ -34,7 +37,13 @@ export class MaintenanceService {
     return this.maintenanceRepository.update(id, updateMaintenanceDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} maintenance`;
+  async remove(id: number) {
+    const findObj = await this.findOne(id);
+    const upObj = {
+      ...findObj,
+      isDeleted: true,
+    }
+    await this.maintenanceRepository.update(id, upObj);
+    return upObj;
   }
 }
