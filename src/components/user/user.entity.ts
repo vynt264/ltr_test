@@ -98,6 +98,8 @@ export class User {
 
   @BeforeInsert()
   async hashPassword() {
+    if (!this.password) return;
+    
     const salt = await bcrypt.genSalt(BcryptSalt.SALT_ROUND);
     this.password = await bcrypt.hash(this.password, salt);
   }
