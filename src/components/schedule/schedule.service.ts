@@ -413,7 +413,7 @@ export class ScheduleService implements OnModuleInit {
             await Promise.all(promises);
 
             // check nuoi so
-            this.handlerHoldingNumbers({
+            const { refunds } = await this.handlerHoldingNumbers({
                 winningPlayerOrders,
                 bookmakerId,
                 userId,
@@ -421,7 +421,7 @@ export class ScheduleService implements OnModuleInit {
             });
 
             const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
-            const remainBalance = +wallet.balance + totalBalance;
+            const remainBalance = +wallet.balance + totalBalance + refunds;
             await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
 
             // save wallet history
@@ -450,25 +450,31 @@ export class ScheduleService implements OnModuleInit {
         userId,
         usernameReal,
     }: any) {
-        if (!winningPlayerOrders || winningPlayerOrders.length === 0) return;
+        let refunds = 0;
+
+        if (!winningPlayerOrders || winningPlayerOrders.length === 0) return {
+            refunds,
+        };
 
         const promises = [];
-
         for (const orderId of winningPlayerOrders) {
             const order = await this.ordersService.findOne(+orderId);
             if (!order?.holdingNumber?.id) continue;
 
             const holdingNumber = await this.holdingNumbersService.findOne(+order.holdingNumber.id);
 
-            if (!holdingNumber.isStop) return;
+            if (!holdingNumber.isStop) continue;
 
             const orders = await this.ordersService.findOrdersByHoldingNumberId(holdingNumber.id);
 
-            if (!orders || orders.length === 0) return;
+            if (!orders || orders.length === 0) continue;
 
+            // remove next orders
             for (const order of orders) {
                 const tempOrder = await this.ordersService.findOne(order.id);
                 if (tempOrder.status === ORDER_STATUS.canceled || tempOrder.status === ORDER_STATUS.closed) continue;
+
+                refunds += Number(tempOrder.revenue);
 
                 await this.ordersService.removeOrderFromRedis({
                     order,
@@ -482,8 +488,11 @@ export class ScheduleService implements OnModuleInit {
                 );
             }
         }
-
         await Promise.all(promises);
+
+        return {
+            refunds,
+        }
     }
 
     async handleBalanceIsTestPlayer({
@@ -571,7 +580,7 @@ export class ScheduleService implements OnModuleInit {
             await Promise.all(promises);
 
             // check nuoi so
-            this.handlerHoldingNumbers({
+            const { refunds } = await this.handlerHoldingNumbers({
                 winningPlayerOrders,
                 bookmakerId,
                 userId,
@@ -579,7 +588,7 @@ export class ScheduleService implements OnModuleInit {
             });
 
             const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
-            const remainBalance = +wallet.balance + totalBalance;
+            const remainBalance = +wallet.balance + totalBalance + refunds;
             await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
 
             this.logger.info(`userId ${userId} test player send event payment`);

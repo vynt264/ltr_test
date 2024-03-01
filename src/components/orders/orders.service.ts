@@ -682,7 +682,7 @@ export class OrdersService {
     const result: any = [];
     let currentBoiSo = boiSo;
     let openTime = OrderHelper.getOpenTime(seconds);
-    let nextTurnIndex = currentIndex;
+    let nextTurnIndex = Number(currentIndex);
     let totalAmount = 0;
     let isValidAmount = false;
     let count = 0;
@@ -708,7 +708,7 @@ export class OrdersService {
 
       result.push({
         openTime,
-        turnIndex: `${DateTimeHelper.formatDate(new Date())}-${nextTurnIndex}`,
+        turnIndex: `${DateTimeHelper.formatDate(new Date())}-${OrderHelper.getFullCharOfTurn(nextTurnIndex.toString())}`,
         multiple: currentBoiSo,
         betAmount: tempBetAmount,
       });
@@ -843,7 +843,7 @@ export class OrdersService {
       promises.push(this.redisService.hset(`${key}`, `${order.id}-${order.betType}-${order.childBetType}`, JSON.stringify(result)));
     }
 
-    return Promise.all(promises);
+    return await Promise.all(promises);
   }
 
   getDataToGenerateAward(orders: any, initData: any) {
