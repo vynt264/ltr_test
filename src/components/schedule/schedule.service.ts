@@ -444,18 +444,22 @@ export class ScheduleService implements OnModuleInit {
             const remainBalance = +wallet.balance + totalBalance + refunds;
             await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
 
-            // save wallet history
-            const createWalletHis: any = {
-                id: wallet.id,
-                user: { id: Number(userId) },
-                subOrAdd: 1,
-                amount: totalBalance,
-                detail: `Xổ số nhanh - Cộng tiền thắng`,
-                balance: remainBalance,
-                createdBy: ""
+
+            if ((totalBalance + refunds) > 0) {
+                // save wallet history
+                const createWalletHis: any = {
+                    id: wallet.id,
+                    user: { id: Number(userId) },
+                    subOrAdd: 1,
+                    amount: totalBalance + refunds,
+                    detail: `Xổ số nhanh - Cộng tiền thắng`,
+                    balance: remainBalance,
+                    createdBy: ""
+                }
+
+                const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+                await this.walletHistoryRepository.save(createdWalletHis);
             }
-            const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
-            await this.walletHistoryRepository.save(createdWalletHis);
 
             if (isTestPlayer) {
                 this.logger.info(`userId ${userId} test player send event payment`);

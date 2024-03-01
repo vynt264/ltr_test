@@ -796,6 +796,19 @@ export class OrdersService {
     const totalBetRemain = Number(wallet.balance) - totalBet;
     await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
 
+    // save wallet history
+    const createWalletHis: any = {
+      id: wallet.id,
+      user: { id: user.id },
+      subOrAdd: 0,
+      amount: totalBet,
+      detail: `Xổ số nhanh - Trừ tiền cược`,
+      balance: totalBetRemain,
+      createdBy: user.name,
+    }
+    const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+    this.walletHistoryRepository.save(createdWalletHis);
+
     return result;
   }
 
