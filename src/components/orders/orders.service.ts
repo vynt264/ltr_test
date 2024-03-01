@@ -333,6 +333,7 @@ export class OrdersService {
     const promisesCreateWinningNumbers = [];
     const promisesUpdatedOrders = [];
     let totalBalance = 0;
+    const ordersWin = [];
     for (const order of result) {
       const objOrder = this.transformOrderToObject(order);
       const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
@@ -342,6 +343,16 @@ export class OrdersService {
       });
 
       totalBalance += winningAmount;
+
+      if (realWinningAmount > 0) {
+        ordersWin.push({
+          typeBetName: OrderHelper.getCategoryLotteryTypeName(order.betType),
+          childBetType: OrderHelper.getChildBetTypeName(order.childBetType),
+          orderId: order.id,
+          type: `${order.type}${order.seconds}s`,
+          amount: realWinningAmount,
+        });
+      }
 
       if (winningNumbers.length > 0) {
         promisesCreateWinningNumbers.push(
@@ -391,6 +402,7 @@ export class OrdersService {
     this.walletHistoryRepository.save(createdWalletHisWin);
 
     return {
+      ordersWin,
       type: `${data.orders[0].type}${seconds}s`,
       awardDetail: finalResult,
       openTime: turnIndex.split('-')[1],
