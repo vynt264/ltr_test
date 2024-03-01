@@ -6,4 +6,5 @@ export interface JwtPayload {
   nickname: string;
   bookmakerId: number;
   usernameReal?: string;
+  id?: string;
 }

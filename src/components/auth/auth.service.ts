@@ -65,7 +65,8 @@ export class AuthService {
   }
 
   async generateToken(
-    user: UserInterface & DeviceInterface
+    // user: UserInterface & DeviceInterface
+    user: any
   ): Promise<JWTResult> {
     const jwtPayload: JwtPayload = {
       sub: user.id,
@@ -127,37 +128,10 @@ export class AuthService {
       nickname: user.username,
       bookmakerId: userFInd?.bookmaker?.id || 1,
       usernameReal: user.usernameReal,
+      id: user.id.toString(),
     };
 
-    let key = OrderHelper.getKeySaveUserIdsByBookmaker(bookmakerId);
-    if (user.usernameReal) {
-      key = OrderHelper.getKeySaveUserIdsFakeByBookmaker(bookmakerId);
-    }
-
-    const userIds = await this.redisService.hgetall(`${key}`);
-    let hasUserId = false;
-
-    for (const key in userIds) {
-      if (key.toString() === user.id.toString()) {
-        hasUserId = true;
-        break;
-      }
-    }
-
-    if (!hasUserId) {
-      await this.redisService.hset(`${key}`, `${user.id.toString()}`, JSON.stringify(user?.username));
-    }
-
-    // let userIds: any = await this.redisService.get(key);
-    // if (!userIds) {
-    //   userIds = [];
-    // }
-    // userIds = userIds.filter((id: string) => id !== null);
-    // const hasUserId = userIds.some((id: any) => id.toString() === user.id.toString());
-    // if (!hasUserId) {
-    //   userIds.push(user.id);
-    // }
-    // await this.redisService.set(key, userIds);
+    await this.saveUserIdIntoRedis(jwtPayload);
 
     let userHistoryDto = new CreateUserHistoryDto();
     userHistoryDto = {
@@ -246,7 +220,28 @@ export class AuthService {
     return true;
   }
 
-  async isNotAdmin(username: string, sign: string, isFake: boolean) {
+  async userLogin(username: string, sign: string) {
+    const passwordDf = ConfigSys.config().password;
+    const user = await this.checkUser(username, passwordDf);
+    const infoGenerateToken = {
+      ... {
+        id: user.id,
+        isAuth: user.isAuth,
+        password: user.password,
+        username: user.username,
+        role: user.role,
+        bookmakerId: user?.bookmaker?.id || 1,
+        usernameReal: user?.usernameReal,
+      },
+      username,
+    };
+
+    await this.saveUserIdIntoRedis(infoGenerateToken);
+
+    return infoGenerateToken;
+  }
+
+  async isNotAdmin(username: string, sign: string) {
     // if (!isFake) await this.connectService.logIn(username, sign);
     const passwordDf = ConfigSys.config().password;
     return this.checkUser(username, passwordDf);
@@ -364,7 +359,7 @@ export class AuthService {
         createdBy: user.username,
       }
       const createtedWalletInout = await this.walletInoutRepository.create(walletInoutCreate);
-      await this.walletInoutRepository.save(createtedWalletInout); 
+      await this.walletInoutRepository.save(createtedWalletInout);
     }
 
     return user
@@ -382,7 +377,35 @@ export class AuthService {
     return user;
   }
 
+  async adminLogin(username: string, password: string) {
+    const user = await this.userService.getByUsername(username);
+
+    if (!user) throw new BadRequestException(`${username} is not found`);
+
+    return user;
+  }
+
   async deleteBacklist() {
     await this.backlistService.deleteBacklist();
+  }
+
+  async saveUserIdIntoRedis(infoGenerateToken: any) {
+    let key = OrderHelper.getKeySaveUserIdsByBookmaker(infoGenerateToken?.bookmakerId.toString());
+    if (infoGenerateToken.usernameReal) {
+      key = OrderHelper.getKeySaveUserIdsFakeByBookmaker(infoGenerateToken?.bookmakerId.toString());
+    }
+
+    let hasUserId = false;
+    const userIds = await this.redisService.hgetall(`${key}`);
+    for (const key in userIds) {
+      if (key.toString() === infoGenerateToken.id.toString()) {
+        hasUserId = true;
+        break;
+      }
+    }
+
+    if (hasUserId) return;
+
+    return await this.redisService.hset(`${key}`, `${infoGenerateToken.id.toString()}`, JSON.stringify(infoGenerateToken.username));
   }
 }
