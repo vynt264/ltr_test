@@ -339,26 +339,13 @@ export class ScheduleService implements OnModuleInit {
         const keyGetUserIds = OrderHelper.getKeySaveUserIdsByBookmaker(bookmakerId.toString());
         let userIds: any = await this.redisService.hgetall(keyGetUserIds);
         userIds = OrderHelper.getUserIdsOfBookmaker(userIds);
-        // let userIds: any = await this.redisService.get(keyGetUserIds);
         if (!userIds) return;
 
         // get orders of bookmaker by game type (example: sxmb45s)
         const keyOrdersOfBookmakerAndGameType = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookmakerId.toString(), gameType);
-        // const ordersOfBookmakerAndGameType: any = await this.redisService.get(keyOrdersOfBookmakerAndGameType);
-        // if (!ordersOfBookmakerAndGameType || Object.keys(ordersOfBookmakerAndGameType).length === 0) {
-        //     this.logger.info(`orders of bookmakerId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
-        //     return;
-        // }
-
         const winningPlayerOrders = []; // order users thang cuoc.
-
         for (const userId of userIds) {
             const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), turnIndex);
-            // let ordersOfUser;
-            // if (userId) {
-            //     ordersOfUser = ordersOfBookmakerAndGameType?.[keyByUserAndTurnIndex] || null;
-            // }
-
             const mergeKey = `${keyOrdersOfBookmakerAndGameType}-${keyByUserAndTurnIndex}`;
             const ordersOfUser = await this.redisService.hgetall(mergeKey);
 
@@ -426,7 +413,7 @@ export class ScheduleService implements OnModuleInit {
             await Promise.all(promises);
 
             // check nuoi so
-            this.handlerHoldingNumbers({
+            const { refunds } = await this.handlerHoldingNumbers({
                 winningPlayerOrders,
                 bookmakerId,
                 userId,
@@ -434,7 +421,7 @@ export class ScheduleService implements OnModuleInit {
             });
 
             const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
-            const remainBalance = +wallet.balance + totalBalance;
+            const remainBalance = +wallet.balance + totalBalance + refunds;
             await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
 
             // save wallet history
@@ -455,7 +442,6 @@ export class ScheduleService implements OnModuleInit {
                 ordersWin,
             });
         }
-        //await this.redisService.del(keyOrdersOfBookmaker);
     }
 
     async handlerHoldingNumbers({
@@ -464,25 +450,31 @@ export class ScheduleService implements OnModuleInit {
         userId,
         usernameReal,
     }: any) {
-        if (!winningPlayerOrders || winningPlayerOrders.length === 0) return;
+        let refunds = 0;
+
+        if (!winningPlayerOrders || winningPlayerOrders.length === 0) return {
+            refunds,
+        };
 
         const promises = [];
-
         for (const orderId of winningPlayerOrders) {
             const order = await this.ordersService.findOne(+orderId);
             if (!order?.holdingNumber?.id) continue;
 
             const holdingNumber = await this.holdingNumbersService.findOne(+order.holdingNumber.id);
 
-            if (!holdingNumber.isStop) return;
+            if (!holdingNumber.isStop) continue;
 
             const orders = await this.ordersService.findOrdersByHoldingNumberId(holdingNumber.id);
 
-            if (!orders || orders.length === 0) return;
+            if (!orders || orders.length === 0) continue;
 
+            // remove next orders
             for (const order of orders) {
                 const tempOrder = await this.ordersService.findOne(order.id);
                 if (tempOrder.status === ORDER_STATUS.canceled || tempOrder.status === ORDER_STATUS.closed) continue;
+
+                refunds += Number(tempOrder.revenue);
 
                 await this.ordersService.removeOrderFromRedis({
                     order,
@@ -496,8 +488,11 @@ export class ScheduleService implements OnModuleInit {
                 );
             }
         }
-
         await Promise.all(promises);
+
+        return {
+            refunds,
+        }
     }
 
     async handleBalanceIsTestPlayer({
@@ -509,28 +504,16 @@ export class ScheduleService implements OnModuleInit {
 
         // get all userId of bookmaker
         const keyGetUserIds = OrderHelper.getKeySaveUserIdsFakeByBookmaker(bookmakerId.toString());
-        // let userIds: any = await this.redisService.get(keyGetUserIds);
         let userIds: any = await this.redisService.hgetall(keyGetUserIds);
         userIds = OrderHelper.getUserIdsOfBookmaker(userIds);
         if (!userIds) return;
 
         // get orders of bookmaker by game type (example: sxmb45s)
         const keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId.toString(), gameType);
-        // const ordersOfBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
-        // if (!ordersOfBookmaker || Object.keys(ordersOfBookmaker).length === 0) {
-        //     this.logger.info(`orders fake of bookmakerId ${keyOrdersOfBookmaker}-${turnIndex} is not found.`);
-        //     return;
-        // }
-
         const winningPlayerOrders = []; // order users thang cuoc.
 
         for (const userId of userIds) {
             const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), turnIndex);
-            // let ordersOfUser;
-            // if (userId) {
-            //     ordersOfUser = ordersOfBookmaker?.[`user-id-${userId}-${turnIndex}`] || null;
-            // }
-
             const mergeKey = `${keyOrdersOfBookmaker}-${keyByUserAndTurnIndex}`;
             const ordersOfUser = await this.redisService.hgetall(mergeKey);
 
@@ -597,7 +580,7 @@ export class ScheduleService implements OnModuleInit {
             await Promise.all(promises);
 
             // check nuoi so
-            this.handlerHoldingNumbers({
+            const { refunds } = await this.handlerHoldingNumbers({
                 winningPlayerOrders,
                 bookmakerId,
                 userId,
@@ -605,13 +588,12 @@ export class ScheduleService implements OnModuleInit {
             });
 
             const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
-            const remainBalance = +wallet.balance + totalBalance;
+            const remainBalance = +wallet.balance + totalBalance + refunds;
             await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
 
             this.logger.info(`userId ${userId} test player send event payment`);
             this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {});
         }
-        //await this.redisService.del(keyOrdersOfBookmaker);
     }
 
     async clearDataInRedis() {

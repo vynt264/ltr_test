@@ -53,8 +53,12 @@ export class OrdersService {
     await OrderHelper.isValidTimeOrder(currentTime, seconds);
 
     // validate orders
+    let isTestPlayer = false;
+    if (member.usernameReal) {
+      isTestPlayer = true;
+    }
     const turnIndex = OrderHelper.getTurnIndex(seconds);
-    const ordersBefore = await this.getOrdersBeforeInTurn(data.orders, turnIndex);
+    const ordersBefore = await this.getOrdersBeforeInTurn(data.orders, turnIndex, isTestPlayer);
     await OrderValidate.validateOrders(data?.orders || [], ordersBefore, turnIndex);
 
     const openTime = OrderHelper.getOpenTime(seconds);
@@ -678,7 +682,7 @@ export class OrdersService {
     const result: any = [];
     let currentBoiSo = boiSo;
     let openTime = OrderHelper.getOpenTime(seconds);
-    let nextTurnIndex = currentIndex;
+    let nextTurnIndex = Number(currentIndex);
     let totalAmount = 0;
     let isValidAmount = false;
     let count = 0;
@@ -704,7 +708,7 @@ export class OrdersService {
 
       result.push({
         openTime,
-        turnIndex: `${DateTimeHelper.formatDate(new Date())}-${nextTurnIndex}`,
+        turnIndex: `${DateTimeHelper.formatDate(new Date())}-${OrderHelper.getFullCharOfTurn(nextTurnIndex.toString())}`,
         multiple: currentBoiSo,
         betAmount: tempBetAmount,
       });
@@ -738,8 +742,12 @@ export class OrdersService {
     await OrderHelper.isValidTimeOrder(currentTime, seconds);
 
     // validate orders
+    let isTestPlayer = false;
+    if (user.usernameReal) {
+      isTestPlayer = true;
+    }
     const turnIndex = OrderHelper.getTurnIndex(seconds);
-    const ordersBefore = await this.getOrdersBeforeInTurn(data.orders, turnIndex);
+    const ordersBefore = await this.getOrdersBeforeInTurn(data.orders, turnIndex, isTestPlayer);
     await OrderValidate.validateOrders(data?.orders || [], ordersBefore, turnIndex);
 
     // check balance
@@ -835,7 +843,7 @@ export class OrdersService {
       promises.push(this.redisService.hset(`${key}`, `${order.id}-${order.betType}-${order.childBetType}`, JSON.stringify(result)));
     }
 
-    return Promise.all(promises);
+    return await Promise.all(promises);
   }
 
   getDataToGenerateAward(orders: any, initData: any) {
@@ -1030,11 +1038,12 @@ export class OrdersService {
     return data;
   }
 
-  getNumberOfBetsFromTurnIndex(order: any, turnIndex: string) {
+  getNumberOfBetsFromTurnIndex(order: any, turnIndex: string, isTestPlayer: boolean) {
     const seconds = OrderHelper.getPlayingTimeByType(order.type);
     const type = OrderHelper.getTypeLottery(order.type);
     return this.orderRequestRepository.find({
       where: {
+        isTestPlayer,
         turnIndex,
         type,
         seconds,
@@ -1055,12 +1064,12 @@ export class OrdersService {
     }
   }
 
-  async getOrdersBeforeInTurn(orders: any, turnIndex: string) {
+  async getOrdersBeforeInTurn(orders: any, turnIndex: string, isTestPlayer: boolean) {
     if (!orders) return [];
 
     const promises = [];
     for (const order of orders) {
-      promises.push(this.getNumberOfBetsFromTurnIndex(order, turnIndex));
+      promises.push(this.getNumberOfBetsFromTurnIndex(order, turnIndex, isTestPlayer));
     }
     const result = await Promise.all(promises);
 

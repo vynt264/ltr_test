@@ -1023,8 +1023,9 @@ export class OrderHelper {
         const timeStartDay = startOfDay(new Date());
         const fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
         const toDate = (new Date()).getTime();
+        const turn = Math.ceil(((toDate - fromDate) / 1000) / seconds);
 
-        return Math.ceil(((toDate - fromDate) / 1000) / seconds);
+        return this.getFullCharOfTurn(turn.toString());
     }
 
     static getOpenTime(seconds: number) {
