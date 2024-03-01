@@ -16,13 +16,10 @@ import { JwtAuthGuard } from "./jwt/jwt-auth.guard";
 import { RateLimitGuard } from "./rate.guard/rate.limit.guard";
 import { RtAuthGuard } from "./rt/jwt-auth.guard";
 import { genRandom } from "../sys.config/enums/sys.config.enum";
-import { Roles } from "./roles.guard/roles.decorator";
-import { RolesGuard } from "./roles.guard/roles.guard";
 import { UserRoles } from "../user/enums/user.enum";
 import { CreateUserFakeDto } from "./dto/createUserFake";
 import { RedisCacheService } from "src/system/redis/redis.service";
 import { Cron } from "@nestjs/schedule";
-import { OrderHelper } from "src/common/helper";
 
 @ApiTags("Auth")
 @Controller("api/v1/auth")
@@ -34,7 +31,6 @@ export class AuthController {
   ) { }
 
   @Post("login")
-  // @UseGuards(LocalAuthGuard)
   @ApiOperation({
     description:
       "In general, logon is the procedure used to get access to an operating system or application.",
@@ -46,46 +42,28 @@ export class AuthController {
     @Request() req: any,
     @Body() loginDto: LoginDto
   ): Promise<JWTResult> {
-    const { ip, mac, is_admin: isAdmin, username, sign, is_fake: isFake } = loginDto;
-    let user: any;
-    if (isAdmin) {
-      user = await this.authService.valiRole(username, isAdmin);
-    } else {
-      user = await this.authService.isNotAdmin(username, sign, isFake);
-    }
-
-    user = {
-      ... {
-        id: user.id,
-        isAuth: user.isAuth,
-        password: user.password,
-        username: user.username,
-        role: user.role,
-        bookmakerId: user?.bookmaker?.id || 1,
-        usernameReal: user?.usernameReal,
-      },
-      ip,
-      mac,
+    const {
+      sign,
       username,
-    };
+    } = loginDto;
+    const user = await this.authService.userLogin(username, sign);
 
-    let key = OrderHelper.getKeySaveUserIdsByBookmaker(user?.bookmakerId);
-    if (user.usernameReal) {
-      key = OrderHelper.getKeySaveUserIdsFakeByBookmaker(user?.bookmakerId);
-    }
+    return this.authService.generateToken(user);
+  }
 
-    let hasUserId = false;
-    const userIds = await this.redisService.hgetall(`${key}`);
-    for (const key in userIds) {
-      if (key.toString() === user.id.toString()) {
-        hasUserId = true;
-        break;
-      }
-    }
-
-    if (!hasUserId) {
-      await this.redisService.hset(`${key}`, `${user.id.toString()}`, JSON.stringify(user.username));
-    }
+  @Post("admin-login")
+  @ApiOperation({
+    description: "Login in page admin"
+  })
+  async adminLogin(
+    @Request() req: any,
+    @Body() loginDto: LoginDto,
+  ): Promise<JWTResult> {
+    const {
+      password,
+      username,
+    } = loginDto;
+    const user = await this.authService.adminLogin(username, password);
 
     return this.authService.generateToken(user);
   }
