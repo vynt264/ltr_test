@@ -731,7 +731,7 @@ export class OrdersService {
           nextTurnIndex += 1;
           result.push({
             openTime,
-            turnIndex: `${DateTimeHelper.formatDate(new Date())}-${nextTurnIndex}`,
+            turnIndex: `${DateTimeHelper.formatDate(new Date())}-${OrderHelper.getFullCharOfTurn(nextTurnIndex.toString())}`,
             multiple: 0,
             betAmount: 0,
           });
