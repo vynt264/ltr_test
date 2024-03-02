@@ -20,6 +20,8 @@ import { UserRoles } from "../user/enums/user.enum";
 import { CreateUserFakeDto } from "./dto/createUserFake";
 import { RedisCacheService } from "src/system/redis/redis.service";
 import { Cron } from "@nestjs/schedule";
+import { LoginNewDto } from "./dto/loginNew.dto";
+import { Helper } from "src/common/helper";
 
 @ApiTags("Auth")
 @Controller("api/v1/auth")
@@ -29,6 +31,25 @@ export class AuthController {
     private authService: AuthService,
     private readonly redisService: RedisCacheService,
   ) { }
+
+  @Post("login-new")
+  @ApiOperation({
+    description: "test login from url response from verifyAccount",
+  })
+  @ApiOkResponse({
+    type: Response<JWTResult>,
+  })
+  async loginNew(@Body() loginNewDto: LoginNewDto) {
+    const parms = loginNewDto.params;
+    const deParams = Helper.decryptData(parms);
+    const findTxt = deParams.indexOf("&");
+    const username = deParams.substring(9, findTxt);
+    const bookmakerId = deParams.substring(findTxt + 13);
+
+    const user = await this.authService.userLoginNew(username);
+
+    return this.authService.generateToken(user);
+  }
 
   @Post("login")
   @ApiOperation({

@@ -220,6 +220,27 @@ export class AuthService {
     return true;
   }
 
+  async userLoginNew(username: string) {
+    const passwordDf = ConfigSys.config().password;
+    const user = await this.checkUser(username, passwordDf);
+    const infoGenerateToken = {
+      ... {
+        id: user.id,
+        isAuth: user.isAuth,
+        password: user.password,
+        username: user.username,
+        role: user.role,
+        bookmakerId: user?.bookmaker?.id || 1,
+        usernameReal: user?.usernameReal,
+      },
+      username,
+    };
+
+    await this.saveUserIdIntoRedis(infoGenerateToken);
+
+    return infoGenerateToken;
+  }
+
   async userLogin(username: string, sign: string) {
     const passwordDf = ConfigSys.config().password;
     const user = await this.checkUser(username, passwordDf);

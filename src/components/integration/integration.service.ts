@@ -97,7 +97,7 @@ export class IntegrationService {
       }
 
       const params = Helper.encryptData(
-        `username=${verifyAccountDto.bookmakerId}|${usernameEncrypt}`
+        `username=${verifyAccountDto.username}&bookmakerId=${verifyAccountDto.bookmakerId}`
       );
       const url = `http://vntop.game.game8b.com/?params=${params}`
 
