@@ -33,6 +33,9 @@ export class PlayHistoryPoker {
   revenue: number;
 
   @Column({ nullable: true })
+  multi: number;
+
+  @Column({ nullable: true })
   paymentWin: number;
 
   @Column({ nullable: true })
