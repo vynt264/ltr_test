@@ -27,11 +27,13 @@ import { JwtAuthGuard } from "./../auth/jwt/jwt-auth.guard";
 import { Device } from "./device.entity";
 import { DeviceService } from "./device.service";
 import { CreateDeviceDto, UpdateDeviceDto } from "./dto/index";
+import { AuthGuard } from "../auth/guards/auth.guard";
 
 @Controller("/api/v1/device")
 @ApiTags("Device")
 @ApiBearerAuth("Authorization")
-@UseGuards(JwtAuthGuard, BacklistGuard)
+// @UseGuards(JwtAuthGuard, BacklistGuard)
+@UseGuards(AuthGuard, BacklistGuard)
 export class DeviceController {
   constructor(private deviceService: DeviceService) {}
 

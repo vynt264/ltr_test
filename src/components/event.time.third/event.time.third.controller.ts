@@ -32,6 +32,7 @@ import { CreateEventTimeDto, UpdateEventTimeDto } from "./dto/index";
 import { UpdateEventTimeIsLockDto } from "./dto/updateIsLock.dto";
 import { EventTime } from "./event.time.third.entity";
 import { EventTimeService } from "./event.time.third.service";
+import { AuthGuard } from "../auth/guards/auth.guard";
 
 @Controller("/api/v1/event-time")
 @ApiTags("Event-Time")
@@ -47,7 +48,8 @@ export class EventTimeController {
   @ApiOkResponse({
     type: Response<EventTime>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.EVENT_TIME_UPDATE)
   async create(@Body() eventTimeDto: CreateEventTimeDto): Promise<any> {
     return this.eventTimeService.create(eventTimeDto);
@@ -94,7 +96,8 @@ export class EventTimeController {
   @ApiOkResponse({
     type: Response<EventTime>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
     return this.eventTimeService.getOneById(id);
@@ -108,7 +111,8 @@ export class EventTimeController {
     type: Response<EventTime>,
   })
   @UsePipes(ValidationPipe)
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.EVENT_TIME_UPDATE)
   async update(
     @Param("id", ParseIntPipe) id: number,
@@ -125,7 +129,8 @@ export class EventTimeController {
     type: Response<EventTime>,
   })
   @UsePipes(ValidationPipe)
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.EVENT_TIME_UPDATE)
   async updateIsLock(
     @Param("id", ParseIntPipe) id: number,
@@ -138,7 +143,8 @@ export class EventTimeController {
   @ApiOperation({
     description: "Delete event-time",
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.EVENT_TIME_UPDATE)
   async delete(@Param("id") id: number): Promise<any> {
     return this.eventTimeService.delete(id);

@@ -26,10 +26,12 @@ import { UserRoles } from "../user/enums/user.enum";
 import { CreatePermissionDto, UpdatePermissionDto } from "./dto/index";
 import { Permission } from "./permission.entity";
 import { PermissionService } from "./permission.service";
+import { AuthGuard } from "../auth/guards/auth.guard";
 @Controller("/api/v1/permission")
 @ApiTags("Permissions")
 @ApiBearerAuth("Authorization")
-@UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+// @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+@UseGuards(AuthGuard, BacklistGuard, RolesGuard)
 @Roles(UserRoles.SUPPER)
 export class PermissionController {
   constructor(private permissionService: PermissionService) {}

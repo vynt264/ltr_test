@@ -36,6 +36,7 @@ import { RequestDetailDto } from "../lottery.request/dto/request.detail.dto";
 import { JwtAuthGuard } from "../auth/jwt/jwt-auth.guard";
 import { BacklistGuard } from "../backlist/backlist.guard";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
+import { AuthGuard } from "../auth/guards/auth.guard";
 
 @Controller("/api/v1/lotteryAward")
 @ApiTags("lotteryAward")
@@ -44,7 +45,8 @@ export class LotteryAwardController {
 
   @Post('')
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   async createLotteryAward(@Body() createLotteryAwardDto: CreateLotteryAwardDto): Promise<any> {
     return this.lotteryAwardService.createLotteryAward(createLotteryAwardDto);
   }
@@ -85,7 +87,8 @@ export class LotteryAwardController {
     return this.lotteryAwardService.getAllNotCheckBookmaker(paginationQueryDto);
   }
 
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   @Get("all")
   @ApiResponse({
     status: 2000,
@@ -167,7 +170,8 @@ export class LotteryAwardController {
     type: Response<LotteryAward[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   async userGetAll(
     @Query() paginationQueryDto: PaginationQueryDto,
     @Request() req: any
@@ -184,7 +188,8 @@ export class LotteryAwardController {
   })
   @Roles(UserRoles.SUPPER)
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
     return this.lotteryAwardService.getOneById(id);
   }
@@ -194,7 +199,8 @@ export class LotteryAwardController {
     description: "Delete lotteryAward",
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   @Roles(UserRoles.SUPPER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.lotteryAwardService.delete(id);

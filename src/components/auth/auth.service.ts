@@ -92,7 +92,7 @@ export class AuthService {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(jwtPayload, {
         secret: appConfig().atSecret,
-        expiresIn: "10d",
+        expiresIn: "1d",
       }),
       this.jwtService.signAsync(jwtPayload, {
         secret: appConfig().rtSecret,
@@ -208,6 +208,18 @@ export class AuthService {
     const rtMatches = await bcrypt.compare(rt, user?.result?.hashedRt);
 
     if (!rtMatches) throw new ForbiddenException("Access Denied");
+
+    const tokens = await this.generateToken(user.result);
+
+    return tokens;
+  }
+
+  async refreshToken(refreshToken: string) {
+    const res = await this.jwtService.verify(refreshToken, {
+      secret: appConfig().rtSecret,
+    });
+
+    const user = await this.userService.getOneById(res.sub);
 
     const tokens = await this.generateToken(user.result);
 

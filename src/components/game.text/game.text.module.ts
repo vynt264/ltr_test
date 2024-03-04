@@ -8,6 +8,7 @@ import { GameTextService } from "./game.text.service";
 import { SysConfig } from "../sys.config/sys.config.entity";
 import { SysConfigsModule } from "../sys.config/sys.config.module";
 import { ConnectModule } from "../connect/connect.module";
+import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ConnectModule } from "../connect/connect.module";
     UserModule,
     SysConfigsModule,
     ConnectModule,
+    JwtModule.register({}),
   ],
   controllers: [GameTextController],
   providers: [GameTextService],

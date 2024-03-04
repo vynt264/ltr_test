@@ -11,6 +11,7 @@ import { ConnectModule } from "../connect/connect.module";
 import { User } from "../user/user.entity";
 import { OrderRequestHis } from "./order.request.his.entity";
 import { OrderCodeQueue } from "./order.code.queue";
+import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { OrderCodeQueue } from "./order.code.queue";
     UserModule,
     SysConfigsModule,
     ConnectModule,
+    JwtModule.register({}),
   ],
   controllers: [OrderRequestController],
   providers: [OrderRequestService],

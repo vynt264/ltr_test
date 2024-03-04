@@ -35,6 +35,7 @@ import { CreateSysConfigsDto, UpdateSysConfigsDto } from "./dto/index";
 import { UpdateListSysConfigsDto } from "./dto/update.list.dto";
 import { SysConfig } from "./sys.config.entity";
 import { SysConfigsService } from "./sys.config.service";
+import { AuthGuard } from "../auth/guards/auth.guard";
 
 @Controller("/api/v1/SysConfigs")
 @ApiTags("SysConfigs")
@@ -50,7 +51,8 @@ export class SysConfigsController {
     type: Response<SysConfig>,
   })
   @UsePipes(ValidationPipe)
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async updateList(
     @Body() updateListSysConfigsDto: UpdateListSysConfigsDto,
@@ -109,7 +111,8 @@ export class SysConfigsController {
   @ApiOkResponse({
     type: Response<SysConfig>,
   })
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
     return this.sysConfigsService.getOneById(id);
   }
@@ -122,7 +125,8 @@ export class SysConfigsController {
     type: Response<SysConfig>,
   })
   @UsePipes(ValidationPipe)
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async update(
     @Param("id", ParseIntPipe) id: number,
@@ -139,7 +143,8 @@ export class SysConfigsController {
   @ApiOkResponse({
     type: Response<SysConfig>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async create(
     @Body() sysConfigsDto: CreateSysConfigsDto,
@@ -155,7 +160,8 @@ export class SysConfigsController {
   @ApiOkResponse({
     type: Response<SysConfig>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async createList(
     @Body() createSysConfigListDto: CreateListSysConfigsDto,
@@ -177,7 +183,8 @@ export class SysConfigsController {
   @ApiOperation({
     description: "Delete SysConfigs",
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async delete(@Param("id") id: number, @Request() res: any): Promise<any> {
     return this.sysConfigsService.delete(id, res.user);

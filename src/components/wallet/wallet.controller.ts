@@ -31,11 +31,13 @@ import { JwtAuthGuard } from "./../auth/jwt/jwt-auth.guard";
 import { CreateWalletDto, UpdateWalletDto } from "./dto/index";
 import { Wallet } from "./wallet.entity";
 import { WalletService } from "./wallet.service";
+import { AuthGuard } from "../auth/guards/auth.guard";
 
 @Controller("/api/v1/Wallet")
 @ApiTags("Wallet")
 @ApiBearerAuth("Authorization")
-@UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+// @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+@UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
 export class WalletController {
   constructor(private walletService: WalletService) {}
 

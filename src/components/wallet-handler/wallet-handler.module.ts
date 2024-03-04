@@ -4,11 +4,13 @@ import { WalletHandlerController } from './wallet-handler.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Wallet } from './entities/wallet.entity';
 import { BacklistModule } from '../backlist/backlist.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Wallet]),
     BacklistModule,
+    JwtModule.register({}),
   ],
   controllers: [WalletHandlerController],
   providers: [WalletHandlerService],

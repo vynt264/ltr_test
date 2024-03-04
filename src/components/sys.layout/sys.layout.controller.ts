@@ -33,6 +33,7 @@ import { CreateSysLayoutDto, UpdateSysLayoutDto } from "./dto/index";
 import { UserRoles } from "../user/enums/user.enum";
 import { SysLayout } from "./sys.layout.entity";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
+import { AuthGuard } from "../auth/guards/auth.guard";
 @Controller("/api/v1/sysLayout")
 @ApiTags("SysLayout")
 export class SysLayoutController {
@@ -57,7 +58,8 @@ export class SysLayoutController {
     type: Response<SysLayout>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async create(
     @Body() userDto: CreateSysLayoutDto,
@@ -75,7 +77,8 @@ export class SysLayoutController {
   })
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async updateSysLayout(
     @Param("id", ParseIntPipe) id: number,
@@ -90,7 +93,8 @@ export class SysLayoutController {
     description: "Delete SysLayout",
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.sysLayoutService.delete(id);
