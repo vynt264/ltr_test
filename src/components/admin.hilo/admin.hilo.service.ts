@@ -55,7 +55,7 @@ export class AdminHiloService {
   }
 
   queryHis(object: any) {
-    const data: any = {};
+    const data: any = { isUserFake: false };
     if (!object) {
       return data;
     }
