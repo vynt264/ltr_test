@@ -20,6 +20,9 @@ export class PlayHistoryPoker {
   @Column({ nullable: false })
   username: string;
 
+  @Column({ nullable: true, default: false })
+  isUserFake: boolean;
+
   @Column({ nullable: false })
   code: string;
 
