@@ -33,6 +33,7 @@ import {
   import { UserRoles } from "../user/enums/user.enum";
   import { PromotionHistories } from "./promotion.history.entity";
   import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
+import { AuthGuard } from "../auth/guards/auth.guard";
   @Controller("/api/v1/promotionHis")
   @ApiTags("PromotionHis")
   export class PromotionHistoriesController {
@@ -97,7 +98,8 @@ import {
     })
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
-    @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
     async updatePromotion(
       @Param("id", ParseIntPipe) id: number,
@@ -111,7 +113,8 @@ import {
       description: "Delete promotion histories",
     })
     @ApiBearerAuth("Authorization")
-    @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
     async delete(@Param("id") id: number): Promise<any> {
       return this.promotionHistoriesService.delete(id);

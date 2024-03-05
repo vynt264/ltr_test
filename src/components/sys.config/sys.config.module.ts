@@ -6,12 +6,14 @@ import { UserModule } from "../user/user.module";
 import { SysConfigsController } from "./sys.config.controller";
 import { SysConfig } from "./sys.config.entity";
 import { SysConfigsService } from "./sys.config.service";
+import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([SysConfig, User]),
     BacklistModule,
     UserModule,
+    JwtModule.register({}),
   ],
   controllers: [SysConfigsController],
   providers: [SysConfigsService],

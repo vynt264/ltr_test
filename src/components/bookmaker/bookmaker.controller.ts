@@ -33,6 +33,7 @@ import {
   import { UserRoles } from "../user/enums/user.enum";
   import { BookMaker } from "./bookmaker.entity";
   import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
+import { AuthGuard } from "../auth/guards/auth.guard";
   @Controller("/api/v1/bookMaker")
   @ApiTags("BookMaker")
   export class BookMakerController {
@@ -70,7 +71,8 @@ import {
       type: Response<BookMaker>,
     })
     @ApiBearerAuth("Authorization")
-    @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @Roles(UserRoles.SUPPER)
     async create(@Body() userDto: CreateBookMakerDto): Promise<any> {
       return this.bookMakerService.create(userDto);
@@ -85,7 +87,8 @@ import {
     })
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
-    @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @Roles(UserRoles.SUPPER)
     async updateBookMaker(
       @Param("id", ParseIntPipe) id: number,
@@ -100,7 +103,8 @@ import {
       description: "Delete BookMaker",
     })
     @ApiBearerAuth("Authorization")
-    @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @Roles(UserRoles.SUPPER)
     async delete(@Param("id") id: number): Promise<any> {
       return this.bookMakerService.delete(id);

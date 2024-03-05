@@ -33,6 +33,7 @@ import {
   import { UserRoles } from "../user/enums/user.enum";
   import { CoinWallet } from "./coin.wallet.entity";
   import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
+import { AuthGuard } from "../auth/guards/auth.guard";
   @Controller("/api/v1/coinWallet")
   @ApiTags("CoinWallet")
   export class CoinWalletController {
@@ -57,7 +58,8 @@ import {
       type: Response<CoinWallet>,
     })
     @ApiBearerAuth("Authorization")
-    @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
     async getByUserId(@Param("userId", ParseIntPipe) userId: number,): Promise<any> {
       return this.coinWalletService.getByUserId(userId);
     }
@@ -70,7 +72,8 @@ import {
       type: Response<CoinWallet>,
     })
     @ApiBearerAuth("Authorization")
-    @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
     // @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
     async create(@Body() userDto: CreateCoinWalletDto): Promise<any> {
       return this.coinWalletService.create(userDto);
@@ -85,7 +88,8 @@ import {
     })
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
-    @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @Roles(UserRoles.SUPPER)
     async updateCoinWallet(
       @Param("id", ParseIntPipe) id: number,
@@ -99,7 +103,8 @@ import {
       description: "Delete CoinWallet",
     })
     @ApiBearerAuth("Authorization")
-    @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @Roles(UserRoles.SUPPER)
     async delete(@Param("id") id: number): Promise<any> {
       return this.coinWalletService.delete(id);

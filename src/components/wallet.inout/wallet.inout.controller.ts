@@ -33,6 +33,7 @@ import {
   import { UserRoles } from "../user/enums/user.enum";
   import { WalletInout } from "./wallet.inout.entity";
   import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
+import { AuthGuard } from "../auth/guards/auth.guard";
   @Controller("/api/v1/walletInout")
   @ApiTags("WalletInout")
   export class WalletInoutController {
@@ -68,7 +69,8 @@ import {
       type: Response<WalletInout>,
     })
     @ApiBearerAuth("Authorization")
-    @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
     async create(@Body() userDto: CreateWalletInoutDto, @Request() req: any): Promise<any> {
       return this.walletInoutService.create(userDto, req.user);
@@ -83,7 +85,8 @@ import {
     })
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
-    @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
     async updateWalletInout(
       @Param("id", ParseIntPipe) id: number,
@@ -98,7 +101,8 @@ import {
       description: "Delete WalletInout",
     })
     @ApiBearerAuth("Authorization")
-    @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
     async delete(@Param("id") id: number): Promise<any> {
       return this.walletInoutService.delete(id);

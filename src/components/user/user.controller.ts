@@ -37,10 +37,12 @@ import { UserRoles } from "./enums/user.enum";
 import { User } from "./user.entity";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import PermissionUserDto from "./dto/permission.dto";
+import { AuthGuard } from "../auth/guards/auth.guard";
 @Controller("/api/v1/user")
 @ApiTags("user")
 @ApiBearerAuth("Authorization")
-@UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+// @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+@UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -51,7 +53,8 @@ export class UserController {
   @ApiOkResponse({
     type: Response<User>,
   })
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   async userGetInfo(@Request() req: any): Promise<any> {
     return this.userService.userGetInfo(req.user.id);
   }
@@ -63,7 +66,8 @@ export class UserController {
   @ApiOkResponse({
     type: Response<User>,
   })
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   async userUpdateInfo(
     @Body() userBeginner: UserUpdateDto,
     @Request() req: any
@@ -79,7 +83,8 @@ export class UserController {
   @ApiOkResponse({
     type: Response<User>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async create(@Body() userDto: CreateUserDto): Promise<any> {
     return this.userService.create(userDto);
@@ -92,7 +97,8 @@ export class UserController {
   @ApiOkResponse({
     type: Response<User[]>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.userService.getAll(paginationQuery);
@@ -105,7 +111,8 @@ export class UserController {
   @ApiOkResponse({
     type: Response<User>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
     return this.userService.getOneById(id);

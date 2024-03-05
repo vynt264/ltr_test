@@ -36,10 +36,12 @@ import {
 import { UserRoles } from "../user/enums/user.enum";
 import { UserInfo } from "./user.info.entity";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
+import { AuthGuard } from "../auth/guards/auth.guard";
 @Controller("/api/v1/userInfo")
 @ApiTags("userInfo")
 @ApiBearerAuth("Authorization")
-@UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+// @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+@UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
 export class UserInfoController {
   constructor(private userInfoService: UserInfoService) { }
 
@@ -50,7 +52,8 @@ export class UserInfoController {
   @ApiOkResponse({
     type: Response<UserInfo[]>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER)
   async GetAll(): Promise<any> {
     return this.userInfoService.getAll();
@@ -63,7 +66,8 @@ export class UserInfoController {
   @ApiOkResponse({
     type: Response<UserInfo>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async create(@Body() userDto: CreateUserInfoDto): Promise<any> {
     return this.userInfoService.create(userDto);
@@ -76,7 +80,8 @@ export class UserInfoController {
   @ApiOkResponse({
     type: Response<UserInfo>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   async GetOne(@Param("userId", ParseIntPipe) userId: number): Promise<any> {
     return this.userInfoService.getByUserId(userId);
   }
@@ -157,7 +162,8 @@ export class UserInfoController {
   @ApiOkResponse({
     type: Response<UserInfo>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   async GetDetailStatiscal(
     @Param("category") category: string,
     @Request() req: any,

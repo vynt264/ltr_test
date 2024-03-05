@@ -32,6 +32,7 @@ import { DataFake } from "./data.fake.entity";
 import { CreateDataFakeRequestDto } from "./dto/create.data.fake.dto";
 import { UpdateDataFakeRequestDto } from "./dto";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import { AuthGuard } from "../auth/guards/auth.guard";
 @Controller("/api/v1/newQuery")
 @ApiTags("NewQuery")
 @ApiBearerAuth("Authorization")
@@ -90,7 +91,8 @@ export class NewQueryController {
     type: Response<DataFake[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async getDataFake(
     @Param("key") key: string,
@@ -107,7 +109,8 @@ export class NewQueryController {
     type: Response<DataFake>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async create(@Body() createDto: CreateDataFakeRequestDto): Promise<any> {
     return this.newQueryService.createDataFake(createDto);
@@ -122,7 +125,8 @@ export class NewQueryController {
   })
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async updateGame(
     @Param("id", ParseIntPipe) id: number,
@@ -136,7 +140,8 @@ export class NewQueryController {
     description: "Delete data fake",
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.newQueryService.deleteDataFake(id);

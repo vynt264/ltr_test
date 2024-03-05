@@ -22,10 +22,11 @@ import { RedisCacheService } from "src/system/redis/redis.service";
 import { Cron } from "@nestjs/schedule";
 import { LoginNewDto } from "./dto/loginNew.dto";
 import { Helper } from "src/common/helper";
+import { AuthGuard } from "./guards/auth.guard";
 
 @ApiTags("Auth")
 @Controller("api/v1/auth")
-@UseGuards(RateLimitGuard)
+// @UseGuards(RateLimitGuard)
 export class AuthController {
   constructor(
     private authService: AuthService,
@@ -131,7 +132,8 @@ export class AuthController {
 
   @Post("logout")
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   @ApiOperation({
     description:
       "To exit a user account in a computer system, so that one is not recognized until signing in again.",
@@ -144,8 +146,8 @@ export class AuthController {
   }
 
   @Post("refresh")
-  @ApiBearerAuth("Authorization")
-  @UseGuards(RtAuthGuard)
+  // @ApiBearerAuth("Authorization")
+  // @UseGuards(RtAuthGuard)
   @ApiOperation({
     description:
       "When designing a web application, along with security authentication is one of the key parts. Authentication with tokens was a breakthrough in this regard, and the refresh token came to complement it and make it usable.",
@@ -155,6 +157,12 @@ export class AuthController {
     @GetCurrentUser("refreshToken") refreshToken: string
   ): Promise<JWTResult> {
     return this.authService.refreshTokens(userId, refreshToken);
+  }
+
+  @Post("refresh-token")
+  refresh(@Body() body: any) {
+    const { refreshToken } = body;
+    return this.authService.refreshToken(refreshToken);
   }
 
   @Cron("0 40 * * * *")

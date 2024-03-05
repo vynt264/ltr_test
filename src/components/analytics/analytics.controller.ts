@@ -30,11 +30,13 @@ import { BacklistGuard } from "../backlist/backlist.guard";
 import { RolesGuard } from "../auth/roles.guard/roles.guard";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { BodyAnalyticsDto } from "./dto/bodyAnalytics.dto";
+import { AuthGuard } from "../auth/guards/auth.guard";
 
 @Controller("/api/v1/analytics")
 @ApiTags("analytics")
 @ApiBearerAuth("Authorization")
-@UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+// @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+@UseGuards(AuthGuard, BacklistGuard)
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) { }
 

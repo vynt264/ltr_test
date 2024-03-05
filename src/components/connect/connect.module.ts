@@ -10,6 +10,7 @@ import { SysConfigsModule } from "../sys.config/sys.config.module";
 import { EventTime } from "./../event.time.third/event.time.third.entity";
 import { ConnectController } from "./connect.controller";
 import { ConnectService } from "./connect.service";
+import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ConnectService } from "./connect.service";
     BacklistModule,
     EventTimeModule,
     SysConfigsModule,
+    JwtModule.register({}),
   ],
   controllers: [ConnectController],
   providers: [ConnectService],

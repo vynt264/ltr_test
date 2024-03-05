@@ -7,13 +7,15 @@ import { BacklistGuard } from '../backlist/backlist.guard';
 import { RateLimitGuard } from '../auth/rate.guard/rate.limit.guard';
 import { Roles } from '../auth/roles.guard/roles.decorator';
 import { UserRoles } from '../user/enums/user.enum';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Controller('api/v1/winning-numbers')
 export class WinningNumbersController {
   constructor(private readonly winningNumbersService: WinningNumbersService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   create(@Body() createWinningNumberDto: CreateWinningNumberDto) {
     return this.winningNumbersService.create(createWinningNumberDto);
   }
