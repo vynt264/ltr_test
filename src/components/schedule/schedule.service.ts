@@ -150,36 +150,17 @@ export class ScheduleService implements OnModuleInit {
             nextTurnIndex,
         });
 
-        // let data = await this.redisService.get(keyToGetOrders);
-        // let dataOfTestPlayer = await this.redisService.get(keyToGetOrdersOfTestPlayer);
-
-        // real users
+        // real player
         const keyToGetOrdersOfRealUser = OrderHelper.getKeyPrepareOrders(bookmakerId.toString(), gameType, turnIndex);
         const ordersReal = await this.redisService.hgetall(keyToGetOrdersOfRealUser);
         const keyCancelOrdersRealUsers = OrderHelper.getKeyCancelOrders(bookmakerId.toString(), gameType, turnIndex);
         const ordersCancelOfUserReal = await this.redisService.hgetall(keyCancelOrdersRealUsers);
         let dataReal = OrderHelper.splitOrders(ordersReal);
         dataReal = OrderHelper.cancelOrders(dataReal, ordersCancelOfUserReal);
-
-        // test users
-        const keyToGetOrdersOfTestPlayer = OrderHelper.getKeyPrepareOrdersOfTestPlayer(bookmakerId.toString(), gameType, turnIndex);
-        const ordersTestPlayer = await this.redisService.hgetall(keyToGetOrdersOfTestPlayer);
-        const keyCancelOrdersTestPlayer = OrderHelper.getKeyCancelOrdersOfTestPlayer(bookmakerId.toString(), gameType, turnIndex);
-        const ordersCancelOfTestPlayer = await this.redisService.hgetall(keyCancelOrdersTestPlayer);
-        let dataOfTestPlayer = OrderHelper.splitOrders(ordersTestPlayer);
-        dataOfTestPlayer = OrderHelper.cancelOrders(dataOfTestPlayer, ordersCancelOfTestPlayer);
-
         await this.redisService.del(keyToGetOrdersOfRealUser);
-        await this.redisService.del(keyToGetOrdersOfTestPlayer);
-
         if (!dataReal) {
             dataReal = {};
         }
-        if (!dataOfTestPlayer) {
-            dataOfTestPlayer = {};
-        }
-
-        // real users
         const dataTransform = OrderHelper.transformData(dataReal);
         const {
             prizes,
@@ -192,7 +173,6 @@ export class ScheduleService implements OnModuleInit {
             data: dataTransform,
             isTestPlayer: false,
         });
-
         const finalResult = OrderHelper.randomPrizes(prizes);
         this.lotteryAwardService.createLotteryAward({
             turnIndex,
@@ -217,8 +197,6 @@ export class ScheduleService implements OnModuleInit {
             awardDetail: finalResult,
             isTestPlayer: false,
         });
-
-        // calc balance
         this.handleBalance({
             turnIndex,
             prizes: finalResult,
@@ -227,7 +205,19 @@ export class ScheduleService implements OnModuleInit {
             isTestPlayer: false,
         });
 
-        // fake users
+        // test player
+        const keyToGetOrdersOfTestPlayer = OrderHelper.getKeyPrepareOrdersOfTestPlayer(bookmakerId.toString(), gameType, turnIndex);
+        const ordersTestPlayer = await this.redisService.hgetall(keyToGetOrdersOfTestPlayer);
+        const keyCancelOrdersTestPlayer = OrderHelper.getKeyCancelOrdersOfTestPlayer(bookmakerId.toString(), gameType, turnIndex);
+        const ordersCancelOfTestPlayer = await this.redisService.hgetall(keyCancelOrdersTestPlayer);
+        let dataOfTestPlayer = OrderHelper.splitOrders(ordersTestPlayer);
+        dataOfTestPlayer = OrderHelper.cancelOrders(dataOfTestPlayer, ordersCancelOfTestPlayer);
+        await this.redisService.del(keyToGetOrdersOfTestPlayer);
+
+        if (!dataOfTestPlayer) {
+            dataOfTestPlayer = {};
+        }
+
         const dataTransformOfFakeUsers = OrderHelper.transformData(dataOfTestPlayer);
         const {
             prizes: prizesOfTestPlayer,
@@ -264,13 +254,6 @@ export class ScheduleService implements OnModuleInit {
             awardDetail: finalResultOfFakeUsers,
             isTestPlayer: true,
         });
-        // calc balance of fake users
-        // this.handleBalanceIsTestPlayer({
-        //     turnIndex,
-        //     prizes: finalResultOfFakeUsers,
-        //     bookmakerId,
-        //     gameType,
-        // });
         this.handleBalance({
             turnIndex,
             prizes: finalResult,
@@ -365,6 +348,7 @@ export class ScheduleService implements OnModuleInit {
         }
 
         const winningPlayerOrders = []; // order users thang cuoc.
+        // TODO: lay users hien tai de cai thien performance
         for (const userId of userIds) {
             const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), turnIndex);
             const mergeKey = `${keyOrdersOfBookmakerAndGameType}-${keyByUserAndTurnIndex}`;

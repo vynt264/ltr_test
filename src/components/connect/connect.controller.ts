@@ -11,11 +11,13 @@ import {
   ApiResponse,
 } from "@nestjs/swagger";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
+import { AuthGuard } from "../auth/guards/auth.guard";
 
 @Controller("/api/v1/connect")
 @ApiTags("Connect")
 @ApiBearerAuth("Authorization")
-@UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+// @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+@UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
 export class ConnectController {
   constructor(private connectService: ConnectService) {}
 

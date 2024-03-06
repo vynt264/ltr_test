@@ -30,11 +30,13 @@ import { JwtAuthGuard } from "./../auth/jwt/jwt-auth.guard";
 import { API } from "./api.entity";
 import { APIService } from "./api.third.service";
 import { CreateAPIDto, UpdateAPIDto } from "./dto/index";
+import { AuthGuard } from "../auth/guards/auth.guard";
 
 @Controller("/api/v1/api")
 @ApiTags("API")
 @ApiBearerAuth("Authorization")
-@UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+// @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
+@UseGuards(AuthGuard, BacklistGuard, RolesGuard)
 export class APIController {
   constructor(private apiService: APIService) {}
 

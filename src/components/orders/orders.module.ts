@@ -20,6 +20,7 @@ import { HoldingNumbersModule } from '../holding-numbers/holding-numbers.module'
 import { WalletHistory } from '../wallet/wallet.history.entity';
 import { LotteriesModule } from '../lotteries/lotteries.module';
 import { WinningNumbersModule } from '../winning-numbers/winning-numbers.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { WinningNumbersModule } from '../winning-numbers/winning-numbers.module'
     HoldingNumbersModule,
     LotteriesModule,
     WinningNumbersModule,
+    JwtModule.register({}),
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

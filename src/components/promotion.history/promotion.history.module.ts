@@ -10,6 +10,7 @@ import { SysConfigsModule } from "../sys.config/sys.config.module";
 import { ConnectModule } from "../connect/connect.module";
 import { PromotionModule } from "../promotion/promotion.module";
 import { CoinWalletHistories } from "../coin.wallet.history/coin.wallet.history.entiry";
+import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { CoinWalletHistories } from "../coin.wallet.history/coin.wallet.history.
     SysConfigsModule,
     ConnectModule,
     PromotionModule,
+    JwtModule.register({}),
   ],
   controllers: [PromotionHistoriesController],
   providers: [PromotionHistoriesService],

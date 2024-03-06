@@ -12,17 +12,20 @@ import { User } from "../user/user.entity";
 import { LotteryFtQueue } from "./lottery.ft.queue";
 import { LotteryAward } from "../lottery.award/lottery.award.entity";
 import { ScheduleModule } from "@nestjs/schedule";
+import { JwtModule } from "@nestjs/jwt";
 // import { LotteryAwardModule } from "../lottery.award/lottery.award.module";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
+    TypeOrmModule.forFeature(
+      [
       LotteryRequest,
       SysConfig,
       User,
       LotteryFtQueue,
       LotteryAward,
     ]),
+    JwtModule.register({}),
     BacklistModule,
     UserModule,
     SysConfigsModule,

@@ -35,6 +35,7 @@ import {
   import { LotteryRequest } from "./lottery.request.entity";
   import { LotteryRequestService } from "./lottery.request.service";
   import { startOfDay } from "date-fns";
+import { AuthGuard } from "../auth/guards/auth.guard";
   
   @Controller("/api/v1/LotteryRequest")
   @ApiTags("LotteryRequest")
@@ -89,7 +90,8 @@ import {
     @ApiOkResponse({
       type: Response<LotteryRequest[]>,
     })
-    @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
     @Roles(UserRoles.SUPPER)
     async GetAll(
       @Query() paginationQueryDto: PaginationQueryDto,

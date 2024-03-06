@@ -30,6 +30,7 @@ import { CreateQaDto, UpdateQaDto } from "./dto/index";
 import { UserRoles } from "../user/enums/user.enum";
 import { Qa } from "./qa.entity";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
+import { AuthGuard } from "../auth/guards/auth.guard";
 @Controller("/api/v1/qa")
 @ApiTags("Qa")
 export class QaController {
@@ -54,7 +55,8 @@ export class QaController {
     type: Response<Qa>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async create(@Body() userDto: CreateQaDto): Promise<any> {
     return this.qaService.create(userDto);
@@ -69,7 +71,8 @@ export class QaController {
   })
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async updateCommon(
     @Param("id", ParseIntPipe) id: number,
@@ -84,7 +87,8 @@ export class QaController {
     description: "Delete Qa",
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.qaService.delete(id);

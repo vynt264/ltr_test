@@ -14,6 +14,7 @@ import { ConnectModule } from "../connect/connect.module";
 import { OrderRequestModule } from "../order.request/order.request.module";
 import { SysConfigsModule } from "../sys.config/sys.config.module";
 import { UserModule } from "../user/user.module";
+import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UserModule } from "../user/user.module";
     ConnectModule,
     ScheduleModule.forRoot(),
     OrderRequestModule,
+    JwtModule.register({}),
   ],
   controllers: [AnalyticsController],
   providers: [AnalyticsService],

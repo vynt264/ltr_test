@@ -13,6 +13,7 @@ import { UploadMiddleware } from "src/system/middleware/upload.middleware";
 import { MulterModule } from "@nestjs/platform-express";
 import { UploadS3Module } from "../upload.s3/upload.s3.module";
 import { OrdersModule } from "../orders/orders.module";
+import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { OrdersModule } from "../orders/orders.module";
     MulterModule.registerAsync({
       useClass: UploadMiddleware,
     }),
+    JwtModule.register({}),
   ],
   controllers: [UserInfoController],
   providers: [UserInfoService],

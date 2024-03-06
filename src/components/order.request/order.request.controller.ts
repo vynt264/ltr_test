@@ -36,6 +36,7 @@ import { OrderRequestService } from "./order.request.service";
 import { User } from "../user/user.entity";
 import { DelDataFakeReqDto } from "./dto/delete.data.fake.dto";
 import { OrderByUserInfoReqDto } from "./dto/oder.by.user.info.dto";
+import { AuthGuard } from "../auth/guards/auth.guard";
 
 @Controller("/api/v1/OrderRequest")
 @ApiTags("OrderRequest")
@@ -74,7 +75,8 @@ export class OrderRequestController {
   @ApiOkResponse({
     type: Response<OrderRequest[]>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   async AdminGetAll(
     @Query() paginationQueryDto: PaginationQueryDto,
     @Request() req: any
@@ -89,7 +91,8 @@ export class OrderRequestController {
   @ApiOkResponse({
     type: Response<User>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   async userGetBalanceInfo(@Request() req: any): Promise<any> {
     return this.orderRequestService.userGetBalanceInfo(req.user.id);
   }
@@ -101,7 +104,8 @@ export class OrderRequestController {
   @ApiOkResponse({
     type: Response<OrderRequest>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   async create(@Body() listOrderRequestDto: ListOrderRequestDto,
     @Request() req: any): Promise<any> {
     return this.orderRequestService.create(listOrderRequestDto, req.user);
@@ -114,7 +118,8 @@ export class OrderRequestController {
   @ApiOkResponse({
     type: Response<OrderRequest>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   async create45sFake(@Body() listOrderRequestDto: ListOrderRequestDto,
     @Request() req: any): Promise<any> {
     return this.orderRequestService.create45sFake(listOrderRequestDto, req.user);
@@ -127,7 +132,8 @@ export class OrderRequestController {
   @ApiOkResponse({
     type: Response<OrderRequest>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   async cancel(
     @Body() cancelOrderRequestDto: CancelOrderRequestDto,
     @Request() req: any): Promise<any> {
@@ -164,7 +170,8 @@ export class OrderRequestController {
   @ApiOkResponse({
     type: Response<OrderRequest[]>,
   })
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   async GetAll(
     @Query() paginationQueryDto: PaginationQueryDto,
     @Request() req: any
