@@ -243,6 +243,19 @@ export class OrdersService {
     wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     await this.walletHandlerService.updateWalletByUserId(user.id, { balance: (+wallet.balance - totalBet) });
 
+    // save wallet history
+    const createWalletHis: any = {
+      id: wallet.id,
+      user: { id: user.id },
+      subOrAdd: 0,
+      amount: totalBet,
+      detail: `Xổ số nhanh - Trừ tiền cược`,
+      balance: (+wallet.balance - totalBet),
+      createdBy: user.name,
+    }
+    const createdWalletHis = this.walletHistoryRepository.create(createWalletHis);
+    this.walletHistoryRepository.save(createdWalletHis);
+
     return {
       balance: (+wallet.balance - totalBet),
     };
@@ -256,19 +269,6 @@ export class OrdersService {
     const turnIndex = OrderHelper.getTurnIndex(seconds);
     let wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     const totalBet = OrderHelper.getBalance(data.orders);
-
-    // save wallet history
-    const createWalletHis: any = {
-      id: wallet.id,
-      user: { id: user.id },
-      subOrAdd: 0,
-      amount: totalBet,
-      detail: `Xổ số nhanh - Trừ tiền cược`,
-      balance: +wallet.balance - totalBet,
-      createdBy: user.name,
-    }
-    const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
-    this.walletHistoryRepository.save(createdWalletHis);
 
     let promises = [];
     for (const order of data.orders) {
