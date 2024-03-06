@@ -342,118 +342,246 @@ export class ScheduleService implements OnModuleInit {
         if (!userIds) return;
 
         // get orders of bookmaker by game type (example: sxmb45s)
+        // let keyOrdersOfBookmakerAndGameType = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookmakerId.toString(), gameType);
+        // if (isTestPlayer) {
+        //     keyOrdersOfBookmakerAndGameType = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId.toString(), gameType);
+        // }
+
+        // const winningPlayerOrders = []; // order users thang cuoc.
+        // TODO: lay users hien tai de cai thien performance
+        for (const userId of userIds) {
+            this.calcBanlance({
+                isTestPlayer,
+                gameType,
+                bookmakerId,
+                userId,
+                turnIndex,
+                prizes,
+            });
+            // const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), turnIndex);
+            // const mergeKey = `${keyOrdersOfBookmakerAndGameType}-${keyByUserAndTurnIndex}`;
+            // const ordersOfUser = await this.redisService.hgetall(mergeKey);
+
+            // if (!ordersOfUser || Object.keys(ordersOfUser).length === 0) {
+            //     this.logger.info(`orders of userId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
+            //     continue;
+            // }
+
+            // const ordersCancel = await this.redisService.hgetall(`${mergeKey}-cancel-orders`);
+            // const promises = [];
+            // const promisesCreateWinningNumbers = [];
+            // const ordersWin = [];
+            // let totalBalance = 0;
+            // for (const key in ordersOfUser) {
+            //     if (ordersCancel[key] && Object.keys(ordersCancel[key]).length > 0) continue;
+
+            //     const [orderId, region, betType, childBetType] = key.split('-');
+            //     const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
+            //         orders: JSON.parse(ordersOfUser[key]),
+            //         childBetType,
+            //         prizes,
+            //     });
+
+            //     totalBalance += winningAmount;
+
+            //     // user win vs order hien tai
+            //     if (realWinningAmount > 0) {
+            //         winningPlayerOrders.push(orderId);
+            //         ordersWin.push({
+            //             typeBetName: OrderHelper.getCategoryLotteryTypeName(betType),
+            //             childBetType: OrderHelper.getChildBetTypeName(childBetType),
+            //             orderId,
+            //             type: region,
+            //             amount: realWinningAmount,
+            //         });
+            //     }
+
+            //     if (winningNumbers.length > 0) {
+            //         promisesCreateWinningNumbers.push(
+            //             this.winningNumbersService.create({
+            //                 winningNumbers: JSON.stringify(winningNumbers),
+            //                 turnIndex,
+            //                 order: {
+            //                     id: orderId
+            //                 } as any,
+            //                 type: gameType,
+            //                 isTestPlayer,
+            //             }),
+            //         );
+            //     }
+
+            //     promises.push(this.ordersService.update(
+            //         +orderId,
+            //         {
+            //             paymentWin: realWinningAmount,
+            //             status: ORDER_STATUS.closed,
+            //         },
+            //         null,
+            //     ));
+            // }
+
+            // // save winning numbers
+            // Promise.all(promisesCreateWinningNumbers);
+            // await Promise.all(promises);
+
+            // // check nuoi so
+            // const { refunds } = await this.handlerHoldingNumbers({
+            //     winningPlayerOrders,
+            //     bookmakerId,
+            //     userId,
+            //     usernameReal: isTestPlayer ? true : false,
+            // });
+
+            // const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
+            // const remainBalance = +wallet.balance + totalBalance + refunds;
+            // await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
+
+
+            // if ((totalBalance + refunds) > 0) {
+            //     // save wallet history
+            //     const createWalletHis: any = {
+            //         id: wallet.id,
+            //         user: { id: Number(userId) },
+            //         subOrAdd: 1,
+            //         amount: totalBalance + refunds,
+            //         detail: `Xổ số nhanh - Cộng tiền thắng`,
+            //         balance: remainBalance,
+            //         createdBy: ""
+            //     }
+
+            //     const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+            //     await this.walletHistoryRepository.save(createdWalletHis);
+            // }
+
+            // if (isTestPlayer) {
+            //     this.logger.info(`userId ${userId} test player send event payment`);
+            // } else {
+            //     this.logger.info(`userId ${userId} send event payment`);
+            // }
+            // this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {
+            //     ordersWin,
+            // });
+        }
+    }
+
+    async calcBanlance({
+        isTestPlayer,
+        gameType,
+        bookmakerId,
+        userId,
+        turnIndex,
+        prizes
+    }: any) {
+        // get orders of bookmaker by game type (example: sxmb45s)
         let keyOrdersOfBookmakerAndGameType = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookmakerId.toString(), gameType);
         if (isTestPlayer) {
             keyOrdersOfBookmakerAndGameType = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId.toString(), gameType);
         }
 
         const winningPlayerOrders = []; // order users thang cuoc.
-        // TODO: lay users hien tai de cai thien performance
-        for (const userId of userIds) {
-            const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), turnIndex);
-            const mergeKey = `${keyOrdersOfBookmakerAndGameType}-${keyByUserAndTurnIndex}`;
-            const ordersOfUser = await this.redisService.hgetall(mergeKey);
+        const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), turnIndex);
+        const mergeKey = `${keyOrdersOfBookmakerAndGameType}-${keyByUserAndTurnIndex}`;
+        const ordersOfUser = await this.redisService.hgetall(mergeKey);
 
-            if (!ordersOfUser || Object.keys(ordersOfUser).length === 0) {
-                this.logger.info(`orders of userId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
-                continue;
-            }
-
-            const ordersCancel = await this.redisService.hgetall(`${mergeKey}-cancel-orders`);
-            const promises = [];
-            const promisesCreateWinningNumbers = [];
-            const ordersWin = [];
-            let totalBalance = 0;
-            for (const key in ordersOfUser) {
-                if (ordersCancel[key] && Object.keys(ordersCancel[key]).length > 0) continue;
-
-                const [orderId, region, betType, childBetType] = key.split('-');
-                const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
-                    orders: JSON.parse(ordersOfUser[key]),
-                    childBetType,
-                    prizes,
-                });
-
-                totalBalance += winningAmount;
-
-                // user win vs order hien tai
-                if (realWinningAmount > 0) {
-                    winningPlayerOrders.push(orderId);
-                    ordersWin.push({
-                        typeBetName: OrderHelper.getCategoryLotteryTypeName(betType),
-                        childBetType: OrderHelper.getChildBetTypeName(childBetType),
-                        orderId,
-                        type: region,
-                        amount: realWinningAmount,
-                    });
-                }
-
-                if (winningNumbers.length > 0) {
-                    promisesCreateWinningNumbers.push(
-                        this.winningNumbersService.create({
-                            winningNumbers: JSON.stringify(winningNumbers),
-                            turnIndex,
-                            order: {
-                                id: orderId
-                            } as any,
-                            type: gameType,
-                            isTestPlayer,
-                        }),
-                    );
-                }
-
-                promises.push(this.ordersService.update(
-                    +orderId,
-                    {
-                        paymentWin: realWinningAmount,
-                        status: ORDER_STATUS.closed,
-                    },
-                    null,
-                ));
-            }
-
-            // save winning numbers
-            Promise.all(promisesCreateWinningNumbers);
-            await Promise.all(promises);
-
-            // check nuoi so
-            const { refunds } = await this.handlerHoldingNumbers({
-                winningPlayerOrders,
-                bookmakerId,
-                userId,
-                usernameReal: isTestPlayer ? true : false,
-            });
-
-            const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
-            const remainBalance = +wallet.balance + totalBalance + refunds;
-            await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
-
-
-            if ((totalBalance + refunds) > 0) {
-                // save wallet history
-                const createWalletHis: any = {
-                    id: wallet.id,
-                    user: { id: Number(userId) },
-                    subOrAdd: 1,
-                    amount: totalBalance + refunds,
-                    detail: `Xổ số nhanh - Cộng tiền thắng`,
-                    balance: remainBalance,
-                    createdBy: ""
-                }
-
-                const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
-                await this.walletHistoryRepository.save(createdWalletHis);
-            }
-
-            if (isTestPlayer) {
-                this.logger.info(`userId ${userId} test player send event payment`);
-            } else {
-                this.logger.info(`userId ${userId} send event payment`);
-            }
-            this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {
-                ordersWin,
-            });
+        if (!ordersOfUser || Object.keys(ordersOfUser).length === 0) {
+            this.logger.info(`orders of userId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
+            return;
         }
+
+        const ordersCancel = await this.redisService.hgetall(`${mergeKey}-cancel-orders`);
+        const promises = [];
+        const promisesCreateWinningNumbers = [];
+        const ordersWin = [];
+        let totalBalance = 0;
+        for (const key in ordersOfUser) {
+            if (ordersCancel[key] && Object.keys(ordersCancel[key]).length > 0) continue;
+
+            const [orderId, region, betType, childBetType] = key.split('-');
+            const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
+                orders: JSON.parse(ordersOfUser[key]),
+                childBetType,
+                prizes,
+            });
+
+            totalBalance += winningAmount;
+
+            // user win vs order hien tai
+            if (realWinningAmount > 0) {
+                winningPlayerOrders.push(orderId);
+                ordersWin.push({
+                    typeBetName: OrderHelper.getCategoryLotteryTypeName(betType),
+                    childBetType: OrderHelper.getChildBetTypeName(childBetType),
+                    orderId,
+                    type: region,
+                    amount: realWinningAmount,
+                });
+            }
+
+            if (winningNumbers.length > 0) {
+                promisesCreateWinningNumbers.push(
+                    this.winningNumbersService.create({
+                        winningNumbers: JSON.stringify(winningNumbers),
+                        turnIndex,
+                        order: {
+                            id: orderId
+                        } as any,
+                        type: gameType,
+                        isTestPlayer,
+                    }),
+                );
+            }
+
+            promises.push(this.ordersService.update(
+                +orderId,
+                {
+                    paymentWin: realWinningAmount,
+                    status: ORDER_STATUS.closed,
+                },
+                null,
+            ));
+        }
+
+        // save winning numbers
+        Promise.all(promisesCreateWinningNumbers);
+        await Promise.all(promises);
+
+        // check nuoi so
+        const { refunds } = await this.handlerHoldingNumbers({
+            winningPlayerOrders,
+            bookmakerId,
+            userId,
+            usernameReal: isTestPlayer ? true : false,
+        });
+
+        const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
+        const remainBalance = +wallet.balance + totalBalance + refunds;
+        await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
+
+
+        if ((totalBalance + refunds) > 0) {
+            // save wallet history
+            const createWalletHis: any = {
+                id: wallet.id,
+                user: { id: Number(userId) },
+                subOrAdd: 1,
+                amount: totalBalance + refunds,
+                detail: `Xổ số nhanh - Cộng tiền thắng`,
+                balance: remainBalance,
+                createdBy: ""
+            }
+
+            const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+            await this.walletHistoryRepository.save(createdWalletHis);
+        }
+
+        if (isTestPlayer) {
+            this.logger.info(`userId ${userId} test player send event payment`);
+        } else {
+            this.logger.info(`userId ${userId} send event payment`);
+        }
+        this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {
+            ordersWin,
+        });
     }
 
     async handlerHoldingNumbers({
