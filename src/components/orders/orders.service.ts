@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { endOfDay, startOfDay, addHours } from "date-fns";
 
 import { InjectRepository } from '@nestjs/typeorm';
@@ -28,6 +28,8 @@ import { HoldingNumbersService } from '../holding-numbers/holding-numbers.servic
 import { WalletHistory } from '../wallet/wallet.history.entity';
 import { LotteriesService } from '../lotteries/lotteries.service';
 import { WinningNumbersService } from '../winning-numbers/winning-numbers.service';
+import { Logger } from 'winston';
+import { SocketGatewayService } from '../gateway/gateway.service';
 
 @Injectable()
 export class OrdersService {
@@ -42,6 +44,9 @@ export class OrdersService {
     private readonly holdingNumbersService: HoldingNumbersService,
     private readonly lotteriesService: LotteriesService,
     private readonly winningNumbersService: WinningNumbersService,
+    private readonly socketGateway: SocketGatewayService,
+    @Inject("winston")
+    private readonly logger: Logger,
   ) { }
 
   async create(data: CreateListOrdersDto, member: any) {
@@ -1105,5 +1110,178 @@ export class OrdersService {
 
       return init;
     }, []);
+  }
+
+  async handleBalance({
+    turnIndex,
+    prizes,
+    gameType,
+    user,
+  }: any) {
+    const userId = user.id;
+    const isTestPlayer = user.usernameReal ? true : false;
+    const bookmakerId = user.bookmakerId;
+
+    // get orders of bookmaker by game type (example: sxmb45s)
+    let keyOrdersOfBookmakerAndGameType = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookmakerId.toString(), gameType);
+    if (isTestPlayer) {
+      keyOrdersOfBookmakerAndGameType = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId.toString(), gameType);
+    }
+
+    const winningPlayerOrders = []; // order users thang cuoc.
+    const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), turnIndex);
+    const mergeKey = `${keyOrdersOfBookmakerAndGameType}-${keyByUserAndTurnIndex}`;
+    const ordersOfUser = await this.redisService.hgetall(mergeKey);
+
+    if (!ordersOfUser || Object.keys(ordersOfUser).length === 0) {
+      this.logger.info(`orders of userId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
+      return;
+    }
+
+    const ordersCancel = await this.redisService.hgetall(`${mergeKey}-cancel-orders`);
+    const promises = [];
+    const promisesCreateWinningNumbers = [];
+    const ordersWin = [];
+    let totalBalance = 0;
+    for (const key in ordersOfUser) {
+      if (ordersCancel[key] && Object.keys(ordersCancel[key]).length > 0) continue;
+
+      const [orderId, region, betType, childBetType] = key.split('-');
+      const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
+        orders: JSON.parse(ordersOfUser[key]),
+        childBetType,
+        prizes,
+      });
+
+      totalBalance += winningAmount;
+
+      // user win vs order hien tai
+      if (realWinningAmount > 0) {
+        winningPlayerOrders.push(orderId);
+        ordersWin.push({
+          typeBetName: OrderHelper.getCategoryLotteryTypeName(betType),
+          childBetType: OrderHelper.getChildBetTypeName(childBetType),
+          orderId,
+          type: region,
+          amount: realWinningAmount,
+        });
+      }
+
+      if (winningNumbers.length > 0) {
+        promisesCreateWinningNumbers.push(
+          this.winningNumbersService.create({
+            winningNumbers: JSON.stringify(winningNumbers),
+            turnIndex,
+            order: {
+              id: orderId
+            } as any,
+            type: gameType,
+            isTestPlayer,
+          }),
+        );
+      }
+
+      promises.push(this.update(
+        +orderId,
+        {
+          paymentWin: realWinningAmount,
+          status: ORDER_STATUS.closed,
+        },
+        null,
+      ));
+    }
+
+    // save winning numbers
+    Promise.all(promisesCreateWinningNumbers);
+    await Promise.all(promises);
+
+    // check nuoi so
+    const { refunds } = await this.handlerHoldingNumbers({
+      winningPlayerOrders,
+      bookmakerId,
+      userId,
+      usernameReal: isTestPlayer ? true : false,
+    });
+
+    const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
+    const remainBalance = +wallet.balance + totalBalance + refunds;
+    await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
+
+
+    if ((totalBalance + refunds) > 0) {
+      // save wallet history
+      const createWalletHis: any = {
+        id: wallet.id,
+        user: { id: Number(userId) },
+        subOrAdd: 1,
+        amount: totalBalance + refunds,
+        detail: `Xổ số nhanh - Cộng tiền thắng`,
+        balance: remainBalance,
+        createdBy: ""
+      }
+
+      const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+      await this.walletHistoryRepository.save(createdWalletHis);
+    }
+
+    if (isTestPlayer) {
+      this.logger.info(`userId ${userId} test player send event payment`);
+    } else {
+      this.logger.info(`userId ${userId} send event payment`);
+    }
+    this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {
+      ordersWin,
+    });
+  }
+
+  async handlerHoldingNumbers({
+    winningPlayerOrders,
+    bookmakerId,
+    userId,
+    usernameReal,
+  }: any) {
+    let refunds = 0;
+
+    if (!winningPlayerOrders || winningPlayerOrders.length === 0) return {
+      refunds,
+    };
+
+    const promises = [];
+    for (const orderId of winningPlayerOrders) {
+      const order = await this.findOne(+orderId);
+      if (!order?.holdingNumber?.id) continue;
+
+      const holdingNumber = await this.holdingNumbersService.findOne(+order.holdingNumber.id);
+
+      if (!holdingNumber.isStop) continue;
+
+      const orders = await this.findOrdersByHoldingNumberId(holdingNumber.id);
+
+      if (!orders || orders.length === 0) continue;
+
+      // remove orders
+      for (const order of orders) {
+        const tempOrder = await this.findOne(order.id);
+        if (tempOrder.status === ORDER_STATUS.canceled || tempOrder.status === ORDER_STATUS.closed) continue;
+
+        refunds += Number(tempOrder.revenue);
+
+        await this.removeOrderFromRedis({
+          order,
+          bookmakerId,
+          userId,
+          usernameReal,
+        });
+
+        promises.push(
+          this.delete(order.id),
+        );
+      }
+    }
+    await Promise.all(promises);
+
+    return {
+      refunds,
+    }
   }
 }

@@ -156,4 +156,21 @@ export class OrdersController {
       this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
     }
   }
+
+  @Post('handle-balace')
+  @UseGuards(AuthGuard, BacklistGuard)
+  async handleBalance(@Body() data: any, @Request() req: any) {
+    const {
+      turnIndex,
+      prizes,
+      gameType,
+    } = data;
+
+    return this.ordersService.handleBalance({
+      turnIndex,
+      prizes,
+      gameType,
+      user: req.user,
+    });
+  }
 }

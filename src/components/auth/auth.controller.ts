@@ -12,13 +12,9 @@ import { CreateUserDto } from "../user/dto";
 import { User } from "../user/user.entity";
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
-import { JwtAuthGuard } from "./jwt/jwt-auth.guard";
-import { RateLimitGuard } from "./rate.guard/rate.limit.guard";
-import { RtAuthGuard } from "./rt/jwt-auth.guard";
 import { genRandom } from "../sys.config/enums/sys.config.enum";
 import { UserRoles } from "../user/enums/user.enum";
 import { CreateUserFakeDto } from "./dto/createUserFake";
-import { RedisCacheService } from "src/system/redis/redis.service";
 import { Cron } from "@nestjs/schedule";
 import { AuthGuard } from "./guards/auth.guard";
 
@@ -28,7 +24,6 @@ import { AuthGuard } from "./guards/auth.guard";
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private readonly redisService: RedisCacheService,
   ) { }
 
   @Post("login")
@@ -47,6 +42,7 @@ export class AuthController {
       sign,
       username,
     } = loginDto;
+    // const devide = req.headers['user-agent'];
     const user = await this.authService.userLogin(username, sign);
 
     return this.authService.generateToken(user);
