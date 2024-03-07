@@ -1284,7 +1284,6 @@ export class OrderHelper {
                 betAmount += (totalPoint * (PricePerScore.TruotXien4));
                 break;
 
-
             case LoTruocType.TruotXien8:
                 winningAmount += (winningPoint * (OddBet.TruotXien8 * 1000));
                 betAmount += (totalPoint * (PricePerScore.TruotXien8));
