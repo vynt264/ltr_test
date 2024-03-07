@@ -81,4 +81,18 @@ export class AdminPokerController {
   ): Promise<any> {
     return this.adminPokerService.updateConfig(id, updateDto, req.user);
   }
+
+  @Get("report")
+  @ApiOperation({
+    description: "Get report poker",
+  })
+  @ApiOkResponse({
+    type: Response<any[]>,
+  })
+  @ApiBearerAuth("Authorization")
+  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
+  async GetReport(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
+    return this.adminPokerService.report(paginationQuery);
+  }
 }
