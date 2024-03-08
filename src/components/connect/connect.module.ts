@@ -11,6 +11,7 @@ import { EventTime } from "./../event.time.third/event.time.third.entity";
 import { ConnectController } from "./connect.controller";
 import { ConnectService } from "./connect.service";
 import { JwtModule } from "@nestjs/jwt";
+import { UserModule } from "../user/user.module";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { JwtModule } from "@nestjs/jwt";
     EventTimeModule,
     SysConfigsModule,
     JwtModule.register({}),
+    UserModule
   ],
   controllers: [ConnectController],
   providers: [ConnectService],

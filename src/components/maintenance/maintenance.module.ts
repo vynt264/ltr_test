@@ -5,12 +5,14 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Maintenance } from './entities/maintenance.entity';
 import { BacklistModule } from '../backlist/backlist.module';
 import { JwtModule } from '@nestjs/jwt';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Maintenance]),
     BacklistModule,
     JwtModule.register({}),
+    UserModule,
   ],
   controllers: [MaintenanceController],
   providers: [MaintenanceService],
