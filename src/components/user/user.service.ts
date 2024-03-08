@@ -448,4 +448,12 @@ export class UserService {
       : "";
     return this.update(id, null, { option });
   }
+
+  async getUserById(id: number) {
+    return this.userRepository.findOne({
+      where: {
+        id,
+      }
+    })
+  }
 }

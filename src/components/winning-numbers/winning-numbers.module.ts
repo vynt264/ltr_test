@@ -5,12 +5,14 @@ import { BacklistModule } from '../backlist/backlist.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WinningNumber } from './entities/winning-number.entity';
 import { JwtModule } from '@nestjs/jwt';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([WinningNumber]),
     BacklistModule,
     JwtModule.register({}),
+    UserModule,
   ],
   controllers: [WinningNumbersController],
   providers: [WinningNumbersService],

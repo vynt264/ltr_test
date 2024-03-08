@@ -38,6 +38,7 @@ import { MaintenanceModule } from './maintenance/maintenance.module';
 import { AdminPokerModule } from "./admin.poker/admin.poker.module";
 import { AdminHiloModule } from "./admin.hilo/admin.hilo.module";
 import { SettingsModule } from './settings/settings.module';
+import { TokensModule } from './tokens/tokens.module';
 @Module({
   imports: [
     AuthModule,
@@ -79,6 +80,7 @@ import { SettingsModule } from './settings/settings.module';
     AdminPokerModule,
     AdminHiloModule,
     SettingsModule,
+    TokensModule,
   ],
 })
 export class MainModule { }

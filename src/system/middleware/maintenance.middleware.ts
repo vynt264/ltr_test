@@ -8,13 +8,14 @@ export class MaintenanceMiddleware implements NestMiddleware {
     constructor(private readonly maintenanceService: MaintenanceService) { }
 
     async use(req: Request, res: Response, next: NextFunction) {
-        const maintenance = await this.maintenanceService.findAll() as any;
+        let maintenance = await this.maintenanceService.findAll() as any;
+        maintenance = maintenance[0];
         if (maintenance && maintenance?.immediateMaintenance) {
             return res.status(HttpStatus.BAD_REQUEST).json({
                 statusCode: HttpStatus.BAD_REQUEST,
                 success: false,
                 data: {
-                    isMaintained: maintenance?.immediateMaintenance || false,
+                    isMaintained: true,
                 },
                 message: {
                     message: ERROR.MESSAGE_MAINTENANCE
