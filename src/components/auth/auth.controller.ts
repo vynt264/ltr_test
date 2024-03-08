@@ -58,7 +58,7 @@ export class AuthController {
   async login(
     // @Request() req: any,
     // @Body() loginDto: LoginDto
-    loginNewDto: LoginNewDto
+    @Body() loginNewDto: LoginNewDto
   ): Promise<JWTResult> {
     // env dev
     // const {
