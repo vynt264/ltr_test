@@ -17,6 +17,8 @@ export class AdminOrdersService {
   constructor(
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
     private userService: UserService,
     @Inject("winston")
     private readonly logger: Logger,
@@ -352,32 +354,32 @@ export class AdminOrdersService {
 
   async getUserInfo(bookmakerId: number, username: string) {
     try {
-      let condition = "user.usernameReal = ''";
+      let condition = "entity.usernameReal = ''";
       const conditionParams: any = {}
       if (bookmakerId > 0) {
         condition = condition.concat(`AND bookmaker.id = :bookmarkerFind`);
         conditionParams.bookmarkerFind = bookmakerId;
       }
       if (username) {
-        condition = condition.concat(` AND user.username LIKE :usernameFind`);
+        condition = condition.concat(` AND entity.username LIKE :usernameFind`);
         conditionParams.usernameFind = `%${username}%`;
       }
 
-      const listDataReal = await this.orderRepository
+      const listDataReal = await this.userRepository
         .createQueryBuilder("entity")
-        .leftJoinAndSelect("users", "user", "entity.userId = user.id")
+        .leftJoinAndSelect("orders", "orders", "entity.id = orders.userId")
         .leftJoinAndSelect(
           "bookmaker",
           "bookmaker",
-          "user.bookmakerId = bookmaker.id"
+          "entity.bookmakerId = bookmaker.id"
         )
-        .leftJoinAndSelect("wallet", "wallet", "user.id = wallet.userId")
+        .leftJoinAndSelect("wallet", "wallet", "entity.id = wallet.userId")
         .select("bookmaker.name as bookmakerName")
-        .addSelect("user.username as username")
+        .addSelect("entity.username as username")
         .addSelect("wallet.balance as balance")
-        .addSelect("COUNT(entity.id) as count")
-        .addSelect("SUM(entity.revenue) as totalBet")
-        .addSelect("SUM(entity.paymentWin) as totalPaymentWin")
+        .addSelect("COUNT(orders.id) as count")
+        .addSelect("SUM(orders.revenue) as totalBet")
+        .addSelect("SUM(orders.paymentWin) as totalPaymentWin")
         .where(condition, conditionParams)
         .groupBy("bookmakerName, username, balance")
         .orderBy("username", "ASC")

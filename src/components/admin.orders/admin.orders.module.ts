@@ -9,10 +9,11 @@ import { ConnectModule } from "../connect/connect.module";
 import { Order } from "../orders/entities/order.entity";
 import { ScheduleModule } from "@nestjs/schedule";
 import { LotteryAwardModule } from "../lottery.award/lottery.award.module";
+import { User } from "../user/user.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order]),
+    TypeOrmModule.forFeature([Order, User]),
     BacklistModule,
     UserModule,
     SysConfigsModule,

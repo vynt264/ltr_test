@@ -13,6 +13,8 @@ import {
   Injectable,
   UnauthorizedException,
   ForbiddenException,
+  HttpException,
+  HttpStatus,
 } from "@nestjs/common";
 import { UserService } from "../user/user.service";
 import { BacklistService } from "../backlist/backlist.service";
@@ -31,6 +33,7 @@ import { OrderHelper } from "src/common/helper";
 import { RedisCacheService } from "src/system/redis/redis.service";
 import { WalletInout } from "../wallet.inout/wallet.inout.entity";
 import { WalletHistory } from "../wallet/wallet.history.entity";
+import { TokensService } from "../tokens/tokens.service";
 @Injectable()
 export class AuthService {
   constructor(
@@ -51,6 +54,7 @@ export class AuthService {
     private walletInoutRepository: Repository<WalletInout>,
     @InjectRepository(WalletHistory)
     private walletHistoryRepository: Repository<WalletHistory>,
+    private readonly tokenService: TokensService,
   ) { }
 
   async validateUserCreds(username: string, password: string): Promise<any> {
@@ -66,7 +70,7 @@ export class AuthService {
 
   async generateToken(
     // user: UserInterface & DeviceInterface
-    user: any
+    user: any,
   ): Promise<JWTResult> {
     const jwtPayload: JwtPayload = {
       sub: user.id,
@@ -109,6 +113,47 @@ export class AuthService {
     };
   }
 
+  // async checkDevice(devide: string, isTestPlayer: boolean, user: any, at: string) {
+  //   let validToken = false;
+  //   if (devide) {
+  //     const token = await this.tokenService.findTokenByUserId(user.id, isTestPlayer);
+  //     if (!token) {
+  //       await this.tokenService.create({
+  //         user: { id: user.id } as any,
+  //         token: at,
+  //         devide,
+  //         isTestPlayer,
+  //       });
+  //     } else {
+  //       if (token.devide !== devide) {
+  //         try {
+  //           await this.jwtService.verifyAsync(
+  //             token.token,
+  //             {
+  //               secret: appConfig().atSecret
+  //             }
+  //           );
+
+  //           validToken = true;
+  //         } catch (error) {
+  //           if (error.name === "TokenExpiredError") {
+
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   if (validToken) {
+  //     throw new HttpException(
+  //       {
+  //         message: 'tk da duoc dang nhap mot noi khac',
+  //       },
+  //       HttpStatus.BAD_REQUEST,
+  //     );
+  //   }
+  // }
+
   async guestGenerateToken(
     user: UserInterface & DeviceInterface,
     bookmakerId: any
@@ -147,7 +192,7 @@ export class AuthService {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(jwtPayload, {
         secret: appConfig().atSecret,
-        expiresIn: "10d",
+        expiresIn: "1d",
       }),
       this.jwtService.signAsync(jwtPayload, {
         secret: appConfig().rtSecret,

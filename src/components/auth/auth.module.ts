@@ -12,7 +12,6 @@ import { JwtModule } from "@nestjs/jwt";
 import { JwtStrategy } from "./jwt/jwt.strategy";
 import { User } from "src/components/user/user.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
-// import { UserInfoModule } from "../user.info/user.info.module";
 import { UserInfo } from "../user.info/user.info.entity";
 import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
 import { WalletHandlerModule } from "../wallet-handler/wallet-handler.module";
@@ -21,6 +20,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 import { WalletInout } from "../wallet.inout/wallet.inout.entity";
 import { WalletHistory } from "../wallet/wallet.history.entity";
 import { AuthGuard } from "./guards/auth.guard";
+import { TokensModule } from "../tokens/tokens.module";
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, UserInfo, CoinWallet, WalletInout, WalletHistory]),
@@ -33,6 +33,7 @@ import { AuthGuard } from "./guards/auth.guard";
     WalletHandlerModule,
     RedisCacheModule,
     ScheduleModule.forRoot(),
+    TokensModule
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy, RtStrategy, AuthGuard],
   controllers: [AuthController],
