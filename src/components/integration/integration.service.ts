@@ -21,6 +21,7 @@ import { Helper } from 'src/common/helper';
 import { StatusExchange, TypeExchange } from './enums/exchange.enum';
 import GetBetInfoDto from './dto/get.bet.info.dto';
 import * as moment from "moment";
+import { FE_URL_1 } from 'src/system/config.system/config.default';
 
 @Injectable()
 export class IntegrationService {
@@ -99,7 +100,7 @@ export class IntegrationService {
       const params = Helper.encryptData(
         `username=${verifyAccountDto.username}&bookmakerId=${verifyAccountDto.bookmakerId}`
       );
-      const url = `http://vntop.game.game8b.com/?params=${params}`
+      const url = `${FE_URL_1}/?params=${params}`
 
       const userResponse = {
         user: {
