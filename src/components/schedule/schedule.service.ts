@@ -256,7 +256,7 @@ export class ScheduleService implements OnModuleInit {
         });
         this.handleBalance({
             turnIndex,
-            prizes: finalResult,
+            prizes: finalResultOfFakeUsers,
             bookmakerId,
             gameType,
             isTestPlayer: true,
