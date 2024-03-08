@@ -59,6 +59,7 @@ export class AuthController {
     @Request() req: any,
     @Body() loginDto: LoginDto
   ): Promise<JWTResult> {
+    // env dev
     const {
       sign,
       username,
@@ -67,6 +68,17 @@ export class AuthController {
     const user = await this.authService.userLogin(username, sign);
 
     return this.authService.generateToken(user);
+
+    // env staging
+    // const parms = loginNewDto.params;
+    // const deParams = Helper.decryptData(parms);
+    // const findTxt = deParams.indexOf("&");
+    // const username = deParams.substring(9, findTxt);
+    // const bookmakerId = deParams.substring(findTxt + 13);
+
+    // const user = await this.authService.userLoginNew(username);
+
+    // return this.authService.generateToken(user);
   }
 
   @Post("admin-login")
