@@ -201,9 +201,21 @@ export class AdminPokerService {
         .orderBy("timeFilter", "ASC")
         .getRawMany();
 
+      const dataResul: any = [];
+      listDataReal?.map((item) => {
+        const record = {
+          bookmakerName: item?.bookmakerName,
+          count: item?.count,
+          timeFilter: item?.timeFilter,
+          totalBet: Number(item?.totalBet),
+          totalPaymentWin: Number(item?.totalBet) - Number(item?.totalPaymentWin)
+        }
+        dataResul.push(record);
+      })
+
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
-        listDataReal,
+        dataResul,
         MESSAGE.LIST_SUCCESS
       );
     } catch (error) {
