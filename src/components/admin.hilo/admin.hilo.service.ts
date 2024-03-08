@@ -195,7 +195,7 @@ export class AdminHiloService {
         .addSelect(addSelectDateFm)
         .addSelect("COUNT(entity.id) as count")
         .addSelect("SUM(entity.revenue) as totalBet")
-        .addSelect("SUM(entity.paymentWin) as totalPaymentWin")
+        .addSelect("SUM(entity.totalPaymentWin) as totalPaymentWin")
         .where(condition, conditionParams)
         .groupBy("bookmakerName, timeFilter")
         .orderBy("timeFilter", "ASC")
