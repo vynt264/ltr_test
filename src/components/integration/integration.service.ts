@@ -453,8 +453,10 @@ export class IntegrationService {
         );
       }
 
+      const usernameEncrypt = Helper.encryptData(checkStatusTransactionDto.username);
+
       const user = await this.userRepository.findOneBy({
-        username: checkStatusTransactionDto.username,
+        username: usernameEncrypt,
         bookmaker: {
           id: checkStatusTransactionDto.bookmakerId
         }
