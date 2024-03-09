@@ -353,7 +353,7 @@ export class AuthService {
         user: {
           id: user.id
         } as any,
-        balance: 30000000,
+        balance: 0,
         createdBy: user?.username,
       });
     }
@@ -361,7 +361,7 @@ export class AuthService {
     if (user && walletInout?.length === 0) {
       const walletInoutCreate = {
         user: { id: user.id },
-        balanceIn: wallet?.balance ? wallet?.balance : 30000000,
+        balanceIn: wallet?.balance ? wallet?.balance : 0,
         balanceOut: 0,
         timeIn: new Date(),
         createdBy: user.username,
@@ -401,7 +401,7 @@ export class AuthService {
         user: {
           id: user.id
         } as any,
-        balance: 30000000,
+        balance: 0,
         createdBy: user?.username,
       });
       const walletHis = {
@@ -431,7 +431,7 @@ export class AuthService {
       await this.coinWalletRepository.save(coinWalletCreate);
       const walletInoutCreate = {
         user: { id: user.id },
-        balanceIn: 30000000,
+        balanceIn: 0,
         balanceOut: 0,
         timeIn: new Date(),
         createdBy: user.username,
