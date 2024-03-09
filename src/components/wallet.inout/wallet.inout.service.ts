@@ -77,7 +77,7 @@ export class WalletInoutService {
     const object: any = JSON.parse(paginationQuery.keyword);
     try {
       const listData = await this.walletHistoryRepository.findAndCount({
-        relations: ["user", "user.bookmaker"],
+        relations: ["user", "user.bookmaker", "user.userInfo"],
         select: {
           user: {
             id: true,
@@ -85,6 +85,9 @@ export class WalletInoutService {
             bookmaker: {
               id: true,
               name: true
+            },
+            userInfo: {
+              nickname: true,
             }
           }
         },
@@ -121,6 +124,14 @@ export class WalletInoutService {
     for (const key in object) {
       if (key === "username") {
         data.user = { username: Like(`%${object.username}%`) };
+      }
+
+      if (key === "nickname") {
+        data.user = {
+          userInfo: {
+            nickname: Like(`%${object.nickname}%`)
+          }
+        }
       }
 
       if (key === "userId" && isWalletHis) {

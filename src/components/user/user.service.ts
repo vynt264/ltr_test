@@ -22,6 +22,8 @@ export class UserService {
 
   private role = "role";
 
+  private nickname = "nickname";
+
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -163,7 +165,7 @@ export class UserService {
     }
     const skip = +perPage * +page - +perPage;
     const searching = await this.userRepository.findAndCount({
-      relations: ["bookmaker"],
+      relations: ["bookmaker", "userInfo"],
       select: {
         id: true,
         username: true,
@@ -175,6 +177,9 @@ export class UserService {
         bookmaker: {
           id: true,
           name: true,
+        },
+        userInfo: {
+          nickname: true
         }
       },
       where: this.holdQuery(user),
@@ -202,6 +207,8 @@ export class UserService {
         case this.role:
           data.role = Like(`%${object.role}%`);
           break;
+        case this.nickname:
+          data.userInfo = { nickname: Like(`%${object.nickname}%`) }
         default:
           break;
       }

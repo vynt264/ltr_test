@@ -34,7 +34,7 @@ export class AdminOrdersService {
     try {
       const object: any = JSON.parse(paginationDto.keyword);
       const listDataReal = await this.orderRepository.findAndCount({
-        relations: ["user", "user.bookmaker", "winningNumber"],
+        relations: ["user", "user.bookmaker", "winningNumber", "user.userInfo"],
         select: {
           user: {
             id: true,
@@ -42,6 +42,9 @@ export class AdminOrdersService {
             bookmaker: {
               id: true,
               name: true
+            },
+            userInfo: {
+              nickname: true,
             },
           },
           winningNumber: {
@@ -98,6 +101,13 @@ export class AdminOrdersService {
         data.user = { 
           ...data.user,
           username: Like(`%${object.username}%`), 
+        };
+      }
+
+      if (key === "nickname") {
+        data.user = { 
+          ...data.user,
+          userInfo: { nickname: Like(`%${object.nickname}%`) },
         };
       }
 
@@ -352,7 +362,7 @@ export class AdminOrdersService {
     }
   }
 
-  async getUserInfo(bookmakerId: number, username: string) {
+  async getUserInfo(bookmakerId: number, username: string, nickname: string) {
     try {
       let condition = "entity.usernameReal = ''";
       const conditionParams: any = {}
@@ -364,6 +374,10 @@ export class AdminOrdersService {
         condition = condition.concat(` AND entity.username LIKE :usernameFind`);
         conditionParams.usernameFind = `%${username}%`;
       }
+      if (nickname) {
+        condition = condition.concat(` AND userInfo.nickname LIKE :nicknameFind`);
+        conditionParams.nicknameFind = `%${nickname}%`;
+      }
 
       const listDataReal = await this.userRepository
         .createQueryBuilder("entity")
@@ -373,15 +387,21 @@ export class AdminOrdersService {
           "bookmaker",
           "entity.bookmakerId = bookmaker.id"
         )
+        .leftJoinAndSelect(
+          "user_info",
+          "userInfo",
+          "entity.id = userInfo.userId"
+        )
         .leftJoinAndSelect("wallet", "wallet", "entity.id = wallet.userId")
         .select("bookmaker.name as bookmakerName")
         .addSelect("entity.username as username")
+        .addSelect("userInfo.nickname as nickname")
         .addSelect("wallet.balance as balance")
         .addSelect("COUNT(orders.id) as count")
         .addSelect("SUM(orders.revenue) as totalBet")
         .addSelect("SUM(orders.paymentWin) as totalPaymentWin")
         .where(condition, conditionParams)
-        .groupBy("bookmakerName, username, balance")
+        .groupBy("bookmakerName, username, nickname, balance")
         .orderBy("username", "ASC")
         .getRawMany();
 
@@ -392,6 +412,7 @@ export class AdminOrdersService {
             currentBalance: item.balance,
             bookmakerName: item.bookmakerName,
             username: item?.username,
+            nickname: item?.nickname,
             countBet: item?.count,
             totalBet: item?.totalBet,
             totalWin: item?.totalPaymentWin,

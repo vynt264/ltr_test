@@ -76,7 +76,8 @@ export class AdminOrdersController {
   async GetUserInfo(@Query() userInfoQueryDto: UserInfoQueryDto): Promise<any> {
     return this.adminOrdersService.getUserInfo(
       userInfoQueryDto?.bookmakerId,
-      userInfoQueryDto?.username
+      userInfoQueryDto?.username,
+      userInfoQueryDto?.nickname,
     );
   }
 
