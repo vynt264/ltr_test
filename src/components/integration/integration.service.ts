@@ -21,6 +21,7 @@ import { Helper } from 'src/common/helper';
 import { StatusExchange, TypeExchange } from './enums/exchange.enum';
 import GetBetInfoDto from './dto/get.bet.info.dto';
 import * as moment from "moment";
+import { FE_URL_1 } from 'src/system/config.system/config.default';
 
 @Injectable()
 export class IntegrationService {
@@ -86,20 +87,20 @@ export class IntegrationService {
         const createdUser = this.userRepository.create(userCreateDto);
         user = await this.userRepository.save(createdUser);
 
-        const walletDto = {
-          walletCode: "",
-          user: { id: user.id },
-          createdBy: usernameEncrypt,
-          balance: 0,
-        };
-        const walletCreate = await this.walletRepository.create(walletDto);
-        await this.walletRepository.save(walletCreate);
+        // const walletDto = {
+        //   walletCode: "",
+        //   user: { id: user.id },
+        //   createdBy: usernameEncrypt,
+        //   balance: 0,
+        // };
+        // const walletCreate = await this.walletRepository.create(walletDto);
+        // await this.walletRepository.save(walletCreate);
       }
 
       const params = Helper.encryptData(
-        `username=${verifyAccountDto.bookmakerId}|${usernameEncrypt}`
+        `username=${usernameEncrypt}&bookmakerId=${verifyAccountDto.bookmakerId}`
       );
-      const url = `http://vntop.game.game8b.com/?params=${params}`
+      const url = `${FE_URL_1}/?params=${params}`
 
       const userResponse = {
         user: {
@@ -146,9 +147,11 @@ export class IntegrationService {
         );
       }
 
+      const usernameEncrypt = Helper.encryptData(getRefundableBalanceDto.username)
+
       // check username có tồn tại
       const user = await this.userRepository.findOneBy({
-        username: getRefundableBalanceDto.username,
+        username: usernameEncrypt,
         bookmaker: {
           id: getRefundableBalanceDto.bookmakerId
         }
@@ -160,9 +163,11 @@ export class IntegrationService {
           MESSAGE.GET_REFUNDABLE_BALANCE_FAILUTE
         );
       } else {
-        const wallet = await this.walletRepository.findOneBy({
-          user: {
-            id: user?.id
+        const wallet = await this.walletRepository.findOne({
+          where: {
+            user: {
+              id: user?.id
+            }
           }
         })
 
@@ -210,8 +215,10 @@ export class IntegrationService {
         );
       }
 
+      const usernameEncrypt = Helper.encryptData(depostDto.username);
+
       const user = await this.userRepository.findOneBy({
-        username: depostDto.username,
+        username: usernameEncrypt,
         bookmaker: {
           id: depostDto.bookmakerId
         }
@@ -226,12 +233,11 @@ export class IntegrationService {
         // cộng amount vào ví của user
         // save vao wallet_history
         // save vao exchange
-        const walletUser = await this.walletRepository.findOneBy({
-          user: {
-            id: user?.id
+        const walletUser = await this.walletRepository.findOne({
+          where: {
+            user: { id: user?.id } 
           }
-        })
-        
+        });
         if (walletUser) {
           // save exchange
           const exchangeDto = {
@@ -323,8 +329,10 @@ export class IntegrationService {
         );
       }
 
+      const usernameEncrypt = Helper.encryptData(withdrawDto.username);
+
       const user = await this.userRepository.findOneBy({
-        username: withdrawDto.username,
+        username: usernameEncrypt,
         bookmaker: {
           id: withdrawDto.bookmakerId
         }
@@ -339,11 +347,11 @@ export class IntegrationService {
         // cộng amount vào ví của user
         // save vao wallet_history
         // save vao exchange
-        const walletUser = await this.walletRepository.findOneBy({
-          user: {
-            id: user?.id
+        const walletUser = await this.walletRepository.findOne({
+          where: {
+            user: { id: user?.id } 
           }
-        })
+        });
 
         if (walletUser) {
           const balanceUp =
@@ -445,8 +453,10 @@ export class IntegrationService {
         );
       }
 
+      const usernameEncrypt = Helper.encryptData(checkStatusTransactionDto.username);
+
       const user = await this.userRepository.findOneBy({
-        username: checkStatusTransactionDto.username,
+        username: usernameEncrypt,
         bookmaker: {
           id: checkStatusTransactionDto.bookmakerId
         }
@@ -529,8 +539,9 @@ export class IntegrationService {
         timeEnd: timeEndCV
       }
       if (getBetInfo.username) {
+        const usernameEncrypt = Helper.encryptData(getBetInfo.username)
         const userFind: User = await this.userRepository.findOneBy({
-          username: getBetInfo.username,
+          username: usernameEncrypt,
           bookmaker: {
             id: getBetInfo.bookmakerId
           }

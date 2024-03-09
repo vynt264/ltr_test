@@ -16,6 +16,8 @@ import { genRandom } from "../sys.config/enums/sys.config.enum";
 import { UserRoles } from "../user/enums/user.enum";
 import { CreateUserFakeDto } from "./dto/createUserFake";
 import { Cron } from "@nestjs/schedule";
+import { LoginNewDto } from "./dto/loginNew.dto";
+import { Helper } from "src/common/helper";
 import { AuthGuard } from "./guards/auth.guard";
 
 @ApiTags("Auth")
@@ -25,6 +27,25 @@ export class AuthController {
   constructor(
     private authService: AuthService,
   ) { }
+
+  @Post("login-new")
+  @ApiOperation({
+    description: "test login from url response from verifyAccount",
+  })
+  @ApiOkResponse({
+    type: Response<JWTResult>,
+  })
+  async loginNew(@Body() loginNewDto: LoginNewDto) {
+    const parms = loginNewDto.params;
+    const deParams = Helper.decryptData(parms);
+    const findTxt = deParams.indexOf("&");
+    const username = deParams.substring(9, findTxt);
+    const bookmakerId = deParams.substring(findTxt + 13);
+
+    const user = await this.authService.userLoginNew(username);
+
+    return this.authService.generateToken(user);
+  }
 
   @Post("login")
   @ApiOperation({
@@ -38,14 +59,27 @@ export class AuthController {
     @Request() req: any,
     @Body() loginDto: LoginDto
   ): Promise<JWTResult> {
+    // env dev
     const {
       sign,
       username,
     } = loginDto;
     // const devide = req.headers['user-agent'];
-    const user = await this.authService.userLogin(username, sign);
+    const usernameEncrypt = Helper.encryptData(username)
+    const user = await this.authService.userLogin(usernameEncrypt, sign);
 
     return this.authService.generateToken(user);
+
+    // env staging
+    // const parms = loginNewDto.params;
+    // const deParams = Helper.decryptData(parms);
+    // const findTxt = deParams.indexOf("&");
+    // const username = deParams.substring(9, findTxt);
+    // const bookmakerId = deParams.substring(findTxt + 13);
+
+    // const user = await this.authService.userLoginNew(username);
+
+    // return this.authService.generateToken(user);
   }
 
   @Post("admin-login")

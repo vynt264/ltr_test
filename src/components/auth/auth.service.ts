@@ -277,6 +277,27 @@ export class AuthService {
     return true;
   }
 
+  async userLoginNew(username: string) {
+    const passwordDf = ConfigSys.config().password;
+    const user = await this.checkUser(username, passwordDf);
+    const infoGenerateToken = {
+      ... {
+        id: user.id,
+        isAuth: user.isAuth,
+        password: user.password,
+        username: user.username,
+        role: user.role,
+        bookmakerId: user?.bookmaker?.id || 1,
+        usernameReal: user?.usernameReal,
+      },
+      username,
+    };
+
+    await this.saveUserIdIntoRedis(infoGenerateToken);
+
+    return infoGenerateToken;
+  }
+
   async userLogin(username: string, sign: string) {
     const passwordDf = ConfigSys.config().password;
     const user = await this.checkUser(username, passwordDf);
@@ -332,7 +353,7 @@ export class AuthService {
         user: {
           id: user.id
         } as any,
-        balance: 30000000,
+        balance: 0,
         createdBy: user?.username,
       });
     }
@@ -340,7 +361,7 @@ export class AuthService {
     if (user && walletInout?.length === 0) {
       const walletInoutCreate = {
         user: { id: user.id },
-        balanceIn: wallet?.balance ? wallet?.balance : 30000000,
+        balanceIn: wallet?.balance ? wallet?.balance : 0,
         balanceOut: 0,
         timeIn: new Date(),
         createdBy: user.username,
@@ -380,7 +401,7 @@ export class AuthService {
         user: {
           id: user.id
         } as any,
-        balance: 30000000,
+        balance: 0,
         createdBy: user?.username,
       });
       const walletHis = {
@@ -410,7 +431,7 @@ export class AuthService {
       await this.coinWalletRepository.save(coinWalletCreate);
       const walletInoutCreate = {
         user: { id: user.id },
-        balanceIn: 30000000,
+        balanceIn: 0,
         balanceOut: 0,
         timeIn: new Date(),
         createdBy: user.username,
