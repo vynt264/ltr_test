@@ -65,7 +65,8 @@ export class AuthController {
       username,
     } = loginDto;
     // const devide = req.headers['user-agent'];
-    const user = await this.authService.userLogin(username, sign);
+    const usernameEncrypt = Helper.encryptData(username)
+    const user = await this.authService.userLogin(usernameEncrypt, sign);
 
     return this.authService.generateToken(user);
 
