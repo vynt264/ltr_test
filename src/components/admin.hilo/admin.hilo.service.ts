@@ -9,6 +9,7 @@ import { PaginationDto } from "src/common/dto/pagination.dto";
 import { ERROR, MESSAGE, STATUSCODE, TypeLottery } from "src/system/constants";
 import { ErrorResponse, SuccessResponse } from "src/system/BaseResponse";
 import { Logger } from "winston";
+import { Helper } from "src/common/helper";
 
 @Injectable()
 export class AdminHiloService {
@@ -238,9 +239,9 @@ export class AdminHiloService {
       const object: any = JSON.parse(paginationDto.keyword);
       let condition = "user.usernameReal = ''";
       const conditionParams: any = {}
-      if (object?.bookmakerId > 0) {
+      if (object?.bookmaker > 0) {
         condition = condition.concat(` AND bookmaker.id = :bookmarkerFind`);
-        conditionParams.bookmarkerFind = object?.bookmakerId;
+        conditionParams.bookmarkerFind = object?.bookmaker;
       }
       if (object?.startDate) {
         const startDate = new Date(object.startDate);
@@ -296,10 +297,11 @@ export class AdminHiloService {
         }
         dataResul.push(record);
       })
+      const response = Helper.checkAndGroupByTime(dataResul, "hilo");
 
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
-        dataResul,
+        response,
         MESSAGE.LIST_SUCCESS
       );
     } catch (error) {

@@ -105,4 +105,38 @@ export class Helper {
     return JSON.parse(decryptedData);
   }
 
+  static checkAndGroupByTime(array: any, type: string) {
+    const timeMap: any = {};
+
+    array.forEach((item: any) => {
+      if (!timeMap[item.timeFilter]) {
+        if (type == "user") {
+          timeMap[item.timeFilter] = {
+            ...item,
+            count: Number(item.count),
+          };
+        } else {
+          timeMap[item.timeFilter] = {
+            ...item,
+            count: Number(item.count),
+            totalBet: Number(item.totalBet),
+            totalPaymentWin: Number(item.totalPaymentWin),
+          };
+        }
+      } else {
+        timeMap[item.timeFilter].count =
+          Number(timeMap[item.timeFilter].count) + Number(item.count);
+        timeMap[item.timeFilter].bookmakerName += ` - ${item.bookmakerName}`;
+        if (type != "user") {
+          timeMap[item.timeFilter].totalBet = 
+            Number(timeMap[item.timeFilter].totalBet) + Number(item.totalBet);
+          timeMap[item.timeFilter].totalPaymentWin = 
+            Number(timeMap[item.timeFilter].totalPaymentWin) + Number(item.totalPaymentWin);
+        }
+      }
+    });
+
+    return Object.values(timeMap);
+  }
+
 }

@@ -10,6 +10,7 @@ import { MESSAGE, STATUSCODE, TypeLottery } from "src/system/constants";
 import { UserService } from "../user/user.service";
 import { ErrorResponse, SuccessResponse } from "src/system/BaseResponse";
 import { Logger } from "winston";
+import { Helper } from "src/common/helper";
 
 @Injectable()
 export class AdminDashboardService {
@@ -28,9 +29,9 @@ export class AdminDashboardService {
       const object: any = JSON.parse(paginationDto.keyword);
       let condition = "entity.usernameReal = '' AND entity.role = 'member'";
       const conditionParams: any = {}
-      if (object?.bookmakerId > 0) {
+      if (object?.bookmaker > 0) {
         condition = condition.concat(` AND bookmaker.id = :bookmarkerFind`);
-        conditionParams.bookmarkerFind = object?.bookmakerId;
+        conditionParams.bookmarkerFind = object?.bookmaker;
       }
       if (object?.startDate) {
         const startDate = new Date(object.startDate);
@@ -72,9 +73,10 @@ export class AdminDashboardService {
         .orderBy("timeFilter", "ASC")
         .getRawMany();
 
+      const response = Helper.checkAndGroupByTime(listUser, "user");
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
-        listUser,
+        response,
         MESSAGE.LIST_SUCCESS
       );
     } catch (error) {
@@ -94,9 +96,9 @@ export class AdminDashboardService {
       const object: any = JSON.parse(paginationDto.keyword);
       let condition = "user.usernameReal = ''";
       const conditionParams: any = {}
-      if (object?.bookmakerId > 0) {
+      if (object?.bookmaker > 0) {
         condition = condition.concat(` AND bookmaker.id = :bookmarkerFind`);
-        conditionParams.bookmarkerFind = object?.bookmakerId;
+        conditionParams.bookmarkerFind = object?.bookmaker;
       }
       if (object?.startDate) {
         const startDate = new Date(object.startDate);
@@ -141,9 +143,10 @@ export class AdminDashboardService {
         .orderBy("timeFilter", "ASC")
         .getRawMany();
 
+      const response = Helper.checkAndGroupByTime(listDataReal, "order");
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
-        listDataReal,
+        response,
         MESSAGE.LIST_SUCCESS
       );
     } catch (error) {
@@ -156,5 +159,39 @@ export class AdminDashboardService {
         MESSAGE.LIST_FAILED
       );
     }
+  }
+
+  checkAndGroupByTime(array: any, type: string) {
+    const timeMap: any = {};
+
+    array.forEach((item: any) => {
+      if (!timeMap[item.timeFilter]) {
+        if (type == "user") {
+          timeMap[item.timeFilter] = {
+            ...item,
+            count: Number(item.count),
+          };
+        } else {
+          timeMap[item.timeFilter] = {
+            ...item,
+            count: Number(item.count),
+            totalBet: Number(item.totalBet),
+            totalPaymentWin: Number(item.totalPaymentWin),
+          };
+        }
+      } else {
+        timeMap[item.timeFilter].count =
+          Number(timeMap[item.timeFilter].count) + Number(item.count);
+        timeMap[item.timeFilter].bookmakerName += ` - ${item.bookmakerName}`;
+        if (type == "order") {
+          timeMap[item.timeFilter].totalBet = 
+            Number(timeMap[item.timeFilter].totalBet) + Number(item.totalBet);
+          timeMap[item.timeFilter].totalPaymentWin = 
+            Number(timeMap[item.timeFilter].totalPaymentWin) + Number(item.totalPaymentWin);
+        }
+      }
+    });
+
+    return Object.values(timeMap);
   }
 }
