@@ -27,11 +27,11 @@ export class User {
   @Column({ nullable: true })
   public name: string;
 
-  @Column({ nullable: true })
-  public email: string;
-
-  @Column({ unique: true, nullable: false })
+  @Column({ unique: false, nullable: false })
   public username: string;
+
+  @Column({ unique: false, nullable: true })
+  public usernameFromAgent: string;
 
   @Column({ nullable: true })
   public password: string;
