@@ -45,7 +45,7 @@ AppDataSource.initialize()
       AppDataSource.manager.save(permission);
     });
     const user = new User();
-    user.email = "super@super.com";
+    // user.email = "super@super.com";
     user.username = "super9999";
     user.name = "super";
     user.password = "8y9Z$%XblG%Dm2H6%ooR";

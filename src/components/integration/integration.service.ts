@@ -78,6 +78,7 @@ export class IntegrationService {
       })
       if (!user) {
         const userCreateDto = {
+          usernameFromAgent: verifyAccountDto.username,
           username: usernameEncrypt,
           password: process.env.USER_PASSWORD,
           isAuth: false,

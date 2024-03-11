@@ -169,6 +169,7 @@ export class UserService {
       select: {
         id: true,
         username: true,
+        usernameFromAgent: true,
         createdAt: true,
         role: true,
         password: true,
