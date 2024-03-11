@@ -26,20 +26,97 @@ export class AdminPokerService {
     if (page <= 0) {
       return "The skip must be more than 0";
     }
-    const skip = +perPage * +page - +perPage;
-    const object: any = JSON.parse(paginationDto.keyword);
     try {
-      const listData = await this.playHistoryPokerRepository.findAndCount({
-        where: this.queryHis(object),
-        take: +perPage,
-        skip,
-        order: {
-          id: "DESC",
-        }
-      })
+      const object: any = JSON.parse(paginationDto.keyword);
+      let condition = "entity.isUserFake = 0";
+      const conditionParams: any = {}
+      if (object?.bookmakerId > 0) {
+        condition = condition.concat(` AND entity.bookmakerId = :bookmarkerFind`);
+        conditionParams.bookmarkerFind = object?.bookmakerId;
+      }
+      if (object?.username) {
+        condition = condition.concat(` AND entity.username LIKE :usernameFind`);
+        conditionParams.usernameFind = `%${object?.username}%`;
+      }
+      if (object?.nickname) {
+        condition = condition.concat(` AND userInfo.nickname LIKE :nicknameFind`);
+        conditionParams.nicknameFind = `%${object?.nickname}%`;
+      }
+      if (object?.startDate) {
+        const startDate = new Date(object.startDate);
+        condition = condition.concat(` AND (entity.createdAt >= :timeStart)`);
+        conditionParams.timeStart = startOfDay(startDate);
+      }
+      if (object?.endDate) {
+        const endDate = new Date(object.endDate);
+        condition = condition.concat(` AND (entity.createdAt <= :timeEnd)`);
+        conditionParams.timeEnd = endOfDay(endDate);
+      }
+      if (object?.startDate && object?.endDate) {
+        const startDate = new Date(object.startDate);
+        const endDate = new Date(object.endDate);
+        condition = condition.concat(` AND (entity.createdAt BETWEEN :timeStart AND :timeEnd)`);
+        conditionParams.timeStart = startOfDay(startDate);
+        conditionParams.timeEnd = endOfDay(endDate);
+      }
+
+      const [data, count] = await Promise.all([
+        this.playHistoryPokerRepository
+          .createQueryBuilder("entity")
+          .leftJoinAndSelect(
+            "user_info",
+            "userInfo",
+            "entity.userId = userInfo.user.id"
+          )
+          .leftJoinAndSelect(
+            "bookmaker",
+            "bookmaker",
+            "entity.bookmakerId = bookmaker.id"
+          )
+          .select("bookmaker.name as bookmakerName")
+          .addSelect("userInfo.nickname as nickname")
+          .addSelect("entity.userId as userId")
+          .addSelect("entity.username as username")
+          .addSelect("entity.code as code")
+          .addSelect("entity.play1st as play1st")
+          .addSelect("entity.play2nd as play2nd")
+          .addSelect("entity.revenue as revenue")
+          .addSelect("entity.paymentWin as paymentWin")
+          .addSelect("entity.createdAt as createdAt")
+          .addSelect("entity.createdBy as createdBy")
+          .addSelect("entity.updatedAt as updatedAt")
+          .addSelect("entity.updatedBy as updatedBy")
+          .addSelect("entity.isGameOver as isGameOver")
+          .addSelect("entity.rewardTitle as rewardTitle")
+          .addSelect("entity.bookmakerId as bookmakerId")
+          .addSelect("entity.multi as multi")
+          .addSelect("entity.id as id")
+          .where(condition, conditionParams)
+          .orderBy("id", "DESC")
+          .limit(perPage)
+          .offset((page - 1) * perPage)
+          .getRawMany(),
+        this.playHistoryPokerRepository
+          .createQueryBuilder("entity")
+          .leftJoinAndSelect(
+            "user_info",
+            "userInfo",
+            "entity.userId = userInfo.user.id"
+          )
+          .leftJoinAndSelect(
+            "bookmaker",
+            "bookmaker",
+            "entity.bookmakerId = bookmaker.id"
+          )
+          .select("entity.id as id")
+          .where(condition, conditionParams)
+          .orderBy("id", "DESC")
+          .getCount(),
+      ]);
+      const response: any = [data, count];
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
-        listData,
+        response,
         MESSAGE.LIST_SUCCESS
       );
     } catch (error) {
