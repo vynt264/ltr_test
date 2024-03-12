@@ -14,42 +14,36 @@ export class WalletHandlerController {
   constructor(private readonly walletHandlerService: WalletHandlerService) {}
 
   @Post()
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   create(@Body() createWalletHandlerDto: CreateWalletHandlerDto) {
     return this.walletHandlerService.create(createWalletHandlerDto);
   }
 
   @Get()
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   findAll() {
     return this.walletHandlerService.findAll();
   }
 
   @Get('user')
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   findWalletByUserId(@Request() req: any) {
     return this.walletHandlerService.findWalletByUserId(req.user.id);
   }
 
   @Get(':id')
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   findOne(@Param('id') id: string) {
     return this.walletHandlerService.findOne(+id);
   }
 
   @Patch(':id')
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   update(@Param('id') id: string, @Body() updateWalletHandlerDto: UpdateWalletHandlerDto) {
     return this.walletHandlerService.update(+id, updateWalletHandlerDto);
   }
 
   @Delete(':id')
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   remove(@Param('id') id: string) {

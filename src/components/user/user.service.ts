@@ -16,6 +16,8 @@ import { Wallet } from "../wallet/wallet.entity";
 import { WalletHistory } from "../wallet/wallet.history.entity";
 import { WalletCodeQueue } from "../wallet/wallet.code.queue";
 import { PrefixEnum } from "../sys.config/enums/sys.config.enum";
+import { RedisCacheService } from "src/system/redis/redis.service";
+import { OrderHelper } from "src/common/helper";
 @Injectable()
 export class UserService {
   private username = "username";
@@ -34,7 +36,8 @@ export class UserService {
     @InjectRepository(WalletCodeQueue)
     private walletCodeQueueRepository: Repository<WalletCodeQueue>,
     @Inject("winston")
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly redisService: RedisCacheService,
   ) { }
 
   async getByUsername(username: string, isAdmin = false) {
@@ -131,6 +134,9 @@ export class UserService {
       };
       const walletCreate = this.walletRepository.create(walletDto);
       const wallet = await this.walletRepository.save(walletCreate);
+
+      await this.redisService.set(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), (Number(wallet.balance) || 0));
+
       // await this.walletHisotryRepository.save(wallet);
     }
 

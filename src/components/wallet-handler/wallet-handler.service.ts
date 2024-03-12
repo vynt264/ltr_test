@@ -4,12 +4,16 @@ import { UpdateWalletHandlerDto } from './dto/update-wallet-handler.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Wallet } from './entities/wallet.entity';
 import { Repository } from 'typeorm';
+import { RedisCacheService } from 'src/system/redis/redis.service';
+import { OrderHelper } from 'src/common/helper';
 
 @Injectable()
 export class WalletHandlerService {
   constructor(
     @InjectRepository(Wallet)
-    private walletRepository: Repository<Wallet>
+    private walletRepository: Repository<Wallet>,
+    private readonly redisService: RedisCacheService,
+
   ) { }
 
   create(createWalletHandlerDto: CreateWalletHandlerDto) {
@@ -29,6 +33,15 @@ export class WalletHandlerService {
   }
 
   async findWalletByUserId(userId: number) {
+    const balance = await this.redisService.get(OrderHelper.getKeySaveBalanceOfUser(userId.toString()));
+
+    if(!balance && balance !== 0) {
+      return {
+        id: userId,
+        balance: Number(balance),
+      }
+    }
+
     return this.walletRepository.findOneBy({
       user: { id: userId }
     });
@@ -42,6 +55,10 @@ export class WalletHandlerService {
     const wallet = await this.findWalletByUserId(userId);
     wallet.balance = updateWalletHandlerDto.balance;
     return this.walletRepository.save(wallet);
+  }
+
+  async updateWallet(userId: number, remainBalance: number) {
+    return this.walletRepository.update({ user: { id: userId } }, { balance: remainBalance });
   }
 
   remove(id: number) {

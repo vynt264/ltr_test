@@ -1852,4 +1852,8 @@ export class OrderHelper {
 
         return ids;
     }
+
+    static getKeySaveBalanceOfUser(id: string) {
+        return `balace::${id}`;
+    }
 }

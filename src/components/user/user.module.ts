@@ -9,11 +9,13 @@ import { WalletHistory } from "../wallet/wallet.history.entity";
 import { WalletCodeQueue } from "../wallet/wallet.code.queue";
 import { UserInfo } from "../user.info/user.info.entity";
 import { JwtModule } from "@nestjs/jwt";
+import { RedisCacheModule } from "src/system/redis/redis.module";
 @Module({
   imports: [
     BacklistModule,
     TypeOrmModule.forFeature([User, Wallet, WalletHistory, WalletCodeQueue, UserInfo]),
     JwtModule.register({}),
+    RedisCacheModule
   ],
   providers: [UserService],
   controllers: [UserController],

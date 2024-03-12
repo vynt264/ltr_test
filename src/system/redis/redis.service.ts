@@ -27,6 +27,10 @@ export class RedisCacheService {
     return this.redisClient.incr(key);
   }
 
+  public async incrby(key: string, count: number) {
+    return this.redisClient.incrby(key, count);
+  }
+
   public async hgetall(key: string) {
     return this.redisClient.hgetall(key);
   }

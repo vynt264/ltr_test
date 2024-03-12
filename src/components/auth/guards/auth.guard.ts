@@ -35,7 +35,6 @@ export class AuthGuard implements CanActivate {
             );
 
             const u = await this.userService.getUserById(payload.sub);
-
             if (u.isBlocked) {
                 throw new HttpException(
                     {

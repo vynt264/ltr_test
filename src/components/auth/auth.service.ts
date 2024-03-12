@@ -474,7 +474,9 @@ export class AuthService {
     //   await this.walletInoutRepository.save(createtedWalletInout);
     // }
 
-    return user
+    await this.redisService.set(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), (Number(wallet.balance) || 0));
+
+    return user;
   }
 
   async valiRole(username: string, isAdmin = false) {

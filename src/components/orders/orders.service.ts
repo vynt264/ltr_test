@@ -71,8 +71,9 @@ export class OrdersService {
 
     // check balance
     const wallet = await this.walletHandlerService.findWalletByUserId(member.id);
+    const balance = await this.redisService.get(OrderHelper.getKeySaveBalanceOfUser(member.id.toString()));
     const totalBet = OrderHelper.getBalance(data.orders);
-    await this.checkBalance(totalBet, wallet);
+    await this.checkBalance(totalBet, { balance });
 
     let promises = [];
     const bookmakerId = member?.bookmakerId || 1;
@@ -104,11 +105,11 @@ export class OrdersService {
     const result = await Promise.all(promises);
 
     await this.prepareDataToGeneratePrizes(result, bookmakerId, turnIndex, member.usernameReal);
-    // await this.saveEachOrderOfUserToRedis(result, bookmakerId, member.id, member.usernameReal);
     await this.saveOrdersOfUserToRedis(result, bookmakerId, member.id, member.usernameReal);
 
     // update balance
-    const totalBetRemain = wallet.balance - totalBet;
+    // const totalBetRemain = Number(balance) - totalBet;
+    const totalBetRemain = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(member.id.toString()), -(Number(totalBet)));
     await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
 
     // save wallet history
@@ -242,11 +243,14 @@ export class OrdersService {
     // check balance
     let wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     const totalBet = OrderHelper.getBalance(data.orders);
-    await this.checkBalance(totalBet, wallet);
+    const balance = await this.redisService.get(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()));
+    await this.checkBalance(totalBet, { balance });
 
     // update balance
-    wallet = await this.walletHandlerService.findWalletByUserId(user.id);
-    await this.walletHandlerService.updateWalletByUserId(user.id, { balance: (+wallet.balance - totalBet) });
+    // wallet = await this.walletHandlerService.findWalletByUserId(user.id);
+    // const totalBetRemain = Number(balance) - totalBet;
+    const totalBetRemain = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), -Number(totalBet));
+    await this.walletHandlerService.updateWalletByUserId(user.id, { balance: totalBetRemain });
 
     // save wallet history
     const createWalletHis: any = {
@@ -255,14 +259,14 @@ export class OrdersService {
       subOrAdd: 0,
       amount: totalBet,
       detail: `Xổ số nhanh - Trừ tiền cược`,
-      balance: (+wallet.balance - totalBet),
+      balance: (totalBetRemain),
       createdBy: user.name,
     }
     const createdWalletHis = this.walletHistoryRepository.create(createWalletHis);
     this.walletHistoryRepository.save(createdWalletHis);
 
     return {
-      balance: (+wallet.balance - totalBet),
+      balance: (totalBetRemain),
     };
   }
 
@@ -272,7 +276,7 @@ export class OrdersService {
     const openTime = new Date();
     const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
     const turnIndex = OrderHelper.getTurnIndex(seconds);
-    let wallet = await this.walletHandlerService.findWalletByUserId(user.id);
+    // let wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     const totalBet = OrderHelper.getBalance(data.orders);
 
     let promises = [];
@@ -389,8 +393,12 @@ export class OrdersService {
     await Promise.all(promisesUpdatedOrders);
 
     // update balance
-    wallet = await this.walletHandlerService.findWalletByUserId(user.id);
-    const remainBalance = +wallet.balance + totalBalance;
+
+    // const balance = await this.redisService.get(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()));
+    // const remainBalance = Number(balance) + totalBalance + refunds;
+    const wallet = await this.walletHandlerService.findWalletByUserId(user.id);
+    // const remainBalance = Number(balance) + totalBalance;
+    const remainBalance = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), Number(totalBalance));
     await this.walletHandlerService.updateWalletByUserId(user.id, { balance: remainBalance });
 
     // save wallet history
@@ -523,25 +531,11 @@ export class OrdersService {
     if (usernameReal) {
       keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId.toString(), `${order.type}${order.seconds}s`);
     }
-    // const dataByBookmakerId: any = await this.redisService.get(keyOrdersOfBookmaker);
     const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), order.turnIndex);
-    // if (dataByBookmakerId) {
-    //   const result: any = {};
-    //   const orders: any = dataByBookmakerId[keyByUserAndTurnIndex] || {};
-    //   for (const key in orders) {
-    //     if (key === OrderHelper.getKeySaveEachOrder(order)) continue;
-    //     result[key] = orders[key];
-    //   }
-    //   dataByBookmakerId[keyByUserAndTurnIndex] = result;
-    //   await this.redisService.set(keyOrdersOfBookmaker, dataByBookmakerId);
-    // }
-
     const mergeKey = `${keyOrdersOfBookmaker}-${keyByUserAndTurnIndex}-cancel-orders`;
     const keyByOrder = OrderHelper.getKeySaveEachOrder(order);
     const data = this.transformOrderToObject(order);
     await this.redisService.hset(`${mergeKey}`, `${keyByOrder}`, JSON.stringify(data));
-
-    // const result1 = await this.redisService.hgetall(mergeKey);
 
     // remove order from data prepare to generate award
     let key = OrderHelper.getKeyCancelOrders(bookmakerId, `${order.type}${order.seconds}s`, order.turnIndex);
@@ -556,31 +550,6 @@ export class OrdersService {
     }
 
     return this.redisService.hset(`${key}`, `${order.id}-${order.betType}-${order.childBetType}`, JSON.stringify(result));
-
-    // let keyToGetOrders = OrderHelper.getKeyPrepareOrders(bookmakerId, `${order.type}${order.seconds}s`, order.turnIndex);
-    // if (usernameReal) {
-    //   keyToGetOrders = OrderHelper.getKeyPrepareOrdersOfTestPlayer(bookmakerId, `${order.type}${order.seconds}s`, order.turnIndex);
-    // }
-
-    // let data: any = await this.redisService.get(keyToGetOrders);
-    // if (!data) return;
-
-    // const orderDetail = this.transformOrderToObject(order);
-    // const availableOrders = data[order.betType][order.childBetType];
-    // const resultFinal: any = {};
-    // for (const key in availableOrders) {
-    //   if (orderDetail[key]) {
-    //     const remainScore = availableOrders[key] - orderDetail[key];
-    //     if (remainScore > 0) {
-    //       resultFinal[key] = remainScore;
-    //     }
-    //   } else {
-    //     resultFinal[key] = availableOrders[key];
-    //   }
-    // }
-
-    // data[order.betType][order.childBetType] = resultFinal;
-    // await this.redisService.set(keyToGetOrders, data);
   }
 
   async update(id: number, updateOrderDto: any, member: any) {
@@ -616,7 +585,9 @@ export class OrdersService {
       });
 
       const wallet = await this.walletHandlerService.findWalletByUserId(member.id);
-      const remainBalance = +wallet.balance + (+order.revenue);
+      // const balance = await this.redisService.get(OrderHelper.getKeySaveBalanceOfUser(member.id.toString()));
+      // const remainBalance = +balance + (+order.revenue);
+      const remainBalance = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(member.id.toString()), Number(order.revenue));
       await this.walletHandlerService.updateWalletByUserId(+member.id, { balance: remainBalance });
       // save wallet history
       const createWalletHis: any = {
@@ -769,8 +740,9 @@ export class OrdersService {
 
     // check balance
     const wallet = await this.walletHandlerService.findWalletByUserId(user.id);
+    const balance = await this.redisService.get(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()));
     const totalBet = OrderHelper.getBalance(data.orders);
-    await this.checkBalance(totalBet, wallet);
+    await this.checkBalance(totalBet, { balance });
 
     const result: any = [];
     const orders = data?.orders || [];
@@ -806,11 +778,11 @@ export class OrdersService {
     }
 
     await Promise.all(promisesPrepareDataToGenerateAward);
-    // await this.saveEachOrderOfUserToRedis(result, user.bookmakerId, user.id, user.usernameReal);
     await this.saveOrdersOfUserToRedis(result, user.bookmakerId, user.id, user.usernameReal);
 
     // update balance
-    const totalBetRemain = Number(wallet.balance) - totalBet;
+    // const totalBetRemain = Number(balance) - totalBet;
+    const totalBetRemain  = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), -Number(totalBet));
     await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
 
     // save wallet history
@@ -1204,9 +1176,10 @@ export class OrdersService {
     });
 
     const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
-    const remainBalance = +wallet.balance + totalBalance + refunds;
+    // const balance = await this.redisService.get(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()));
+    // const remainBalance = Number(balance) + totalBalance + refunds;
+    const remainBalance = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), Number(totalBalance + refunds));
     await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
-
 
     if ((totalBalance + refunds) > 0) {
       // save wallet history

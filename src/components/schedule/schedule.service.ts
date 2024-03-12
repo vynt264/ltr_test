@@ -443,8 +443,12 @@ export class ScheduleService implements OnModuleInit {
         });
 
         const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
-        const remainBalance = +wallet.balance + totalBalance + refunds;
-        await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
+        const remainBalance = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(userId.toString()), Number(totalBalance + refunds));
+
+        // const remainBalance = +wallet.balance + totalBalance + refunds;
+        // await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
+
+        await this.walletHandlerService.updateWallet(+userId, remainBalance)
 
         if ((totalBalance + refunds) > 0) {
             // save wallet history
