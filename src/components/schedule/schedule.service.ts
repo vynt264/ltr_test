@@ -4,12 +4,16 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CronJob } from 'cron';
 import { addHours, startOfDay, addDays, addMinutes } from "date-fns";
-
 import { LotteriesService } from 'src/components/lotteries/lotteries.service';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { SocketGatewayService } from '../gateway/gateway.service';
 import { BookMakerService } from '../bookmaker/bookmaker.service';
-import { INIT_TIME_CREATE_JOB, MAINTENANCE_PERIOD, ORDER_STATUS, PERIOD_DELAY_TO_HANDLER_ORDERS, START_TIME_CREATE_JOB, TypeLottery } from 'src/system/constants';
+import {
+    ORDER_STATUS,
+    PERIOD_DELAY_TO_HANDLER_ORDERS,
+    START_TIME_CREATE_JOB,
+    TypeLottery,
+} from 'src/system/constants';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
@@ -158,9 +162,11 @@ export class ScheduleService implements OnModuleInit {
         let dataReal = OrderHelper.splitOrders(ordersReal);
         dataReal = OrderHelper.cancelOrders(dataReal, ordersCancelOfUserReal);
         await this.redisService.del(keyToGetOrdersOfRealUser);
+
         if (!dataReal) {
             dataReal = {};
         }
+
         const dataTransform = OrderHelper.transformData(dataReal);
         const {
             prizes,
@@ -305,7 +311,7 @@ export class ScheduleService implements OnModuleInit {
     @Cron('40 6 * * * ')
     async cronJob() {
         this.logger.info("cron job.");
-        await this.clearDataInRedis();
+        // await this.clearDataInRedis();
         await this.createJobsNextDay();
 
         // create bonus price next day
@@ -373,7 +379,7 @@ export class ScheduleService implements OnModuleInit {
         const ordersOfUser = await this.redisService.hgetall(mergeKey);
 
         if (!ordersOfUser || Object.keys(ordersOfUser).length === 0) {
-            this.logger.info(`orders of userId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
+            // this.logger.info(`orders of userId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
             return;
         }
 
@@ -444,10 +450,6 @@ export class ScheduleService implements OnModuleInit {
 
         const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
         const remainBalance = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(userId.toString()), Number(totalBalance + refunds));
-
-        // const remainBalance = +wallet.balance + totalBalance + refunds;
-        // await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
-
         await this.walletHandlerService.updateWallet(+userId, remainBalance)
 
         if ((totalBalance + refunds) > 0) {
@@ -474,6 +476,10 @@ export class ScheduleService implements OnModuleInit {
         this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {
             ordersWin,
         });
+
+        // delete key in redis
+        this.redisService.del(mergeKey);
+        this.redisService.del(`${mergeKey}-cancel-orders`);
     }
 
     async handlerHoldingNumbers({
@@ -527,25 +533,25 @@ export class ScheduleService implements OnModuleInit {
         }
     }
 
-    async clearDataInRedis() {
-        this.logger.info(`clear data in redis.`);
-        const bookMakers = await this.bookMakerService.getAllBookMaker();
-        const typeLottery = Object.values(TypeLottery);
-        const promises = [];
-        for (const bookMaker of bookMakers) {
-            for (const key in typeLottery) {
-                const keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookMaker.id, typeLottery[key]);
-                const keyOrdersOfBookmakerIsTestPlayer = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookMaker.id, typeLottery[key]);
-                // const keyToGetOrders = OrderHelper.getKeyPrepareOrders();
-                promises.push(this.redisService.del(keyOrdersOfBookmaker));
-                promises.push(this.redisService.del(keyOrdersOfBookmakerIsTestPlayer));
-                // delete key prepare orders
-                // promises.push(this.redisService.del(`${bookMaker.id}-${typeLottery[key]}`));
-            }
-        }
+    // async clearDataInRedis() {
+    //     this.logger.info(`clear data in redis.`);
+    //     const bookMakers = await this.bookMakerService.getAllBookMaker();
+    //     const typeLottery = Object.values(TypeLottery);
+    //     const promises = [];
+    //     for (const bookMaker of bookMakers) {
+    //         for (const key in typeLottery) {
+    //             const keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookMaker.id, typeLottery[key]);
+    //             const keyOrdersOfBookmakerIsTestPlayer = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookMaker.id, typeLottery[key]);
+    //             // const keyToGetOrders = OrderHelper.getKeyPrepareOrders();
+    //             promises.push(this.redisService.del(keyOrdersOfBookmaker));
+    //             promises.push(this.redisService.del(keyOrdersOfBookmakerIsTestPlayer));
+    //             // delete key prepare orders
+    //             // promises.push(this.redisService.del(`${bookMaker.id}-${typeLottery[key]}`));
+    //         }
+    //     }
 
-        await Promise.all(promises);
-    }
+    //     await Promise.all(promises);
+    // }
 
     async createLotteryAwardInPastTime(turnIndex: string, seconds: number, openTime: number, nextTime: number) {
         let gameType: any = OrderHelper.getGameTypesBySeconds(seconds);

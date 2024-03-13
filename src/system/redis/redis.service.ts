@@ -35,6 +35,14 @@ export class RedisCacheService {
     return this.redisClient.hgetall(key);
   }
 
+  public async hkeys(key: string) {
+    return this.redisClient.hkeys(key);
+  } 
+
+  public async hdel(key: string, field: string) {
+    return this.redisClient.hdel(key, field);
+  }
+
   public async hset(key: string, field: string, value: any) {
     return this.redisClient.hset(key, field, value);
   }

@@ -1,23 +1,15 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { endOfDay, startOfDay, addHours } from "date-fns";
-
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import {
-  BaCangType,
-  BaoLoType,
-  BonCangType,
-  CategoryLotteryType,
-  DanhDeType,
-  DauDuoiType,
   LoTruocType,
   LoXienType,
-  TroChoiThuViType,
 } from 'src/system/enums/lotteries';
-import { ERROR, ORDER_STATUS, PERIOD_CANNOT_CANCELED, PERIOD_CANNOT_ORDER, START_TIME_CREATE_JOB } from 'src/system/constants';
+import { ERROR, ORDER_STATUS, PERIOD_CANNOT_CANCELED, START_TIME_CREATE_JOB } from 'src/system/constants';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
 import { LotteryAwardService } from '../lottery.award/lottery.award.service';
@@ -77,7 +69,6 @@ export class OrdersService {
 
     let promises = [];
     const bookmakerId = member?.bookmakerId || 1;
-    // await this.prepareDataToGenerateAward(data.orders, bookmakerId, turnIndex, member.usernameReal);
 
     for (const order of data.orders) {
       order.turnIndex = turnIndex;
@@ -108,7 +99,6 @@ export class OrdersService {
     await this.saveOrdersOfUserToRedis(result, bookmakerId, member.id, member.usernameReal);
 
     // update balance
-    // const totalBetRemain = Number(balance) - totalBet;
     const totalBetRemain = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(member.id.toString()), -(Number(totalBet)));
     await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
 
@@ -276,7 +266,6 @@ export class OrdersService {
     const openTime = new Date();
     const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
     const turnIndex = OrderHelper.getTurnIndex(seconds);
-    // let wallet = await this.walletHandlerService.findWalletByUserId(user.id);
     const totalBet = OrderHelper.getBalance(data.orders);
 
     let promises = [];
@@ -391,13 +380,7 @@ export class OrdersService {
     Promise.all(promisesCreateWinningNumbers);
     // update status orders
     await Promise.all(promisesUpdatedOrders);
-
-    // update balance
-
-    // const balance = await this.redisService.get(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()));
-    // const remainBalance = Number(balance) + totalBalance + refunds;
     const wallet = await this.walletHandlerService.findWalletByUserId(user.id);
-    // const remainBalance = Number(balance) + totalBalance;
     const remainBalance = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), Number(totalBalance));
     await this.walletHandlerService.updateWalletByUserId(user.id, { balance: remainBalance });
 
@@ -781,7 +764,6 @@ export class OrdersService {
     await this.saveOrdersOfUserToRedis(result, user.bookmakerId, user.id, user.usernameReal);
 
     // update balance
-    // const totalBetRemain = Number(balance) - totalBet;
     const totalBetRemain  = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), -Number(totalBet));
     await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
 
@@ -865,35 +847,6 @@ export class OrdersService {
     return initData;
   }
 
-  async saveEachOrderOfUserToRedis(orders: any, bookmakerId: number, userId: number, usernameReal: string) {
-    const type = orders?.[0]?.type;
-    const seconds = orders?.[0].seconds;
-    let keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGame(bookmakerId.toString(), `${type}${seconds}s`);
-    if (usernameReal) {
-      keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId.toString(), `${type}${seconds}s`);
-    }
-
-    let dataByBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
-    if (!dataByBookmaker) {
-      dataByBookmaker = {};
-    }
-    for (const order of orders) {
-      const keyByUserAndTurnIndex = OrderHelper.getKeyByUserAndTurnIndex(userId.toString(), order.turnIndex);
-      if (Object.keys(dataByBookmaker).length === 0) {
-        dataByBookmaker[keyByUserAndTurnIndex] = {} as any;
-      }
-      const keyByOrder = OrderHelper.getKeySaveEachOrder(order);
-      if (!dataByBookmaker[keyByUserAndTurnIndex]) {
-        dataByBookmaker[keyByUserAndTurnIndex] = {
-          [keyByOrder]: this.transformOrderToObject(order)
-        }
-      } else {
-        dataByBookmaker[keyByUserAndTurnIndex][keyByOrder] = this.transformOrderToObject(order);
-      }
-    }
-    this.redisService.set(keyOrdersOfBookmaker, dataByBookmaker);
-  }
-
   async saveOrdersOfUserToRedis(orders: any, bookmakerId: number, userId: number, usernameReal: string) {
     const type = orders?.[0]?.type;
     const seconds = orders?.[0].seconds;
@@ -901,11 +854,6 @@ export class OrdersService {
     if (usernameReal) {
       keyOrdersOfBookmaker = OrderHelper.getKeySaveOrdersOfBookmakerAndTypeGameTestPlayer(bookmakerId.toString(), `${type}${seconds}s`);
     }
-
-    // let dataByBookmaker: any = await this.redisService.get(keyOrdersOfBookmaker);
-    // if (!dataByBookmaker) {
-    //   dataByBookmaker = {};
-    // }
 
     const promises = [];
     let keyByUserAndTurnIndex;
@@ -916,23 +864,10 @@ export class OrdersService {
       const data = this.transformOrderToObject(order);
 
       promises.push(this.redisService.hset(`${mergeKey}`, `${keyByOrder}`, JSON.stringify(data)));
-
-
-      // if (!dataByBookmaker[keyByUserAndTurnIndex]) {
-      //   dataByBookmaker[keyByUserAndTurnIndex] = {
-      //     [keyByOrder]: this.transformOrderToObject(order)
-      //   }
-      // } else {
-      //   dataByBookmaker[keyByUserAndTurnIndex][keyByOrder] = this.transformOrderToObject(order);
-      // }
     }
 
     return Promise.all(promises);
-    // const mergeKey1 = `${keyOrdersOfBookmaker}-${keyByUserAndTurnIndex}-t`;
-    // const result = await this.redisService.hgetall(mergeKey1);
-    // this.redisService.set(keyOrdersOfBookmaker, dataByBookmaker);
   }
-
 
   transformOrderToObject(order: any) {
     const { numbers } = OrderHelper.getInfoDetailOfOrder(order);
@@ -955,89 +890,6 @@ export class OrdersService {
     }
 
     return result;
-  }
-
-  initData() {
-    let data = {
-      [CategoryLotteryType.BaoLo]: {
-        [BaoLoType.Lo2So]: {
-
-        } as any,
-        [BaoLoType.Lo2So1k]: {
-
-        } as any,
-        [BaoLoType.Lo3So]: {
-
-        } as any,
-        [BaoLoType.Lo4So]: {
-
-        } as any,
-      },
-      [CategoryLotteryType.DanhDe]: {
-        [DanhDeType.DeDacBiet]: {
-
-        } as any,
-        [DanhDeType.DeDauDuoi]: {
-
-        } as any,
-        [DanhDeType.DeDau]: {
-
-        } as any,
-      },
-      [CategoryLotteryType.DauDuoi]: {
-        [DauDuoiType.Dau]: {
-
-        } as any,
-        [DauDuoiType.Duoi]: {
-
-        } as any,
-      },
-      [CategoryLotteryType.Lo4Cang]: {
-        [BonCangType.BonCangDacBiet]: {
-
-        } as any,
-      },
-      [CategoryLotteryType.Lo3Cang]: {
-        [BaCangType.BaCangDacBiet]: {
-
-        } as any,
-        [BaCangType.BaCangDau]: {
-
-        } as any,
-        [BaCangType.BaCangDauDuoi]: {
-
-        } as any,
-      },
-      [CategoryLotteryType.LoXien]: {
-        [LoXienType.Xien2]: {
-
-        } as any,
-        [LoXienType.Xien3]: {
-
-        } as any,
-        [LoXienType.Xien4]: {
-
-        } as any,
-      },
-      [CategoryLotteryType.LoTruot]: {
-        [LoTruocType.TruotXien4]: {
-
-        } as any,
-        [LoTruocType.TruotXien8]: {
-
-        } as any,
-        [LoTruocType.TruotXien10]: {
-
-        } as any,
-      },
-      [CategoryLotteryType.TroChoiThuVi]: {
-        [TroChoiThuViType.Lo2SoGiaiDacBiet]: {
-
-        } as any,
-      },
-    };
-
-    return data;
   }
 
   getNumberOfBetsFromTurnIndex(order: any, turnIndex: string, isTestPlayer: boolean) {
