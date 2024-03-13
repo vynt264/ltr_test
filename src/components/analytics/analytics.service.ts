@@ -353,28 +353,21 @@ export class AnalyticsService {
           }
         }
         // analytic2
+        let litNumFindNe: any = []
         for (const item of arrAwards) {
-          litNumFind = []
+          litNumFindNe = []
           for (const number of [item[8][0], item[0][0]]) {
-            const lastTwoDigits = number.slice(-2);
-            litNumFind.push(lastTwoDigits)
-            // if (countMap.hasOwnProperty(lastTwoDigits)) {
-            //     countMap[lastTwoDigits] = 0;
-            //     countMapShow[lastTwoDigits] = countMap[lastTwoDigits]
-            // } else {
-            //     countMap[lastTwoDigits] == countMapShow[lastTwoDigits]++
-            // }
+            const lastTwoDigits = number.slice(-2)
+            litNumFindNe.push(lastTwoDigits)
           }
 
           Object.keys(countMapShow).forEach((key: any) => {
-            if (!litNumFind.includes(key)) {
-              if (countMapShow[key]) {
-                countMapShow[key] += 1;
-              }
+            if (!litNumFindNe.includes(key)) {
+              countMapShow[key] += 1;
             }
           });
 
-          litNumFind.forEach((key: any) => {
+          litNumFindNe.forEach((key: any) => {
             if (countMapShow.hasOwnProperty(key)) {
               countMapShow[key] = 0;
             }
