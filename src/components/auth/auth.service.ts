@@ -328,12 +328,17 @@ export class AuthService {
   async checkUser(username: string, password: string) {
     let user = await this.userService.getByUsername(username);
 
-    if (user && !user?.role.includes(UserRoles.MEMBER)) {
-      throw new ForbiddenException("Access Denied");
-    }
+    // if (user && !user?.role.includes(UserRoles.MEMBER)) {
+    //   throw new ForbiddenException("Access Denied");
+    // }
 
     if (user && user.isBlocked) {
-      throw new ForbiddenException("User is blocked");
+      throw new HttpException(
+        {
+          message: 'isBlocked',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     let wallet, walletInout, userInfo;
