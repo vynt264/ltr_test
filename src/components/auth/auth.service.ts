@@ -341,7 +341,7 @@ export class AuthService {
       );
     }
 
-    let wallet, walletInout, userInfo;
+    let wallet, walletInout;
     if (user) {
       wallet = await this.walletHandlerService.findWalletByUserId(user.id);
       walletInout = await this.walletInoutRepository.findBy({
@@ -352,46 +352,46 @@ export class AuthService {
         updatedAt: new Date(),
       };
       await this.userRepository.save(userUp);
-      userInfo = await this.userInfoRepository.findOne({
-        where: {
-          user: { id: user.id }
-        }
-      })
+      // userInfo = await this.userInfoRepository.findOne({
+      //   where: {
+      //     user: { id: user.id }
+      //   }
+      // })
     }
-    if (user && !wallet) {
-      const walletCreate = await this.walletHandlerService.create({
-        user: {
-          id: user.id
-        } as any,
-        balance: 0,
-        createdBy: user?.username,
-      });
-      const walletHis = {
-        ...walletCreate,
-        detail: "Tạo mới ví",
-      }
-      await this.walletHistoryRepository.save(walletHis);
+    // if (user && !wallet) {
+    //   const walletCreate = await this.walletHandlerService.create({
+    //     user: {
+    //       id: user.id
+    //     } as any,
+    //     balance: 0,
+    //     createdBy: user?.username,
+    //   });
+    //   const walletHis = {
+    //     ...walletCreate,
+    //     detail: "Tạo mới ví",
+    //   }
+    //   await this.walletHistoryRepository.save(walletHis);
 
-      const coinWalletDto: any = {
-        user: { id: user.id },
-        balance: 0,
-      }
-      const coinWalletCreate = await this.coinWalletRepository.create(
-        coinWalletDto
-      );
-      await this.coinWalletRepository.save(coinWalletCreate);
-    }
+    //   const coinWalletDto: any = {
+    //     user: { id: user.id },
+    //     balance: 0,
+    //   }
+    //   const coinWalletCreate = await this.coinWalletRepository.create(
+    //     coinWalletDto
+    //   );
+    //   await this.coinWalletRepository.save(coinWalletCreate);
+    // }
 
     if (user && walletInout?.length === 0) {
-      const walletInoutCreate = {
-        user: { id: user.id },
-        balanceIn: wallet?.balance ? wallet?.balance : 0,
-        balanceOut: 0,
-        timeIn: new Date(),
-        createdBy: user.username,
-      }
-      const createtedWalletInout = await this.walletInoutRepository.create(walletInoutCreate);
-      await this.walletInoutRepository.save(createtedWalletInout);
+      // const walletInoutCreate = {
+      //   user: { id: user.id },
+      //   balanceIn: wallet?.balance ? wallet?.balance : 0,
+      //   balanceOut: 0,
+      //   timeIn: new Date(),
+      //   createdBy: user.username,
+      // }
+      // const createtedWalletInout = await this.walletInoutRepository.create(walletInoutCreate);
+      // await this.walletInoutRepository.save(createtedWalletInout);
     } else if (wallet) {
       const walletInoutUp = {
         ...walletInout[walletInout?.length - 1],
@@ -412,20 +412,20 @@ export class AuthService {
       await this.walletInoutRepository.save(createtedWalletInout);
     }
 
-    if (user && !userInfo) {
-      const userInfoDt: any = {
-        avatar: null,
-        nickname: username,
-        user: { id: user.id },
-        sumBet: 0,
-        sumOrder: 0,
-        sumOrderWin: 0,
-        sumOrderLose: 0,
-        favoriteGame: null,
-      }
-      const userInfoCreate = await this.userInfoRepository.create(userInfoDt);
-      await this.userInfoRepository.save(userInfoCreate);
-    }
+    // if (user && !userInfo) {
+    //   const userInfoDt: any = {
+    //     avatar: null,
+    //     nickname: username,
+    //     user: { id: user.id },
+    //     sumBet: 0,
+    //     sumOrder: 0,
+    //     sumOrderWin: 0,
+    //     sumOrderLose: 0,
+    //     favoriteGame: null,
+    //   }
+    //   const userInfoCreate = await this.userInfoRepository.create(userInfoDt);
+    //   await this.userInfoRepository.save(userInfoCreate);
+    // }
 
     // if (!user) {
     //   const createUser = {
