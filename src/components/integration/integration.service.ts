@@ -10,6 +10,8 @@ import { Exchange } from './entities/exchange.entity';
 import { WalletHistory } from '../wallet/wallet.history.entity';
 import { WalletInout } from '../wallet.inout/wallet.inout.entity';
 import { Order } from '../orders/entities/order.entity';
+import { UserInfo } from "../user.info/user.info.entity";
+import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
 import VerifyAccountDto from './dto/verify.accout.dto';
 import GetRefundableBalanceDto from './dto/get.refundable.balance.dto';
 import DepositDto from './dto/deposit.dto';
@@ -40,6 +42,10 @@ export class IntegrationService {
     private walletInoutRepository: Repository<WalletInout>,
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
+    @InjectRepository(UserInfo)
+    private userInfoRepository: Repository<UserInfo>,
+    @InjectRepository(CoinWallet)
+    private coinWalletRepository: Repository<CoinWallet>,
     @Inject("winston")
     private readonly logger: Logger
   ) { }
@@ -87,15 +93,53 @@ export class IntegrationService {
         };
         const createdUser = this.userRepository.create(userCreateDto);
         user = await this.userRepository.save(createdUser);
-
-        // const walletDto = {
-        //   walletCode: "",
-        //   user: { id: user.id },
-        //   createdBy: usernameEncrypt,
-        //   balance: 0,
-        // };
-        // const walletCreate = await this.walletRepository.create(walletDto);
-        // await this.walletRepository.save(walletCreate);
+        // create userInfo
+        const userInfoDt: any = {
+          avatar: null,
+          nickname: usernameEncrypt,
+          user: { id: user.id },
+          sumBet: 0,
+          sumOrder: 0,
+          sumOrderWin: 0,
+          sumOrderLose: 0,
+          favoriteGame: null,
+        }
+        const userInfoCreate = await this.userInfoRepository.create(userInfoDt);
+        await this.userInfoRepository.save(userInfoCreate);
+        // create wallet
+        const walletDto = {
+          walletCode: "",
+          user: { id: user.id },
+          createdBy: usernameEncrypt,
+          balance: 0,
+        };
+        const walletCreate = await this.walletRepository.create(walletDto);
+        const wallet = await this.walletRepository.save(walletCreate);
+        // save history
+        const walletHis = {
+          ...walletCreate,
+          detail: "Tạo mới ví",
+        }
+        await this.walletHistoryRepository.save(walletHis);
+        // create coin wallet
+        const coinWalletDto: any = {
+          user: { id: user.id },
+          balance: 0,
+        }
+        const coinWalletCreate = await this.coinWalletRepository.create(
+          coinWalletDto
+        );
+        await this.coinWalletRepository.save(coinWalletCreate);
+        // create wallet inout
+        const walletInoutCreate = {
+          user: { id: user.id },
+          balanceIn: wallet?.balance ? wallet?.balance : 0,
+          balanceOut: 0,
+          timeIn: new Date(),
+          createdBy: user.username,
+        }
+        const createtedWalletInout = await this.walletInoutRepository.create(walletInoutCreate);
+        await this.walletInoutRepository.save(createtedWalletInout);
       }
 
       const params = Helper.encryptData(

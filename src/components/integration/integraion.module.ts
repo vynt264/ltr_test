@@ -9,6 +9,9 @@ import { WalletInout } from "../wallet.inout/wallet.inout.entity";
 import { Order } from "../orders/entities/order.entity";
 import { IntegrationService } from "./integration.service";
 import { IntegrationController } from "./integration.controller";
+import { UserInfo } from "../user.info/user.info.entity";
+import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
+
 
 @Module({
   imports: [
@@ -20,6 +23,8 @@ import { IntegrationController } from "./integration.controller";
       WalletHistory,
       WalletInout,
       Order,
+      UserInfo,
+      CoinWallet,
     ]),
   ],
   controllers: [IntegrationController],
