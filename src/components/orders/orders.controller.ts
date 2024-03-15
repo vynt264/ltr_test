@@ -139,11 +139,7 @@ export class OrdersController {
   // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async update(@Param('id') id: string, @Body() updateOrderDto: any, @Request() req: any) {
-    try {
-      return await this.ordersService.update(+id, updateOrderDto, req.user);
-    } catch (error) {
-      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
-    }
+    return await this.ordersService.update(+id, updateOrderDto, req.user);
   }
 
   @Delete(':id')
