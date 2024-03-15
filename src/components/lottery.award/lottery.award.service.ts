@@ -53,6 +53,102 @@ export class LotteryAwardService {
     private readonly logger: Logger
   ) { }
 
+  async adminGetAll(
+    paginationQueryDto: PaginationQueryDto,
+  ): Promise<BaseResponse> {
+    try {
+      const object: any = JSON.parse(paginationQueryDto.keyword);
+
+      const lotteryAwards = await this.searchAdminGetAll(
+        paginationQueryDto,
+        object
+      );
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        lotteryAwards,
+        MESSAGE.LIST_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${LotteryAwardService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        MESSAGE.LIST_FAILED
+      );
+    }
+  }
+
+  async searchAdminGetAll(
+    paginationQuery: PaginationQueryDto,
+    lotteryAwardDto: any,
+  ) {
+    const { take: perPage, skip: page } = paginationQuery;
+    if (page <= 0) {
+      return "The skip must be more than 0";
+    }
+    const skip = +perPage * +page - +perPage;
+    const searching = await this.lotteryAwardRepository.findAndCount({
+      // select: {
+      //   openTime: true,
+      //   status: true,
+      //   type: true,
+      //   awardDetail: true,
+      //   awardTitle: true,
+      //   turnIndex: true,
+      //   id: true,
+      // },
+      where: this.adminHoldQuery(lotteryAwardDto),
+      take: +perPage,
+      skip,
+      order: { createdAt: paginationQuery.order },
+    });
+
+    return searching;
+  }
+
+  adminHoldQuery(object: any = null) {
+    const data: any = {};
+    if (!object) return data;
+
+    for (const key in object) {
+      switch (key) {
+        case "type":
+          data.type = object.type;
+          break;
+        case "turnIndex":
+          data.turnIndex = object.turnIndex;
+          break;
+        default:
+          break;
+      }
+
+      if (key === "startDate" || key === "endDate") {
+        let startDate = startOfDay(new Date(object.startDate));
+        let endDate = endOfDay(new Date(object.endDate));
+        const now = new Date();
+        if (startDate.getTime() > now.getTime()) {
+          startDate = now;
+        } 
+        if (endDate.getTime() > now.getTime()) {
+          endDate = now;
+        }
+        data.openTime = Between(startDate, endDate);
+      }
+    }
+
+    // let isTestPlayer = false;
+    // if (usernameReal) {
+    //   isTestPlayer = true;
+    // }
+    // data.bookmaker = { id: bookMakerId };
+    // data.isTestPlayer = isTestPlayer;
+
+    return data;
+  }
+
   async getLotteryAwardByTurn(turnIndex: string, type: string) {
     return this.lotteryAwardRepository.findOne({
       where: {
