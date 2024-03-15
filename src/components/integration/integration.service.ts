@@ -574,14 +574,14 @@ export class IntegrationService {
         );
       }
 
-      const tiemStartCV = moment(getBetInfo.timeStart, "YYYYMMDDHHmmss").utcOffset(0).format("YYYY-MM-DD HH:mm:ss");
-      const timeEndCV = moment(getBetInfo.timeEnd, "YYYYMMDDHHmmss").utcOffset(0).format("YYYY-MM-DD HH:mm:ss");
+      const tiemStartCV = moment(getBetInfo.timeStart, "YYYYMMDDHHmmss").format("YYYY-MM-DD HH:mm:ss");
+      const timeEndCV = moment(getBetInfo.timeEnd, "YYYYMMDDHHmmss").format("YYYY-MM-DD HH:mm:ss");
       const whereCondition: any = {};
       let condition = "bookmaker.id = :bookmarkerFind AND (entity.created_at BETWEEN :timeStart AND :timeEnd)";
       const conditionParams: any = { 
         bookmarkerFind: bookmaker.id,
-        timeStart: tiemStartCV,
-        timeEnd: timeEndCV
+        timeStart: moment(tiemStartCV).add("hours", 7).toDate(),
+        timeEnd: moment(timeEndCV).add("hours", 7).toDate()
       }
       if (getBetInfo.username) {
         const usernameEncrypt = Helper.encryptData(getBetInfo.username)
