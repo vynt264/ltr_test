@@ -84,7 +84,7 @@ export class AdminOrdersService {
   }
 
   handleQuery(object: any) {
-    const data: any = { user: {usernameReal: ""} };
+    const data: any = { };
     if (!object) {
       return [data];
     }
