@@ -543,15 +543,13 @@ export class OrdersService {
     });
 
     if (member) {
-      const numberRequest = await this.redisService.incr(id.toString());
-      if (numberRequest > 1) return;
-
-      setTimeout(() => {
-        this.redisService.del(id);
-      }, 3000)
-
+      const currentTurn = OrderHelper.getTurnIndex(order.seconds);
       const currentTime = OrderHelper.getCurrentTimeInRound(order.seconds);
-      if ((order.seconds - currentTime) < PERIOD_CANNOT_CANCELED) {
+      if (
+        currentTurn !== order.turnIndex ||
+        (order.seconds - currentTime) < PERIOD_CANNOT_CANCELED ||
+        order.status !== ORDER_STATUS.pending
+      ) {
         throw new HttpException(
           {
             message: ERROR.MESSAGE_NOT_CANCEL,
@@ -559,6 +557,15 @@ export class OrdersService {
           HttpStatus.BAD_REQUEST,
         );
       }
+
+      const numberRequest = await this.redisService.incr(id.toString());
+      if (numberRequest > 1) {
+        return;
+      }
+
+      setTimeout(() => {
+        this.redisService.del(id);
+      }, 3000)
 
       await this.removeOrderFromRedis({
         order,
@@ -764,7 +771,7 @@ export class OrdersService {
     await this.saveOrdersOfUserToRedis(result, user.bookmakerId, user.id, user.usernameReal);
 
     // update balance
-    const totalBetRemain  = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), -Number(totalBet));
+    const totalBetRemain = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), -Number(totalBet));
     await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
 
     // save wallet history
