@@ -614,6 +614,7 @@ export class IntegrationService {
         )
         .select("bookmaker.id as bookmakerId")
         .addSelect("user.username as username")
+        .addSelect("user.usernameFromAgent as usernameFromAgent")
         .addSelect("entity.type as type")
         .addSelect("entity.seconds as seconds")
         .addSelect("entity.revenue as revenue")
@@ -634,6 +635,7 @@ export class IntegrationService {
       orders.map((order: any) => {
         const newIt = {
           username: order?.username,
+          usernameForAgent: order?.usernameFromAgent,
           gameCategory: order?.type.indexOf("xs") > -1 ? 0 : 1, // 0: xoso
           gameType: `${order?.type}${order.seconds}s`,
           amount: parseFloat(order?.revenue.toString()),
