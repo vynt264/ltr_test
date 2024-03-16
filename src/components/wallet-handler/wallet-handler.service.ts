@@ -34,17 +34,18 @@ export class WalletHandlerService {
 
   async findWalletByUserId(userId: number) {
     const balance = await this.redisService.get(OrderHelper.getKeySaveBalanceOfUser(userId.toString()));
+    const wallet = await this.walletRepository.findOneBy({
+      user: { id: userId }
+    });
 
-    if(!balance && balance !== 0) {
+    if(Number(balance) > 0) {
       return {
-        id: userId,
+        id: wallet.id,
         balance: Number(balance),
       }
     }
 
-    return this.walletRepository.findOneBy({
-      user: { id: userId }
-    });
+    return wallet;
   }
 
   update(id: number, updateWalletHandlerDto: UpdateWalletHandlerDto) {
