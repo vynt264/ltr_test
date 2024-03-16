@@ -1,8 +1,8 @@
 
-export interface BaseGiaiDto {
+// export interface BaseGiaiDto {
 
-  value: number;
+//   value: number;
   
-  amount: number;
+//   amount: number;
 
-}
+// }

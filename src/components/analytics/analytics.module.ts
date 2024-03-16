@@ -8,23 +8,29 @@ import { BacklistModule } from "../backlist/backlist.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { SysConfig } from "../sys.config/sys.config.entity";
 import { User } from "../user/user.entity";
-import { LotteryRequest } from "../lottery.request/lottery.request.entity";
-import { LotteryFtQueue } from "../lottery.request/lottery.ft.queue";
+// import { LotteryRequest } from "../lottery.request/lottery.request.entity";
+// import { LotteryFtQueue } from "../lottery.request/lottery.ft.queue";
 import { ConnectModule } from "../connect/connect.module";
-import { OrderRequestModule } from "../order.request/order.request.module";
+// import { OrderRequestModule } from "../order.request/order.request.module";
 import { SysConfigsModule } from "../sys.config/sys.config.module";
 import { UserModule } from "../user/user.module";
 import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([LotteryAward, SysConfig, User, LotteryRequest, LotteryFtQueue,]),
+    TypeOrmModule.forFeature([
+      LotteryAward,
+      SysConfig,
+      User,
+      // LotteryRequest,
+      // LotteryFtQueue,
+    ]),
     BacklistModule,
     UserModule,
     SysConfigsModule,
     ConnectModule,
     ScheduleModule.forRoot(),
-    OrderRequestModule,
+    // OrderRequestModule,
     JwtModule.register({}),
   ],
   controllers: [AnalyticsController],

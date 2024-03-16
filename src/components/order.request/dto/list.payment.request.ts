@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsArray } from "class-validator";
-import { PaymentRequestDto } from "./payment.request";
+// import { IsNotEmpty, IsArray } from "class-validator";
+// import { PaymentRequestDto } from "./payment.request";
 
-export class ListPaymentRequestDto {
+// export class ListPaymentRequestDto {
 
-  @IsNotEmpty()
-  @IsArray()
-  payments: PaymentRequestDto[];
+//   @IsNotEmpty()
+//   @IsArray()
+//   payments: PaymentRequestDto[];
   
-  signature: string;
-}
+//   signature: string;
+// }

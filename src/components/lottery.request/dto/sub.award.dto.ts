@@ -1,9 +1,9 @@
-export class SubAwardDto {
-    awardInt: number;
+// export class SubAwardDto {
+//     awardInt: number;
   
-    awardStr: string;
+//     awardStr: string;
   
-    paymentSub: number;
+//     paymentSub: number;
   
-    isInclude3And4: boolean;
-  }
+//     isInclude3And4: boolean;
+//   }

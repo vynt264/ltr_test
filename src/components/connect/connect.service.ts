@@ -11,7 +11,7 @@ import * as dotenv from "dotenv";
 import { firstValueFrom, map } from "rxjs";
 import { Repository } from "typeorm";
 import { Logger } from "winston";
-import { PaginationQueryDto } from "../../common/common.dto";
+// import { PaginationQueryDto } from "../../common/common.dto";
 import { Debug } from "../../common/helper/debug";
 import { ConfigSys, Helper } from "../../common/helper/index";
 import { UserRoles } from "../../components/user/enums/user.enum";
@@ -19,24 +19,21 @@ import { User } from "../../components/user/user.entity";
 import { Order, STATUSCODE } from "../../system/constants";
 import { ErrorResponse } from "../../system/interfaces";
 import { API } from "../api.third/api.entity";
-import { EventTimeService } from "../event.time.third/event.time.third.service";
+// import { EventTimeService } from "../event.time.third/event.time.third.service";
 import {
   SYS_ITEM_ENUM,
   SYS_MODULE_ENUM,
 } from "../sys.config/enums/sys.config.enum";
 import { SysConfig } from "../sys.config/sys.config.entity";
-import { EventTime } from "./../event.time.third/event.time.third.entity";
+// import { EventTime } from "./../event.time.third/event.time.third.entity";
 import { GameTypeEnum, NameGamTypeEnum } from "./../game.type/game.type.enum";
 import { ConectEnum } from "./connect.enum";
-import { format } from "date-fns";
-import { ListPaymentRequestDto } from "../order.request/dto/list.payment.request";
-import { RequestDetailDto } from "../lottery.request/dto/request.detail.dto";
+// import { format } from "date-fns";
+// import { ListPaymentRequestDto } from "../order.request/dto/list.payment.request";
+// import { RequestDetailDto } from "../lottery.request/dto/request.detail.dto";
 
 @Injectable()
 export class ConnectService {
-
-
-
   /***
    * Fetch database
    */
@@ -85,8 +82,8 @@ export class ConnectService {
   constructor(
     @InjectRepository(API)
     private apiRepository: Repository<API>,
-    @InjectRepository(EventTime)
-    private eventTimeRepository: Repository<EventTime>,
+    // @InjectRepository(EventTime)
+    // private eventTimeRepository: Repository<EventTime>,
     private readonly httpService: HttpService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -94,7 +91,7 @@ export class ConnectService {
     private sysConfigRepository: Repository<SysConfig>,
     @Inject("winston")
     private readonly logger: Logger,
-    private eventTimeService: EventTimeService
+    // private eventTimeService: EventTimeService
   ) {
     this.vips = process.env.VIP_LIST.split(",");
     dotenv.config();
@@ -185,48 +182,48 @@ export class ConnectService {
   }
 
 
-  async processInitLotteryAward(lotteryRequest: RequestDetailDto): Promise<any> {
-    try {
-      await this.compose(ConectEnum.LOTTERY_AWARD_FAKE);
-      this.body = lotteryRequest;
-      const response = await this.connect();
-      if (!response || response?.data?.code != +STATUSCODE.COMMON_CREATE_SUCCESS) {
-        return { error: response };
-      }
+  // async processInitLotteryAward(lotteryRequest: RequestDetailDto): Promise<any> {
+  //   try {
+  //     await this.compose(ConectEnum.LOTTERY_AWARD_FAKE);
+  //     this.body = lotteryRequest;
+  //     const response = await this.connect();
+  //     if (!response || response?.data?.code != +STATUSCODE.COMMON_CREATE_SUCCESS) {
+  //       return { error: response };
+  //     }
 
-      return { data: response.data.result };
-    } catch (error) {
-      return { error: error }
-    }
-  }
+  //     return { data: response.data.result };
+  //   } catch (error) {
+  //     return { error: error }
+  //   }
+  // }
 
-  async paymentFake(userPaymentRequest: ListPaymentRequestDto): Promise<any> {
-    await this.compose(ConectEnum.PAYMENT_FAKE);
+  // async paymentFake(userPaymentRequest: ListPaymentRequestDto): Promise<any> {
+  //   await this.compose(ConectEnum.PAYMENT_FAKE);
 
-    this.body = userPaymentRequest;
-    const response = await this.connect();
+  //   this.body = userPaymentRequest;
+  //   const response = await this.connect();
 
-    return response?.data?.result?.payments;
-  }
+  //   return response?.data?.result?.payments;
+  // }
 
-  async paymentAuth(userPaymentRequest: ListPaymentRequestDto): Promise<any> {
-    await this.compose(ConectEnum.PAYMENT_AUTH);
+  // async paymentAuth(userPaymentRequest: ListPaymentRequestDto): Promise<any> {
+  //   await this.compose(ConectEnum.PAYMENT_AUTH);
 
-    this.body = userPaymentRequest;
-    const response = await this.connect();
+  //   this.body = userPaymentRequest;
+  //   const response = await this.connect();
 
-    return response?.data?.result?.payments;
-  }
+  //   return response?.data?.result?.payments;
+  // }
 
 
-  async getDataLottery(typeLottery: string, from: Date = new Date(), to: Date = new Date()) {
-    const body1688xoso = 'area=code&from=fromDate&to=toDate';
-    const fromDate = format(from, 'yyyy-MM-dd');
-    const toDate = format(to, 'yyyy-MM-dd');
-    const body = body1688xoso.replace('fromDate', fromDate).replace('toDate', toDate).replace('code', typeLottery);
-    const url1688xoso = 'https://1688xoso.net/wp-json/get-data/xstt';
-    return await this.connectWith(url1688xoso, body);
-  }
+  // async getDataLottery(typeLottery: string, from: Date = new Date(), to: Date = new Date()) {
+  //   const body1688xoso = 'area=code&from=fromDate&to=toDate';
+  //   const fromDate = format(from, 'yyyy-MM-dd');
+  //   const toDate = format(to, 'yyyy-MM-dd');
+  //   const body = body1688xoso.replace('fromDate', fromDate).replace('toDate', toDate).replace('code', typeLottery);
+  //   const url1688xoso = 'https://1688xoso.net/wp-json/get-data/xstt';
+  //   return await this.connectWith(url1688xoso, body);
+  // }
 
   async update(userName = "", awardAmount = 0, multiple = 0) {
     // const paginationQueryDto: PaginationQueryDto = {
@@ -630,27 +627,27 @@ export class ConnectService {
     this.setBody(data);
   }
 
-  async getEventTime(isTest = 0) {
-    if (isTest) {
-      this.getConfig();
-    }
-    const data = await this.eventTimeRepository.find({
-      where: {
-        gameName: this.getGameName(),
-        department: this.getDep(),
-        isDeleted: 0,
-      },
-    });
-    const firstItem = data.filter((x) => typeof x !== undefined).shift();
-    if (!firstItem) {
-      return 9404;
-    }
+  // async getEventTime(isTest = 0) {
+  //   if (isTest) {
+  //     this.getConfig();
+  //   }
+  //   const data = await this.eventTimeRepository.find({
+  //     where: {
+  //       gameName: this.getGameName(),
+  //       department: this.getDep(),
+  //       isDeleted: 0,
+  //     },
+  //   });
+  //   const firstItem = data.filter((x) => typeof x !== undefined).shift();
+  //   if (!firstItem) {
+  //     return 9404;
+  //   }
 
-    this.setStart(firstItem.start);
-    this.setEnd(firstItem.end);
+  //   this.setStart(firstItem.start);
+  //   this.setEnd(firstItem.end);
 
-    return 9200;
-  }
+  //   return 9200;
+  // }
 
   async getDataApi(action = "", isTest = 0) {
     if (isTest) {

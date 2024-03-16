@@ -617,9 +617,6 @@ export class OrdersService {
     const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
     const openTime = toDate - (secondsInCurrentRound * 1000);
     let isTestPlayer = false;
-    // if (user?.usernameReal) {
-    //   isTestPlayer = true;
-    // }
     if (query.isTestPlayerClient) {
       isTestPlayer = query.isTestPlayerClient;
     }

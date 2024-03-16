@@ -43,7 +43,7 @@ export class ConnectController {
     description: "Get all connect",
   })
   async GetTime(): Promise<any> {
-    return this.connectService.getEventTime(1);
+    // return this.connectService.getEventTime(1);
   }
 
   @Post("test-login")
