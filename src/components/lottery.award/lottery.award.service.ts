@@ -137,6 +137,10 @@ export class LotteryAwardService {
         }
         data.openTime = Between(startDate, endDate);
       }
+
+      if (key === "isTestPlayer") {
+        data.isTestPlayer = object.isTestPlayer;
+      }
     }
 
     // let isTestPlayer = false;
