@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Request, UseGuards } from "@nestjs/common";
+import { Body, Controller, ForbiddenException, Post, Request, UseGuards } from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -38,13 +38,15 @@ export class AuthController {
   async loginNew(@Body() loginNewDto: LoginNewDto) {
     const parms = loginNewDto.params;
     const deParams = Helper.decryptData(parms);
-    const findTxt = deParams.indexOf("&");
-    const username = deParams.substring(9, findTxt);
-    const bookmakerId = deParams.substring(findTxt + 13);
-
-    const user = await this.authService.userLoginNew(username);
-
-    return this.authService.generateToken(user);
+    if (deParams) {
+      const findTxt = deParams.indexOf("&");
+      const username = deParams.substring(9, findTxt);
+      const bookmakerId = deParams.substring(findTxt + 13);
+      const user = await this.authService.userLoginNew(username);
+      return this.authService.generateToken(user);
+    } else {
+      throw new ForbiddenException("Params invalid");
+    }
   }
 
   @Post("login")
