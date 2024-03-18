@@ -84,7 +84,7 @@ export class AdminOrdersService {
   }
 
   handleQuery(object: any) {
-    const data: any = { };
+    const data: any = { isTestPlayer: false };
     if (!object) {
       return [data];
     }
