@@ -535,6 +535,7 @@ export class OrdersService {
 
   async update(id: number, updateOrderDto: any, member: any) {
     let order = await this.orderRequestRepository.findOne({
+      relations: ["holdingNumber"],
       where: {
         id,
       },
@@ -548,17 +549,29 @@ export class OrdersService {
 
       const currentTurn = OrderHelper.getTurnIndex(order.seconds);
       const currentTime = OrderHelper.getCurrentTimeInRound(order.seconds);
-      if (
-        currentTurn !== order.turnIndex ||
-        (order.seconds - currentTime) < PERIOD_CANNOT_CANCELED ||
-        order.status !== ORDER_STATUS.pending
-      ) {
-        throw new HttpException(
-          {
-            message: ERROR.MESSAGE_NOT_CANCEL,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+
+      if (order?.holdingNumber?.id) {
+        if (Number(order.turnIndex.split('-')) < Number(currentTurn.split('-'))) {
+          throw new HttpException(
+            {
+              message: ERROR.MESSAGE_NOT_CANCEL,
+            },
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+      } else {
+        if (
+          currentTurn !== order.turnIndex ||
+          (order.seconds - currentTime) < PERIOD_CANNOT_CANCELED ||
+          order.status !== ORDER_STATUS.pending
+        ) {
+          throw new HttpException(
+            {
+              message: ERROR.MESSAGE_NOT_CANCEL,
+            },
+            HttpStatus.BAD_REQUEST,
+          );
+        }
       }
 
       setTimeout(() => {

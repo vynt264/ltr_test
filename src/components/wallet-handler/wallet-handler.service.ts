@@ -38,7 +38,7 @@ export class WalletHandlerService {
       user: { id: userId }
     });
 
-    if(Number(balance) > 0) {
+    if (Number(balance) > 0) {
       return {
         id: wallet.id,
         balance: Number(balance),
