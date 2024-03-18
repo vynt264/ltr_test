@@ -10,27 +10,27 @@ import {
   SuccessResponse,
 } from "../../system/BaseResponse/index";
 import { ERROR, MESSAGE, STATUSCODE } from "../../system/constants";
-import { ConnectService } from "../connect/connect.service";
-import { OrderRequest } from "../order.request/order.request.entity";
-import { OrderRequestService } from "../order.request/order.request.service";
-import { SystemEnum } from "../sys.config/enums/sys.config.enum";
+// import { ConnectService } from "../connect/connect.service";
+// import { OrderRequest } from "../order.request/order.request.entity";
+// import { OrderRequestService } from "../order.request/order.request.service";
+// import { SystemEnum } from "../sys.config/enums/sys.config.enum";
 import { UserRoles } from "../user/enums/user.enum";
 import { User } from "../user/user.entity";
-import { CreateLotteryAwardDto, UpdateLotteryAwardDto } from "./dto/index";
-import { CharLottery, CurrentXsmb, StatusLotteryAward, TypeLottery } from "./enums/status.dto";
+import { CreateLotteryAwardDto } from "./dto/index";
+import { CharLottery, TypeLottery } from "./enums/status.dto";
 import { LotteryAward } from "./lottery.award.entity";
-import { RequestDetailDto } from "../lottery.request/dto/request.detail.dto";
-import { ValueDto } from "../lottery.request/dto/request.value.dto";
-import { TypeCaculation, RateCaculation, LotteryInfo, MatricInt, MatricGiai } from "../lottery.request/enums/status.dto";
-import { BaoLoDto } from "../lottery.request/dto/bao.lo.dto";
-import { DanhDeDto } from "../lottery.request/dto/danh.de.dto";
-import { StatusOrderRequest } from "../order.request/enums/status.dto";
-import { LotteryRequest } from "../lottery.request/lottery.request.entity";
-import { RequestDetailDto as LotteryRequestDetailDto } from "../lottery.request/dto/request.detail.dto";
-import { PrefixEnum, StatusSend } from "../sys.config/enums/sys.config.enum";
-import { LotteryFtQueue } from "../lottery.request/lottery.ft.queue";
-import { SubAwardDto } from "../lottery.request/dto/sub.award.dto";
-import { BaseGiaiDto } from "../lottery.request/dto/base2so.dto";
+// import { RequestDetailDto } from "../lottery.request/dto/request.detail.dto";
+// import { ValueDto } from "../lottery.request/dto/request.value.dto";
+// import { TypeCaculation, RateCaculation, LotteryInfo, MatricGiai } from "../lottery.request/enums/status.dto";
+// import { BaoLoDto } from "../lottery.request/dto/bao.lo.dto";
+// import { DanhDeDto } from "../lottery.request/dto/danh.de.dto";
+// import { StatusOrderRequest } from "../order.request/enums/status.dto";
+// import { LotteryRequest } from "../lottery.request/lottery.request.entity";
+// import { RequestDetailDto as LotteryRequestDetailDto } from "../lottery.request/dto/request.detail.dto";
+// import { PrefixEnum, StatusSend } from "../sys.config/enums/sys.config.enum";
+// import { LotteryFtQueue } from "../lottery.request/lottery.ft.queue";
+// import { SubAwardDto } from "../lottery.request/dto/sub.award.dto";
+// import { BaseGiaiDto } from "../lottery.request/dto/base2so.dto";
 @Injectable()
 export class LotteryAwardService {
 
@@ -43,12 +43,12 @@ export class LotteryAwardService {
     private lotteryAwardRepository: Repository<LotteryAward>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    private connectService: ConnectService,
-    private orderRequestService: OrderRequestService,
-    @InjectRepository(LotteryRequest)
-    private lotteryRequestRepository: Repository<LotteryRequest>,
-    @InjectRepository(LotteryFtQueue)
-    private lotteryFtRepository: Repository<LotteryFtQueue>,
+    // private connectService: ConnectService,
+    // private orderRequestService: OrderRequestService,
+    // @InjectRepository(LotteryRequest)
+    // private lotteryRequestRepository: Repository<LotteryRequest>,
+    // @InjectRepository(LotteryFtQueue)
+    // private lotteryFtRepository: Repository<LotteryFtQueue>,
     @Inject("winston")
     private readonly logger: Logger
   ) { }
@@ -758,147 +758,147 @@ export class LotteryAwardService {
     return new Date(startOfDay(now).getTime() + cycle * nextTurn);
   }
 
-  getTotalRevenue(
-    createRequestDto: LotteryRequestDetailDto,
-    lotteryInfo: LotteryInfo
-  ) {
-    let mapMatricInt = new Map<number, MatricInt>();
-    for (let i = 0; i < 10000; i++) {
-      if (i < 100) {
-        let matricInt: MatricInt = {
-          value: i,
-          giai8Pay: 0,
-          giai0Pay: 0,
-          giaiLoPay: 0,
-          giai0Revenue: 0,
-          giai8Revenue: 0,
-          giaiLoRevenue: 0,
-        };
-        mapMatricInt.set(i, matricInt);
-      }
-    }
+  // getTotalRevenue(
+  //   createRequestDto: LotteryRequestDetailDto,
+  //   lotteryInfo: LotteryInfo
+  // ) {
+  //   let mapMatricInt = new Map<number, MatricInt>();
+  //   for (let i = 0; i < 10000; i++) {
+  //     if (i < 100) {
+  //       let matricInt: MatricInt = {
+  //         value: i,
+  //         giai8Pay: 0,
+  //         giai0Pay: 0,
+  //         giaiLoPay: 0,
+  //         giai0Revenue: 0,
+  //         giai8Revenue: 0,
+  //         giaiLoRevenue: 0,
+  //       };
+  //       mapMatricInt.set(i, matricInt);
+  //     }
+  //   }
 
-    lotteryInfo.mapMatricInt = mapMatricInt;
-    let totalRevenue = 0;
+  //   lotteryInfo.mapMatricInt = mapMatricInt;
+  //   let totalRevenue = 0;
 
-    if (createRequestDto.danhDe) {
-      if (createRequestDto.danhDe.deDacBiet?.length > 0) {
-        for (const valueDto of createRequestDto.danhDe.deDacBiet) {
-          let valueMap = lotteryInfo.mapMatricInt.get(valueDto.value);
-          valueMap.giai0Pay += valueDto.amount * +RateCaculation.De_Dac_Biet;
-          valueMap.giai0Revenue += valueDto.amount;
+  //   if (createRequestDto.danhDe) {
+  //     if (createRequestDto.danhDe.deDacBiet?.length > 0) {
+  //       for (const valueDto of createRequestDto.danhDe.deDacBiet) {
+  //         let valueMap = lotteryInfo.mapMatricInt.get(valueDto.value);
+  //         valueMap.giai0Pay += valueDto.amount * +RateCaculation.De_Dac_Biet;
+  //         valueMap.giai0Revenue += valueDto.amount;
 
-          totalRevenue += valueDto.amount;
-          lotteryInfo.mapMatricInt.set(valueDto.value, valueMap);
-        }
-      }
+  //         totalRevenue += valueDto.amount;
+  //         lotteryInfo.mapMatricInt.set(valueDto.value, valueMap);
+  //       }
+  //     }
 
-      if (createRequestDto.danhDe.deDau?.length > 0) {
-        for (const valueDto of createRequestDto.danhDe.deDau) {
-          let valueMap = lotteryInfo.mapMatricInt.get(valueDto.value);
-          valueMap.giai8Pay += valueDto.amount * +RateCaculation.De_Dau;
-          valueMap.giai8Revenue += valueDto.amount;
+  //     if (createRequestDto.danhDe.deDau?.length > 0) {
+  //       for (const valueDto of createRequestDto.danhDe.deDau) {
+  //         let valueMap = lotteryInfo.mapMatricInt.get(valueDto.value);
+  //         valueMap.giai8Pay += valueDto.amount * +RateCaculation.De_Dau;
+  //         valueMap.giai8Revenue += valueDto.amount;
 
-          totalRevenue += valueDto.amount;
-          lotteryInfo.mapMatricInt.set(valueDto.value, valueMap);
-        }
-      }
+  //         totalRevenue += valueDto.amount;
+  //         lotteryInfo.mapMatricInt.set(valueDto.value, valueMap);
+  //       }
+  //     }
 
-      if (createRequestDto.danhDe.deDauDuoi?.length > 0) {
-        for (const valueDto of createRequestDto.danhDe.deDauDuoi) {
-          let valueMap = lotteryInfo.mapMatricInt.get(valueDto.value);
-          valueMap.giai0Pay += valueDto.amount * +RateCaculation.De_Dau_Duoi;
-          valueMap.giai8Pay += valueDto.amount * +RateCaculation.De_Dau_Duoi;
+  //     if (createRequestDto.danhDe.deDauDuoi?.length > 0) {
+  //       for (const valueDto of createRequestDto.danhDe.deDauDuoi) {
+  //         let valueMap = lotteryInfo.mapMatricInt.get(valueDto.value);
+  //         valueMap.giai0Pay += valueDto.amount * +RateCaculation.De_Dau_Duoi;
+  //         valueMap.giai8Pay += valueDto.amount * +RateCaculation.De_Dau_Duoi;
 
-          valueMap.giai0Revenue += valueDto.amount;
-          valueMap.giai8Revenue += valueDto.amount;
+  //         valueMap.giai0Revenue += valueDto.amount;
+  //         valueMap.giai8Revenue += valueDto.amount;
 
-          totalRevenue += valueDto.amount;
-          lotteryInfo.mapMatricInt.set(valueDto.value, valueMap);
-        }
-      }
-    }
+  //         totalRevenue += valueDto.amount;
+  //         lotteryInfo.mapMatricInt.set(valueDto.value, valueMap);
+  //       }
+  //     }
+  //   }
 
-    if (createRequestDto.baoLo) {
-      if (createRequestDto.baoLo?.lo2So?.length > 0) {
-        for (const valueDto of createRequestDto.baoLo.lo2So) {
-          let valueMap = lotteryInfo.mapMatricInt.get(valueDto.value);
-          valueMap.giaiLoPay += valueDto.amount * +RateCaculation.Lo_2_So;
-          valueMap.giaiLoRevenue += valueDto.amount;
+  //   if (createRequestDto.baoLo) {
+  //     if (createRequestDto.baoLo?.lo2So?.length > 0) {
+  //       for (const valueDto of createRequestDto.baoLo.lo2So) {
+  //         let valueMap = lotteryInfo.mapMatricInt.get(valueDto.value);
+  //         valueMap.giaiLoPay += valueDto.amount * +RateCaculation.Lo_2_So;
+  //         valueMap.giaiLoRevenue += valueDto.amount;
 
-          valueMap.giai0Pay += valueDto.amount * +RateCaculation.Lo_2_So;
-          valueMap.giai0Revenue += valueDto.amount;
+  //         valueMap.giai0Pay += valueDto.amount * +RateCaculation.Lo_2_So;
+  //         valueMap.giai0Revenue += valueDto.amount;
 
-          valueMap.giai8Pay += valueDto.amount * +RateCaculation.Lo_2_So;
-          valueMap.giai8Revenue += valueDto.amount;
+  //         valueMap.giai8Pay += valueDto.amount * +RateCaculation.Lo_2_So;
+  //         valueMap.giai8Revenue += valueDto.amount;
 
-          totalRevenue += valueDto.amount;
-          lotteryInfo.mapMatricInt.set(valueDto.value, valueMap);
-        }
-      }
+  //         totalRevenue += valueDto.amount;
+  //         lotteryInfo.mapMatricInt.set(valueDto.value, valueMap);
+  //       }
+  //     }
 
-      if (createRequestDto.baoLo?.lo2So1k?.length > 0) {
-        for (const valueDto of createRequestDto.baoLo.lo2So1k) {
-          let valueMap = lotteryInfo.mapMatricInt.get(valueDto.value);
-          valueMap.giaiLoPay += valueDto.amount * +RateCaculation.Lo_2_So_1k;
-          valueMap.giaiLoRevenue += valueDto.amount;
+  //     if (createRequestDto.baoLo?.lo2So1k?.length > 0) {
+  //       for (const valueDto of createRequestDto.baoLo.lo2So1k) {
+  //         let valueMap = lotteryInfo.mapMatricInt.get(valueDto.value);
+  //         valueMap.giaiLoPay += valueDto.amount * +RateCaculation.Lo_2_So_1k;
+  //         valueMap.giaiLoRevenue += valueDto.amount;
 
-          valueMap.giai0Pay += valueDto.amount * +RateCaculation.Lo_2_So_1k;
-          valueMap.giai0Revenue += valueDto.amount;
+  //         valueMap.giai0Pay += valueDto.amount * +RateCaculation.Lo_2_So_1k;
+  //         valueMap.giai0Revenue += valueDto.amount;
 
-          valueMap.giai8Pay += valueDto.amount * +RateCaculation.Lo_2_So_1k;
-          valueMap.giai8Revenue += valueDto.amount;
-          totalRevenue += valueDto.amount;
-          lotteryInfo.mapMatricInt.set(valueDto.value, valueMap);
-        }
-      }
+  //         valueMap.giai8Pay += valueDto.amount * +RateCaculation.Lo_2_So_1k;
+  //         valueMap.giai8Revenue += valueDto.amount;
+  //         totalRevenue += valueDto.amount;
+  //         lotteryInfo.mapMatricInt.set(valueDto.value, valueMap);
+  //       }
+  //     }
 
-      if (createRequestDto.baoLo?.lo3So?.length > 0) {
-        for (const valueDto of createRequestDto.baoLo.lo3So) {
-          totalRevenue += valueDto.amount;
-        }
-      }
+  //     if (createRequestDto.baoLo?.lo3So?.length > 0) {
+  //       for (const valueDto of createRequestDto.baoLo.lo3So) {
+  //         totalRevenue += valueDto.amount;
+  //       }
+  //     }
 
-      if (createRequestDto.baoLo?.lo4So?.length > 0) {
-        for (const valueDto of createRequestDto.baoLo.lo4So) {
-          totalRevenue += valueDto.amount;
-        }
-      }
-    }
+  //     if (createRequestDto.baoLo?.lo4So?.length > 0) {
+  //       for (const valueDto of createRequestDto.baoLo.lo4So) {
+  //         totalRevenue += valueDto.amount;
+  //       }
+  //     }
+  //   }
 
 
-    return totalRevenue;
-  }
+  //   return totalRevenue;
+  // }
 
-  getDetail1to8(arrAwardStr: string[]) {
-    const arr = [];
-    for (let i = 0; i < 9; i++) {
-      arr.push("");
-    }
-    arr[0] = arrAwardStr[0];
-    arr[1] = arrAwardStr[1];
-    arr[2] = arrAwardStr[2];
-    arr[3] = arrAwardStr[3] + "," + arrAwardStr[4];
-    arr[4] =
-      arrAwardStr[5] +
-      "," +
-      arrAwardStr[6] +
-      "," +
-      arrAwardStr[7] +
-      "," +
-      arrAwardStr[8] +
-      "," +
-      arrAwardStr[9] +
-      "," +
-      arrAwardStr[10] +
-      "," +
-      arrAwardStr[11];
-    arr[5] = arrAwardStr[12];
-    arr[6] = arrAwardStr[13] + "," + arrAwardStr[14] + "," + arrAwardStr[15];
-    arr[7] = arrAwardStr[16];
-    arr[8] = arrAwardStr[17];
-    return arr;
-  }
+  // getDetail1to8(arrAwardStr: string[]) {
+  //   const arr = [];
+  //   for (let i = 0; i < 9; i++) {
+  //     arr.push("");
+  //   }
+  //   arr[0] = arrAwardStr[0];
+  //   arr[1] = arrAwardStr[1];
+  //   arr[2] = arrAwardStr[2];
+  //   arr[3] = arrAwardStr[3] + "," + arrAwardStr[4];
+  //   arr[4] =
+  //     arrAwardStr[5] +
+  //     "," +
+  //     arrAwardStr[6] +
+  //     "," +
+  //     arrAwardStr[7] +
+  //     "," +
+  //     arrAwardStr[8] +
+  //     "," +
+  //     arrAwardStr[9] +
+  //     "," +
+  //     arrAwardStr[10] +
+  //     "," +
+  //     arrAwardStr[11];
+  //   arr[5] = arrAwardStr[12];
+  //   arr[6] = arrAwardStr[13] + "," + arrAwardStr[14] + "," + arrAwardStr[15];
+  //   arr[7] = arrAwardStr[16];
+  //   arr[8] = arrAwardStr[17];
+  //   return arr;
+  // }
 
   initArrAwardStr(arrAward: number[]) {
     const arrAwardStr = [];
@@ -943,325 +943,325 @@ export class LotteryAwardService {
     return valueStr.slice(0, valueStr.length - 2) + "" + endValue;
   }
 
-  getArrAwardInt(
-    createRequestDto: LotteryRequestDetailDto,
-    lotteryInfo: LotteryInfo
-  ) {
-    const matricGiai = this.initMatricGiai(lotteryInfo);
-    // TODO: for giải lo, giải đặc biêt
-    let awardAndRate = [];
+  // getArrAwardInt(
+  //   createRequestDto: LotteryRequestDetailDto,
+  //   lotteryInfo: LotteryInfo
+  // ) {
+  //   const matricGiai = this.initMatricGiai(lotteryInfo);
+  //   // TODO: for giải lo, giải đặc biêt
+  //   let awardAndRate = [];
 
-    for (let i = 0; i < 5; i++) {
-      const { error, arrAwardInt, rate, totalPay, listAward, arrAwardStr } =
-        this.genRandomArrAwardInt(
-          createRequestDto,
-          lotteryInfo,
-          matricGiai,
-          true
-        );
-      if (!error && rate >= 0.05 && rate < 1) {
-        awardAndRate.push({ arrAwardInt, rate, totalPay, listAward, arrAwardStr });
-      }
-    }
-    if (awardAndRate.length == 0) {
-      const { error, arrAwardInt, rate, totalPay, listAward, arrAwardStr } =
-        this.genRandomArrAwardInt(
-          createRequestDto,
-          lotteryInfo,
-          matricGiai,
-          false
-        );
-      return {
-        arrAwardInt,
-        totalPay,
-        arrAwardStr,
-      };
-    }
+  //   for (let i = 0; i < 5; i++) {
+  //     const { error, arrAwardInt, rate, totalPay, listAward, arrAwardStr } =
+  //       this.genRandomArrAwardInt(
+  //         createRequestDto,
+  //         lotteryInfo,
+  //         matricGiai,
+  //         true
+  //       );
+  //     if (!error && rate >= 0.05 && rate < 1) {
+  //       awardAndRate.push({ arrAwardInt, rate, totalPay, listAward, arrAwardStr });
+  //     }
+  //   }
+  //   if (awardAndRate.length == 0) {
+  //     const { error, arrAwardInt, rate, totalPay, listAward, arrAwardStr } =
+  //       this.genRandomArrAwardInt(
+  //         createRequestDto,
+  //         lotteryInfo,
+  //         matricGiai,
+  //         false
+  //       );
+  //     return {
+  //       arrAwardInt,
+  //       totalPay,
+  //       arrAwardStr,
+  //     };
+  //   }
 
-    awardAndRate = awardAndRate.sort((a, b) => a.rate - b.rate);
-    return {
-      arrAwardInt: awardAndRate[0].arrAwardInt,
-      totalPay: awardAndRate[0].totalPay,
-      arrAwardStr: awardAndRate[0].arrAwardStr,
-    };
-  }
+  //   awardAndRate = awardAndRate.sort((a, b) => a.rate - b.rate);
+  //   return {
+  //     arrAwardInt: awardAndRate[0].arrAwardInt,
+  //     totalPay: awardAndRate[0].totalPay,
+  //     arrAwardStr: awardAndRate[0].arrAwardStr,
+  //   };
+  // }
 
-  initMatricGiai(lotteryInfo: LotteryInfo) {
-    const arrAward: number[] = [];
-    for (let i = 0; i < 18; i++) {
-      arrAward.push(-1);
-    }
-    const matricGiai: MatricGiai = {
-      arrGiai0: new Array(),
-      arrGiai8: new Array(),
-      arrGiaiLo: new Array(),
-      whiteListLo: new Array(),
-      whiteListGia0: new Array(),
-      whiteListGia8: new Array(),
-      arrAwardInt: arrAward,
-    };
+  // initMatricGiai(lotteryInfo: LotteryInfo) {
+  //   const arrAward: number[] = [];
+  //   for (let i = 0; i < 18; i++) {
+  //     arrAward.push(-1);
+  //   }
+  //   const matricGiai: MatricGiai = {
+  //     arrGiai0: new Array(),
+  //     arrGiai8: new Array(),
+  //     arrGiaiLo: new Array(),
+  //     whiteListLo: new Array(),
+  //     whiteListGia0: new Array(),
+  //     whiteListGia8: new Array(),
+  //     arrAwardInt: arrAward,
+  //   };
 
-    lotteryInfo.mapMatricInt.forEach((value, key) => {
-      if (value.giai0Pay > 0) {
-        matricGiai.arrGiai0.push({ value: key, amount: value.giai0Pay });
-      } else {
-        matricGiai.whiteListGia0.push(key);
-      }
+  //   lotteryInfo.mapMatricInt.forEach((value, key) => {
+  //     if (value.giai0Pay > 0) {
+  //       matricGiai.arrGiai0.push({ value: key, amount: value.giai0Pay });
+  //     } else {
+  //       matricGiai.whiteListGia0.push(key);
+  //     }
 
-      if (value.giai8Pay > 0) {
-        matricGiai.arrGiai8.push({ value: key, amount: value.giai8Pay });
-      } else {
-        matricGiai.whiteListGia8.push(key);
-      }
+  //     if (value.giai8Pay > 0) {
+  //       matricGiai.arrGiai8.push({ value: key, amount: value.giai8Pay });
+  //     } else {
+  //       matricGiai.whiteListGia8.push(key);
+  //     }
 
-      if (value.giaiLoPay > 0) {
-        matricGiai.arrGiaiLo.push({ value: key, amount: value.giaiLoPay });
-      } else {
-        matricGiai.whiteListLo.push(key);
-      }
-    });
+  //     if (value.giaiLoPay > 0) {
+  //       matricGiai.arrGiaiLo.push({ value: key, amount: value.giaiLoPay });
+  //     } else {
+  //       matricGiai.whiteListLo.push(key);
+  //     }
+  //   });
 
-    if (matricGiai.arrGiai0.length > 0) {
-      for (var i = 0; i < matricGiai.arrGiai0.length; i++) {
-        if (matricGiai.arrGiai0[i].amount > lotteryInfo.rootTotalRevenue) {
-          matricGiai.arrGiai0.splice(i, 1);
-          i--;
-        }
-      }
-    }
+  //   if (matricGiai.arrGiai0.length > 0) {
+  //     for (var i = 0; i < matricGiai.arrGiai0.length; i++) {
+  //       if (matricGiai.arrGiai0[i].amount > lotteryInfo.rootTotalRevenue) {
+  //         matricGiai.arrGiai0.splice(i, 1);
+  //         i--;
+  //       }
+  //     }
+  //   }
 
-    if (matricGiai.arrGiai8.length > 0) {
-      for (var i = 0; i < matricGiai.arrGiai8.length; i++) {
-        if (matricGiai.arrGiai8[i].amount > lotteryInfo.rootTotalRevenue) {
-          matricGiai.arrGiai8.splice(i, 1);
-          i--;
-        }
-      }
-    }
+  //   if (matricGiai.arrGiai8.length > 0) {
+  //     for (var i = 0; i < matricGiai.arrGiai8.length; i++) {
+  //       if (matricGiai.arrGiai8[i].amount > lotteryInfo.rootTotalRevenue) {
+  //         matricGiai.arrGiai8.splice(i, 1);
+  //         i--;
+  //       }
+  //     }
+  //   }
 
-    if (matricGiai.arrGiaiLo.length > 0) {
-      for (var i = 0; i < matricGiai.arrGiaiLo.length; i++) {
-        if (matricGiai.arrGiaiLo[i].amount > lotteryInfo.rootTotalRevenue) {
-          matricGiai.arrGiaiLo.splice(i, 1);
-          i--;
-        }
-      }
-    }
+  //   if (matricGiai.arrGiaiLo.length > 0) {
+  //     for (var i = 0; i < matricGiai.arrGiaiLo.length; i++) {
+  //       if (matricGiai.arrGiaiLo[i].amount > lotteryInfo.rootTotalRevenue) {
+  //         matricGiai.arrGiaiLo.splice(i, 1);
+  //         i--;
+  //       }
+  //     }
+  //   }
 
-    if (matricGiai.arrGiai0.length > 0) {
-      matricGiai.arrGiai0 = matricGiai.arrGiai0.sort(
-        (a, b) => a.amount - b.amount
-      );
-    }
-    if (matricGiai.arrGiai8.length > 0) {
-      matricGiai.arrGiai8 = matricGiai.arrGiai8.sort(
-        (a, b) => a.amount - b.amount
-      );
-    }
-    if (matricGiai.arrGiaiLo.length > 0) {
-      matricGiai.arrGiaiLo = matricGiai.arrGiaiLo.sort(
-        (a, b) => a.amount - b.amount
-      );
-    }
+  //   if (matricGiai.arrGiai0.length > 0) {
+  //     matricGiai.arrGiai0 = matricGiai.arrGiai0.sort(
+  //       (a, b) => a.amount - b.amount
+  //     );
+  //   }
+  //   if (matricGiai.arrGiai8.length > 0) {
+  //     matricGiai.arrGiai8 = matricGiai.arrGiai8.sort(
+  //       (a, b) => a.amount - b.amount
+  //     );
+  //   }
+  //   if (matricGiai.arrGiaiLo.length > 0) {
+  //     matricGiai.arrGiaiLo = matricGiai.arrGiaiLo.sort(
+  //       (a, b) => a.amount - b.amount
+  //     );
+  //   }
 
-    return matricGiai;
-  }
+  //   return matricGiai;
+  // }
 
-  genRandomArrAwardInt(
-    createRequestDto: LotteryRequestDetailDto,
-    lotteryInfo: LotteryInfo,
-    matricGiai: MatricGiai,
-    isRandom: boolean,
-  ) {
-    const arrAwardStr: string[] = []; // giải chính thức ra
-    for (let i = 0; i < 18; i++) {
-      arrAwardStr.push('');
-    }
-    let totalPayment = 0;
-    const mapAwardPrinft = new Map<number, any>();
+  // genRandomArrAwardInt(
+  //   createRequestDto: LotteryRequestDetailDto,
+  //   lotteryInfo: LotteryInfo,
+  //   matricGiai: MatricGiai,
+  //   isRandom: boolean,
+  // ) {
+  //   const arrAwardStr: string[] = []; // giải chính thức ra
+  //   for (let i = 0; i < 18; i++) {
+  //     arrAwardStr.push('');
+  //   }
+  //   let totalPayment = 0;
+  //   const mapAwardPrinft = new Map<number, any>();
 
-    const matricGiaiNew: MatricGiai = { ...matricGiai };
+  //   const matricGiaiNew: MatricGiai = { ...matricGiai };
 
-    // 0
-    const award0Dto = this.initAwardGiai0(
-      matricGiaiNew,
-      lotteryInfo,
-      mapAwardPrinft,
-      isRandom,
-      totalPayment,
-      createRequestDto
-    );
-    totalPayment = totalPayment + award0Dto.paymentSub;
-    arrAwardStr[0] = award0Dto.awardStr;
+  //   // 0
+  //   const award0Dto = this.initAwardGiai0(
+  //     matricGiaiNew,
+  //     lotteryInfo,
+  //     mapAwardPrinft,
+  //     isRandom,
+  //     totalPayment,
+  //     createRequestDto
+  //   );
+  //   totalPayment = totalPayment + award0Dto.paymentSub;
+  //   arrAwardStr[0] = award0Dto.awardStr;
 
-    // 17
-    const award8Dto = this.randomGiai8(
-      matricGiaiNew,
-      lotteryInfo,
-      mapAwardPrinft,
-      isRandom,
-      totalPayment,
-      createRequestDto
-    );
-    totalPayment = totalPayment + award8Dto.paymentSub;
-    arrAwardStr[17] = award8Dto.awardStr;
+  //   // 17
+  //   const award8Dto = this.randomGiai8(
+  //     matricGiaiNew,
+  //     lotteryInfo,
+  //     mapAwardPrinft,
+  //     isRandom,
+  //     totalPayment,
+  //     createRequestDto
+  //   );
+  //   totalPayment = totalPayment + award8Dto.paymentSub;
+  //   arrAwardStr[17] = award8Dto.awardStr;
 
-    const paymentGiai1to7 = this.initGiai1To7(matricGiaiNew,
-      lotteryInfo,
-      mapAwardPrinft,
-      arrAwardStr,
-      isRandom,
-      totalPayment,
-      createRequestDto
-    );
-    totalPayment = totalPayment + paymentGiai1to7;
-    return {
-      error: false,
-      arrAwardInt: matricGiaiNew.arrAwardInt,
-      rate: 1 - (totalPayment * 1.0) / (1.0 * lotteryInfo.rootTotalRevenue),
-      totalPay: totalPayment,
-      listAward: mapAwardPrinft,
-      arrAwardStr: arrAwardStr,
-    };
-  }
+  //   const paymentGiai1to7 = this.initGiai1To7(matricGiaiNew,
+  //     lotteryInfo,
+  //     mapAwardPrinft,
+  //     arrAwardStr,
+  //     isRandom,
+  //     totalPayment,
+  //     createRequestDto
+  //   );
+  //   totalPayment = totalPayment + paymentGiai1to7;
+  //   return {
+  //     error: false,
+  //     arrAwardInt: matricGiaiNew.arrAwardInt,
+  //     rate: 1 - (totalPayment * 1.0) / (1.0 * lotteryInfo.rootTotalRevenue),
+  //     totalPay: totalPayment,
+  //     listAward: mapAwardPrinft,
+  //     arrAwardStr: arrAwardStr,
+  //   };
+  // }
 
-  initAwardGiai0(
-    matricGiaiNew: MatricGiai,
-    lotteryInfo: LotteryInfo,
-    mapAwardPrinft: Map<number, any>,
-    isRandom: boolean,
-    totalPay: number,
-    createRequestDto: LotteryRequestDetailDto,
-  ) {
+  // initAwardGiai0(
+  //   matricGiaiNew: MatricGiai,
+  //   lotteryInfo: LotteryInfo,
+  //   mapAwardPrinft: Map<number, any>,
+  //   isRandom: boolean,
+  //   totalPay: number,
+  //   createRequestDto: LotteryRequestDetailDto,
+  // ) {
 
-    const arrSubAwardRandom: SubAwardDto[] = [];
+  //   const arrSubAwardRandom: SubAwardDto[] = [];
 
-    for (let i = 0; i < this.loop3And4Length; i++) {
-      const subAwardRandom = this.randomGiai0(matricGiaiNew,
-        lotteryInfo,
-        mapAwardPrinft,
-        isRandom,
-        totalPay,
-        createRequestDto
-      );
+  //   for (let i = 0; i < this.loop3And4Length; i++) {
+  //     const subAwardRandom = this.randomGiai0(matricGiaiNew,
+  //       lotteryInfo,
+  //       mapAwardPrinft,
+  //       isRandom,
+  //       totalPay,
+  //       createRequestDto
+  //     );
 
-      if (subAwardRandom.isInclude3And4 == false) {
-        matricGiaiNew.arrAwardInt[17] = subAwardRandom.awardInt;
-        return subAwardRandom;
-      }
-      arrSubAwardRandom.push(subAwardRandom);
+  //     if (subAwardRandom.isInclude3And4 == false) {
+  //       matricGiaiNew.arrAwardInt[17] = subAwardRandom.awardInt;
+  //       return subAwardRandom;
+  //     }
+  //     arrSubAwardRandom.push(subAwardRandom);
 
-    }
+  //   }
 
-    const arrSortAward = arrSubAwardRandom.sort((a, b) => a.paymentSub - b.paymentSub);
-    matricGiaiNew.arrAwardInt[17] = arrSortAward[0].awardInt;
-    return arrSortAward[0];
-  }
+  //   const arrSortAward = arrSubAwardRandom.sort((a, b) => a.paymentSub - b.paymentSub);
+  //   matricGiaiNew.arrAwardInt[17] = arrSortAward[0].awardInt;
+  //   return arrSortAward[0];
+  // }
 
-  randomGiai0(matricGiaiNew: MatricGiai,
-    lotteryInfo: LotteryInfo,
-    mapAwardPrinft: Map<number, any>,
-    isRandom: boolean,
-    totalPay: number,
-    createRequestDto: LotteryRequestDetailDto,
-  ) {
-    let awardInt = null;
-    let pay2So = 0;
+  // randomGiai0(matricGiaiNew: MatricGiai,
+  //   lotteryInfo: LotteryInfo,
+  //   mapAwardPrinft: Map<number, any>,
+  //   isRandom: boolean,
+  //   totalPay: number,
+  //   createRequestDto: LotteryRequestDetailDto,
+  // ) {
+  //   let awardInt = null;
+  //   let pay2So = 0;
 
-    if (matricGiaiNew.arrGiai0.length == 0) {
-      const index = this.genRandom(0, matricGiaiNew.whiteListGia0.length - 1);
-      // matricGiaiNew.arrAward[0] = matricGiaiNew.whiteListGia0[index];
-      awardInt = matricGiaiNew.whiteListGia0[index];
-    } else {
-      const index = this.genRandom(0, matricGiaiNew.arrGiai0.length - 1);
-      if (
-        index < matricGiaiNew.arrGiai0.length - 1 &&
-        isRandom &&
-        totalPay + matricGiaiNew.arrGiai0[index].amount <
-        +lotteryInfo.minWinNhaCai &&
-        +matricGiaiNew.arrGiai0[0].amount <
-        lotteryInfo.rootTotalRevenue * lotteryInfo.rateDeWin
-      ) {
-        awardInt = matricGiaiNew.arrGiai0[index].value;
-        pay2So = matricGiaiNew.arrGiai0[index].amount;
-        // matricGiaiNew.arrAward[0] = matricGiaiNew.arrGiai0[index].value;
-        // totalPay = totalPay + matricGiaiNew.arrGiai0[index].amount;
-        this.pushMapAward(mapAwardPrinft, matricGiaiNew.arrGiai0[index]);
-      } else {
-        if (
-          matricGiaiNew.arrGiai0.length == lotteryInfo.maxlength2so ||
-          (matricGiaiNew.arrGiai0[0].amount + totalPay <
-            +lotteryInfo.minWinNhaCai &&
-            +matricGiaiNew.arrGiai0[0].amount <
-            lotteryInfo.rootTotalRevenue * lotteryInfo.rateDeWin) ||
-          matricGiaiNew.whiteListGia0.length == 0
-        ) {
-          awardInt = matricGiaiNew.arrGiai0[0].value;
-          pay2So = matricGiaiNew.arrGiai0[0].amount;
-          // matricGiaiNew.arrAward[0] = matricGiaiNew.arrGiai0[0].value;
-          // totalPay = totalPay + matricGiaiNew.arrGiai0[0].amount;
-          this.pushMapAward(mapAwardPrinft, matricGiaiNew.arrGiai0[0]);
-        } else {
-          const index = this.genRandom(
-            0,
-            matricGiaiNew.whiteListGia0.length - 1
-          );
-          awardInt = matricGiaiNew.whiteListGia0[index];
-        }
-      }
-    }
+  //   if (matricGiaiNew.arrGiai0.length == 0) {
+  //     const index = this.genRandom(0, matricGiaiNew.whiteListGia0.length - 1);
+  //     // matricGiaiNew.arrAward[0] = matricGiaiNew.whiteListGia0[index];
+  //     awardInt = matricGiaiNew.whiteListGia0[index];
+  //   } else {
+  //     const index = this.genRandom(0, matricGiaiNew.arrGiai0.length - 1);
+  //     if (
+  //       index < matricGiaiNew.arrGiai0.length - 1 &&
+  //       isRandom &&
+  //       totalPay + matricGiaiNew.arrGiai0[index].amount <
+  //       +lotteryInfo.minWinNhaCai &&
+  //       +matricGiaiNew.arrGiai0[0].amount <
+  //       lotteryInfo.rootTotalRevenue * lotteryInfo.rateDeWin
+  //     ) {
+  //       awardInt = matricGiaiNew.arrGiai0[index].value;
+  //       pay2So = matricGiaiNew.arrGiai0[index].amount;
+  //       // matricGiaiNew.arrAward[0] = matricGiaiNew.arrGiai0[index].value;
+  //       // totalPay = totalPay + matricGiaiNew.arrGiai0[index].amount;
+  //       this.pushMapAward(mapAwardPrinft, matricGiaiNew.arrGiai0[index]);
+  //     } else {
+  //       if (
+  //         matricGiaiNew.arrGiai0.length == lotteryInfo.maxlength2so ||
+  //         (matricGiaiNew.arrGiai0[0].amount + totalPay <
+  //           +lotteryInfo.minWinNhaCai &&
+  //           +matricGiaiNew.arrGiai0[0].amount <
+  //           lotteryInfo.rootTotalRevenue * lotteryInfo.rateDeWin) ||
+  //         matricGiaiNew.whiteListGia0.length == 0
+  //       ) {
+  //         awardInt = matricGiaiNew.arrGiai0[0].value;
+  //         pay2So = matricGiaiNew.arrGiai0[0].amount;
+  //         // matricGiaiNew.arrAward[0] = matricGiaiNew.arrGiai0[0].value;
+  //         // totalPay = totalPay + matricGiaiNew.arrGiai0[0].amount;
+  //         this.pushMapAward(mapAwardPrinft, matricGiaiNew.arrGiai0[0]);
+  //       } else {
+  //         const index = this.genRandom(
+  //           0,
+  //           matricGiaiNew.whiteListGia0.length - 1
+  //         );
+  //         awardInt = matricGiaiNew.whiteListGia0[index];
+  //       }
+  //     }
+  //   }
 
-    // check 3 va 4 so
-    const arrSubAwardRandom: SubAwardDto[] = [];
-    for (let i = 0; i < this.loopPrefix; i++) {
-      const prefix4So = this.genRandom(0, 9999);
-      const award6So = this.getStrLength4(prefix4So) + this.getStrLength2(awardInt);
+  //   // check 3 va 4 so
+  //   const arrSubAwardRandom: SubAwardDto[] = [];
+  //   for (let i = 0; i < this.loopPrefix; i++) {
+  //     const prefix4So = this.genRandom(0, 9999);
+  //     const award6So = this.getStrLength4(prefix4So) + this.getStrLength2(awardInt);
 
-      const payLo3So = this.getPayment3o(award6So, createRequestDto?.baoLo?.lo3So);
-      const payLo4So = this.getPayment4o(award6So, createRequestDto?.baoLo?.lo4So);
-      // TODO de 3 so, 4 so
-      const totaPayment3so4So = payLo3So + payLo4So + pay2So;
-      if (payLo3So + payLo4So == 0) {
-        const subAward: SubAwardDto = {
-          awardInt: awardInt,
-          awardStr: award6So,
-          isInclude3And4: false,
-          paymentSub: totaPayment3so4So
-        }
-        return subAward;
+  //     const payLo3So = this.getPayment3o(award6So, createRequestDto?.baoLo?.lo3So);
+  //     const payLo4So = this.getPayment4o(award6So, createRequestDto?.baoLo?.lo4So);
+  //     // TODO de 3 so, 4 so
+  //     const totaPayment3so4So = payLo3So + payLo4So + pay2So;
+  //     if (payLo3So + payLo4So == 0) {
+  //       const subAward: SubAwardDto = {
+  //         awardInt: awardInt,
+  //         awardStr: award6So,
+  //         isInclude3And4: false,
+  //         paymentSub: totaPayment3so4So
+  //       }
+  //       return subAward;
 
-      }
-      arrSubAwardRandom.push({ awardInt: awardInt, awardStr: award6So, isInclude3And4: true, paymentSub: totaPayment3so4So });
-    }
+  //     }
+  //     arrSubAwardRandom.push({ awardInt: awardInt, awardStr: award6So, isInclude3And4: true, paymentSub: totaPayment3so4So });
+  //   }
 
-    const arrSortAward = arrSubAwardRandom.sort((a, b) => a.paymentSub - b.paymentSub);
-    return arrSortAward[0];
-  }
+  //   const arrSortAward = arrSubAwardRandom.sort((a, b) => a.paymentSub - b.paymentSub);
+  //   return arrSortAward[0];
+  // }
 
-  getPayment3o(award4So: string, lo3So: ValueDto[]) {
-    if (!lo3So || lo3So.length === 0) return 0;
-    let payment = 0;
-    for (const element of lo3So) {
-      if (element.value && award4So.toString().endsWith(this.getStrLength3(element.value))) {
-        payment = payment + (+element.amount * +RateCaculation.Lo_3_So);
-      }
-    }
+  // getPayment3o(award4So: string, lo3So: ValueDto[]) {
+  //   if (!lo3So || lo3So.length === 0) return 0;
+  //   let payment = 0;
+  //   for (const element of lo3So) {
+  //     if (element.value && award4So.toString().endsWith(this.getStrLength3(element.value))) {
+  //       payment = payment + (+element.amount * +RateCaculation.Lo_3_So);
+  //     }
+  //   }
 
-    return payment;
-  }
+  //   return payment;
+  // }
 
 
-  getPayment4o(award4So: string, arrValueDto: ValueDto[]) {
-    if (!arrValueDto || arrValueDto.length === 0) return 0;
-    let payment = 0;
-    for (const element of arrValueDto) {
-      if (element.value && award4So.toString().endsWith(this.getStrLength4(element.value))) {
-        payment = payment + (+element.amount * +RateCaculation.Lo_4_So);
-      }
-    }
+  // getPayment4o(award4So: string, arrValueDto: ValueDto[]) {
+  //   if (!arrValueDto || arrValueDto.length === 0) return 0;
+  //   let payment = 0;
+  //   for (const element of arrValueDto) {
+  //     if (element.value && award4So.toString().endsWith(this.getStrLength4(element.value))) {
+  //       payment = payment + (+element.amount * +RateCaculation.Lo_4_So);
+  //     }
+  //   }
 
-    return payment;
-  }
+  //   return payment;
+  // }
 
 
   getStrLength2(value: number) {
@@ -1292,464 +1292,464 @@ export class LotteryAwardService {
     return false;
   }
 
-  pushMapAward(mapAward: Map<number, any>, baseGiaiDto: BaseGiaiDto) {
-    const data = mapAward.get(baseGiaiDto.value);
-    if (data) {
-      data.amount = +data.amount + baseGiaiDto.amount;
-      mapAward.set(baseGiaiDto.value, data);
-    } else {
-      mapAward.set(baseGiaiDto.value, {
-        value: baseGiaiDto.value,
-        amount: baseGiaiDto.amount,
-      });
-    }
-  }
+  // pushMapAward(mapAward: Map<number, any>, baseGiaiDto: BaseGiaiDto) {
+  //   const data = mapAward.get(baseGiaiDto.value);
+  //   if (data) {
+  //     data.amount = +data.amount + baseGiaiDto.amount;
+  //     mapAward.set(baseGiaiDto.value, data);
+  //   } else {
+  //     mapAward.set(baseGiaiDto.value, {
+  //       value: baseGiaiDto.value,
+  //       amount: baseGiaiDto.amount,
+  //     });
+  //   }
+  // }
 
-  randomGiai8(matricGiaiNew: MatricGiai,
-    lotteryInfo: LotteryInfo,
-    mapAwardPrinft: Map<number, any>,
-    isRandom: boolean,
-    totalPay: number,
-    createRequestDto: LotteryRequestDetailDto,
-  ) {
-    let awardInt = null;
-    let pay2So = 0;
+  // randomGiai8(matricGiaiNew: MatricGiai,
+  //   lotteryInfo: LotteryInfo,
+  //   mapAwardPrinft: Map<number, any>,
+  //   isRandom: boolean,
+  //   totalPay: number,
+  //   createRequestDto: LotteryRequestDetailDto,
+  // ) {
+  //   let awardInt = null;
+  //   let pay2So = 0;
 
-    if (
-      matricGiaiNew.arrGiai8.length == 0 ||
-      matricGiaiNew.whiteListGia8.length === lotteryInfo.maxlength2so
-    ) {
-      const index = this.genRandom(0, matricGiaiNew.whiteListGia8.length - 1);
-      awardInt = matricGiaiNew.whiteListGia8[index];
-    } else {
-      const index = this.genRandom(0, matricGiaiNew.arrGiai8.length - 1);
+  //   if (
+  //     matricGiaiNew.arrGiai8.length == 0 ||
+  //     matricGiaiNew.whiteListGia8.length === lotteryInfo.maxlength2so
+  //   ) {
+  //     const index = this.genRandom(0, matricGiaiNew.whiteListGia8.length - 1);
+  //     awardInt = matricGiaiNew.whiteListGia8[index];
+  //   } else {
+  //     const index = this.genRandom(0, matricGiaiNew.arrGiai8.length - 1);
 
-      if (
-        index < matricGiaiNew.arrGiai8.length - 1 &&
-        isRandom &&
-        totalPay + matricGiaiNew.arrGiai8[index].amount <
-        lotteryInfo.minWinNhaCai
-      ) {
-        awardInt = matricGiaiNew.arrGiai8[index].value;
-        pay2So = matricGiaiNew.arrGiai8[index].amount;
-        this.pushMapAward(mapAwardPrinft, matricGiaiNew.arrGiai8[index]);
-      } else {
-        if (
-          matricGiaiNew.arrGiai8.length == lotteryInfo.maxlength2so ||
-          (matricGiaiNew.arrGiai8[0].amount + totalPay <
-            lotteryInfo.minWinNhaCai &&
-            +matricGiaiNew.arrGiai8[0].amount <
-            lotteryInfo.rootTotalRevenue * lotteryInfo.rateDeWin) ||
-          matricGiaiNew.whiteListGia8.length == 0
-        ) {
-          awardInt = matricGiaiNew.arrGiai8[0].value;
-          pay2So = matricGiaiNew.arrGiai8[0].amount;
-          this.pushMapAward(mapAwardPrinft, matricGiaiNew.arrGiai8[0]);
-        } else {
-          const index = this.genRandom(
-            0,
-            matricGiaiNew.whiteListGia8.length - 1
-          );
-          awardInt = matricGiaiNew.whiteListGia8[index];
-        }
-      }
-    }
-    matricGiaiNew.arrAwardInt[17] = awardInt;
-    const subAward: SubAwardDto = {
-      awardInt: awardInt,
-      awardStr: this.getStrLength2(awardInt),
-      isInclude3And4: false,
-      paymentSub: pay2So
-    }
-    return subAward;
-  }
+  //     if (
+  //       index < matricGiaiNew.arrGiai8.length - 1 &&
+  //       isRandom &&
+  //       totalPay + matricGiaiNew.arrGiai8[index].amount <
+  //       lotteryInfo.minWinNhaCai
+  //     ) {
+  //       awardInt = matricGiaiNew.arrGiai8[index].value;
+  //       pay2So = matricGiaiNew.arrGiai8[index].amount;
+  //       this.pushMapAward(mapAwardPrinft, matricGiaiNew.arrGiai8[index]);
+  //     } else {
+  //       if (
+  //         matricGiaiNew.arrGiai8.length == lotteryInfo.maxlength2so ||
+  //         (matricGiaiNew.arrGiai8[0].amount + totalPay <
+  //           lotteryInfo.minWinNhaCai &&
+  //           +matricGiaiNew.arrGiai8[0].amount <
+  //           lotteryInfo.rootTotalRevenue * lotteryInfo.rateDeWin) ||
+  //         matricGiaiNew.whiteListGia8.length == 0
+  //       ) {
+  //         awardInt = matricGiaiNew.arrGiai8[0].value;
+  //         pay2So = matricGiaiNew.arrGiai8[0].amount;
+  //         this.pushMapAward(mapAwardPrinft, matricGiaiNew.arrGiai8[0]);
+  //       } else {
+  //         const index = this.genRandom(
+  //           0,
+  //           matricGiaiNew.whiteListGia8.length - 1
+  //         );
+  //         awardInt = matricGiaiNew.whiteListGia8[index];
+  //       }
+  //     }
+  //   }
+  //   matricGiaiNew.arrAwardInt[17] = awardInt;
+  //   const subAward: SubAwardDto = {
+  //     awardInt: awardInt,
+  //     awardStr: this.getStrLength2(awardInt),
+  //     isInclude3And4: false,
+  //     paymentSub: pay2So
+  //   }
+  //   return subAward;
+  // }
 
-  initGiai1To7(matricGiaiNew: MatricGiai,
-    lotteryInfo: LotteryInfo,
-    mapAwardPrinft: Map<number, any>,
-    arrAwardStr: string[],
-    isRandom: boolean,
-    totalPay: number,
-    createRequestDto: LotteryRequestDetailDto,
-  ): number {
-    // remove giai 0 va 8
-    for (let i = 0; i < matricGiaiNew.arrGiaiLo.length; i++) {
-      if (matricGiaiNew.arrGiaiLo[i].value == matricGiaiNew.arrAwardInt[17]) {
-        matricGiaiNew.arrGiaiLo.slice(i, 1);
-      } else if (
-        matricGiaiNew.arrGiaiLo[i].value == matricGiaiNew.arrAwardInt[0]
-      ) {
-        matricGiaiNew.arrGiaiLo.slice(i, 1);
-      }
-    }
+  // initGiai1To7(matricGiaiNew: MatricGiai,
+  //   lotteryInfo: LotteryInfo,
+  //   mapAwardPrinft: Map<number, any>,
+  //   arrAwardStr: string[],
+  //   isRandom: boolean,
+  //   totalPay: number,
+  //   createRequestDto: LotteryRequestDetailDto,
+  // ): number {
+  //   // remove giai 0 va 8
+  //   for (let i = 0; i < matricGiaiNew.arrGiaiLo.length; i++) {
+  //     if (matricGiaiNew.arrGiaiLo[i].value == matricGiaiNew.arrAwardInt[17]) {
+  //       matricGiaiNew.arrGiaiLo.slice(i, 1);
+  //     } else if (
+  //       matricGiaiNew.arrGiaiLo[i].value == matricGiaiNew.arrAwardInt[0]
+  //     ) {
+  //       matricGiaiNew.arrGiaiLo.slice(i, 1);
+  //     }
+  //   }
 
-    // TODO xem lai cach tinh 3 va 4
-    let paymentGiai1to7 = 0;
+  //   // TODO xem lai cach tinh 3 va 4
+  //   let paymentGiai1to7 = 0;
 
 
-    if (
-      matricGiaiNew.arrGiaiLo.length == 0 ||
-      matricGiaiNew.whiteListLo.length == lotteryInfo.maxlength2so
-    ) {
-      for (let i = 1; i < 17; i++) {
-        const index = this.genRandom(0, matricGiaiNew.whiteListLo.length - 1);
-        matricGiaiNew.arrAwardInt[i] = matricGiaiNew.whiteListLo[index];
-        paymentGiai1to7 = paymentGiai1to7 + 0 + this.getPayment3And4SoAwardStr(i, matricGiaiNew.arrAwardInt[i], arrAwardStr, createRequestDto);
-      }
-    } else {
-      for (let i = 1; i < 17; i++) {
-        const index = this.genRandom(0, matricGiaiNew.arrGiaiLo.length - 1);
-        if (
-          index < matricGiaiNew.arrGiaiLo.length - 1 &&
-          isRandom &&
-          totalPay + paymentGiai1to7 + matricGiaiNew.arrGiaiLo[index].amount <
-          lotteryInfo.minWinNhaCai
-        ) {
-          matricGiaiNew.arrAwardInt[i] = matricGiaiNew.arrGiaiLo[index].value;
-          // totalPay = totalPay + matricGiaiNew.arrGiaiLo[index].amount;
-          paymentGiai1to7 = paymentGiai1to7 + matricGiaiNew.arrGiaiLo[index].amount + this.getPayment3And4SoAwardStr(i, matricGiaiNew.arrAwardInt[i], arrAwardStr, createRequestDto);
-          this.pushMapAward(mapAwardPrinft, matricGiaiNew.arrGiaiLo[index]);
+  //   if (
+  //     matricGiaiNew.arrGiaiLo.length == 0 ||
+  //     matricGiaiNew.whiteListLo.length == lotteryInfo.maxlength2so
+  //   ) {
+  //     for (let i = 1; i < 17; i++) {
+  //       const index = this.genRandom(0, matricGiaiNew.whiteListLo.length - 1);
+  //       matricGiaiNew.arrAwardInt[i] = matricGiaiNew.whiteListLo[index];
+  //       paymentGiai1to7 = paymentGiai1to7 + 0 + this.getPayment3And4SoAwardStr(i, matricGiaiNew.arrAwardInt[i], arrAwardStr, createRequestDto);
+  //     }
+  //   } else {
+  //     for (let i = 1; i < 17; i++) {
+  //       const index = this.genRandom(0, matricGiaiNew.arrGiaiLo.length - 1);
+  //       if (
+  //         index < matricGiaiNew.arrGiaiLo.length - 1 &&
+  //         isRandom &&
+  //         totalPay + paymentGiai1to7 + matricGiaiNew.arrGiaiLo[index].amount <
+  //         lotteryInfo.minWinNhaCai
+  //       ) {
+  //         matricGiaiNew.arrAwardInt[i] = matricGiaiNew.arrGiaiLo[index].value;
+  //         // totalPay = totalPay + matricGiaiNew.arrGiaiLo[index].amount;
+  //         paymentGiai1to7 = paymentGiai1to7 + matricGiaiNew.arrGiaiLo[index].amount + this.getPayment3And4SoAwardStr(i, matricGiaiNew.arrAwardInt[i], arrAwardStr, createRequestDto);
+  //         this.pushMapAward(mapAwardPrinft, matricGiaiNew.arrGiaiLo[index]);
 
-          if (matricGiaiNew.arrGiaiLo.length > 1) {
-            matricGiaiNew.arrGiaiLo.splice(index, 1);
-          } else {
-            matricGiaiNew.arrGiaiLo = [];
-          }
-        } else {
-          if (
-            (matricGiaiNew.arrGiaiLo.length > 0 &&
-              totalPay + paymentGiai1to7 + matricGiaiNew.arrGiaiLo[0].amount <
-              lotteryInfo.minWinNhaCai) ||
-            matricGiaiNew.whiteListGia8.length == 0
-          ) {
-            matricGiaiNew.arrAwardInt[i] = matricGiaiNew.arrGiaiLo[0].value;
-            // totalPay = totalPay + matricGiaiNew.arrGiaiLo[0].amount;
-            paymentGiai1to7 = paymentGiai1to7 + matricGiaiNew.arrGiaiLo[0].amount + this.getPayment3And4SoAwardStr(i, matricGiaiNew.arrAwardInt[i], arrAwardStr, createRequestDto);
-            this.pushMapAward(mapAwardPrinft, matricGiaiNew.arrGiaiLo[0]);
-            if (matricGiaiNew.arrGiaiLo.length > 1) {
-              matricGiaiNew.arrGiaiLo.splice(0, 1);
-            } else {
-              matricGiaiNew.arrGiaiLo = [];
-            }
-          } else {
-            const index = this.genRandom(
-              0,
-              matricGiaiNew.whiteListLo.length - 1
-            );
-            matricGiaiNew.arrAwardInt[i] = matricGiaiNew.whiteListLo[index];
-            paymentGiai1to7 = paymentGiai1to7 + this.getPayment3And4SoAwardStr(i, matricGiaiNew.arrAwardInt[i], arrAwardStr, createRequestDto);
-          }
-        }
-      }
-    }
+  //         if (matricGiaiNew.arrGiaiLo.length > 1) {
+  //           matricGiaiNew.arrGiaiLo.splice(index, 1);
+  //         } else {
+  //           matricGiaiNew.arrGiaiLo = [];
+  //         }
+  //       } else {
+  //         if (
+  //           (matricGiaiNew.arrGiaiLo.length > 0 &&
+  //             totalPay + paymentGiai1to7 + matricGiaiNew.arrGiaiLo[0].amount <
+  //             lotteryInfo.minWinNhaCai) ||
+  //           matricGiaiNew.whiteListGia8.length == 0
+  //         ) {
+  //           matricGiaiNew.arrAwardInt[i] = matricGiaiNew.arrGiaiLo[0].value;
+  //           // totalPay = totalPay + matricGiaiNew.arrGiaiLo[0].amount;
+  //           paymentGiai1to7 = paymentGiai1to7 + matricGiaiNew.arrGiaiLo[0].amount + this.getPayment3And4SoAwardStr(i, matricGiaiNew.arrAwardInt[i], arrAwardStr, createRequestDto);
+  //           this.pushMapAward(mapAwardPrinft, matricGiaiNew.arrGiaiLo[0]);
+  //           if (matricGiaiNew.arrGiaiLo.length > 1) {
+  //             matricGiaiNew.arrGiaiLo.splice(0, 1);
+  //           } else {
+  //             matricGiaiNew.arrGiaiLo = [];
+  //           }
+  //         } else {
+  //           const index = this.genRandom(
+  //             0,
+  //             matricGiaiNew.whiteListLo.length - 1
+  //           );
+  //           matricGiaiNew.arrAwardInt[i] = matricGiaiNew.whiteListLo[index];
+  //           paymentGiai1to7 = paymentGiai1to7 + this.getPayment3And4SoAwardStr(i, matricGiaiNew.arrAwardInt[i], arrAwardStr, createRequestDto);
+  //         }
+  //       }
+  //     }
+  //   }
 
-    return paymentGiai1to7;
-  }
+  //   return paymentGiai1to7;
+  // }
 
-  getPayment3And4SoAwardStr(
-    index: number,
-    awardInt: number,
-    arrAwardStr: string[],
-    createRequestDto: LotteryRequestDetailDto,
-  ) {
-    if (index <= 11) {
-      const prefix3So = this.genRandom(0, 999);
-      const award5So = this.getStrLength3(prefix3So) + this.getStrLength2(awardInt);
-      const subAwardDto = this.processGetPayment3And4So(createRequestDto, awardInt, award5So);
-      arrAwardStr[index] = subAwardDto.awardStr;
-      return subAwardDto.paymentSub;
-    }
-    if (index <= 15) {
-      const prefix3So = this.genRandom(0, 99);
-      const award4So = this.getStrLength2(prefix3So) + this.getStrLength2(awardInt);
-      const subAwardDto = this.processGetPayment3And4So(createRequestDto, awardInt, award4So);
-      arrAwardStr[index] = subAwardDto.awardStr;
-      return subAwardDto.paymentSub;
-    }
-    if (index <= 16) {
-      const prefix3So = this.genRandom(0, 9);
-      const award3So = `${prefix3So}` + this.getStrLength2(awardInt);
-      const subAwardDto = this.processGetPayment3So(createRequestDto, awardInt, award3So);
-      arrAwardStr[index] = subAwardDto.awardStr;
-      return subAwardDto.paymentSub;
-    }
-    return 0;
-  }
+  // getPayment3And4SoAwardStr(
+  //   index: number,
+  //   awardInt: number,
+  //   arrAwardStr: string[],
+  //   createRequestDto: LotteryRequestDetailDto,
+  // ) {
+  //   if (index <= 11) {
+  //     const prefix3So = this.genRandom(0, 999);
+  //     const award5So = this.getStrLength3(prefix3So) + this.getStrLength2(awardInt);
+  //     const subAwardDto = this.processGetPayment3And4So(createRequestDto, awardInt, award5So);
+  //     arrAwardStr[index] = subAwardDto.awardStr;
+  //     return subAwardDto.paymentSub;
+  //   }
+  //   if (index <= 15) {
+  //     const prefix3So = this.genRandom(0, 99);
+  //     const award4So = this.getStrLength2(prefix3So) + this.getStrLength2(awardInt);
+  //     const subAwardDto = this.processGetPayment3And4So(createRequestDto, awardInt, award4So);
+  //     arrAwardStr[index] = subAwardDto.awardStr;
+  //     return subAwardDto.paymentSub;
+  //   }
+  //   if (index <= 16) {
+  //     const prefix3So = this.genRandom(0, 9);
+  //     const award3So = `${prefix3So}` + this.getStrLength2(awardInt);
+  //     const subAwardDto = this.processGetPayment3So(createRequestDto, awardInt, award3So);
+  //     arrAwardStr[index] = subAwardDto.awardStr;
+  //     return subAwardDto.paymentSub;
+  //   }
+  //   return 0;
+  // }
 
-  processGetPayment3And4So(
-    createRequestDto: LotteryRequestDetailDto,
-    awardInt: number,
-    subAwardStr: string,
-  ) {
-    const arrSubAwardRandom: SubAwardDto[] = [];
-    for (let i = 0; i < this.loopPrefix; i++) {
+  // processGetPayment3And4So(
+  //   createRequestDto: LotteryRequestDetailDto,
+  //   awardInt: number,
+  //   subAwardStr: string,
+  // ) {
+  //   const arrSubAwardRandom: SubAwardDto[] = [];
+  //   for (let i = 0; i < this.loopPrefix; i++) {
 
-      const payLo3So = this.getPayment3o(subAwardStr, createRequestDto?.baoLo?.lo3So);
-      const payLo4So = this.getPayment4o(subAwardStr, createRequestDto?.baoLo?.lo4So);
-      // TODO de 3 so, 4 so
-      const totaPayment3so4So = payLo3So + payLo4So;
-      if (payLo3So + payLo4So == 0) {
-        const subAward: SubAwardDto = {
-          awardInt: awardInt,
-          awardStr: subAwardStr,
-          isInclude3And4: false,
-          paymentSub: totaPayment3so4So
-        }
-        return subAward;
+  //     const payLo3So = this.getPayment3o(subAwardStr, createRequestDto?.baoLo?.lo3So);
+  //     const payLo4So = this.getPayment4o(subAwardStr, createRequestDto?.baoLo?.lo4So);
+  //     // TODO de 3 so, 4 so
+  //     const totaPayment3so4So = payLo3So + payLo4So;
+  //     if (payLo3So + payLo4So == 0) {
+  //       const subAward: SubAwardDto = {
+  //         awardInt: awardInt,
+  //         awardStr: subAwardStr,
+  //         isInclude3And4: false,
+  //         paymentSub: totaPayment3so4So
+  //       }
+  //       return subAward;
 
-      }
-      arrSubAwardRandom.push({ awardInt: awardInt, awardStr: subAwardStr, isInclude3And4: true, paymentSub: totaPayment3so4So });
-    }
+  //     }
+  //     arrSubAwardRandom.push({ awardInt: awardInt, awardStr: subAwardStr, isInclude3And4: true, paymentSub: totaPayment3so4So });
+  //   }
 
-    const arrSortAward = arrSubAwardRandom.sort((a, b) => a.paymentSub - b.paymentSub);
-    return arrSortAward[0];
-  }
+  //   const arrSortAward = arrSubAwardRandom.sort((a, b) => a.paymentSub - b.paymentSub);
+  //   return arrSortAward[0];
+  // }
 
-  processGetPayment3So(
-    createRequestDto: LotteryRequestDetailDto,
-    awardInt: number,
-    subAwardStr: string,
-  ) {
-    const arrSubAwardRandom: SubAwardDto[] = [];
-    for (let i = 0; i < this.loopPrefix; i++) {
-      const payLo3So = this.getPayment3o(subAwardStr, createRequestDto?.baoLo?.lo3So);
-      const totaPayment3so4So = payLo3So;
-      if (payLo3So == 0) {
-        const subAward: SubAwardDto = {
-          awardInt: awardInt,
-          awardStr: subAwardStr,
-          isInclude3And4: false,
-          paymentSub: totaPayment3so4So
-        }
-        return subAward;
+  // processGetPayment3So(
+  //   createRequestDto: LotteryRequestDetailDto,
+  //   awardInt: number,
+  //   subAwardStr: string,
+  // ) {
+  //   const arrSubAwardRandom: SubAwardDto[] = [];
+  //   for (let i = 0; i < this.loopPrefix; i++) {
+  //     const payLo3So = this.getPayment3o(subAwardStr, createRequestDto?.baoLo?.lo3So);
+  //     const totaPayment3so4So = payLo3So;
+  //     if (payLo3So == 0) {
+  //       const subAward: SubAwardDto = {
+  //         awardInt: awardInt,
+  //         awardStr: subAwardStr,
+  //         isInclude3And4: false,
+  //         paymentSub: totaPayment3so4So
+  //       }
+  //       return subAward;
 
-      }
-      arrSubAwardRandom.push({ awardInt: awardInt, awardStr: subAwardStr, isInclude3And4: true, paymentSub: totaPayment3so4So });
-    }
+  //     }
+  //     arrSubAwardRandom.push({ awardInt: awardInt, awardStr: subAwardStr, isInclude3And4: true, paymentSub: totaPayment3so4So });
+  //   }
 
-    const arrSortAward = arrSubAwardRandom.sort((a, b) => a.paymentSub - b.paymentSub);
-    return arrSortAward[0];
-  }
+  //   const arrSortAward = arrSubAwardRandom.sort((a, b) => a.paymentSub - b.paymentSub);
+  //   return arrSortAward[0];
+  // }
 
   async createLotteryAward(createAwardDto: CreateLotteryAwardDto) {
     return await this.lotteryAwardRepository.save(createAwardDto);
   }
 
-  async checkOrderWin(order: OrderRequest, awardDetail: string): Promise<boolean> {
-    const { values } = convertOrderDetail(order);
-    const arrayAward = JSON.parse(awardDetail);
-    for (const valueDto of values) {
-      if (order.type == `${TypeLottery.XSMB_45_S}`) {
-        switch (order.betType) {
-          case `${TypeCaculation.De_Dac_Biet}`:
-            await this.checkBetDacBiet(order, valueDto, arrayAward);
-            break;
-          case `${TypeCaculation.De_Dau}`:
-            await this.checkDeDau(order, valueDto, arrayAward);
-            break;
-          case `${TypeCaculation.De_Dau_Duoi}`:
-            await this.checkDeDauDuoi(order, valueDto, arrayAward);
-            break;
-          case `${TypeCaculation.Lo_2_So}`:
-            await this.checkLo2So(order, valueDto, arrayAward);
-            break;
-          case `${TypeCaculation.Lo_2_So_1k}`:
-            await this.checkLo2So1k(order, valueDto, arrayAward);
-            break;
-          case `${TypeCaculation.Lo_3_So}`:
-            await this.checkLo3So(order, valueDto, arrayAward);
-            break;
-          case `${TypeCaculation.Lo_4_So}`:
-            await this.checkLo4So(order, valueDto, arrayAward);
-            break;
-          // TODO check de 3, 4
-          default:
-            break;
-        }
-      }
+  // async checkOrderWin(order: OrderRequest, awardDetail: string): Promise<boolean> {
+  //   const { values } = convertOrderDetail(order);
+  //   const arrayAward = JSON.parse(awardDetail);
+  //   for (const valueDto of values) {
+  //     if (order.type == `${TypeLottery.XSMB_45_S}`) {
+  //       switch (order.betType) {
+  //         case `${TypeCaculation.De_Dac_Biet}`:
+  //           await this.checkBetDacBiet(order, valueDto, arrayAward);
+  //           break;
+  //         case `${TypeCaculation.De_Dau}`:
+  //           await this.checkDeDau(order, valueDto, arrayAward);
+  //           break;
+  //         case `${TypeCaculation.De_Dau_Duoi}`:
+  //           await this.checkDeDauDuoi(order, valueDto, arrayAward);
+  //           break;
+  //         case `${TypeCaculation.Lo_2_So}`:
+  //           await this.checkLo2So(order, valueDto, arrayAward);
+  //           break;
+  //         case `${TypeCaculation.Lo_2_So_1k}`:
+  //           await this.checkLo2So1k(order, valueDto, arrayAward);
+  //           break;
+  //         case `${TypeCaculation.Lo_3_So}`:
+  //           await this.checkLo3So(order, valueDto, arrayAward);
+  //           break;
+  //         case `${TypeCaculation.Lo_4_So}`:
+  //           await this.checkLo4So(order, valueDto, arrayAward);
+  //           break;
+  //         // TODO check de 3, 4
+  //         default:
+  //           break;
+  //       }
+  //     }
 
-      // TODO XSMB
-    }
-    return true;
-  }
+  //     // TODO XSMB
+  //   }
+  //   return true;
+  // }
 
-  async checkLo3So(order: OrderRequest, valueDto: ValueDto, arrayAward: Array<string>) {
-    for (const awards of arrayAward) {
-      const subArr = awards.split(CharLottery.COMMA);
-      for (const award of subArr) {
-        if (award.length < 3) {
-          continue;
-        }
-        const lastChars = award.substring(award.length - 3);
-        if (+lastChars == valueDto.value) {
-          order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.Lo_3_So;
-        }
-      }
-    }
+  // async checkLo3So(order: OrderRequest, valueDto: ValueDto, arrayAward: Array<string>) {
+  //   for (const awards of arrayAward) {
+  //     const subArr = awards.split(CharLottery.COMMA);
+  //     for (const award of subArr) {
+  //       if (award.length < 3) {
+  //         continue;
+  //       }
+  //       const lastChars = award.substring(award.length - 3);
+  //       if (+lastChars == valueDto.value) {
+  //         order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.Lo_3_So;
+  //       }
+  //     }
+  //   }
 
-    if (order.paymentWin > 0) {
-      return true;
-    }
-    return false;
-  }
+  //   if (order.paymentWin > 0) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
-  async checkLo4So(order: OrderRequest, valueDto: ValueDto, arrayAward: Array<string>) {
-    for (const awards of arrayAward) {
-      const subArr = awards.split(CharLottery.COMMA);
-      for (const award of subArr) {
-        if (award.length < 4) {
-          continue;
-        }
-        const lastChars = award.substring(award.length - 4);
-        if (+lastChars == valueDto.value) {
-          order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.Lo_4_So;
-        }
-      }
-    }
+  // async checkLo4So(order: OrderRequest, valueDto: ValueDto, arrayAward: Array<string>) {
+  //   for (const awards of arrayAward) {
+  //     const subArr = awards.split(CharLottery.COMMA);
+  //     for (const award of subArr) {
+  //       if (award.length < 4) {
+  //         continue;
+  //       }
+  //       const lastChars = award.substring(award.length - 4);
+  //       if (+lastChars == valueDto.value) {
+  //         order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.Lo_4_So;
+  //       }
+  //     }
+  //   }
 
-    if (order.paymentWin > 0) {
-      return true;
-    }
-    return false;
-  }
+  //   if (order.paymentWin > 0) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
-  async checkLo2So1k(order: OrderRequest, valueDto: ValueDto, arrayAward: Array<string>) {
-    for (const awards of arrayAward) {
-      const subArr = awards.split(CharLottery.COMMA);
-      for (const award of subArr) {
-        const lastChars = award.substring(award.length - 2);
-        if (+lastChars == valueDto.value) {
-          order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.Lo_2_So_1k;
-        }
-      }
-    }
+  // async checkLo2So1k(order: OrderRequest, valueDto: ValueDto, arrayAward: Array<string>) {
+  //   for (const awards of arrayAward) {
+  //     const subArr = awards.split(CharLottery.COMMA);
+  //     for (const award of subArr) {
+  //       const lastChars = award.substring(award.length - 2);
+  //       if (+lastChars == valueDto.value) {
+  //         order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.Lo_2_So_1k;
+  //       }
+  //     }
+  //   }
 
-    if (order.paymentWin > 0) {
-      return true;
-    }
-    return false;
-  }
+  //   if (order.paymentWin > 0) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
-  async checkLo2So(order: OrderRequest, valueDto: ValueDto, arrayAward: Array<string>) {
-    for (const awards of arrayAward) {
-      const subArr = awards.split(CharLottery.COMMA);
-      for (const award of subArr) {
-        const lastChars = award.substring(award.length - 2);
-        if (+lastChars == valueDto.value) {
-          order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.Lo_2_So;
-        }
-      }
-    }
+  // async checkLo2So(order: OrderRequest, valueDto: ValueDto, arrayAward: Array<string>) {
+  //   for (const awards of arrayAward) {
+  //     const subArr = awards.split(CharLottery.COMMA);
+  //     for (const award of subArr) {
+  //       const lastChars = award.substring(award.length - 2);
+  //       if (+lastChars == valueDto.value) {
+  //         order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.Lo_2_So;
+  //       }
+  //     }
+  //   }
 
-    if (order.paymentWin > 0) {
-      return true;
-    }
-    return false;
-  }
+  //   if (order.paymentWin > 0) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
-  async checkDeDauDuoi(order: OrderRequest, valueDto: ValueDto, arrayAward: Array<string>) {
-    const lastChars0 = arrayAward[0].substring(arrayAward[0].length - 2);
-    if (+lastChars0 == valueDto.value) {
-      order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.De_Dau_Duoi;
-    }
+  // async checkDeDauDuoi(order: OrderRequest, valueDto: ValueDto, arrayAward: Array<string>) {
+  //   const lastChars0 = arrayAward[0].substring(arrayAward[0].length - 2);
+  //   if (+lastChars0 == valueDto.value) {
+  //     order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.De_Dau_Duoi;
+  //   }
 
-    const lastChars7 = arrayAward[8].substring(arrayAward[8].length - 2);
-    if (+lastChars7 == valueDto.value) {
-      order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.De_Dau_Duoi;
-    }
+  //   const lastChars7 = arrayAward[8].substring(arrayAward[8].length - 2);
+  //   if (+lastChars7 == valueDto.value) {
+  //     order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.De_Dau_Duoi;
+  //   }
 
-    if (order.paymentWin > 0) {
-      return true;
-    }
-    return false;
-  }
+  //   if (order.paymentWin > 0) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
-  async checkDeDau(order: OrderRequest, valueDto: ValueDto, arrayAward: Array<string>) {
-    const lastChars = arrayAward[8].substring(arrayAward[8].length - 2);
-    if (+lastChars == valueDto.value) {
-      order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.De_Dau;
-      return true;
-    }
+  // async checkDeDau(order: OrderRequest, valueDto: ValueDto, arrayAward: Array<string>) {
+  //   const lastChars = arrayAward[8].substring(arrayAward[8].length - 2);
+  //   if (+lastChars == valueDto.value) {
+  //     order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.De_Dau;
+  //     return true;
+  //   }
 
-    return false;
-  }
+  //   return false;
+  // }
 
-  async checkBetDacBiet(order: OrderRequest, valueDto: ValueDto, arrayAward: Array<string>): Promise<boolean> {
-    const lastChars = arrayAward[0].substring(arrayAward[0].length - 2);
-    if (+lastChars == valueDto.value) {
-      order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.De_Dac_Biet;
-      return true;
-    }
+  // async checkBetDacBiet(order: OrderRequest, valueDto: ValueDto, arrayAward: Array<string>): Promise<boolean> {
+  //   const lastChars = arrayAward[0].substring(arrayAward[0].length - 2);
+  //   if (+lastChars == valueDto.value) {
+  //     order.paymentWin = order.paymentWin + +valueDto.amount * +RateCaculation.De_Dac_Biet;
+  //     return true;
+  //   }
 
-    return false;
-  }
+  //   return false;
+  // }
 
-  async initLotteryRequest(createAwardDto: CreateLotteryAwardDto, orders: OrderRequest[]) {
-    //danh lo
-    const lo2So: ValueDto[] = [];
-    const lo2So1k: ValueDto[] = [];
-    const lo3So: ValueDto[] = [];
-    const lo4So: ValueDto[] = [];
+  // async initLotteryRequest(createAwardDto: CreateLotteryAwardDto, orders: OrderRequest[]) {
+  //   //danh lo
+  //   const lo2So: ValueDto[] = [];
+  //   const lo2So1k: ValueDto[] = [];
+  //   const lo3So: ValueDto[] = [];
+  //   const lo4So: ValueDto[] = [];
 
-    // danh de
-    const deDau: ValueDto[] = [];
-    const deDacBiet: ValueDto[] = [];
-    const deDauDuoi: ValueDto[] = [];
+  //   // danh de
+  //   const deDau: ValueDto[] = [];
+  //   const deDacBiet: ValueDto[] = [];
+  //   const deDauDuoi: ValueDto[] = [];
 
-    for (const order of orders) {
-      const { values } = convertOrderDetail(order);
-      if (values.length == 0) {
-      }
-      switch (order.betType) {
-        case `${TypeCaculation.De_Dac_Biet}`:
-          deDacBiet.push(...values)
-          break;
-        case `${TypeCaculation.De_Dau}`:
-          deDau.push(...values)
-          break;
-        case `${TypeCaculation.De_Dau_Duoi}`:
-          deDauDuoi.push(...values)
-          break;
-        case `${TypeCaculation.Lo_2_So}`:
-          lo2So.push(...values)
-          break;
-        case `${TypeCaculation.Lo_2_So_1k}`:
-          lo2So1k.push(...values)
-          break;
-        case `${TypeCaculation.Lo_3_So}`:
-          lo3So.push(...values)
-          break;
-        case `${TypeCaculation.Lo_4_So}`:
-          lo4So.push(...values)
-          break;
-        // TODO de 3, 4
-        default:
-          break;
-      }
-    }
+  //   for (const order of orders) {
+  //     const { values } = convertOrderDetail(order);
+  //     if (values.length == 0) {
+  //     }
+  //     switch (order.betType) {
+  //       case `${TypeCaculation.De_Dac_Biet}`:
+  //         deDacBiet.push(...values)
+  //         break;
+  //       case `${TypeCaculation.De_Dau}`:
+  //         deDau.push(...values)
+  //         break;
+  //       case `${TypeCaculation.De_Dau_Duoi}`:
+  //         deDauDuoi.push(...values)
+  //         break;
+  //       case `${TypeCaculation.Lo_2_So}`:
+  //         lo2So.push(...values)
+  //         break;
+  //       case `${TypeCaculation.Lo_2_So_1k}`:
+  //         lo2So1k.push(...values)
+  //         break;
+  //       case `${TypeCaculation.Lo_3_So}`:
+  //         lo3So.push(...values)
+  //         break;
+  //       case `${TypeCaculation.Lo_4_So}`:
+  //         lo4So.push(...values)
+  //         break;
+  //       // TODO de 3, 4
+  //       default:
+  //         break;
+  //     }
+  //   }
 
-    const baoLo: BaoLoDto = {
-      lo2So,
-      lo2So1k,
-      lo3So,
-      lo4So,
-    }
+  //   const baoLo: BaoLoDto = {
+  //     lo2So,
+  //     lo2So1k,
+  //     lo3So,
+  //     lo4So,
+  //   }
 
-    const danhDe: DanhDeDto = {
-      deDacBiet,
-      deDau,
-      deDauDuoi,
-    }
+  //   const danhDe: DanhDeDto = {
+  //     deDacBiet,
+  //     deDau,
+  //     deDauDuoi,
+  //   }
 
-    const lotteryRequest: RequestDetailDto = {
-      type: createAwardDto.type,
-      turnIndex: createAwardDto.turnIndex,
-      baoLo,
-      danhDe,
-    }
+  //   const lotteryRequest: RequestDetailDto = {
+  //     type: createAwardDto.type,
+  //     turnIndex: createAwardDto.turnIndex,
+  //     baoLo,
+  //     danhDe,
+  //   }
 
-    return lotteryRequest;
-  }
+  //   return lotteryRequest;
+  // }
 
   async delete(id: number): Promise<BaseResponse> {
     try {
@@ -1783,200 +1783,200 @@ export class LotteryAwardService {
     }
   }
 
-  async deleteDataResult() {
-    const currentDate = new Date();
-    const yesterday = new Date(currentDate);
-    yesterday.setDate(currentDate.getDate() - 1);
-    yesterday.setHours(23);
-    yesterday.setMinutes(59);
-    yesterday.setSeconds(59);
-    // delete lotery request
-    const dataLotteryReq = await this.lotteryRequestRepository.find(
-      {
-        where: {
-          createdAt: LessThan(yesterday)
-        }
-      }
-    );
-    if (dataLotteryReq?.length > 0) {
-      dataLotteryReq.map(async (item) => {
-        await this.lotteryRequestRepository.delete(item?.id)
-      })
-    }
+  // async deleteDataResult() {
+  //   const currentDate = new Date();
+  //   const yesterday = new Date(currentDate);
+  //   yesterday.setDate(currentDate.getDate() - 1);
+  //   yesterday.setHours(23);
+  //   yesterday.setMinutes(59);
+  //   yesterday.setSeconds(59);
+  //   // delete lotery request
+  //   const dataLotteryReq = await this.lotteryRequestRepository.find(
+  //     {
+  //       where: {
+  //         createdAt: LessThan(yesterday)
+  //       }
+  //     }
+  //   );
+  //   if (dataLotteryReq?.length > 0) {
+  //     dataLotteryReq.map(async (item) => {
+  //       await this.lotteryRequestRepository.delete(item?.id)
+  //     })
+  //   }
 
-    // delete lotery award
-    const dataLotteryAward = await this.lotteryAwardRepository.find(
-      {
-        where: {
-          createdAt: LessThan(yesterday)
-        }
-      }
-    );
-    if (dataLotteryAward?.length > 0) {
-      dataLotteryAward.map(async (item) => {
-        await this.lotteryAwardRepository.delete(item?.id)
-      })
-    }
-  }
+  //   // delete lotery award
+  //   const dataLotteryAward = await this.lotteryAwardRepository.find(
+  //     {
+  //       where: {
+  //         createdAt: LessThan(yesterday)
+  //       }
+  //     }
+  //   );
+  //   if (dataLotteryAward?.length > 0) {
+  //     dataLotteryAward.map(async (item) => {
+  //       await this.lotteryAwardRepository.delete(item?.id)
+  //     })
+  //   }
+  // }
 }
 
-export function convertOrderDetail(order: OrderRequest) {
-  const values: ValueDto[] = [];
+// export function convertOrderDetail(order: OrderRequest) {
+//   const values: ValueDto[] = [];
 
-  // TODO add whitelist for types
-  if (order.type === `${TypeLottery.XSMB}` ||
-    order.type === `${TypeLottery.XSN_45s}` ||
-    order.type === `${TypeLottery.XSN_TEST}` ||
-    order.type === `${TypeLottery.XSMB_45_S}`
-  ) {
-    const regex = /^[0-9,|]+$/;
-    if (!regex.test(order.detail)) {
-      return { values: [], error: true };
-    }
+//   // TODO add whitelist for types
+//   if (order.type === `${TypeLottery.XSMB}` ||
+//     order.type === `${TypeLottery.XSN_45s}` ||
+//     order.type === `${TypeLottery.XSN_TEST}` ||
+//     order.type === `${TypeLottery.XSMB_45_S}`
+//   ) {
+//     const regex = /^[0-9,|]+$/;
+//     if (!regex.test(order.detail)) {
+//       return { values: [], error: true };
+//     }
 
-    if (order.betType === `${TypeCaculation.Lo_3_So}`) {
-      return convertOrderDetail3So(order)
-    }
-    if (order.betType === `${TypeCaculation.Lo_4_So}`) {
-      return convertOrderDetail4So(order)
-    }
+//     if (order.betType === `${TypeCaculation.Lo_3_So}`) {
+//       return convertOrderDetail3So(order)
+//     }
+//     if (order.betType === `${TypeCaculation.Lo_4_So}`) {
+//       return convertOrderDetail4So(order)
+//     }
 
-    // const regex = /^[0-9,|]+$/;
-    // if (!regex.test(order.detail)) {
-    //   return { values: [], error: true };
-    // }
+//     // const regex = /^[0-9,|]+$/;
+//     // if (!regex.test(order.detail)) {
+//     //   return { values: [], error: true };
+//     // }
 
-    const arrPipes = order.detail.split(`${CharLottery.PIPE}`);
-    if (arrPipes.length != 2) {
-      return { values: [], error: true };
-    }
-    const arrLeft = arrPipes[0].split(`${CharLottery.COMMA}`);
-    const arrRight = arrPipes[1].split(`${CharLottery.COMMA}`);
+//     const arrPipes = order.detail.split(`${CharLottery.PIPE}`);
+//     if (arrPipes.length != 2) {
+//       return { values: [], error: true };
+//     }
+//     const arrLeft = arrPipes[0].split(`${CharLottery.COMMA}`);
+//     const arrRight = arrPipes[1].split(`${CharLottery.COMMA}`);
 
-    if (arrLeft.length == 0 || arrRight.length == 0) {
-      return { values: [], error: true };
-    }
-    const amountOnePiece = (+order.revenue * 1.0) / (1.0 * arrLeft.length * arrRight.length);
+//     if (arrLeft.length == 0 || arrRight.length == 0) {
+//       return { values: [], error: true };
+//     }
+//     const amountOnePiece = (+order.revenue * 1.0) / (1.0 * arrLeft.length * arrRight.length);
 
-    for (const str of arrLeft) {
-      for (const str2 of arrRight) {
-        if (+`${str}${str2}` >= 100) {
-          return { values: [], error: true };
-        }
+//     for (const str of arrLeft) {
+//       for (const str2 of arrRight) {
+//         if (+`${str}${str2}` >= 100) {
+//           return { values: [], error: true };
+//         }
 
-        const value: ValueDto = {
-          amount: amountOnePiece,
-          value: +`${str}${str2}`,
-        }
-        values.push(value);
-      }
-    }
+//         const value: ValueDto = {
+//           amount: amountOnePiece,
+//           value: +`${str}${str2}`,
+//         }
+//         values.push(value);
+//       }
+//     }
 
-    return { values, error: false };
-  }
+//     return { values, error: false };
+//   }
 
-  return { values, error: true };
-}
-
-
-
-export function convertOrderDetail3So(order: OrderRequest) {
-  const values: ValueDto[] = [];
-
-  // TODO add whitelist for types
-  if (order.type === `${TypeLottery.XSMB}` ||
-    order.type === `${TypeLottery.XSN_45s}` ||
-    order.type === `${TypeLottery.XSN_TEST}` ||
-    order.type === `${TypeLottery.XSMB_45_S}`
-  ) {
-    const regex = /^[0-9,|]+$/;
-    if (!regex.test(order.detail)) {
-      return { values: [], error: true };
-    }
-
-    const arrPipes = order.detail.split(`${CharLottery.PIPE}`);
-    if (arrPipes.length != 3) {
-      return { values: [], error: true };
-    }
-    const arr1 = arrPipes[0].split(`${CharLottery.COMMA}`);
-    const arr2 = arrPipes[1].split(`${CharLottery.COMMA}`);
-    const arr3 = arrPipes[2].split(`${CharLottery.COMMA}`);
-
-    if (arr1.length == 0 || arr2.length == 0 || arr3.length == 0) {
-      return { values: [], error: true };
-    }
-    const amountOnePiece = (+order.revenue * 1.0) / (1.0 * arr1.length * arr2.length * arr3.length);
-
-    for (const str of arr1) {
-      for (const str2 of arr2) {
-        for (const str3 of arr3) {
-          if (+`${str}${str2}${str3}` >= 1000) {
-            return { values: [], error: true };
-          }
-          const value: ValueDto = {
-            amount: amountOnePiece,
-            value: +`${str}${str2}${str3}`,
-          }
-          values.push(value);
-        }
-
-      }
-    }
-
-    return { values, error: false };
-  }
-
-  return { values, error: true };
-}
+//   return { values, error: true };
+// }
 
 
-export function convertOrderDetail4So(order: OrderRequest) {
-  const values: ValueDto[] = [];
 
-  // TODO add whitelist for types
-  if (order.type === `${TypeLottery.XSMB}` ||
-    order.type === `${TypeLottery.XSN_45s}` ||
-    order.type === `${TypeLottery.XSN_TEST}` ||
-    order.type === `${TypeLottery.XSMB_45_S}`
-  ) {
-    const regex = /^[0-9,|]+$/;
-    if (!regex.test(order.detail)) {
-      return { values: [], error: true };
-    }
+// export function convertOrderDetail3So(order: OrderRequest) {
+//   const values: ValueDto[] = [];
 
-    const arrPipes = order.detail.split(`${CharLottery.PIPE}`);
-    if (arrPipes.length != 4) {
-      return { values: [], error: true };
-    }
-    const arr1 = arrPipes[0].split(`${CharLottery.COMMA}`);
-    const arr2 = arrPipes[1].split(`${CharLottery.COMMA}`);
-    const arr3 = arrPipes[2].split(`${CharLottery.COMMA}`);
-    const arr4 = arrPipes[3].split(`${CharLottery.COMMA}`);
+//   // TODO add whitelist for types
+//   if (order.type === `${TypeLottery.XSMB}` ||
+//     order.type === `${TypeLottery.XSN_45s}` ||
+//     order.type === `${TypeLottery.XSN_TEST}` ||
+//     order.type === `${TypeLottery.XSMB_45_S}`
+//   ) {
+//     const regex = /^[0-9,|]+$/;
+//     if (!regex.test(order.detail)) {
+//       return { values: [], error: true };
+//     }
 
-    if (arr1.length == 0 || arr2.length == 0 || arr3.length == 0 || arr4.length == 0) {
-      return { values: [], error: true };
-    }
-    const amountOnePiece = (+order.revenue * 1.0) / (1.0 * arr1.length * arr2.length * arr3.length * arr4.length);
+//     const arrPipes = order.detail.split(`${CharLottery.PIPE}`);
+//     if (arrPipes.length != 3) {
+//       return { values: [], error: true };
+//     }
+//     const arr1 = arrPipes[0].split(`${CharLottery.COMMA}`);
+//     const arr2 = arrPipes[1].split(`${CharLottery.COMMA}`);
+//     const arr3 = arrPipes[2].split(`${CharLottery.COMMA}`);
 
-    for (const str of arr1) {
-      for (const str2 of arr2) {
-        for (const str3 of arr3) {
-          for (const str4 of arr4) {
-            if (+`${str}${str2}${str3}${str4}` >= 10000) {
-              return { values: [], error: true };
-            }
-            const value: ValueDto = {
-              amount: amountOnePiece,
-              value: +`${str}${str2}${str3}${str4}`,
-            }
-            values.push(value);
-          }
-        }
-      }
-    }
+//     if (arr1.length == 0 || arr2.length == 0 || arr3.length == 0) {
+//       return { values: [], error: true };
+//     }
+//     const amountOnePiece = (+order.revenue * 1.0) / (1.0 * arr1.length * arr2.length * arr3.length);
 
-    return { values, error: false };
-  }
+//     for (const str of arr1) {
+//       for (const str2 of arr2) {
+//         for (const str3 of arr3) {
+//           if (+`${str}${str2}${str3}` >= 1000) {
+//             return { values: [], error: true };
+//           }
+//           const value: ValueDto = {
+//             amount: amountOnePiece,
+//             value: +`${str}${str2}${str3}`,
+//           }
+//           values.push(value);
+//         }
 
-  return { values, error: true };
-}
+//       }
+//     }
+
+//     return { values, error: false };
+//   }
+
+//   return { values, error: true };
+// }
+
+
+// export function convertOrderDetail4So(order: OrderRequest) {
+//   const values: ValueDto[] = [];
+
+//   // TODO add whitelist for types
+//   if (order.type === `${TypeLottery.XSMB}` ||
+//     order.type === `${TypeLottery.XSN_45s}` ||
+//     order.type === `${TypeLottery.XSN_TEST}` ||
+//     order.type === `${TypeLottery.XSMB_45_S}`
+//   ) {
+//     const regex = /^[0-9,|]+$/;
+//     if (!regex.test(order.detail)) {
+//       return { values: [], error: true };
+//     }
+
+//     const arrPipes = order.detail.split(`${CharLottery.PIPE}`);
+//     if (arrPipes.length != 4) {
+//       return { values: [], error: true };
+//     }
+//     const arr1 = arrPipes[0].split(`${CharLottery.COMMA}`);
+//     const arr2 = arrPipes[1].split(`${CharLottery.COMMA}`);
+//     const arr3 = arrPipes[2].split(`${CharLottery.COMMA}`);
+//     const arr4 = arrPipes[3].split(`${CharLottery.COMMA}`);
+
+//     if (arr1.length == 0 || arr2.length == 0 || arr3.length == 0 || arr4.length == 0) {
+//       return { values: [], error: true };
+//     }
+//     const amountOnePiece = (+order.revenue * 1.0) / (1.0 * arr1.length * arr2.length * arr3.length * arr4.length);
+
+//     for (const str of arr1) {
+//       for (const str2 of arr2) {
+//         for (const str3 of arr3) {
+//           for (const str4 of arr4) {
+//             if (+`${str}${str2}${str3}${str4}` >= 10000) {
+//               return { values: [], error: true };
+//             }
+//             const value: ValueDto = {
+//               amount: amountOnePiece,
+//               value: +`${str}${str2}${str3}${str4}`,
+//             }
+//             values.push(value);
+//           }
+//         }
+//       }
+//     }
+
+//     return { values, error: false };
+//   }
+
+//   return { values, error: true };
+// }

@@ -17,7 +17,7 @@ import { WalletHistory } from "../wallet/wallet.history.entity";
 import { UserRoles } from "./enums/user.enum";
 import { UserInfo } from "../user.info/user.info.entity";
 import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
-import { OrderRequest } from "../order.request/order.request.entity";
+// import { OrderRequest } from "../order.request/order.request.entity";
 import { BookMaker } from "../bookmaker/bookmaker.entity";
 @Entity({ name: "users" })
 export class User {

@@ -2,14 +2,11 @@ import { Controller, Get, Post, Body, HttpStatus, Res, Param, Delete, UseGuards,
 import { Response } from 'express';
 
 import { OrdersService } from './orders.service';
-import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { BacklistGuard } from '../backlist/backlist.guard';
-import { RateLimitGuard } from '../auth/rate.guard/rate.limit.guard';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import { CreateListOrdersDto } from './dto/create-list-orders.dto';
 import { ValidationPipe } from './validations/validation.pipe';
 import { ERROR } from "../../system/constants";
-import { RedisCacheService } from 'src/system/redis/redis.service';
 import { Logger } from 'winston';
 import { AuthGuard } from '../auth/guards/auth.guard';
 
@@ -22,14 +19,12 @@ export class OrdersController {
   ) { }
 
   @Post()
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async create(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
     return await this.ordersService.create(orders, req.user);
   }
 
   @Get()
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async findAll(@Query() paginationDto: PaginationQueryDto, @Request() req: any): Promise<any> {
     try {
@@ -40,21 +35,18 @@ export class OrdersController {
   }
 
   @Post('1s/validation')
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async validationOrdersImmediate(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
     return await this.ordersService.validationOrdersImmediate(orders, req.user);
   }
 
   @Post('1s')
-  // @UseGuards(JwtAuthGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async betOrdersImmediate(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
     return await this.ordersService.betOrdersImmediate(orders, req.user);
   }
 
   @Get('combine-orders-by-date')
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async combineOrdersByDate(@Query() paginationDto: PaginationQueryDto, @Request() req: any): Promise<any> {
     try {
@@ -74,7 +66,6 @@ export class OrdersController {
   }
 
   @Post('generate-follow-up-plan')
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async generateFollowUpPlan(
     @Res() response: Response,
@@ -115,7 +106,6 @@ export class OrdersController {
   }
 
   @Post('confirm-generate-follow-up-plan')
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async confirmGenerateFollowUpPlan(
     @Body() data: any,
@@ -125,7 +115,6 @@ export class OrdersController {
   }
 
   @Get(':id')
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async findOne(@Param('id') id: string) {
     try {
@@ -136,14 +125,12 @@ export class OrdersController {
   }
 
   @Put(':id')
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async update(@Param('id') id: string, @Body() updateOrderDto: any, @Request() req: any) {
     return await this.ordersService.update(+id, updateOrderDto, req.user);
   }
 
   @Delete(':id')
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async remove(@Param('id') id: string) {
     try {

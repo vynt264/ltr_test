@@ -1,20 +1,20 @@
 
-export class PaymentRequestDto {
+// export class PaymentRequestDto {
 
-  username: string;
+//   username: string;
 
-  amount: number;
+//   amount: number;
 
-  gameCode: string;
+//   gameCode: string;
 
-  note: string;
+//   note: string;
 
-  transType: string;
+//   transType: string;
   
-  method: string;
+//   method: string;
 
-  signature: string;
+//   signature: string;
 
-  transRef1: string;
+//   transRef1: string;
 
-}
+// }

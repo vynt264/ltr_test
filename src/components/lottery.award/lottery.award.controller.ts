@@ -5,13 +5,10 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   Query,
   Request,
   UseGuards,
-  UsePipes,
-  ValidationPipe
 } from "@nestjs/common";
 import { Cron, CronExpression, Interval } from "@nestjs/schedule";
 import {
@@ -26,14 +23,14 @@ import { PaginationQueryDto } from "../../common/common.dto";
 import { Response } from "../../system/interfaces";
 import { Roles } from "../auth/roles.guard/roles.decorator";
 import { UserRoles } from "../user/enums/user.enum";
-import { GetLotteryAwardDto } from "./dto/get.data";
-import { CreateLotteryAwardDto, UpdateLotteryAwardDto } from "./dto/index";
+// import { GetLotteryAwardDto } from "./dto/get.data";
+import { CreateLotteryAwardDto } from "./dto/index";
 import { LotteryAward } from "./lottery.award.entity";
 import { LotteryAwardService } from "./lottery.award.service";
 import { CurrentAwardXsmb, TypeLottery } from "./enums/status.dto";
 import { startOfDay } from "date-fns";
-import { RequestDetailDto } from "../lottery.request/dto/request.detail.dto";
-import { JwtAuthGuard } from "../auth/jwt/jwt-auth.guard";
+// import { RequestDetailDto } from "../lottery.request/dto/request.detail.dto";
+// import { JwtAuthGuard } from "../auth/jwt/jwt-auth.guard";
 import { BacklistGuard } from "../backlist/backlist.guard";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { AuthGuard } from "../auth/guards/auth.guard";
@@ -45,7 +42,6 @@ export class LotteryAwardController {
 
   @Post('')
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   async createLotteryAward(@Body() createLotteryAwardDto: CreateLotteryAwardDto): Promise<any> {
     return this.lotteryAwardService.createLotteryAward(createLotteryAwardDto);
@@ -124,7 +120,6 @@ export class LotteryAwardController {
     return this.lotteryAwardService.getAllNotCheckBookmaker(paginationQueryDto);
   }
 
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   @Get("all")
   @ApiResponse({
@@ -207,7 +202,6 @@ export class LotteryAwardController {
     type: Response<LotteryAward[]>,
   })
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   async userGetAll(
     @Query() paginationQueryDto: PaginationQueryDto,
@@ -225,7 +219,6 @@ export class LotteryAwardController {
   })
   @Roles(UserRoles.SUPPER)
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
     return this.lotteryAwardService.getOneById(id);
@@ -236,7 +229,6 @@ export class LotteryAwardController {
     description: "Delete lotteryAward",
   })
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
   @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   @Roles(UserRoles.SUPPER)
   async delete(@Param("id") id: number): Promise<any> {
@@ -245,8 +237,8 @@ export class LotteryAwardController {
 
   // delete data
   // @Cron(CronExpression.EVERY_DAY_AT_5AM)
-  @Cron(CronExpression.EVERY_4_HOURS)
-  async handleCronDeleteData() {
-    await this.lotteryAwardService.deleteDataResult();
-  }
+  // @Cron(CronExpression.EVERY_4_HOURS)
+  // async handleCronDeleteData() {
+  //   await this.lotteryAwardService.deleteDataResult();
+  // }
 }

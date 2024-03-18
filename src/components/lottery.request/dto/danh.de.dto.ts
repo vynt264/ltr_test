@@ -1,14 +1,14 @@
-import { IsOptional } from "class-validator";
-import { ValueDto } from "./request.value.dto";
+// import { IsOptional } from "class-validator";
+// import { ValueDto } from "./request.value.dto";
 
-export class  DanhDeDto {
+// export class  DanhDeDto {
 
-  @IsOptional()
-  deDau: ValueDto[];
+//   @IsOptional()
+//   deDau: ValueDto[];
 
-  @IsOptional()
-  deDacBiet: ValueDto[];
+//   @IsOptional()
+//   deDacBiet: ValueDto[];
 
-  @IsOptional()
-  deDauDuoi: ValueDto[];
-}
+//   @IsOptional()
+//   deDauDuoi: ValueDto[];
+// }
