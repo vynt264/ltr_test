@@ -11,7 +11,7 @@ import { IntegrationService } from "./integration.service";
 import { IntegrationController } from "./integration.controller";
 import { UserInfo } from "../user.info/user.info.entity";
 import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
-
+import { RedisCacheModule } from 'src/system/redis/redis.module';
 
 @Module({
   imports: [
@@ -26,6 +26,7 @@ import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
       UserInfo,
       CoinWallet,
     ]),
+    RedisCacheModule,
   ],
   controllers: [IntegrationController],
   providers: [IntegrationService],

@@ -24,6 +24,8 @@ import { StatusExchange, TypeExchange } from './enums/exchange.enum';
 import GetBetInfoDto from './dto/get.bet.info.dto';
 import * as moment from "moment";
 import { FE_URL_1 } from 'src/system/config.system/config.default';
+import { RedisCacheService } from 'src/system/redis/redis.service';
+import { OrderHelper } from 'src/common/helper';
 
 @Injectable()
 export class IntegrationService {
@@ -47,7 +49,8 @@ export class IntegrationService {
     @InjectRepository(CoinWallet)
     private coinWalletRepository: Repository<CoinWallet>,
     @Inject("winston")
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly redisService: RedisCacheService,
   ) { }
 
   async verifyAccount(verifyAccountDto: VerifyAccountDto) {
@@ -115,6 +118,11 @@ export class IntegrationService {
         };
         const walletCreate = await this.walletRepository.create(walletDto);
         const wallet = await this.walletRepository.save(walletCreate);
+        // create balance wallet
+        await this.redisService.set(
+          OrderHelper.getKeySaveBalanceOfUser(user.id.toString()),
+          0
+        );
         // save history
         const walletHis = {
           ...walletCreate,
@@ -295,6 +303,11 @@ export class IntegrationService {
           }
           let exchangeCreated = await this.exchangeRepository.create(exchangeDto);
           await this.exchangeRepository.save(exchangeCreated);
+          // save redis
+          await this.redisService.incrby(
+            OrderHelper.getKeySaveBalanceOfUser(user.id.toString()),
+            Number(depostDto.amount)
+          )
           // update balance wallet
           const balanceUp = Number(walletUser.balance) + Number(depostDto.amount);
           const walletUpdate = {...walletUser, balance: balanceUp}
@@ -420,6 +433,11 @@ export class IntegrationService {
           }
           let exchangeCreated = await this.exchangeRepository.create(exchangeDto);
           await this.exchangeRepository.save(exchangeCreated);
+          // save redis
+          await this.redisService.incrby(
+            OrderHelper.getKeySaveBalanceOfUser(user.id.toString()),
+            -Number(withdrawDto.amount)
+          )
           // update balance wallet
           const walletUpdate = { ...walletUser, balance: balanceUp }
           const walletUpdated = await this.walletRepository.save(walletUpdate);
