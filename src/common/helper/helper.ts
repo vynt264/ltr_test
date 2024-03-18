@@ -100,9 +100,13 @@ export class Helper {
       "aes-256-cbc",
       ConfigSys.config().signUserName
     );
-    let decryptedData = decipher.update(encryptedData, "hex", "utf-8");
-    decryptedData += decipher.final("utf-8");
-    return JSON.parse(decryptedData);
+    try {
+      let decryptedData = decipher.update(encryptedData, "hex", "utf-8");
+      decryptedData += decipher.final("utf-8");
+      return JSON.parse(decryptedData);
+    } catch (error) {
+      return null;
+    }
   }
 
   static checkAndGroupByTime(array: any, type: string) {
