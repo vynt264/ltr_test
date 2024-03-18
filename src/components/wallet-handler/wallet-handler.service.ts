@@ -45,6 +45,8 @@ export class WalletHandlerService {
       }
     }
 
+    await this.redisService.set(OrderHelper.getKeySaveBalanceOfUser(userId.toString()), (Number(wallet.balance) || 0));
+
     wallet.balanceRedis = balance;
     wallet.userId = userId;
 
