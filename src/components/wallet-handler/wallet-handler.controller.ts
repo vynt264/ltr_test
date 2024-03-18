@@ -14,37 +14,37 @@ export class WalletHandlerController {
   constructor(private readonly walletHandlerService: WalletHandlerService) {}
 
   @Post()
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   create(@Body() createWalletHandlerDto: CreateWalletHandlerDto) {
     return this.walletHandlerService.create(createWalletHandlerDto);
   }
 
   @Get()
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   findAll() {
     return this.walletHandlerService.findAll();
   }
 
   @Get('user')
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   findWalletByUserId(@Request() req: any) {
     return this.walletHandlerService.findWalletByUserId(req.user.id);
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   findOne(@Param('id') id: string) {
     return this.walletHandlerService.findOne(+id);
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   update(@Param('id') id: string, @Body() updateWalletHandlerDto: UpdateWalletHandlerDto) {
     return this.walletHandlerService.update(+id, updateWalletHandlerDto);
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   remove(@Param('id') id: string) {
     return this.walletHandlerService.remove(+id);
