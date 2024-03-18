@@ -541,6 +541,11 @@ export class OrdersService {
     });
 
     if (member) {
+      const numberRequest = await this.redisService.incr(id.toString());
+      if (numberRequest > 1) {
+        return;
+      }
+
       const currentTurn = OrderHelper.getTurnIndex(order.seconds);
       const currentTime = OrderHelper.getCurrentTimeInRound(order.seconds);
       if (
@@ -554,11 +559,6 @@ export class OrdersService {
           },
           HttpStatus.BAD_REQUEST,
         );
-      }
-
-      const numberRequest = await this.redisService.incr(id.toString());
-      if (numberRequest > 1) {
-        return;
       }
 
       setTimeout(() => {
