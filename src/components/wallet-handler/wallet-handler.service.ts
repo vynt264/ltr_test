@@ -36,7 +36,7 @@ export class WalletHandlerService {
     const balance = await this.redisService.get(OrderHelper.getKeySaveBalanceOfUser(userId.toString()));
     const wallet = await this.walletRepository.findOneBy({
       user: { id: userId }
-    });
+    }) as any;
 
     if (Number(balance) > 0) {
       return {
@@ -44,6 +44,9 @@ export class WalletHandlerService {
         balance: Number(balance),
       }
     }
+
+    wallet.balanceRedis = balance;
+    wallet.userId = userId;
 
     return wallet;
   }
