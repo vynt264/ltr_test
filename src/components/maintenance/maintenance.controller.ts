@@ -13,35 +13,35 @@ export class MaintenanceController {
 
   @Post()
   // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   create(@Body() createMaintenanceDto: CreateMaintenanceDto) {
     return this.maintenanceService.create(createMaintenanceDto);
   }
 
   @Get()
   // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   findAll() {
     return this.maintenanceService.findAll();
   }
 
   @Get(':id')
   // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   findOne(@Param('id') id: string) {
     return this.maintenanceService.findOne(+id);
   }
 
   @Put(':id')
   // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   update(@Param('id') id: string, @Body() updateMaintenanceDto: UpdateMaintenanceDto) {
     return this.maintenanceService.update(+id, updateMaintenanceDto);
   }
 
   @Delete(':id')
   // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
   remove(@Param('id') id: string) {
     return this.maintenanceService.remove(+id);
   }
