@@ -153,11 +153,12 @@ export class LotteryAwardService {
     return data;
   }
 
-  async getLotteryAwardByTurn(turnIndex: string, type: string) {
+  async getLotteryAwardByTurn(turnIndex: string, type: string, isTestPlayer: boolean) {
     return this.lotteryAwardRepository.findOne({
       where: {
         turnIndex,
-        type
+        type,
+        isTestPlayer,
       },
     });
   }

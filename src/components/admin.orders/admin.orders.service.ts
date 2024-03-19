@@ -61,7 +61,7 @@ export class AdminOrdersService {
       }) as any;
 
       for (const order of (listDataReal?.[0] || [])) {
-        const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurn(order.turnIndex, `${order.type}${order.seconds}s`);
+        const lotteryAward = await this.lotteryAwardService.getLotteryAwardByTurn(order.turnIndex, `${order.type}${order.seconds}s`, order.isTestPlayer);
         order.awardDetail = lotteryAward?.awardDetail;
         order.bonusPrice = lotteryAward?.bonusPrice;
       }
