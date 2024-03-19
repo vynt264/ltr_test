@@ -20,10 +20,6 @@ export class WalletHandlerService {
     return this.walletRepository.save(createWalletHandlerDto);
   }
 
-  findAll() {
-    return `This action returns all walletHandler`;
-  }
-
   findOne(id: number) {
     return this.walletRepository.findOne({
       where: {
@@ -33,6 +29,12 @@ export class WalletHandlerService {
   }
 
   async findWalletByUserId(userId: number) {
+    return this.walletRepository.findOneBy({
+      user: { id: userId }
+    });
+  }
+
+  async findWalletByUserIdFromRedis(userId: number) {
     const balance = await this.redisService.get(OrderHelper.getKeySaveBalanceOfUser(userId.toString()));
     const wallet = await this.walletRepository.findOneBy({
       user: { id: userId }
@@ -57,14 +59,22 @@ export class WalletHandlerService {
     return this.walletRepository.update(id, updateWalletHandlerDto);
   }
 
-  async updateWalletByUserId(userId: number, updateWalletHandlerDto: any) {
-    const wallet = await this.findWalletByUserId(userId);
-    wallet.balance = updateWalletHandlerDto.balance;
-    return this.walletRepository.save(wallet);
-  }
+  // async updateWalletByUserId(userId: number, updateWalletHandlerDto: any) {
+  //   const wallet = await this.findWalletByUserId(userId);
+  //   wallet.balance = updateWalletHandlerDto.balance;
+  //   return this.walletRepository.save(wallet);
+  // }
 
-  async updateWallet(userId: number, remainBalance: number) {
-    return this.walletRepository.update({ user: { id: userId } }, { balance: remainBalance });
+  // async updateWallet(userId: number, remainBalance: number) {
+  //   return this.walletRepository.update({ user: { id: userId } }, { balance: remainBalance });
+  // }
+
+  async updateBalance(userId: number, balanceAdded: number) {
+    const balanceUp = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(userId.toString()), (balanceAdded || 0));
+
+    await this.walletRepository.update({ user: { id: userId } }, { balance: balanceUp });
+
+    return { balance: balanceUp };
   }
 
   remove(id: number) {

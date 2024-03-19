@@ -448,9 +448,10 @@ export class ScheduleService implements OnModuleInit {
             usernameReal: isTestPlayer ? true : false,
         });
 
-        const wallet = await this.walletHandlerService.findWalletByUserId(+userId);
-        const remainBalance = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(userId.toString()), Number(totalBalance + refunds));
-        await this.walletHandlerService.updateWallet(+userId, remainBalance)
+        const wallet = await this.walletHandlerService.findWalletByUserIdFromRedis(+userId);
+        // const remainBalance = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(userId.toString()), Number(totalBalance + refunds));
+        // await this.walletHandlerService.updateBalance(+userId, remainBalance);
+        const { balance: remainBalance } = await this.walletHandlerService.updateBalance(+userId, Number(totalBalance + refunds));
 
         if ((totalBalance + refunds) > 0) {
             // save wallet history
