@@ -158,7 +158,7 @@ export class IntegrationService {
       const userResponse = {
         user: {
           sub: user?.id,
-          username: usernameEncrypt,
+          username: verifyAccountDto.username,
         },
         url: url,
       } 
@@ -594,7 +594,6 @@ export class IntegrationService {
 
       const tiemStartCV = moment(getBetInfo.timeStart, "YYYYMMDDHHmmss").format("YYYY-MM-DD HH:mm:ss");
       const timeEndCV = moment(getBetInfo.timeEnd, "YYYYMMDDHHmmss").format("YYYY-MM-DD HH:mm:ss");
-      const whereCondition: any = {};
       let condition = "bookmaker.id = :bookmarkerFind AND (entity.created_at BETWEEN :timeStart AND :timeEnd)";
       const conditionParams: any = { 
         bookmarkerFind: bookmaker.id,
@@ -631,7 +630,7 @@ export class IntegrationService {
           "entity.bookmakerId = bookmaker.id"
         )
         .select("bookmaker.id as bookmakerId")
-        .addSelect("user.username as username")
+        // .addSelect("user.username as username")
         .addSelect("user.usernameFromAgent as usernameFromAgent")
         .addSelect("entity.type as type")
         .addSelect("entity.seconds as seconds")
@@ -652,8 +651,8 @@ export class IntegrationService {
       const result: any = [];
       orders.map((order: any) => {
         const newIt = {
-          username: order?.username,
-          usernameForAgent: order?.usernameFromAgent,
+          // username: order?.username,
+          username: order?.usernameFromAgent,
           gameCategory: order?.type.indexOf("xs") > -1 ? 0 : 1, // 0: xoso
           gameType: `${order?.type}${order.seconds}s`,
           amount: parseFloat(order?.revenue.toString()),
