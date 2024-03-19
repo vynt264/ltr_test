@@ -7,7 +7,7 @@ import {
   SuccessResponse,
 } from "../../system/BaseResponse/index";
 import { ERROR, MESSAGE, STATUSCODE } from "../../system/constants";
-import { Between, Like, Repository } from "typeorm";
+import { Between, Like, Not, Repository } from "typeorm";
 import { Logger } from "winston";
 import { CreateUserDto, UpdateUserDto } from "./dto/index";
 import PermissionUserDto from "./dto/permission.dto";
@@ -201,7 +201,7 @@ export class UserService {
   holdQuery(object: any) {
     const data: any = {};
     // data.role = Like(`${UserRoles.MEMBER}`);
-    data.usernameReal = "";
+    // data.usernameReal = "";
     if (!object) {
       return data;
     }
@@ -228,6 +228,10 @@ export class UserService {
 
       if (key === "bookmakerId") {
         data.bookmaker = { id: object.bookmakerId }
+      }
+
+      if (key == "isTestPlayer") {
+        data.usernameReal = object.isTestPlayer ? Not("") : "";
       }
     }
 
