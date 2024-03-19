@@ -23,7 +23,7 @@ export class AdminOrdersService {
     @Inject("winston")
     private readonly logger: Logger,
     private lotteryAwardService: LotteryAwardService,
-  ) {}
+  ) { }
 
   async findAll(paginationDto: PaginationQueryDto) {
     const { take: perPage, skip: page } = paginationDto;
@@ -84,28 +84,28 @@ export class AdminOrdersService {
   }
 
   handleQuery(object: any) {
-    const data: any = { isTestPlayer: false };
+    const data: any = {};
     if (!object) {
-      return [data];
+      return [];
     }
 
     for (const key in object) {
       if (key === "bookmakerId") {
-        data.user = { 
+        data.user = {
           ...data.user,
-          bookmaker : { id: object.bookmakerId },
+          bookmaker: { id: object.bookmakerId },
         };
       }
 
       if (key === "username") {
-        data.user = { 
+        data.user = {
           ...data.user,
-          username: Like(`%${object.username}%`), 
+          username: Like(`%${object.username}%`),
         };
       }
 
       if (key === "nickname") {
-        data.user = { 
+        data.user = {
           ...data.user,
           userInfo: { nickname: Like(`%${object.nickname}%`) },
         };
@@ -132,6 +132,19 @@ export class AdminOrdersService {
       if (key === "numericalOrder") {
         data.numericalOrder = object.numericalOrder;
       }
+
+      if (key === "turnIndex") {
+        data.turnIndex = object.turnIndex;
+      }
+
+      if (key === "isTestPlayer") {
+        if (object?.isTestPlayer === 'false') {
+          data.isTestPlayer = false;
+        }
+        if (object?.isTestPlayer === 'true') {
+          data.isTestPlayer = true;
+        }
+      }
     }
     return [data];
   }
@@ -146,10 +159,10 @@ export class AdminOrdersService {
       }
       const addSelectDateFm =
         type == "day" ?
-        `DATE_FORMAT(entity.created_at, "%Y-%m-%d") as timeFilter` :
-        type == "month" ?
-        `DATE_FORMAT(entity.created_at, "%Y-%m") as timeFilter` : 
-        `DATE_FORMAT(entity.created_at, "%Y") as timeFilter`;
+          `DATE_FORMAT(entity.created_at, "%Y-%m-%d") as timeFilter` :
+          type == "month" ?
+            `DATE_FORMAT(entity.created_at, "%Y-%m") as timeFilter` :
+            `DATE_FORMAT(entity.created_at, "%Y") as timeFilter`;
 
       const listDataReal = await this.orderRepository
         .createQueryBuilder("entity")
@@ -324,8 +337,8 @@ export class AdminOrdersService {
       }
       const addSelectDateFm =
         type == "day" ?
-        `DATE_FORMAT(entity.created_at, "%Y-%m-%d") as timeFilter` :
-        `DATE_FORMAT(entity.created_at, "%Y-%m") as timeFilter`;
+          `DATE_FORMAT(entity.created_at, "%Y-%m-%d") as timeFilter` :
+          `DATE_FORMAT(entity.created_at, "%Y-%m") as timeFilter`;
 
       const listDataReal = await this.orderRepository
         .createQueryBuilder("entity")
