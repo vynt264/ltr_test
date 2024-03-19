@@ -29,7 +29,7 @@ export class AdminHiloService {
     }
     try {
       const object: any = JSON.parse(paginationDto.keyword);
-      let condition = "entity.isUserFake = 0";
+      let condition = "1 = 1";
       const conditionParams: any = {}
       if (object?.bookmakerId > 0) {
         condition = condition.concat(` AND entity.bookmakerId = :bookmarkerFind`);
@@ -59,6 +59,9 @@ export class AdminHiloService {
         condition = condition.concat(` AND (entity.createdAt BETWEEN :timeStart AND :timeEnd)`);
         conditionParams.timeStart = startOfDay(startDate);
         conditionParams.timeEnd = endOfDay(endDate);
+      }
+      if (object.isTestPlayer != undefined) {
+        condition = condition.concat(` AND entity.isUserFake = ${object.isTestPlayer ? 1 : 0}`);
       }
 
       const [data, count] = await Promise.all([
