@@ -7,6 +7,7 @@ import { BacklistModule } from '../backlist/backlist.module';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from '../user/user.module';
 import { RedisCacheModule } from 'src/system/redis/redis.module';
+import { MaintenanceModule } from '../maintenance/maintenance.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { RedisCacheModule } from 'src/system/redis/redis.module';
     BacklistModule,
     JwtModule.register({}),
     UserModule,
-    RedisCacheModule
+    RedisCacheModule,
+    MaintenanceModule
   ],
   controllers: [WalletHandlerController],
   providers: [WalletHandlerService],

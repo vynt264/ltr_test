@@ -38,11 +38,10 @@ import { User } from "./user.entity";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import PermissionUserDto from "./dto/permission.dto";
 import { AuthGuard } from "../auth/guards/auth.guard";
+import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
 @Controller("/api/v1/user")
 @ApiTags("user")
 @ApiBearerAuth("Authorization")
-// @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-@UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -54,7 +53,7 @@ export class UserController {
     type: Response<User>,
   })
   // @UseGuards(JwtAuthGuard)
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthAdminGuard)
   async userGetInfo(@Request() req: any): Promise<any> {
     return this.userService.userGetInfo(req.user.id);
   }
@@ -67,7 +66,7 @@ export class UserController {
     type: Response<User>,
   })
   // @UseGuards(JwtAuthGuard)
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthAdminGuard)
   async userUpdateInfo(
     @Body() userBeginner: UserUpdateDto,
     @Request() req: any
@@ -84,8 +83,8 @@ export class UserController {
     type: Response<User>,
   })
   // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
+  @UseGuards(AuthAdminGuard, RolesGuard)
+    @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async create(@Body() userDto: CreateUserDto): Promise<any> {
     return this.userService.create(userDto);
   }
@@ -98,8 +97,8 @@ export class UserController {
     type: Response<User[]>,
   })
   // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
+  @UseGuards(AuthAdminGuard, RolesGuard)
+    @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.userService.getAll(paginationQuery);
   }
@@ -112,8 +111,8 @@ export class UserController {
     type: Response<User>,
   })
   // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
+  @UseGuards(AuthAdminGuard, RolesGuard)
+    @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
     return this.userService.getOneById(id);
   }
@@ -143,7 +142,8 @@ export class UserController {
     type: Response<User>,
   })
   @UsePipes(ValidationPipe)
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthAdminGuard, RolesGuard)
+  // @UseGuards(RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async updateRole(
     @Param("id", ParseIntPipe) id: number,
@@ -160,7 +160,8 @@ export class UserController {
     type: Response<User>,
   })
   @UsePipes(ValidationPipe)
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthAdminGuard, RolesGuard)
+  // @UseGuards(RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async updatePermission(
     @Param("id", ParseIntPipe) id: number,
@@ -177,7 +178,8 @@ export class UserController {
     type: Response<User>,
   })
   @UsePipes(ValidationPipe)
-  @UseGuards(RolesGuard)
+  // @UseGuards(RolesGuard)
+  @UseGuards(AuthAdminGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async blockUser(
     @Param("id", ParseIntPipe) id: number,
@@ -190,7 +192,8 @@ export class UserController {
   @ApiOperation({
     description: "Delete user",
   })
-  @UseGuards(RolesGuard)
+  // @UseGuards(RolesGuard)
+  @UseGuards(AuthAdminGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.userService.delete(id);

@@ -11,17 +11,30 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import appConfig from 'src/system/config.system/app.config';
 import { UserService } from 'src/components/user/user.service';
+import { MaintenanceService } from 'src/components/maintenance/maintenance.service';
+import { ERROR } from 'src/system/constants';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
     constructor(
         private jwtService: JwtService,
         private userService: UserService,
+        private maintenanceService: MaintenanceService
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
+        let maintenance = await this.maintenanceService.findAll() as any;
+        maintenance = maintenance[0];
+        if (maintenance && maintenance?.immediateMaintenance) {
+            throw new HttpException(
+                {
+                    message: 'websiteMaintaining',
+                },
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+
         const request = context.switchToHttp().getRequest();
-        const response = context.switchToHttp().getResponse();
         const token = this.extractTokenFromHeader(request);
         if (!token) {
             throw new UnauthorizedException();

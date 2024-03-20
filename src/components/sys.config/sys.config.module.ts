@@ -7,6 +7,7 @@ import { SysConfigsController } from "./sys.config.controller";
 import { SysConfig } from "./sys.config.entity";
 import { SysConfigsService } from "./sys.config.service";
 import { JwtModule } from "@nestjs/jwt";
+import { MaintenanceModule } from "../maintenance/maintenance.module";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { JwtModule } from "@nestjs/jwt";
     BacklistModule,
     UserModule,
     JwtModule.register({}),
+    MaintenanceModule
   ],
   controllers: [SysConfigsController],
   providers: [SysConfigsService],

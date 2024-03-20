@@ -81,6 +81,7 @@ import { TokensModule } from './tokens/tokens.module';
     AdminHiloModule,
     SettingsModule,
     TokensModule,
+    MaintenanceModule
   ],
 })
 export class MainModule { }

@@ -34,6 +34,7 @@ import {
   import { BookMaker } from "./bookmaker.entity";
   import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { AuthGuard } from "../auth/guards/auth.guard";
+import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
   @Controller("/api/v1/bookMaker")
   @ApiTags("BookMaker")
   export class BookMakerController {
@@ -72,7 +73,8 @@ import { AuthGuard } from "../auth/guards/auth.guard";
     })
     @ApiBearerAuth("Authorization")
     // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthAdminGuard)
     @Roles(UserRoles.SUPPER)
     async create(@Body() userDto: CreateBookMakerDto): Promise<any> {
       return this.bookMakerService.create(userDto);
@@ -88,7 +90,8 @@ import { AuthGuard } from "../auth/guards/auth.guard";
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
     // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthAdminGuard)
     @Roles(UserRoles.SUPPER)
     async updateBookMaker(
       @Param("id", ParseIntPipe) id: number,
@@ -104,7 +107,8 @@ import { AuthGuard } from "../auth/guards/auth.guard";
     })
     @ApiBearerAuth("Authorization")
     // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthAdminGuard)
     @Roles(UserRoles.SUPPER)
     async delete(@Param("id") id: number): Promise<any> {
       return this.bookMakerService.delete(id);

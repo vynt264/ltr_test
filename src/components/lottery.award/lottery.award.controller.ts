@@ -34,6 +34,7 @@ import { startOfDay } from "date-fns";
 import { BacklistGuard } from "../backlist/backlist.guard";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { AuthGuard } from "../auth/guards/auth.guard";
+import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
 
 @Controller("/api/v1/lotteryAward")
 @ApiTags("lotteryAward")
@@ -47,7 +48,8 @@ export class LotteryAwardController {
     return this.lotteryAwardService.createLotteryAward(createLotteryAwardDto);
   }
 
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthAdminGuard)
   @Get("admin-all")
   @ApiResponse({
     status: 2000,

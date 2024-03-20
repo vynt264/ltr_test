@@ -34,6 +34,7 @@ import {
   import { Game } from "./game.entity";
   import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { AuthGuard } from "../auth/guards/auth.guard";
+import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
   @Controller("/api/v1/game")
   @ApiTags("Game")
   export class GameController {
@@ -59,7 +60,8 @@ import { AuthGuard } from "../auth/guards/auth.guard";
     })
     @ApiBearerAuth("Authorization")
     // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthAdminGuard)
     @Roles(UserRoles.SUPPER)
     async create(@Body() userDto: CreateGameDto): Promise<any> {
       return this.gameService.create(userDto);
@@ -75,7 +77,8 @@ import { AuthGuard } from "../auth/guards/auth.guard";
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
     // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthAdminGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
     async updateGame(
       @Param("id", ParseIntPipe) id: number,
@@ -90,7 +93,8 @@ import { AuthGuard } from "../auth/guards/auth.guard";
     })
     @ApiBearerAuth("Authorization")
     // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthAdminGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
     async delete(@Param("id") id: number): Promise<any> {
       return this.gameService.delete(id);

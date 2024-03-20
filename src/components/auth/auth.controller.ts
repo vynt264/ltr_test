@@ -19,6 +19,7 @@ import { Cron } from "@nestjs/schedule";
 import { LoginNewDto } from "./dto/loginNew.dto";
 import { Helper } from "src/common/helper";
 import { AuthGuard } from "./guards/auth.guard";
+import { AuthAdminGuard } from "./guards/auth-admin.guard";
 
 @ApiTags("Auth")
 @Controller("api/v1/auth")
@@ -144,7 +145,7 @@ export class AuthController {
   @Post("logout")
   @ApiBearerAuth("Authorization")
   // @UseGuards(JwtAuthGuard)
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthAdminGuard)
   @ApiOperation({
     description:
       "To exit a user account in a computer system, so that one is not recognized until signing in again.",

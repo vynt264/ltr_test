@@ -11,6 +11,7 @@ import { ConnectModule } from "../connect/connect.module";
 import { PromotionModule } from "../promotion/promotion.module";
 import { CoinWalletHistories } from "../coin.wallet.history/coin.wallet.history.entiry";
 import { JwtModule } from "@nestjs/jwt";
+import { MaintenanceModule } from "../maintenance/maintenance.module";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { JwtModule } from "@nestjs/jwt";
     ConnectModule,
     PromotionModule,
     JwtModule.register({}),
+    MaintenanceModule
   ],
   controllers: [PromotionHistoriesController],
   providers: [PromotionHistoriesService],

@@ -21,6 +21,7 @@ import { WalletHistory } from '../wallet/wallet.history.entity';
 import { LotteriesModule } from '../lotteries/lotteries.module';
 import { WinningNumbersModule } from '../winning-numbers/winning-numbers.module';
 import { JwtModule } from '@nestjs/jwt';
+import { MaintenanceModule } from '../maintenance/maintenance.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { JwtModule } from '@nestjs/jwt';
     LotteriesModule,
     WinningNumbersModule,
     JwtModule.register({}),
+    MaintenanceModule
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

@@ -9,15 +9,19 @@ import { ConnectModule } from "../connect/connect.module";
 import { Order } from "../orders/entities/order.entity";
 import { ScheduleModule } from "@nestjs/schedule";
 import { User } from "../user/user.entity";
+import { JwtModule } from "@nestjs/jwt";
+import { MaintenanceModule } from "../maintenance/maintenance.module";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, User]),
+    JwtModule.register({}),
     BacklistModule,
     UserModule,
     SysConfigsModule,
     ConnectModule,
     ScheduleModule.forRoot(),
+    MaintenanceModule
   ],
   controllers: [AdminDashboardController],
   providers: [AdminDashboardService],

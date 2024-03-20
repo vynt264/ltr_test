@@ -30,6 +30,7 @@ import { UserRoles } from "../user/enums/user.enum";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { UpdateSysConfigsDto } from "../sys.config/dto";
 import UpdateSysConfigPokerDto from "./dto/update.dto";
+import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
 @Controller("/api/v1/adminPoker")
 @ApiTags("AdminPoker")
 export class AdminPokerController {
@@ -43,13 +44,13 @@ export class AdminPokerController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.adminPokerService.getHistory(paginationQuery);
   }
 
-  
   @Get("getConfig")
   @ApiOperation({
     description: "Get config poker",
@@ -58,7 +59,8 @@ export class AdminPokerController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async GetConfig(): Promise<any> {
     return this.adminPokerService.getConfig();
@@ -72,7 +74,8 @@ export class AdminPokerController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async UpdateConfig(
     @Param("id", ParseIntPipe) id: number,
@@ -90,7 +93,8 @@ export class AdminPokerController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async GetReport(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.adminPokerService.report(paginationQuery);

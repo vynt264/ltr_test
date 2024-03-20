@@ -33,6 +33,7 @@ import { CreateDataFakeRequestDto } from "./dto/create.data.fake.dto";
 import { UpdateDataFakeRequestDto } from "./dto";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { AuthGuard } from "../auth/guards/auth.guard";
+import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
 @Controller("/api/v1/newQuery")
 @ApiTags("NewQuery")
 @ApiBearerAuth("Authorization")
@@ -92,7 +93,7 @@ export class NewQueryController {
   })
   @ApiBearerAuth("Authorization")
   // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthAdminGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async getDataFake(
     @Param("key") key: string,
@@ -110,7 +111,7 @@ export class NewQueryController {
   })
   @ApiBearerAuth("Authorization")
   // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthAdminGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async create(@Body() createDto: CreateDataFakeRequestDto): Promise<any> {
     return this.newQueryService.createDataFake(createDto);

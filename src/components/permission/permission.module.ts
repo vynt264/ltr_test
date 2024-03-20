@@ -6,11 +6,13 @@ import { PermissionController } from "./permission.controller";
 import { BacklistModule } from "../backlist/backlist.module";
 import { UserModule } from "../user/user.module";
 import { JwtModule } from "@nestjs/jwt";
+import { MaintenanceModule } from "../maintenance/maintenance.module";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Permission]), BacklistModule, UserModule,
     JwtModule.register({}),
+    MaintenanceModule
   ],
   providers: [PermissionService],
   controllers: [PermissionController],

@@ -14,6 +14,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 // import { LotteryRequest } from "../lottery.request/lottery.request.entity";
 // import { LotteryFtQueue } from "../lottery.request/lottery.ft.queue";
 import { JwtModule } from "@nestjs/jwt";
+import { MaintenanceModule } from "../maintenance/maintenance.module";
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { JwtModule } from "@nestjs/jwt";
     ScheduleModule.forRoot(),
     // OrderRequestModule,
     JwtModule.register({}),
+    MaintenanceModule
   ],
   controllers: [LotteryAwardController],
   providers: [LotteryAwardService],

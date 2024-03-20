@@ -29,6 +29,7 @@ import { PaginationQueryDto } from "../../common/common.dto/pagination.query.dto
 import { UserRoles } from "../user/enums/user.enum";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { UpdateSysConfigHiloDto } from "./dto/update.dto";
+import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
 @Controller("/api/v1/adminHilo")
 @ApiTags("AdminHilo")
 export class AdminHiloController {
@@ -42,7 +43,8 @@ export class AdminHiloController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.adminHiloService.getHistory(paginationQuery);
@@ -56,7 +58,8 @@ export class AdminHiloController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async GetConfig(): Promise<any> {
     return this.adminHiloService.getConfig();
@@ -70,7 +73,8 @@ export class AdminHiloController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async UpdateConfig(
     @Param("id", ParseIntPipe) id: number,
@@ -88,7 +92,8 @@ export class AdminHiloController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async GetReport(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.adminHiloService.report(paginationQuery);

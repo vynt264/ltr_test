@@ -12,6 +12,7 @@ import { UploadMiddleware } from "src/system/middleware/upload.middleware";
 import { MulterModule } from "@nestjs/platform-express";
 import { UploadS3Module } from "../upload.s3/upload.s3.module";
 import { JwtModule } from "@nestjs/jwt";
+import { MaintenanceModule } from "../maintenance/maintenance.module";
 @Module({
   imports: [
     TypeOrmModule.forFeature([SysLayout]),
@@ -24,6 +25,7 @@ import { JwtModule } from "@nestjs/jwt";
       useClass: UploadMiddleware,
     }),
     JwtModule.register({}),
+    MaintenanceModule
   ],
   controllers: [SysLayoutController],
   providers: [SysLayoutService],

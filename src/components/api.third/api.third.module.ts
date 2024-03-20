@@ -6,6 +6,7 @@ import { APIController } from "./api.third.controller";
 import { APIService } from "./api.third.service";
 import { UserModule } from "../user/user.module";
 import { JwtModule } from "@nestjs/jwt";
+import { MaintenanceModule } from "../maintenance/maintenance.module";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { JwtModule } from "@nestjs/jwt";
     BacklistModule,
     UserModule,
     JwtModule.register({}),
+    MaintenanceModule
   ],
   controllers: [APIController],
   providers: [APIService],

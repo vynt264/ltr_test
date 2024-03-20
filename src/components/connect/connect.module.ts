@@ -12,6 +12,7 @@ import { ConnectController } from "./connect.controller";
 import { ConnectService } from "./connect.service";
 import { JwtModule } from "@nestjs/jwt";
 import { UserModule } from "../user/user.module";
+import { MaintenanceModule } from "../maintenance/maintenance.module";
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { UserModule } from "../user/user.module";
     // EventTimeModule,
     SysConfigsModule,
     JwtModule.register({}),
-    UserModule
+    UserModule,
+    MaintenanceModule
   ],
   controllers: [ConnectController],
   providers: [ConnectService],

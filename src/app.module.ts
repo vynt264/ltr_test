@@ -1,5 +1,5 @@
 import { WinsModule } from "./system/logger/loggerModule";
-import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from "@nestjs/common";
 import { MainModule } from "./components/main.module";
 import { ConfigSystemModule } from "./system/config.system/config.module";
 import { ConfigModule, ConfigService } from "@nestjs/config";
@@ -56,8 +56,4 @@ const configService = new ConfigService();
     MaintenanceMiddleware,
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(MaintenanceMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {}

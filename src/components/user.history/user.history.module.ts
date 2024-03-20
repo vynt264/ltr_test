@@ -9,6 +9,7 @@ import { UserHistoryController } from "./user.history.controller";
 import { UserHistoryService } from "./user.history.service";
 import { ScheduleModule } from "@nestjs/schedule";
 import { JwtModule } from "@nestjs/jwt";
+import { MaintenanceModule } from "../maintenance/maintenance.module";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { JwtModule } from "@nestjs/jwt";
     UserModule,
     ScheduleModule.forRoot(),
     JwtModule.register({}),
+    MaintenanceModule
   ],
   controllers: [UserHistoryController],
   providers: [UserHistoryService],

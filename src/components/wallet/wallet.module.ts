@@ -11,6 +11,7 @@ import { ConnectModule } from "../connect/connect.module";
 import { User } from "../user/user.entity";
 import { WalletHistory } from "./wallet.history.entity";
 import { JwtModule } from "@nestjs/jwt";
+import { MaintenanceModule } from "../maintenance/maintenance.module";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { JwtModule } from "@nestjs/jwt";
     SysConfigsModule,
     ConnectModule,
     JwtModule.register({}),
+    MaintenanceModule
   ],
   controllers: [WalletController],
   providers: [WalletService],

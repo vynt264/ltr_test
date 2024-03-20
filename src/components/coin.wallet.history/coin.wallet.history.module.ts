@@ -10,6 +10,7 @@ import { SysConfigsModule } from "../sys.config/sys.config.module";
 import { ConnectModule } from "../connect/connect.module";
 import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
 import { JwtModule } from "@nestjs/jwt";
+import { MaintenanceModule } from "../maintenance/maintenance.module";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { JwtModule } from "@nestjs/jwt";
     SysConfigsModule,
     ConnectModule,
     JwtModule.register({}),
+    MaintenanceModule
   ],
   controllers: [CoinWalletHistoryController],
   providers: [CoinWalletHistoryService],

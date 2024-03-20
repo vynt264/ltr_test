@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { WinningNumber } from './entities/winning-number.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from '../user/user.module';
+import { MaintenanceModule } from '../maintenance/maintenance.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UserModule } from '../user/user.module';
     BacklistModule,
     JwtModule.register({}),
     UserModule,
+    MaintenanceModule
   ],
   controllers: [WinningNumbersController],
   providers: [WinningNumbersService],

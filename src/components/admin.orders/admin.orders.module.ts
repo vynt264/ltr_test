@@ -10,6 +10,8 @@ import { Order } from "../orders/entities/order.entity";
 import { ScheduleModule } from "@nestjs/schedule";
 import { LotteryAwardModule } from "../lottery.award/lottery.award.module";
 import { User } from "../user/user.entity";
+import { JwtModule } from "@nestjs/jwt";
+import { MaintenanceModule } from "../maintenance/maintenance.module";
 
 @Module({
   imports: [
@@ -19,7 +21,9 @@ import { User } from "../user/user.entity";
     SysConfigsModule,
     ConnectModule,
     ScheduleModule.forRoot(),
-    LotteryAwardModule
+    LotteryAwardModule,
+    JwtModule.register({}),
+    MaintenanceModule
   ],
   controllers: [AdminOrdersController],
   providers: [AdminOrdersService],

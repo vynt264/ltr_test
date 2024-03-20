@@ -34,6 +34,7 @@ import { UserRoles } from "../user/enums/user.enum";
 import { SysLayout } from "./sys.layout.entity";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { AuthGuard } from "../auth/guards/auth.guard";
+import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
 @Controller("/api/v1/sysLayout")
 @ApiTags("SysLayout")
 export class SysLayoutController {

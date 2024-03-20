@@ -12,7 +12,7 @@ import { UserModule } from '../user/user.module';
     TypeOrmModule.forFeature([Maintenance]),
     BacklistModule,
     JwtModule.register({}),
-    UserModule,
+    // UserModule,
   ],
   controllers: [MaintenanceController],
   providers: [MaintenanceService],

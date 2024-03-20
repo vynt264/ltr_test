@@ -21,11 +21,13 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Roles } from "../auth/roles.guard/roles.decorator";
 import { UserRoles } from "../user/enums/user.enum";
 import { ReportQueryDto } from "./dto/report.query.dto";
+import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
 
 @Controller("api/v1/admin-dashboard")
 @ApiTags("Admin-dashboard")
 @ApiBearerAuth("Authorization")
-@UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+// @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+@UseGuards(AuthAdminGuard)
 @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
 export class AdminDashboardController {
   constructor(private readonly adminDashboardService: AdminDashboardService) {}

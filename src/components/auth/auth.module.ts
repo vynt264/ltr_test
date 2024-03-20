@@ -21,6 +21,8 @@ import { WalletInout } from "../wallet.inout/wallet.inout.entity";
 import { WalletHistory } from "../wallet/wallet.history.entity";
 import { AuthGuard } from "./guards/auth.guard";
 import { TokensModule } from "../tokens/tokens.module";
+import { AuthAdminGuard } from "./guards/auth-admin.guard";
+import { MaintenanceModule } from "../maintenance/maintenance.module";
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, UserInfo, CoinWallet, WalletInout, WalletHistory]),
@@ -33,10 +35,11 @@ import { TokensModule } from "../tokens/tokens.module";
     WalletHandlerModule,
     RedisCacheModule,
     ScheduleModule.forRoot(),
-    TokensModule
+    TokensModule,
+    MaintenanceModule
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy, RtStrategy, AuthGuard],
+  providers: [AuthService, LocalStrategy, JwtStrategy, RtStrategy, AuthGuard, AuthAdminGuard],
   controllers: [AuthController],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }

@@ -14,6 +14,7 @@ import { MulterModule } from "@nestjs/platform-express";
 import { UploadS3Module } from "../upload.s3/upload.s3.module";
 import { OrdersModule } from "../orders/orders.module";
 import { JwtModule } from "@nestjs/jwt";
+import { MaintenanceModule } from "../maintenance/maintenance.module";
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { JwtModule } from "@nestjs/jwt";
       useClass: UploadMiddleware,
     }),
     JwtModule.register({}),
+    MaintenanceModule
   ],
   controllers: [UserInfoController],
   providers: [UserInfoService],

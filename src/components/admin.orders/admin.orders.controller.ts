@@ -22,11 +22,13 @@ import { Roles } from "../auth/roles.guard/roles.decorator";
 import { UserRoles } from "../user/enums/user.enum";
 import { ReportQueryDto } from "./dto/report.query.dto";
 import { UserInfoQueryDto } from "./dto/admin.query.dto";
+import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
 
 @Controller("api/v1/admin-orders")
 @ApiTags("Admin-ordres")
 @ApiBearerAuth("Authorization")
-@UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+// @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
+@UseGuards(AuthAdminGuard)
 @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
 export class AdminOrdersController {
   constructor(private readonly adminOrdersService: AdminOrdersService) {}
