@@ -401,6 +401,16 @@ export class AdminOrdersService {
           "entity.bookmakerId = bookmaker.id"
         )
         .leftJoinAndSelect(
+          "play_history_hilo",
+          "historyHilo",
+          "entity.id = historyHilo.userId"
+        )
+        .leftJoinAndSelect(
+          "play_history_poker",
+          "historyPoker",
+          "entity.id = historyPoker.userId"
+        )
+        .leftJoinAndSelect(
           "user_info",
           "userInfo",
           "entity.id = userInfo.userId"
@@ -410,9 +420,15 @@ export class AdminOrdersService {
         .addSelect("entity.username as username")
         .addSelect("userInfo.nickname as nickname")
         .addSelect("wallet.balance as balance")
-        .addSelect("COUNT(orders.id) as count")
-        .addSelect("SUM(orders.revenue) as totalBet")
-        .addSelect("SUM(orders.paymentWin) as totalPaymentWin")
+        .addSelect("COUNT(orders.id) as countLottery")
+        .addSelect("SUM(orders.revenue) as totalBetLottery")
+        .addSelect("SUM(orders.paymentWin) as totalPaymentWinLottery")
+        .addSelect("COUNT(historyHilo.id) as countHilo")
+        .addSelect("SUM(historyHilo.revenue) as totalBetHilo")
+        .addSelect("SUM(historyHilo.totalPaymentWin) as totalPaymentWinHilo")
+        .addSelect("COUNT(historyPoker.id) as countPoker")
+        .addSelect("SUM(historyPoker.revenue) as totalBetPoker")
+        .addSelect("SUM(historyPoker.paymentWin) as totalPaymentWinPoker")
         .where(condition, conditionParams)
         .groupBy("bookmakerName, username, nickname, balance")
         .orderBy("username", "ASC")
@@ -421,15 +437,28 @@ export class AdminOrdersService {
       const response: any = [];
       if (listDataReal.length > 0) {
         listDataReal.map((item) => {
+          const totalCount =
+            Number(item?.countLottery) +
+            Number(item?.countHilo) +
+            Number(item?.countPoker);
+          const totalBet =
+            Number(item?.totalBetLottery) + 
+            Number(item?.totalBetHilo) +
+            Number(item?.totalBetPoker);
+          const totalWin =
+            Number(item?.totalPaymentWinLottery) +
+            (Number(item?.totalPaymentWinHilo) - Number(item?.totalBetHilo)) +
+            (Number(item?.totalPaymentWinPoker) - Number(item?.totalBetPoker));
+          const totalLoss = -1 * totalWin;
           const res = {
             currentBalance: item.balance,
             bookmakerName: item.bookmakerName,
             username: item?.username,
             nickname: item?.nickname,
-            countBet: item?.count,
-            totalBet: item?.totalBet,
-            totalWin: item?.totalPaymentWin,
-            totalLoss: -1 * item?.totalPaymentWin
+            countBet: totalCount,
+            totalBet: totalBet,
+            totalWin: totalWin,
+            totalLoss: totalLoss,
           }
           response.push(res);
         })

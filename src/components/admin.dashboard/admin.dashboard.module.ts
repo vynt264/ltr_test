@@ -11,16 +11,18 @@ import { ScheduleModule } from "@nestjs/schedule";
 import { User } from "../user/user.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { MaintenanceModule } from "../maintenance/maintenance.module";
+import { PlayHistoryHilo } from "../admin.hilo/entities/play.history.hilo.entity";
+import { PlayHistoryPoker } from "../admin.poker/entities/play.history.poker.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order, User]),
-    JwtModule.register({}),
+    TypeOrmModule.forFeature([Order, User, PlayHistoryHilo, PlayHistoryPoker]),
     BacklistModule,
     UserModule,
     SysConfigsModule,
     ConnectModule,
     ScheduleModule.forRoot(),
+    JwtModule.register({}),
     MaintenanceModule
   ],
   controllers: [AdminDashboardController],

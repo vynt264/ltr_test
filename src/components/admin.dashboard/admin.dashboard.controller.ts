@@ -47,4 +47,12 @@ export class AdminDashboardController {
   async GetChartOrder(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.adminDashboardService.dataChartOrder(paginationQuery);
   }
+
+  @Get("chart-order-all")
+  @ApiOperation({
+    description: "Get all Dashboard",
+  })
+  async GetChartOrderAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
+    return this.adminDashboardService.dataChartOrderAll(paginationQuery);
+  }
 }
