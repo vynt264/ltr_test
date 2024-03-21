@@ -1,6 +1,7 @@
 import { BaseEntity } from "src/common/mysql/base.entity";
+import { BookMaker } from "src/components/bookmaker/bookmaker.entity";
 import {
-    Column, Entity,
+    Column, Entity, JoinColumn, ManyToOne,
 } from "typeorm";
 
 @Entity({ name: "management-bonus-price" })
@@ -25,4 +26,11 @@ export class ManageBonusPrice extends BaseEntity {
 
     @Column({ type: 'varchar', nullable: true })
     isTestPlayer: boolean;
+
+    @ManyToOne(() => BookMaker, {
+        cascade: true,
+        createForeignKeyConstraints: false,
+    })
+    @JoinColumn()
+    bookMaker: BookMaker;
 }

@@ -178,6 +178,7 @@ export class ScheduleService implements OnModuleInit {
             type: gameType,
             data: dataTransform,
             isTestPlayer: false,
+            bookmakerId,
         });
         const finalResult = OrderHelper.randomPrizes(prizes);
         this.lotteryAwardService.createLotteryAward({
@@ -235,6 +236,7 @@ export class ScheduleService implements OnModuleInit {
             type: gameType,
             data: dataTransformOfFakeUsers,
             isTestPlayer: true,
+            bookmakerId,
         });
         const finalResultOfFakeUsers = OrderHelper.randomPrizes(prizesOfTestPlayer);
         this.lotteryAwardService.createLotteryAward({

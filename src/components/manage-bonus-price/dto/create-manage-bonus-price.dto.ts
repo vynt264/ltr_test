@@ -1,3 +1,6 @@
+import { BookMaker } from "src/components/bookmaker/bookmaker.entity";
+import { JoinColumn } from "typeorm";
+
 export class CreateManageBonusPriceDto {
     fromDate: string; // miliseconds
 
@@ -12,4 +15,7 @@ export class CreateManageBonusPriceDto {
     type: string;
 
     isTestPlayer: boolean;
+
+    @JoinColumn()
+    bookMaker: BookMaker;
 }

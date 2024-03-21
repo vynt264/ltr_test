@@ -1,14 +1,15 @@
 import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { endOfDay, startOfDay, addHours } from "date-fns";
-import { User } from "../user/user.entity";
+import { User } from "../../user/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { Order } from "../orders/entities/order.entity";
+import { Between, LessThanOrEqual, Like, MoreThan, Repository } from "typeorm";
+import { Order } from "../../orders/entities/order.entity";
 import { PlayHistoryHilo } from "../admin.hilo/entities/play.history.hilo.entity";
 import { PlayHistoryPoker } from "../admin.poker/entities/play.history.poker.entity";
 import { PaginationQueryDto } from "src/common/common.dto";
 import { PaginationDto } from "src/common/dto/pagination.dto";
 import { MESSAGE, STATUSCODE, TypeLottery } from "src/system/constants";
+import { UserService } from "../../user/user.service";
 import { ErrorResponse, SuccessResponse } from "src/system/BaseResponse";
 import { Logger } from "winston";
 import { Helper } from "src/common/helper";
@@ -21,6 +22,7 @@ export class AdminDashboardService {
     private userRepository: Repository<User>,
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
+    private userService: UserService,
     @InjectRepository(PlayHistoryHilo)
     private playHistoryHiloRepository: Repository<PlayHistoryHilo>,
     @InjectRepository(PlayHistoryPoker)

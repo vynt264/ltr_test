@@ -1,16 +1,16 @@
 import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { endOfDay, startOfDay, addHours } from "date-fns";
-import { User } from "../user/user.entity";
+import { User } from "../../user/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Between, LessThanOrEqual, Like, MoreThan, Repository } from "typeorm";
-import { Order } from "../orders/entities/order.entity";
+import { Order } from "../../orders/entities/order.entity";
 import { PaginationQueryDto } from "src/common/common.dto";
 import { PaginationDto } from "src/common/dto/pagination.dto";
 import { MESSAGE, STATUSCODE, TypeLottery } from "src/system/constants";
-import { UserService } from "../user/user.service";
+import { UserService } from "../../user/user.service";
 import { ErrorResponse, SuccessResponse } from "src/system/BaseResponse";
 import { Logger } from "winston";
-import { LotteryAwardService } from "../lottery.award/lottery.award.service";
+import { LotteryAwardService } from "../../lottery.award/lottery.award.service";
 
 @Injectable()
 export class AdminOrdersService {
@@ -442,7 +442,7 @@ export class AdminOrdersService {
             Number(item?.countHilo) +
             Number(item?.countPoker);
           const totalBet =
-            Number(item?.totalBetLottery) + 
+            Number(item?.totalBetLottery) +
             Number(item?.totalBetHilo) +
             Number(item?.totalBetPoker);
           const totalWin =

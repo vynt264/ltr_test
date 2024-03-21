@@ -130,6 +130,7 @@ export class LotteriesService {
     isTestPlayer,
     type,
     data,
+    bookmakerId,
   }: any) {
     const timeStartDay = startOfDay(new Date());
     const fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
@@ -139,9 +140,13 @@ export class LotteriesService {
       toDate,
       fromDate,
       isTestPlayer,
+      bookmakerId,
     });
 
-    // TODO: !dataBonusPrice
+    if (!dataBonusPrice) {
+      // TODO: !dataBonusPrice
+    }
+
     const prizes = this.generatePrizes(data, dataBonusPrice.bonusPrice);
     const bonusPriceCurrent = dataBonusPrice.bonusPrice;
     const totalBet = (dataBonusPrice?.totalBet || 0) + (prizes.totalBetAmount || 0);

@@ -27,18 +27,23 @@ import { CoinWalletHistoryModule } from "./coin.wallet.history/coin.wallet.histo
 import { SysLayoutModule } from "./sys.layout/sys.layout.module";
 import { WalletHandlerModule } from './wallet-handler/wallet-handler.module';
 import { AnalyticsModule } from "./analytics/analytics.module";
-import { AdminOrdersModule } from "./admin.orders/admin.orders.module";
+// import { AdminOrdersModule } from "./admin.orders/admin.orders.module";
 import { WinningNumbersModule } from './winning-numbers/winning-numbers.module';
 import { WalletInoutModule } from "./wallet.inout/wallet.inout.module";
 import { HoldingNumbersModule } from './holding-numbers/holding-numbers.module';
-import { AdminDashboardModule } from "./admin.dashboard/admin.dashboard.module";
+// import { AdminDashboardModule } from "./admin.dashboard/admin.dashboard.module";
 import { IntegrationModule } from "./integration/integraion.module";
 import { ManageBonusPriceModule } from './manage-bonus-price/manage-bonus-price.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
-import { AdminPokerModule } from "./admin.poker/admin.poker.module";
-import { AdminHiloModule } from "./admin.hilo/admin.hilo.module";
+// import { AdminPokerModule } from "./admin.poker/admin.poker.module";
+// import { AdminHiloModule } from "./admin.hilo/admin.hilo.module";
 import { SettingsModule } from './settings/settings.module';
 import { TokensModule } from './tokens/tokens.module';
+import { AdminModule } from "./admin/admin.module";
+// import { BookmakerModule } from './admin/bookmaker/bookmaker.module';
+// import { AdminModule } from './admin/admin.module';
+// import { AdminModule } from './admin/admin/admin.module';
+// import { BookmakerModule } from './admin/bookmaker/bookmaker.module';
 @Module({
   imports: [
     AuthModule,
@@ -69,19 +74,20 @@ import { TokensModule } from './tokens/tokens.module';
     SysLayoutModule,
     WalletHandlerModule,
     AnalyticsModule,
-    AdminOrdersModule,
+    // AdminOrdersModule,
     WinningNumbersModule,
     WalletInoutModule,
     HoldingNumbersModule,
-    AdminDashboardModule,
+    // AdminDashboardModule,
     IntegrationModule,
     ManageBonusPriceModule,
     MaintenanceModule,
-    AdminPokerModule,
-    AdminHiloModule,
+    // AdminPokerModule,
+    // AdminHiloModule,
     SettingsModule,
     TokensModule,
-    MaintenanceModule
+    MaintenanceModule,
+    AdminModule
   ],
 })
 export class MainModule { }

@@ -6,12 +6,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MAINTENANCE_PERIOD, START_TIME_CREATE_JOB, TypeLottery } from 'src/system/constants';
 import { addHours, startOfDay } from 'date-fns';
+import { BookMakerService } from '../bookmaker/bookmaker.service';
 
 @Injectable()
 export class ManageBonusPriceService {
   constructor(
     @InjectRepository(ManageBonusPrice)
     private manageBonusPriceRepository: Repository<ManageBonusPrice>,
+    private readonly bookMakerService: BookMakerService,
   ) { }
 
   create(createManageBonusPriceDto: CreateManageBonusPriceDto) {
@@ -31,6 +33,7 @@ export class ManageBonusPriceService {
     fromDate,
     toDate,
     isTestPlayer,
+    bookmakerId,
   }: any) {
     return this.manageBonusPriceRepository.findOne({
       where: {
@@ -38,6 +41,7 @@ export class ManageBonusPriceService {
         toDate,
         fromDate,
         isTestPlayer,
+        bookMaker: { id: bookmakerId },
       },
     });
   }
@@ -51,6 +55,7 @@ export class ManageBonusPriceService {
   }
 
   async initBonusPrice(date: Date) {
+    const bookMarkers = await this.bookMakerService.getAllBookMaker();
     const gameTypes = [
       TypeLottery.XSMB_1S,
       TypeLottery.XSMT_1S,
@@ -71,52 +76,58 @@ export class ManageBonusPriceService {
     const timeStartDay = startOfDay(date);
     let fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
     const toDate = fromDate + ((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) * 1000;
-    const promise = [];
 
-    for (const gameType of gameTypes) {
-      const bonusPriceOfUserReal = await this.findBonusPriceByType({
-        toDate,
-        fromDate,
-        type: gameType,
-        isTestPlayer: false,
-      });
-
-      if (bonusPriceOfUserReal) continue;
-
-      promise.push(
-        this.manageBonusPriceRepository.save({
-          fromDate: fromDate.toString(),
-          toDate: toDate.toString(),
-          totalBet: 0,
-          totalProfit: 0,
-          bonusPrice: 0,
+    for (const bookmarker of bookMarkers) {
+      const promise = [];
+      for (const gameType of gameTypes) {
+        const bonusPriceOfUserReal = await this.findBonusPriceByType({
+          toDate,
+          fromDate,
           type: gameType,
           isTestPlayer: false,
-        }),
-      );
+          bookmakerId: bookmarker.id,
+        });
 
-      const bonusPriceOfUserFake = await this.findBonusPriceByType({
-        toDate,
-        fromDate,
-        type: gameType,
-        isTestPlayer: true,
-      });
-      
-      if (bonusPriceOfUserFake) continue;
+        if (bonusPriceOfUserReal) continue;
 
-      promise.push(
-        this.manageBonusPriceRepository.save({
-          fromDate: fromDate.toString(),
-          toDate: toDate.toString(),
-          totalBet: 0,
-          totalProfit: 0,
-          bonusPrice: 0,
+        promise.push(
+          this.manageBonusPriceRepository.save({
+            fromDate: fromDate.toString(),
+            toDate: toDate.toString(),
+            totalBet: 0,
+            totalProfit: 0,
+            bonusPrice: 0,
+            type: gameType,
+            isTestPlayer: false,
+            bookMaker: { id: bookmarker.id },
+          }),
+        );
+
+        const bonusPriceOfUserFake = await this.findBonusPriceByType({
+          toDate,
+          fromDate,
           type: gameType,
           isTestPlayer: true,
-        }),
-      );
-    }
+          bookmakerId: bookmarker.id,
+        });
 
-    await Promise.all(promise);
+        if (bonusPriceOfUserFake) continue;
+
+        promise.push(
+          this.manageBonusPriceRepository.save({
+            fromDate: fromDate.toString(),
+            toDate: toDate.toString(),
+            totalBet: 0,
+            totalProfit: 0,
+            bonusPrice: 0,
+            type: gameType,
+            isTestPlayer: true,
+            bookMaker: { id: bookmarker.id },
+          }),
+        );
+      }
+
+      await Promise.all(promise);
+    }
   }
 }

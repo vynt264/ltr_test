@@ -1,17 +1,13 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   ParseIntPipe,
   Patch,
-  Post,
   Query,
   Request,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -19,18 +15,13 @@ import {
   ApiOperation,
   ApiTags,
 } from "@nestjs/swagger";
-import { Response } from "../../system/interfaces";
-import { JwtAuthGuard } from "../auth/jwt/jwt-auth.guard";
-import { Roles } from "../auth/roles.guard/roles.decorator";
-import { RolesGuard } from "../auth/roles.guard/roles.guard";
-import { BacklistGuard } from "../backlist/backlist.guard";
+import { Response } from "../../../system/interfaces";
+import { Roles } from "../../auth/roles.guard/roles.decorator";
 import { AdminPokerService } from "./admin.poker.service";
-import { PaginationQueryDto } from "./../../common/common.dto/pagination.query.dto";
-import { UserRoles } from "../user/enums/user.enum";
-import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
-import { UpdateSysConfigsDto } from "../sys.config/dto";
+import { PaginationQueryDto } from "./../../../common/common.dto/pagination.query.dto";
+import { UserRoles } from "../../user/enums/user.enum";
 import UpdateSysConfigPokerDto from "./dto/update.dto";
-import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
+import { AuthAdminGuard } from "../../auth/guards/auth-admin.guard";
 @Controller("/api/v1/adminPoker")
 @ApiTags("AdminPoker")
 export class AdminPokerController {
@@ -74,7 +65,6 @@ export class AdminPokerController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async UpdateConfig(
