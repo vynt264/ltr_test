@@ -9,10 +9,12 @@ import { ConnectModule } from "../connect/connect.module";
 import { Order } from "../orders/entities/order.entity";
 import { ScheduleModule } from "@nestjs/schedule";
 import { User } from "../user/user.entity";
+import { PlayHistoryHilo } from "../admin.hilo/entities/play.history.hilo.entity";
+import { PlayHistoryPoker } from "../admin.poker/entities/play.history.poker.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order, User]),
+    TypeOrmModule.forFeature([Order, User, PlayHistoryHilo, PlayHistoryPoker]),
     BacklistModule,
     UserModule,
     SysConfigsModule,
