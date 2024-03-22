@@ -10,7 +10,6 @@ import {
   Request,
   UseGuards,
 } from "@nestjs/common";
-import { Cron, CronExpression, Interval } from "@nestjs/schedule";
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -23,14 +22,10 @@ import { PaginationQueryDto } from "../../common/common.dto";
 import { Response } from "../../system/interfaces";
 import { Roles } from "../auth/roles.guard/roles.decorator";
 import { UserRoles } from "../user/enums/user.enum";
-// import { GetLotteryAwardDto } from "./dto/get.data";
 import { CreateLotteryAwardDto } from "./dto/index";
 import { LotteryAward } from "./lottery.award.entity";
 import { LotteryAwardService } from "./lottery.award.service";
-import { CurrentAwardXsmb, TypeLottery } from "./enums/status.dto";
-import { startOfDay } from "date-fns";
-// import { RequestDetailDto } from "../lottery.request/dto/request.detail.dto";
-// import { JwtAuthGuard } from "../auth/jwt/jwt-auth.guard";
+import { CurrentAwardXsmb } from "./enums/status.dto";
 import { BacklistGuard } from "../backlist/backlist.guard";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { AuthGuard } from "../auth/guards/auth.guard";
@@ -48,43 +43,42 @@ export class LotteryAwardController {
     return this.lotteryAwardService.createLotteryAward(createLotteryAwardDto);
   }
 
-  // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
-  @UseGuards(AuthAdminGuard)
-  @Get("admin-all")
-  @ApiResponse({
-    status: 2000,
-    description: "Get list lotteryAward success",
-  })
-  @ApiQuery({
-    name: "take",
-    type: "number",
-    description: "enter take (Take is limit in sql) of record",
-    required: true,
-  })
-  @ApiQuery({
-    name: "skip",
-    type: "number",
-    description: "enter skip (Skip is offset in sql) of record",
-    required: true,
-  })
-  @ApiQuery({
-    name: "order",
-    type: "string",
-    description:
-      "The ORDER BY keyword sorts the records in ascending order by default. To sort the records in descending order, use the DESC|ASC keyword",
-    required: true,
-  })
-  @ApiOperation({
-    description: "Get all lotteryAward",
-  })
-  @ApiOkResponse({
-    type: Response<LotteryAward[]>,
-  })
-  async getAdminAll(
-    @Query() paginationQueryDto: PaginationQueryDto,
-  ): Promise<any> {
-    return this.lotteryAwardService.adminGetAll(paginationQueryDto);
-  }
+  // @UseGuards(AuthAdminGuard)
+  // @Get("admin-all")
+  // @ApiResponse({
+  //   status: 2000,
+  //   description: "Get list lotteryAward success",
+  // })
+  // @ApiQuery({
+  //   name: "take",
+  //   type: "number",
+  //   description: "enter take (Take is limit in sql) of record",
+  //   required: true,
+  // })
+  // @ApiQuery({
+  //   name: "skip",
+  //   type: "number",
+  //   description: "enter skip (Skip is offset in sql) of record",
+  //   required: true,
+  // })
+  // @ApiQuery({
+  //   name: "order",
+  //   type: "string",
+  //   description:
+  //     "The ORDER BY keyword sorts the records in ascending order by default. To sort the records in descending order, use the DESC|ASC keyword",
+  //   required: true,
+  // })
+  // @ApiOperation({
+  //   description: "Get all lotteryAward",
+  // })
+  // @ApiOkResponse({
+  //   type: Response<LotteryAward[]>,
+  // })
+  // async getAdminAll(
+  //   @Query() paginationQueryDto: PaginationQueryDto,
+  // ): Promise<any> {
+  //   return this.lotteryAwardService.adminGetAll(paginationQueryDto);
+  // }
 
   @Get("allResult")
   @ApiResponse({
@@ -122,7 +116,7 @@ export class LotteryAwardController {
     return this.lotteryAwardService.getAllNotCheckBookmaker(paginationQueryDto);
   }
 
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   @Get("all")
   @ApiResponse({
     status: 2000,
@@ -204,7 +198,7 @@ export class LotteryAwardController {
     type: Response<LotteryAward[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   async userGetAll(
     @Query() paginationQueryDto: PaginationQueryDto,
     @Request() req: any
@@ -221,7 +215,7 @@ export class LotteryAwardController {
   })
   @Roles(UserRoles.SUPPER)
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
     return this.lotteryAwardService.getOneById(id);
   }
@@ -231,7 +225,7 @@ export class LotteryAwardController {
     description: "Delete lotteryAward",
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   @Roles(UserRoles.SUPPER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.lotteryAwardService.delete(id);

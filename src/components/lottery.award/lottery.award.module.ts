@@ -10,9 +10,6 @@ import { SysConfigsModule } from "../sys.config/sys.config.module";
 import { ConnectModule } from "../connect/connect.module";
 import { User } from "../user/user.entity";
 import { ScheduleModule } from "@nestjs/schedule";
-// import { OrderRequestModule } from "../order.request/order.request.module";
-// import { LotteryRequest } from "../lottery.request/lottery.request.entity";
-// import { LotteryFtQueue } from "../lottery.request/lottery.ft.queue";
 import { JwtModule } from "@nestjs/jwt";
 import { MaintenanceModule } from "../maintenance/maintenance.module";
 
@@ -22,15 +19,12 @@ import { MaintenanceModule } from "../maintenance/maintenance.module";
       LotteryAward,
       SysConfig,
       User,
-      // LotteryRequest,
-      // LotteryFtQueue,
     ]),
     BacklistModule,
     UserModule,
     SysConfigsModule,
     ConnectModule,
     ScheduleModule.forRoot(),
-    // OrderRequestModule,
     JwtModule.register({}),
     MaintenanceModule
   ],
