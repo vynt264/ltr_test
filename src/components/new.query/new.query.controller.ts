@@ -93,7 +93,7 @@ export class NewQueryController {
   })
   @ApiBearerAuth("Authorization")
   // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @UseGuards(AuthAdminGuard, RolesGuard)
+  @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async getDataFake(
     @Param("key") key: string,
@@ -111,7 +111,7 @@ export class NewQueryController {
   })
   @ApiBearerAuth("Authorization")
   // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @UseGuards(AuthAdminGuard, RolesGuard)
+  @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async create(@Body() createDto: CreateDataFakeRequestDto): Promise<any> {
     return this.newQueryService.createDataFake(createDto);
@@ -127,7 +127,7 @@ export class NewQueryController {
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
   // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async updateGame(
     @Param("id", ParseIntPipe) id: number,
@@ -142,7 +142,7 @@ export class NewQueryController {
   })
   @ApiBearerAuth("Authorization")
   // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.newQueryService.deleteDataFake(id);

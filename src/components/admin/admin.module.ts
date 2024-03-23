@@ -5,6 +5,8 @@ import { AdminOrdersModule } from './admin.orders/admin.orders.module';
 import { AdminHiloModule } from './admin.hilo/admin.hilo.module';
 import { AdminPokerModule } from './admin.poker/admin.poker.module';
 import { LotteryAwardModule } from './lottery.award/lottery.award.module';
+import { AdminUserModule } from './admin.user/admin.user.module';
+import { GuardsModule } from './guards/guards.module';
 
 @Module({
     imports: [
@@ -14,6 +16,8 @@ import { LotteryAwardModule } from './lottery.award/lottery.award.module';
         AdminHiloModule,
         AdminPokerModule,
         LotteryAwardModule,
+        AdminUserModule,
+        GuardsModule,
     ],
 })
 export class AdminModule {}

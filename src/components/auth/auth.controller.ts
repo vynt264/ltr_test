@@ -23,7 +23,6 @@ import { AuthAdminGuard } from "./guards/auth-admin.guard";
 
 @ApiTags("Auth")
 @Controller("api/v1/auth")
-// @UseGuards(RateLimitGuard)
 export class AuthController {
   constructor(
     private authService: AuthService,
@@ -144,7 +143,6 @@ export class AuthController {
 
   @Post("logout")
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard)
   @UseGuards(AuthAdminGuard)
   @ApiOperation({
     description:
@@ -158,8 +156,6 @@ export class AuthController {
   }
 
   @Post("refresh")
-  // @ApiBearerAuth("Authorization")
-  // @UseGuards(RtAuthGuard)
   @ApiOperation({
     description:
       "When designing a web application, along with security authentication is one of the key parts. Authentication with tokens was a breakthrough in this regard, and the refresh token came to complement it and make it usable.",

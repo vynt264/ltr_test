@@ -59,7 +59,7 @@ import { AuthGuard } from "../auth/guards/auth.guard";
     })
     @ApiBearerAuth("Authorization")
     // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+    @UseGuards(AuthGuard, BacklistGuard)
     async getByUserId(@Param("userId", ParseIntPipe) userId: number,): Promise<any> {
       return this.coinWalletHistoryService.getByUserId(userId);
     }
@@ -73,7 +73,7 @@ import { AuthGuard } from "../auth/guards/auth.guard";
     })
     @ApiBearerAuth("Authorization")
     // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+    @UseGuards(AuthGuard, BacklistGuard)
     // @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
     async create(@Body() userDto: CreateCoinWalletHistoryDto): Promise<any> {
       return this.coinWalletHistoryService.create(userDto);
@@ -89,7 +89,7 @@ import { AuthGuard } from "../auth/guards/auth.guard";
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
     // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthGuard, BacklistGuard)
     @Roles(UserRoles.SUPPER)
     async updateCoinWalletHistory(
       @Param("id", ParseIntPipe) id: number,
@@ -104,7 +104,7 @@ import { AuthGuard } from "../auth/guards/auth.guard";
     })
     @ApiBearerAuth("Authorization")
     // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+    @UseGuards(AuthGuard, BacklistGuard)
     @Roles(UserRoles.SUPPER)
     async delete(@Param("id") id: number): Promise<any> {
       return this.coinWalletHistoryService.delete(id);

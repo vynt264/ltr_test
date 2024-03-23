@@ -36,7 +36,7 @@ import { AuthGuard } from "../auth/guards/auth.guard";
 @ApiTags("API")
 @ApiBearerAuth("Authorization")
 // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-@UseGuards(AuthGuard, BacklistGuard, RolesGuard)
+@UseGuards(AuthGuard, BacklistGuard)
 export class APIController {
   constructor(private apiService: APIService) {}
 
