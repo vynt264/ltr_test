@@ -32,6 +32,7 @@ export class AnalyticsService {
 
   async getAnalytics(body: BodyAnalyticsDto, member: any) {
     let searching = await this.lotteryAwardRepository.find({
+      relations: ["bookmaker"],
       select: {
         id: true,
         type: true,
@@ -41,9 +42,12 @@ export class AnalyticsService {
       where: {
         type: body.lottType,
         isTestPlayer: member?.usernameReal == "" ? false : true,
+        bookmaker: {
+          id: member?.bookmakerId,
+        }
       },
       take: 50,
-      order: { createdAt: "DESC" },
+      order: { id: "DESC" },
     });
 
     searching = searching.sort((a: any, b: any) => a.id - b.id);
