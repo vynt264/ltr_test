@@ -501,6 +501,9 @@ export class AuthService {
 
     if (!user) throw new BadRequestException(`${username} is not found`);
 
+    if (!(await bcrypt.compare(password, user.password)))
+      throw new UnauthorizedException("Username or password not found!");
+
     return user;
   }
 
