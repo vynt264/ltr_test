@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateAdminUserDto } from './dto/create-admin.user.dto';
 import { UpdateAdminUserDto } from './dto/update-admin.user.dto';
 import { AdminUser } from './entities/admin.user.entity';
@@ -12,6 +12,7 @@ import { ERROR, MESSAGE, STATUSCODE } from 'src/system/constants';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import { endOfDay, startOfDay } from 'date-fns';
 import { UserService } from 'src/components/user/user.service';
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class AdminUserService {
@@ -215,6 +216,9 @@ export class AdminUserService {
     const user = await this.getByUsername(username);
 
     if (!user) throw new BadRequestException(`${username} is not found`);
+
+    if (!(await bcrypt.compare(password, user.password)))
+    throw new UnauthorizedException("Username or password not found!");
 
     return user;
   }

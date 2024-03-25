@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSettingDto } from './dto/create-setting.dto';
 import { UpdateSettingDto } from './dto/update-setting.dto';
-import { Repository } from 'typeorm';
-import { Setting } from './entities/setting.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Setting } from './entities/setting.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
-export class SettingsService {
+export class SettingService {
   constructor(
     @InjectRepository(Setting)
     private settingRepository: Repository<Setting>,
-  ) { }
+  ) {}
 
   create(createSettingDto: CreateSettingDto) {
     return this.settingRepository.save(createSettingDto);
@@ -40,15 +40,5 @@ export class SettingsService {
 
   remove(id: number) {
     return this.settingRepository.update(id, { isDeleted: true });
-  }
-
-  async getProfit() {
-    const result = await this.settingRepository.find({
-      where: {
-        isDeleted: false,
-      }
-    });
-
-    return Number(result?.[0].profit) || undefined;
   }
 }
