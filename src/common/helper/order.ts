@@ -1719,8 +1719,8 @@ export class OrderHelper {
         return Math.round((((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) / seconds));
     }
 
-    static getPayOut(betAmount: number) {
-        return ((betAmount * (100 - Number(PROFIT_PERCENTAGE))) / 100);
+    static getPayOut(betAmount: number, profit?: number) {
+        return ((betAmount * (100 - Number(profit))) / 100);
     }
 
     static initData() {
