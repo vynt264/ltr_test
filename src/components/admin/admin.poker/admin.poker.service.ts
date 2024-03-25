@@ -63,6 +63,10 @@ export class AdminPokerService {
       if (object?.isTestPlayer != undefined) {
         condition = condition.concat(` AND entity.isUserFake = ${object.isTestPlayer ? 1 : 0}`);
       }
+      if (object?.code) {
+        condition = condition.concat(` AND entity.code LIKE :codeFind`);
+        conditionParams.codeFind = `%${object?.code}%`;
+      }
 
       const [data, count] = await Promise.all([
         this.playHistoryPokerRepository
