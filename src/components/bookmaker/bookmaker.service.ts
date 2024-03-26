@@ -25,18 +25,18 @@ export class BookMakerService implements OnModuleInit {
     const bookmarkers = await this.getAllBookMaker();
     if (bookmarkers.length > 0) {
 
-      const promises = [];
-      for (let bookmarker of bookmarkers) {
-        bookmarker = {
-          ...bookmarker,
-          isDeleted: false,
-        };
-        promises.push(
-          this.bookMakerRepository.save(bookmarker)
-        )
-      }
+      // const promises = [];
+      // for (let bookmarker of bookmarkers) {
+      //   bookmarker = {
+      //     ...bookmarker,
+      //     isDeleted: false,
+      //   };
+      //   promises.push(
+      //     this.bookMakerRepository.save(bookmarker)
+      //   )
+      // }
 
-      await Promise.all(promises);
+      // await Promise.all(promises);
       return;
     }
 
@@ -70,9 +70,9 @@ export class BookMakerService implements OnModuleInit {
       select: {
         id: true
       },
-      // where: {
-      //   isDeleted: false,
-      // }
+      where: {
+        isDeleted: false,
+      }
     });
   }
 
