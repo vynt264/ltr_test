@@ -32,7 +32,7 @@ export class UserService {
     @InjectRepository(Wallet)
     private walletRepository: Repository<Wallet>,
     @InjectRepository(WalletHistory)
-    private walletHisotryRepository: Repository<WalletHistory>,
+    private walletHistoryRepository: Repository<WalletHistory>,
     @InjectRepository(WalletCodeQueue)
     private walletCodeQueueRepository: Repository<WalletCodeQueue>,
     @Inject("winston")
@@ -91,7 +91,7 @@ export class UserService {
     };
     const walletCreate = this.walletRepository.create(walletDto);
     const wallet = await this.walletRepository.save(walletCreate);
-    await this.walletHisotryRepository.save(wallet);
+    await this.walletHistoryRepository.save(wallet);
   }
 
   async guestGetByUsername(
@@ -134,6 +134,12 @@ export class UserService {
       };
       const walletCreate = this.walletRepository.create(walletDto);
       const wallet = await this.walletRepository.save(walletCreate);
+      // save history
+      const walletHis = {
+        ...walletCreate,
+        detail: "Tạo mới ví",
+      }
+      this.walletHistoryRepository.save(walletHis);
 
       await this.redisService.set(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), (Number(wallet.balance) || 0));
 

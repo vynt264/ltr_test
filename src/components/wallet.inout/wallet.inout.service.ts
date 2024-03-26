@@ -7,7 +7,7 @@ import {
   SuccessResponse,
 } from "../../system/BaseResponse/index";
 import { ERROR, MESSAGE, STATUSCODE } from "../../system/constants";
-import { Between, Like, Repository } from "typeorm";
+import { Between, Like, Not, Repository } from "typeorm";
 import { Logger } from "winston";
 import { CreateWalletInoutDto, UpdateWalletInoutDto } from "./dto/index";
 import { WalletInout } from "./wallet.inout.entity";
@@ -82,6 +82,7 @@ export class WalletInoutService {
           user: {
             id: true,
             username: true,
+            usernameReal: true,
             bookmaker: {
               id: true,
               name: true
@@ -149,6 +150,13 @@ export class WalletInoutService {
           ...data.user,
           bookmaker: { id: object.bookmakerId }
         };
+      }
+
+      if (key === "isTestPlayer") {
+        data.user = {
+          ...data.user,
+          usernameReal: object.isTestPlayer ? Not("") : "",
+        }
       }
     }
 

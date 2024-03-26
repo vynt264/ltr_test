@@ -49,6 +49,6 @@ export class SettingsService {
       }
     });
 
-    return Number(result?.[0].profit) || undefined;
+    return Number(result?.[0]?.profit) || undefined;
   }
 }
