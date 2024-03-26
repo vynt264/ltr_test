@@ -22,8 +22,24 @@ export class BookMakerService implements OnModuleInit {
   ) { }
 
   async onModuleInit() {
-    const bookmakers = await this.getAllBookMaker();
-    if (bookmakers.length > 0) return;
+    const bookmarkers = await this.getAllBookMaker();
+    if (bookmarkers.length > 0) {
+
+      const promises = [];
+      for (let bookmarker of bookmarkers) {
+        bookmarker = {
+          ...bookmarker,
+          isDeleted: false,
+        };
+        promises.push(
+          this.bookMakerRepository.save(bookmarker)
+        )
+      }
+
+      await Promise.all(promises);
+      return;
+    }
+
     await this.bookMakerRepository.save({
       name: 'default bookmaker',
     });
@@ -50,10 +66,13 @@ export class BookMakerService implements OnModuleInit {
   // }
 
   async getAllBookMaker(): Promise<any> {
-    return this.bookMakerRepository.find({
+    return await this.bookMakerRepository.find({
       select: {
         id: true
-      }
+      },
+      // where: {
+      //   isDeleted: false,
+      // }
     });
   }
 

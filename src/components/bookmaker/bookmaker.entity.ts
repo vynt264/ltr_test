@@ -1,11 +1,9 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../user/user.entity";
+import { BaseEntity } from "src/common/mysql/base.entity";
 
 @Entity("bookmaker")
-export class BookMaker {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class BookMaker extends BaseEntity {
   @Column({ nullable: false })
   name: string;
 

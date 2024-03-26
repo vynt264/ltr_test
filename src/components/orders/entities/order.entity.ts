@@ -20,7 +20,6 @@ enum OrderStatus {
 
 @Entity({ name: "orders" })
 export class Order extends BaseEntity {
-
     @ManyToOne(() => User, {
         cascade: true,
         createForeignKeyConstraints: false,

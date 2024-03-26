@@ -16,7 +16,11 @@ export class BookmakerService {
 
   async getAll(): Promise<any> {
     try {
-      const listData = await this.bookMakerRepository.findAndCount({});
+      const listData = await this.bookMakerRepository.findAndCount({
+        where: {
+          isDeleted: false,
+        },
+      });
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
         listData,
@@ -50,7 +54,7 @@ export class BookmakerService {
 
   async create(createDto: CreateBookmakerDto, user: any): Promise<any> {
     try {
-      const data  = {
+      const data = {
         ...createDto,
         updatedBy: user?.name,
       };
@@ -112,7 +116,7 @@ export class BookmakerService {
 
   async delete(id: number): Promise<any> {
     try {
-      const foundUser = await this.bookMakerRepository.findOneBy({
+      let foundUser = await this.bookMakerRepository.findOneBy({
         id,
       });
 
@@ -123,7 +127,13 @@ export class BookmakerService {
           ERROR.NOT_FOUND
         );
       }
-      await this.bookMakerRepository.delete(id);
+
+      foundUser = {
+        ...foundUser,
+        isDeleted: true,
+      };
+
+      await this.bookMakerRepository.save(foundUser);
 
       return new SuccessResponse(
         STATUSCODE.COMMON_DELETE_SUCCESS,

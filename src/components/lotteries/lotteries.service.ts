@@ -699,7 +699,6 @@ export class LotteriesService {
   }
 
   generatePrizesSpecial({
-    profit,
     totalBetAmount,
     ordersLo2So,
     ordersLo2So1k,
@@ -2310,7 +2309,6 @@ export class LotteriesService {
     totalBetAmount = totalBetAmount - totalAmountLoXienTruot;
 
     let prizesSpecial = this.generatePrizesSpecial({
-      profit,
       totalBetAmount,
       totalAmountLoXienTruot,
       ordersLo2So,
@@ -2345,7 +2343,6 @@ export class LotteriesService {
     });
 
     let prizes7 = this.generatePrizes7({
-      profit,
       totalBetAmount,
       ordersLo2So,
       ordersLo2So1k,
@@ -2361,7 +2358,6 @@ export class LotteriesService {
     });
 
     let remainPrizes = this.generateRemainPrizes({
-      profit,
       totalBetAmount,
       ordersLo2So,
       ordersLo2So1k,
