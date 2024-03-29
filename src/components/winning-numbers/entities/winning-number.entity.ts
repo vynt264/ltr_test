@@ -10,7 +10,7 @@ import { Order } from "src/components/orders/entities/order.entity";
 @Entity({ name: "winning-numbers" })
 export class WinningNumber extends BaseEntity {
     @ManyToOne(() => Order, {
-        cascade: true,
+        // cascade: true,
         createForeignKeyConstraints: false,
     })
     @JoinColumn()

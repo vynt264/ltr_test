@@ -81,6 +81,7 @@ export class OrdersService {
       order.childBetTypeName = childBetTypeName;
       order.numberOfBets = numberOfBets;
       order.user = member;
+      order.multiple = Number(order.multiple);
       order.bookMaker = { id: member.bookmakerId } as any;
       if (member.usernameReal) {
         order.isTestPlayer = true;

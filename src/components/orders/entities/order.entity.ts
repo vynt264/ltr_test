@@ -47,13 +47,13 @@ export class Order extends BaseEntity {
     @Column({ type: 'varchar', length: 31, nullable: true })
     numericalOrder: string;
 
-    @Column({ type: 'numeric' })
+    @Column({ type: 'numeric', default: 0 })
     multiple: number;
 
     @Column({ type: 'varchar', length: 31, nullable: true })
     type: string;
 
-    @Column({ type: 'numeric' })
+    @Column({ type: 'numeric', default: 0 })
     seconds: number;
 
     @Column({ type: 'varchar', length: 31, nullable: true })
@@ -92,7 +92,7 @@ export class Order extends BaseEntity {
     @Column({ nullable: true })
     numberOfBets: number;
 
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', default: ''})
     detail: string;
 
     @Column({

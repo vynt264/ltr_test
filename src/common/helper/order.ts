@@ -997,19 +997,23 @@ export class OrderHelper {
     }
 
     static getKeyPrepareOrders(bookmakerId: string, type: string, turnIndex: string) {
-        return `${bookmakerId}-${type}-${turnIndex}-add-orders`;
+        return `${type}-${turnIndex}-add-orders`;
+        // return `${bookmakerId}-${type}-${turnIndex}-add-orders`;
     }
 
     static getKeyPrepareOrdersOfTestPlayer(bookmakerId: string, type: string, turnIndex: string) {
-        return `${bookmakerId}-${type}-${turnIndex}-add-orders-test-player`;
+        return `${type}-${turnIndex}-add-orders-test-player`;
+        // return `${bookmakerId}-${type}-${turnIndex}-add-orders-test-player`;
     }
 
     static getKeyCancelOrders(bookmakerId: string, type: string, turnIndex: string) {
-        return `${bookmakerId}-${type}-${turnIndex}-cancel-orders`;
+        return `${type}-${turnIndex}-cancel-orders`;
+        // return `${bookmakerId}-${type}-${turnIndex}-cancel-orders`;
     }
 
     static getKeyCancelOrdersOfTestPlayer(bookmakerId: string, type: string, turnIndex: string) {
-        return `${bookmakerId}-${type}-${turnIndex}-cancel-orders-test-player`;
+        return `${type}-${turnIndex}-cancel-orders-test-player`;
+        // return `${bookmakerId}-${type}-${turnIndex}-cancel-orders-test-player`;
     }
 
     static getCurrentTimeInRound(seconds: number) {

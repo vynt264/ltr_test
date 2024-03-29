@@ -21,7 +21,7 @@ export class ManageBonusPriceService {
   }
 
   findAll() {
-    return `This action returns all manageBonusPrice`;
+    return this.manageBonusPriceRepository.find();
   }
 
   findOne(id: number) {
@@ -33,7 +33,7 @@ export class ManageBonusPriceService {
     fromDate,
     toDate,
     isTestPlayer,
-    bookmakerId,
+    // bookmakerId,
   }: any) {
     return this.manageBonusPriceRepository.findOne({
       where: {
@@ -41,7 +41,7 @@ export class ManageBonusPriceService {
         toDate,
         fromDate,
         isTestPlayer,
-        bookMaker: { id: bookmakerId },
+        // bookMaker: { id: bookmakerId },
       },
     });
   }
@@ -50,12 +50,27 @@ export class ManageBonusPriceService {
     return this.manageBonusPriceRepository.update(id, updateManageBonusPriceDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} manageBonusPrice`;
+  async remove(id: number) {
+    const listBonusPrice = await this.findAll();
+    let delPromises = [];
+    for (const bonus of listBonusPrice) {
+      delPromises.push(
+        this.manageBonusPriceRepository.delete(bonus.id)
+      );
+
+      if (delPromises.length === 2000) {
+        await Promise.all(delPromises);
+        delPromises = [];
+      }
+    }
+
+    if (delPromises.length === 0) return;
+
+    await Promise.all(delPromises);
   }
 
   async initBonusPrice(date: Date) {
-    const bookMarkers = await this.bookMakerService.getAllBookMaker();
+    // const bookMarkers = await this.bookMakerService.getAllBookMaker();
     const gameTypes = [
       TypeLottery.XSMB_1S,
       TypeLottery.XSMT_1S,
@@ -77,57 +92,56 @@ export class ManageBonusPriceService {
     let fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
     const toDate = fromDate + ((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) * 1000;
 
-    for (const bookmarker of bookMarkers) {
-      const promise = [];
-      for (const gameType of gameTypes) {
-        const bonusPriceOfUserReal = await this.findBonusPriceByType({
-          toDate,
-          fromDate,
+    // for (const bookmarker of bookMarkers) {
+    const promise = [];
+    for (const gameType of gameTypes) {
+      const bonusPriceOfUserReal = await this.findBonusPriceByType({
+        toDate,
+        fromDate,
+        type: gameType,
+        isTestPlayer: false,
+        // bookmakerId: bookmarker.id,
+      });
+
+      if (bonusPriceOfUserReal) continue;
+
+      promise.push(
+        this.manageBonusPriceRepository.save({
+          fromDate: fromDate.toString(),
+          toDate: toDate.toString(),
+          totalBet: 0,
+          totalProfit: 0,
+          bonusPrice: 0,
           type: gameType,
           isTestPlayer: false,
-          bookmakerId: bookmarker.id,
-        });
+          // bookMaker: { id: bookmarker.id },
+        }),
+      );
 
-        if (bonusPriceOfUserReal) continue;
+      const bonusPriceOfUserFake = await this.findBonusPriceByType({
+        toDate,
+        fromDate,
+        type: gameType,
+        isTestPlayer: true,
+        // bookmakerId: bookmarker.id,
+      });
 
-        promise.push(
-          this.manageBonusPriceRepository.save({
-            fromDate: fromDate.toString(),
-            toDate: toDate.toString(),
-            totalBet: 0,
-            totalProfit: 0,
-            bonusPrice: 0,
-            type: gameType,
-            isTestPlayer: false,
-            bookMaker: { id: bookmarker.id },
-          }),
-        );
+      if (bonusPriceOfUserFake) continue;
 
-        const bonusPriceOfUserFake = await this.findBonusPriceByType({
-          toDate,
-          fromDate,
+      promise.push(
+        this.manageBonusPriceRepository.save({
+          fromDate: fromDate.toString(),
+          toDate: toDate.toString(),
+          totalBet: 0,
+          totalProfit: 0,
+          bonusPrice: 0,
           type: gameType,
           isTestPlayer: true,
-          bookmakerId: bookmarker.id,
-        });
-
-        if (bonusPriceOfUserFake) continue;
-
-        promise.push(
-          this.manageBonusPriceRepository.save({
-            fromDate: fromDate.toString(),
-            toDate: toDate.toString(),
-            totalBet: 0,
-            totalProfit: 0,
-            bonusPrice: 0,
-            type: gameType,
-            isTestPlayer: true,
-            bookMaker: { id: bookmarker.id },
-          }),
-        );
-      }
-
-      await Promise.all(promise);
+          // bookMaker: { id: bookmarker.id },
+        }),
+      );
+      // }
     }
+    await Promise.all(promise);
   }
 }
