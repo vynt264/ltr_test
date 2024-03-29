@@ -72,11 +72,11 @@ export class ScheduleService implements OnModuleInit {
         }
         this.logger.info("init job start");
         awardsPromises = awardsPromises.concat(this.createJobsInGame(45, startDate));
-        // awardsPromises = awardsPromises.concat(this.createJobsInGame(60, startDate));
-        // awardsPromises = awardsPromises.concat(this.createJobsInGame(90, startDate));
-        // awardsPromises = awardsPromises.concat(this.createJobsInGame(120, startDate));
-        // awardsPromises = awardsPromises.concat(this.createJobsInGame(180, startDate));
-        // awardsPromises = awardsPromises.concat(this.createJobsInGame(360, startDate));
+        awardsPromises = awardsPromises.concat(this.createJobsInGame(60, startDate));
+        awardsPromises = awardsPromises.concat(this.createJobsInGame(90, startDate));
+        awardsPromises = awardsPromises.concat(this.createJobsInGame(120, startDate));
+        awardsPromises = awardsPromises.concat(this.createJobsInGame(180, startDate));
+        awardsPromises = awardsPromises.concat(this.createJobsInGame(360, startDate));
         this.logger.info("init job finished");
 
         this.logger.info("create awards start");
