@@ -3401,7 +3401,7 @@ export class LotteriesService {
 
     return orders.reduce((accumulator: number, currentValue: OrderDto) => {
 
-      return accumulator + currentValue.score;
+      return accumulator + Number(currentValue.score);
     }, 0);
   }
 

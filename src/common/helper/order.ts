@@ -1205,10 +1205,10 @@ export class OrderHelper {
         let winningNumbers: any = [];
 
         for (const order in orders) {
-            totalPoint += orders[order];
+            totalPoint += Number(orders[order]);
             ({ count, winningNumbers } = this.findNumberOccurrencesOfPrizes({ order, prizes, childBetType, winningNumbers }));
             if (count > 0) {
-                winningPoint += (count * orders[order]);
+                winningPoint += (count * Number(orders[order]));
             }
         }
 
