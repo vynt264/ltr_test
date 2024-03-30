@@ -280,4 +280,22 @@ export class AdminUserService {
       );
     }
   }
+
+  async blockUser(id: number, userDto: any, options: any): Promise<any> {
+    try {
+      const user = await this.userService.update(id, userDto, options);
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        user,
+        MESSAGE.LIST_SUCCESS
+      );
+    } catch (error) {
+      return new ErrorResponse(
+        STATUSCODE.COMMON_NOT_FOUND,
+        error,
+        ERROR.NOT_FOUND
+      );
+    }
+  }
 }

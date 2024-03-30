@@ -10,6 +10,7 @@ import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../guards/roles.decorator';
 import { UserRoles } from 'src/components/user/enums/user.enum';
 import { PaginationQueryDto } from 'src/common/common.dto';
+import BlockUserDto from './dto/block.dto';
 
 @Controller('api/v1/admin-users')
 export class AdminUserController {
@@ -64,6 +65,22 @@ export class AdminUserController {
   ): Promise<any> {
     return this.adminUserService.update(id, null, roleDto);
   }
+
+  @Patch(":id/block")
+  @ApiOperation({
+    description: "Block user",
+  })
+  @UsePipes(ValidationPipe)
+  // @UseGuards(RolesGuard)
+  @UseGuards(AuthAdminGuard, RolesGuard)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
+  async blockUser(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() blockDto: BlockUserDto
+  ): Promise<any> {
+    return this.adminUserService.blockUser(id, null, blockDto);
+  }
+
 
 
   @Get()
