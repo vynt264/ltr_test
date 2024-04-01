@@ -339,7 +339,6 @@ export class ScheduleService implements OnModuleInit {
             // bookmakerId,
         });
         const finalResult = OrderHelper.randomPrizes(prizes);
-        // const eventSendAwards = `${bookmakerId}-${gameType}-receive-prizes`;
         const eventSendAwards = `${gameType}-receive-prizes`;
         this.socketGateway.sendEventToClient(eventSendAwards, {
             type: gameType,
@@ -415,10 +414,8 @@ export class ScheduleService implements OnModuleInit {
             type: gameType,
             data: dataTransformOfFakeUsers,
             isTestPlayer: true,
-            // bookmakerId,
         });
         const finalResultOfFakeUsers = OrderHelper.randomPrizes(prizesOfTestPlayer);
-        // const eventSendAwardsOfFakeUsers = `${bookmakerId}-${gameType}-test-player-receive-prizes`;
         const eventSendAwardsOfFakeUsers = `${gameType}-test-player-receive-prizes`;
         this.socketGateway.sendEventToClient(eventSendAwardsOfFakeUsers, {
             type: gameType,
@@ -633,8 +630,6 @@ export class ScheduleService implements OnModuleInit {
         });
 
         const wallet = await this.walletHandlerService.findWalletByUserIdFromRedis(+userId);
-        // const remainBalance = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(userId.toString()), Number(totalBalance + refunds));
-        // await this.walletHandlerService.updateBalance(+userId, remainBalance);
         const { balance: remainBalance } = await this.walletHandlerService.updateBalance(+userId, Number(totalBalance + refunds));
 
         if ((totalBalance + refunds) > 0) {

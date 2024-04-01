@@ -16,7 +16,6 @@ import { AuthGuard } from "../auth/guards/auth.guard";
 @Controller("/api/v1/connect")
 @ApiTags("Connect")
 @ApiBearerAuth("Authorization")
-// @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
 @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
 export class ConnectController {
   constructor(private connectService: ConnectService) {}
@@ -55,13 +54,13 @@ export class ConnectController {
     return this.connectService.logIn(testLoginDto.userName);
   }
 
-  @Post("test-update")
-  @ApiResponse({
-    status: 9200,
-    description: "Get list connect success",
-  })
-  async testUpdate(@Body() connectDto: CreateConnectDto): Promise<any> {
-    const { awardAmount, userName } = connectDto;
-    return this.connectService.update(userName, awardAmount);
-  }
+  // @Post("test-update")
+  // @ApiResponse({
+  //   status: 9200,
+  //   description: "Get list connect success",
+  // })
+  // async testUpdate(@Body() connectDto: CreateConnectDto): Promise<any> {
+  //   const { awardAmount, userName } = connectDto;
+  //   return this.connectService.update(userName, awardAmount);
+  // }
 }

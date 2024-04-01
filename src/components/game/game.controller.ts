@@ -59,8 +59,6 @@ import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
       type: Response<Game>,
     })
     @ApiBearerAuth("Authorization")
-    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @UseGuards(AuthAdminGuard)
     @Roles(UserRoles.SUPPER)
     async create(@Body() userDto: CreateGameDto): Promise<any> {
@@ -76,8 +74,6 @@ import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
     })
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
-    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @UseGuards(AuthAdminGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
     async updateGame(
@@ -92,8 +88,6 @@ import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
       description: "Delete game",
     })
     @ApiBearerAuth("Authorization")
-    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    // @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @UseGuards(AuthAdminGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
     async delete(@Param("id") id: number): Promise<any> {

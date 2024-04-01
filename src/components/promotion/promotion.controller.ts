@@ -73,7 +73,6 @@ import { AuthGuard } from "../auth/guards/auth.guard";
     })
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
-    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @UseGuards(AuthGuard, BacklistGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
     async updatePromotion(
@@ -88,7 +87,6 @@ import { AuthGuard } from "../auth/guards/auth.guard";
       description: "Delete Promotion",
     })
     @ApiBearerAuth("Authorization")
-    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @UseGuards(AuthGuard, BacklistGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
     async delete(@Param("id") id: number): Promise<any> {

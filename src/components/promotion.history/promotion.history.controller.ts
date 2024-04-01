@@ -83,8 +83,6 @@ import { AuthGuard } from "../auth/guards/auth.guard";
       type: Response<PromotionHistories>,
     })
     @ApiBearerAuth("Authorization")
-    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-    // @Roles(UserRoles.SUPPER, UserRoles.USER_UPDATE)
     async create(@Body() createDto: CreatePromotionHistoriesDto): Promise<any> {
       return this.promotionHistoriesService.create(createDto);
     }
@@ -98,7 +96,6 @@ import { AuthGuard } from "../auth/guards/auth.guard";
     })
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
-    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
     async updatePromotion(
@@ -113,7 +110,6 @@ import { AuthGuard } from "../auth/guards/auth.guard";
       description: "Delete promotion histories",
     })
     @ApiBearerAuth("Authorization")
-    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
     async delete(@Param("id") id: number): Promise<any> {

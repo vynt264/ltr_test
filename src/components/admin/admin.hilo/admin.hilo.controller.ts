@@ -43,7 +43,6 @@ export class AdminHiloController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
@@ -58,7 +57,6 @@ export class AdminHiloController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async GetConfig(): Promise<any> {
@@ -73,7 +71,6 @@ export class AdminHiloController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async UpdateConfig(
@@ -92,7 +89,6 @@ export class AdminHiloController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async GetReport(@Query() paginationQuery: PaginationQueryDto): Promise<any> {

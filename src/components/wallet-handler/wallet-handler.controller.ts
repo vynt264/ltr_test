@@ -19,12 +19,6 @@ export class WalletHandlerController {
     return this.walletHandlerService.create(createWalletHandlerDto);
   }
 
-  // @Get()
-  // @UseGuards(AuthGuard, BacklistGuard)
-  // findAll() {
-  //   return this.walletHandlerService.findAll();
-  // }
-
   @Get('user')
   @UseGuards(AuthGuard, BacklistGuard)
   findWalletByUserId(@Request() req: any) {

@@ -88,7 +88,6 @@ import { AuthGuard } from "../auth/guards/auth.guard";
     })
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
-    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
     @Roles(UserRoles.SUPPER)
     async updateCoinWallet(
@@ -103,7 +102,6 @@ import { AuthGuard } from "../auth/guards/auth.guard";
       description: "Delete CoinWallet",
     })
     @ApiBearerAuth("Authorization")
-    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
     @Roles(UserRoles.SUPPER)
     async delete(@Param("id") id: number): Promise<any> {

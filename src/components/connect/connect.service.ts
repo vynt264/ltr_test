@@ -181,72 +181,6 @@ export class ConnectService {
     return this.end;
   }
 
-
-  // async processInitLotteryAward(lotteryRequest: RequestDetailDto): Promise<any> {
-  //   try {
-  //     await this.compose(ConectEnum.LOTTERY_AWARD_FAKE);
-  //     this.body = lotteryRequest;
-  //     const response = await this.connect();
-  //     if (!response || response?.data?.code != +STATUSCODE.COMMON_CREATE_SUCCESS) {
-  //       return { error: response };
-  //     }
-
-  //     return { data: response.data.result };
-  //   } catch (error) {
-  //     return { error: error }
-  //   }
-  // }
-
-  // async paymentFake(userPaymentRequest: ListPaymentRequestDto): Promise<any> {
-  //   await this.compose(ConectEnum.PAYMENT_FAKE);
-
-  //   this.body = userPaymentRequest;
-  //   const response = await this.connect();
-
-  //   return response?.data?.result?.payments;
-  // }
-
-  // async paymentAuth(userPaymentRequest: ListPaymentRequestDto): Promise<any> {
-  //   await this.compose(ConectEnum.PAYMENT_AUTH);
-
-  //   this.body = userPaymentRequest;
-  //   const response = await this.connect();
-
-  //   return response?.data?.result?.payments;
-  // }
-
-
-  // async getDataLottery(typeLottery: string, from: Date = new Date(), to: Date = new Date()) {
-  //   const body1688xoso = 'area=code&from=fromDate&to=toDate';
-  //   const fromDate = format(from, 'yyyy-MM-dd');
-  //   const toDate = format(to, 'yyyy-MM-dd');
-  //   const body = body1688xoso.replace('fromDate', fromDate).replace('toDate', toDate).replace('code', typeLottery);
-  //   const url1688xoso = 'https://1688xoso.net/wp-json/get-data/xstt';
-  //   return await this.connectWith(url1688xoso, body);
-  // }
-
-  async update(userName = "", awardAmount = 0, multiple = 0) {
-    // const paginationQueryDto: PaginationQueryDto = {
-    //   take: 1,
-    //   skip: 1,
-    //   order: Order.DESC,
-    //   keyword: null,
-    // };
-    // const event = await this.eventTimeService.getAll(paginationQueryDto);
-
-    // if (event.length >= 1) {
-    //   const today = new Date(event[0]?.result?.start);
-    //   this.setRemark(`LUCKYTICKET_${Helper.convertTime(today)}`);
-    // } else {
-    //   const today = new Date();
-    //   this.setRemark(`LUCKYTICKET_${Helper.convertTime(today)}`);
-    // }
-
-    // await this.compose(ConectEnum.UPDATE);
-    // await this.bodyUpdate(userName, awardAmount, multiple);
-    // return this.connect();
-  }
-
   async logIn(userName = "", sign = ""): Promise<any> {
     const signLocal = Helper.endCodeUsername(userName);
     if (sign != signLocal) {
@@ -452,42 +386,6 @@ export class ConnectService {
     return { deposit, revenue };
   }
 
-  // async fetchWithCondition(
-  //   userName: string,
-  //   condition: UserCondition
-  // ): Promise<any> {
-  //   if (!userName) {
-  //     userName = "";
-  //   }
-  //   await this.compose(ConectEnum.LOGIN);
-
-  //   const gameType = this.getGameType();
-  //   const collections = [];
-
-  //   for (const index in gameType) {
-  //     this.bodyLoginWithCondition(userName, gameType[index].type, condition);
-  //     const data = await this.connect();
-
-  //     if (Debug.typeOf(data?.code) === "Number" && data?.code == 0) {
-  //       collections.push(data);
-  //     } else {
-  //       throw new HttpException(
-  //         {
-  //           status: HttpStatus.NOT_FOUND,
-  //           error: data,
-  //         },
-  //         HttpStatus.NOT_FOUND
-  //       );
-  //     }
-  //   }
-
-  //   if (gameType.length == collections.length) {
-  //     return collections;
-  //   }
-
-  //   return [];
-  // }
-
   async compose(action = "") {
     this.getConfig();
     await this.preConnect(action);
@@ -495,8 +393,6 @@ export class ConnectService {
 
   async connect(): Promise<any> {
     try {
-      // console.log("body", this.getBody())
-      // console.log("urL", this.getURL())
       const data = await firstValueFrom(
         this.httpService
           .post(this.getURL(), this.getBody(), this.options)
@@ -626,28 +522,6 @@ export class ConnectService {
     };
     this.setBody(data);
   }
-
-  // async getEventTime(isTest = 0) {
-  //   if (isTest) {
-  //     this.getConfig();
-  //   }
-  //   const data = await this.eventTimeRepository.find({
-  //     where: {
-  //       gameName: this.getGameName(),
-  //       department: this.getDep(),
-  //       isDeleted: 0,
-  //     },
-  //   });
-  //   const firstItem = data.filter((x) => typeof x !== undefined).shift();
-  //   if (!firstItem) {
-  //     return 9404;
-  //   }
-
-  //   this.setStart(firstItem.start);
-  //   this.setEnd(firstItem.end);
-
-  //   return 9200;
-  // }
 
   async getDataApi(action = "", isTest = 0) {
     if (isTest) {

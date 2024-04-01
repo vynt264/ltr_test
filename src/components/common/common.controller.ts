@@ -72,7 +72,6 @@ import { AuthGuard } from "../auth/guards/auth.guard";
       type: Response<Common>,
     })
     @ApiBearerAuth("Authorization")
-    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @UseGuards(AuthGuard, BacklistGuard)
     @Roles(UserRoles.SUPPER)
     async create(@Body() userDto: CreateCommonDto): Promise<any> {
@@ -88,7 +87,6 @@ import { AuthGuard } from "../auth/guards/auth.guard";
     })
     @UsePipes(ValidationPipe)
     @ApiBearerAuth("Authorization")
-    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @UseGuards(AuthGuard, BacklistGuard)
     @Roles(UserRoles.SUPPER)
     async updateCommon(
@@ -104,7 +102,6 @@ import { AuthGuard } from "../auth/guards/auth.guard";
       description: "Delete Common",
     })
     @ApiBearerAuth("Authorization")
-    // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
     @UseGuards(AuthGuard, BacklistGuard)
     @Roles(UserRoles.SUPPER)
     async delete(@Param("id") id: number): Promise<any> {

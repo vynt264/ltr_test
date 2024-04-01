@@ -59,16 +59,6 @@ export class WalletHandlerService {
     return this.walletRepository.update(id, updateWalletHandlerDto);
   }
 
-  // async updateWalletByUserId(userId: number, updateWalletHandlerDto: any) {
-  //   const wallet = await this.findWalletByUserId(userId);
-  //   wallet.balance = updateWalletHandlerDto.balance;
-  //   return this.walletRepository.save(wallet);
-  // }
-
-  // async updateWallet(userId: number, remainBalance: number) {
-  //   return this.walletRepository.update({ user: { id: userId } }, { balance: remainBalance });
-  // }
-
   async updateBalance(userId: number, balanceAdded: number) {
     const balanceUp = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(userId.toString()), (balanceAdded || 0));
 

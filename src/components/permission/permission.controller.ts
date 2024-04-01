@@ -30,7 +30,6 @@ import { AuthGuard } from "../auth/guards/auth.guard";
 @Controller("/api/v1/permission")
 @ApiTags("Permissions")
 @ApiBearerAuth("Authorization")
-// @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
 @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
 @Roles(UserRoles.SUPPER)
 export class PermissionController {

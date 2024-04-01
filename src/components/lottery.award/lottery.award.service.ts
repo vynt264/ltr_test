@@ -422,17 +422,10 @@ export class LotteryAwardService {
     const skip = +perPage * +page - +perPage;
     const searching = await this.lotteryAwardRepository.findAndCount({
       select: {
-        // openTime: true,
-        // status: true,
         type: true,
         awardDetail: true,
-        // awardTitle: true,
         turnIndex: true,
-        // partnerCode: true,
         createdAt: true,
-        // rateWin: true,
-        // totalPay: true,
-        // totalRevenue: true,
       },
       where: this.guestHoldQuery(lotteryAwardDto, bookMakerId, usernameReal),
       take: +perPage,
@@ -485,6 +478,9 @@ export class LotteryAwardService {
     data.isTestPlayer = isTestPlayer;
     if (object.type.indexOf("1s") > -1) {
       data.userId = userId
+      const startDate = startOfDay(new Date());
+      const endDate = endOfDay(new Date());
+      data.openTime = Between(startDate, endDate);
     }
 
     return data;

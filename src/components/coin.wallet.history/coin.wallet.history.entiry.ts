@@ -9,7 +9,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-// import { User } from "../user/user.entity";
 import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
 
 @Entity({ name: "coin_wallet_histories" })

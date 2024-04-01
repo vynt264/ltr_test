@@ -113,47 +113,6 @@ export class AuthService {
     };
   }
 
-  // async checkDevice(devide: string, isTestPlayer: boolean, user: any, at: string) {
-  //   let validToken = false;
-  //   if (devide) {
-  //     const token = await this.tokenService.findTokenByUserId(user.id, isTestPlayer);
-  //     if (!token) {
-  //       await this.tokenService.create({
-  //         user: { id: user.id } as any,
-  //         token: at,
-  //         devide,
-  //         isTestPlayer,
-  //       });
-  //     } else {
-  //       if (token.devide !== devide) {
-  //         try {
-  //           await this.jwtService.verifyAsync(
-  //             token.token,
-  //             {
-  //               secret: appConfig().atSecret
-  //             }
-  //           );
-
-  //           validToken = true;
-  //         } catch (error) {
-  //           if (error.name === "TokenExpiredError") {
-
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   if (validToken) {
-  //     throw new HttpException(
-  //       {
-  //         message: 'tk da duoc dang nhap mot noi khac',
-  //       },
-  //       HttpStatus.BAD_REQUEST,
-  //     );
-  //   }
-  // }
-
   async guestGenerateToken(
     user: UserInterface & DeviceInterface,
     bookmakerId: any

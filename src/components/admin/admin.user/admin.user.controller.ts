@@ -57,7 +57,6 @@ export class AdminUserController {
   // })
   @UsePipes(ValidationPipe)
   @UseGuards(AuthAdminGuard, RolesGuard)
-  // @UseGuards(RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async updateRole(
     @Param("id", ParseIntPipe) id: number,
@@ -71,7 +70,6 @@ export class AdminUserController {
     description: "Block user",
   })
   @UsePipes(ValidationPipe)
-  // @UseGuards(RolesGuard)
   @UseGuards(AuthAdminGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async blockUser(
@@ -80,8 +78,6 @@ export class AdminUserController {
   ): Promise<any> {
     return this.adminUserService.blockUser(id, null, blockDto);
   }
-
-
 
   @Get()
   findAll() {

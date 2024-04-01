@@ -238,9 +238,6 @@ export class OrdersService {
     await this.checkBalance(totalBet, { balance });
 
     // update balance
-    // const totalBetRemain = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), -Number(totalBet));
-    // // await this.walletHandlerService.updateWalletByUserId(user.id, { balance: totalBetRemain });
-    // await this.walletHandlerService.updateWallet(user.id, totalBetRemain);
     const { balance: totalBetRemain } = await this.walletHandlerService.updateBalance(user.id, -Number(totalBet));
 
     // save wallet history
@@ -382,10 +379,6 @@ export class OrdersService {
     // update status orders
     await Promise.all(promisesUpdatedOrders);
     const wallet = await this.walletHandlerService.findWalletByUserIdFromRedis(user.id);
-
-    // const remainBalance = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), Number(totalBalance));
-    // // await this.walletHandlerService.updateWalletByUserId(user.id, { balance: remainBalance });
-    // await this.walletHandlerService.updateWallet(user.id, remainBalance);
     const { balance: remainBalance } = await this.walletHandlerService.updateBalance(user.id, Number(totalBalance));
 
     // save wallet history
@@ -592,9 +585,6 @@ export class OrdersService {
       });
 
       const wallet = await this.walletHandlerService.findWalletByUserIdFromRedis(member.id);
-      // const remainBalance = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(member.id.toString()), Number(order.revenue));
-      // // await this.walletHandlerService.updateWalletByUserId(+member.id, { balance: remainBalance });
-      // await this.walletHandlerService.updateWallet(member.id, remainBalance);
       const { balance: remainBalance } = await this.walletHandlerService.updateBalance(member.id, Number(order.revenue));
 
       // save wallet history
@@ -1048,10 +1038,6 @@ export class OrdersService {
     });
 
     const wallet = await this.walletHandlerService.findWalletByUserIdFromRedis(+userId);
-
-    // const remainBalance = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), Number(totalBalance + refunds));
-    // // await this.walletHandlerService.updateWalletByUserId(+userId, { balance: remainBalance });
-    // await this.walletHandlerService.updateWallet(userId, remainBalance);
     const { balance: remainBalance } = await this.walletHandlerService.updateBalance(+userId, Number(totalBalance + refunds));
 
     if ((totalBalance + refunds) > 0) {
