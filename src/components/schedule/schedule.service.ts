@@ -52,7 +52,7 @@ export class ScheduleService implements OnModuleInit {
     }
 
     async init() {
-        await this.manageBonusPriceService.remove(null);
+        // await this.manageBonusPriceService.remove(null);
         // create jobs current day
         await this.createJobs();
         // create jobs next day
@@ -137,11 +137,9 @@ export class ScheduleService implements OnModuleInit {
         let gameType = OrderHelper.getGameTypesBySeconds(seconds);
         const bookMakers = await this.bookMakerService.getAllBookMaker();
         let promises = [];
-        // for (const bookMaker of bookMakers) {
         for (const type of gameType) {
             promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, type, bookMakers));
         }
-        // }
 
         await Promise.all(promises);
 
@@ -164,67 +162,6 @@ export class ScheduleService implements OnModuleInit {
             gameType,
             bookMakers,
         });
-        // const keyToGetOrdersOfRealUser = OrderHelper.getKeyPrepareOrders(null, gameType, turnIndex);
-        // const ordersReal = await this.redisService.hgetall(keyToGetOrdersOfRealUser);
-        // const keyCancelOrdersRealUsers = OrderHelper.getKeyCancelOrders(null, gameType, turnIndex);
-        // const ordersCancelOfUserReal = await this.redisService.hgetall(keyCancelOrdersRealUsers);
-        // let dataReal = OrderHelper.splitOrders(ordersReal);
-        // dataReal = OrderHelper.cancelOrders(dataReal, ordersCancelOfUserReal);
-        // await this.redisService.del(keyToGetOrdersOfRealUser);
-
-        // if (!dataReal) {
-        //     dataReal = {};
-        // }
-
-        // const dataTransform = OrderHelper.transformData(dataReal);
-        // const {
-        //     prizes,
-        //     totalRevenue,
-        //     totalPayout,
-        //     bonusPrice,
-        //     totalProfit,
-        // } = await this.lotteriesService.handlerPrizes({
-        //     type: gameType,
-        //     data: dataTransform,
-        //     isTestPlayer: false,
-        //     // bookmakerId,
-        // });
-        // const finalResult = OrderHelper.randomPrizes(prizes);
-        // // const eventSendAwards = `${bookmakerId}-${gameType}-receive-prizes`;
-        // const eventSendAwards = `${gameType}-receive-prizes`;
-        // this.socketGateway.sendEventToClient(eventSendAwards, {
-        //     type: gameType,
-        //     turnIndex,
-        //     nextTime,
-        //     nextTurnIndex,
-        //     openTime: time,
-        //     awardDetail: finalResult,
-        //     isTestPlayer: false,
-        // });
-
-        // for (const bookMaker of bookMakers) {
-        //     this.lotteryAwardService.createLotteryAward({
-        //         turnIndex,
-        //         type: gameType,
-        //         awardDetail: JSON.stringify(finalResult),
-        //         bookmaker: { id: bookMaker.id } as any,
-        //         isTestPlayer: false,
-        //         openTime: new Date(time),
-        //         createdAt: new Date(time),
-        //         totalRevenue,
-        //         totalPayout,
-        //         bonusPrice,
-        //         totalProfit,
-        //     });
-
-        //     this.handleBalance({
-        //         turnIndex,
-        //         prizes: finalResult,
-        //         bookmakerId: bookMaker.id,
-        //         gameType,
-        //         isTestPlayer: false,
-        //     });
-        // }
 
         // test player
         this.handleDataTestPlayer({
@@ -235,65 +172,6 @@ export class ScheduleService implements OnModuleInit {
             gameType,
             bookMakers,
         });
-        // const keyToGetOrdersOfTestPlayer = OrderHelper.getKeyPrepareOrdersOfTestPlayer(null, gameType, turnIndex);
-        // const ordersTestPlayer = await this.redisService.hgetall(keyToGetOrdersOfTestPlayer);
-        // const keyCancelOrdersTestPlayer = OrderHelper.getKeyCancelOrdersOfTestPlayer(null, gameType, turnIndex);
-        // const ordersCancelOfTestPlayer = await this.redisService.hgetall(keyCancelOrdersTestPlayer);
-        // let dataOfTestPlayer = OrderHelper.splitOrders(ordersTestPlayer);
-        // dataOfTestPlayer = OrderHelper.cancelOrders(dataOfTestPlayer, ordersCancelOfTestPlayer);
-        // await this.redisService.del(keyToGetOrdersOfTestPlayer);
-
-        // if (!dataOfTestPlayer) {
-        //     dataOfTestPlayer = {};
-        // }
-
-        // const dataTransformOfFakeUsers = OrderHelper.transformData(dataOfTestPlayer);
-        // const {
-        //     prizes: prizesOfTestPlayer,
-        //     totalRevenue: totalRevenueOfTestPlayer,
-        //     totalPayout: totalPayoutOfTestPlayer,
-        //     bonusPrice: bonusPriceOfTestPlayer,
-        //     totalProfit: totalProfitOfTestPlayer,
-        // } = await this.lotteriesService.handlerPrizes({
-        //     type: gameType,
-        //     data: dataTransformOfFakeUsers,
-        //     isTestPlayer: true,
-        //     // bookmakerId,
-        // });
-        // const finalResultOfFakeUsers = OrderHelper.randomPrizes(prizesOfTestPlayer);
-        // // const eventSendAwardsOfFakeUsers = `${bookmakerId}-${gameType}-test-player-receive-prizes`;
-        // const eventSendAwardsOfFakeUsers = `${gameType}-test-player-receive-prizes`;
-        // this.socketGateway.sendEventToClient(eventSendAwardsOfFakeUsers, {
-        //     type: gameType,
-        //     turnIndex,
-        //     nextTime,
-        //     nextTurnIndex,
-        //     openTime: time,
-        //     awardDetail: finalResultOfFakeUsers,
-        //     isTestPlayer: true,
-        // });
-        // for (const bookMaker of bookMakers) {
-        //     this.lotteryAwardService.createLotteryAward({
-        //         turnIndex,
-        //         type: gameType,
-        //         awardDetail: JSON.stringify(finalResultOfFakeUsers),
-        //         bookmaker: { id: bookMaker.id } as any,
-        //         isTestPlayer: true,
-        //         openTime: new Date(time),
-        //         createdAt: new Date(time),
-        //         totalRevenue: totalRevenueOfTestPlayer,
-        //         totalPayout: totalPayoutOfTestPlayer,
-        //         bonusPrice: bonusPriceOfTestPlayer,
-        //         totalProfit: totalProfitOfTestPlayer,
-        //     });
-        //     this.handleBalance({
-        //         turnIndex,
-        //         prizes: finalResultOfFakeUsers,
-        //         bookmakerId: bookMaker.id,
-        //         gameType,
-        //         isTestPlayer: true,
-        //     });
-        // }
     }
 
     async handleDataRealPlayer({
@@ -492,13 +370,15 @@ export class ScheduleService implements OnModuleInit {
     @Cron('40 6 * * * ')
     async cronJob() {
         this.logger.info("cron job.");
-        // await this.clearDataInRedis();
         await this.createJobsNextDay();
 
         // create bonus price next day
         const currentDate = new Date();
         const nextDate = addDays(currentDate, 1);
         await this.manageBonusPriceService.initBonusPrice(nextDate);
+
+        // delete orders of test player
+        this.ordersService.deleteOrdersOfTestPlayer();
     }
 
     @Cron('10 00 * * *')

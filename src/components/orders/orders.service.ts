@@ -802,22 +802,45 @@ export class OrdersService {
     });
   }
 
-  async prepareDataToGenerateAward(orders: any, bookmakerId: string, turnIndex: string, usernameReal: string) {
-    if (!orders || orders.length === 0) return;
+  async deleteOrdersOfTestPlayer() {
+    while (true) {
+      const [orders, total] = await this.orderRequestRepository.findAndCount({
+        where: {
+          isTestPlayer: true,
+        },
+        take: 100,
+        skip: 1,
+      });
 
-    let key = OrderHelper.getKeyPrepareOrders(bookmakerId, orders[0]?.type, turnIndex);
-    if (usernameReal) {
-      key = OrderHelper.getKeyPrepareOrdersOfTestPlayer(bookmakerId, orders[0]?.type, turnIndex);
-    }
-    let initData = await this.redisService.get(key);
-    if (!initData) {
-      initData = OrderHelper.initData();
-    }
+      if (orders.length === 0) break;
 
-    initData = this.getDataToGenerateAward(orders, initData);
-    // save data to redis
-    await this.redisService.set(key, initData);
+      const promises = [];
+      for (const order of orders) {
+        promises.push(this.orderRequestRepository.delete(order.id));
+      }
+
+      await Promise.all(promises);
+
+      if (orders.length < 100) break;
+    }
   }
+
+  // async prepareDataToGenerateAward(orders: any, bookmakerId: string, turnIndex: string, usernameReal: string) {
+  //   if (!orders || orders.length === 0) return;
+
+  //   let key = OrderHelper.getKeyPrepareOrders(bookmakerId, orders[0]?.type, turnIndex);
+  //   if (usernameReal) {
+  //     key = OrderHelper.getKeyPrepareOrdersOfTestPlayer(bookmakerId, orders[0]?.type, turnIndex);
+  //   }
+  //   let initData = await this.redisService.get(key);
+  //   if (!initData) {
+  //     initData = OrderHelper.initData();
+  //   }
+
+  //   initData = this.getDataToGenerateAward(orders, initData);
+  //   // save data to redis
+  //   await this.redisService.set(key, initData);
+  // }
 
   async prepareDataToGeneratePrizes(orders: any, bookmakerId: string, turnIndex: string, usernameReal: string) {
     if (!orders || orders.length === 0) return;
