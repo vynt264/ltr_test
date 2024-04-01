@@ -379,6 +379,9 @@ export class ScheduleService implements OnModuleInit {
 
         // delete orders of test player
         this.ordersService.deleteOrdersOfTestPlayer();
+
+        // delete lottery awards of test player
+        this.lotteryAwardService.deleteLotteryAwardsOfTestPlayer();
     }
 
     @Cron('10 00 * * *')

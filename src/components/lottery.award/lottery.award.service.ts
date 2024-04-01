@@ -837,5 +837,28 @@ export class LotteryAwardService {
       );
     }
   }
+
+  async deleteLotteryAwardsOfTestPlayer() {
+    while (true) {
+      const [orders, total] = await this.lotteryAwardRepository.findAndCount({
+        where: {
+          isTestPlayer: true,
+        },
+        take: 100,
+        skip: 1,
+      });
+
+      if (orders.length === 0) break;
+
+      const promises = [];
+      for (const order of orders) {
+        promises.push(this.lotteryAwardRepository.delete(order.id));
+      }
+
+      await Promise.all(promises);
+
+      if (orders.length < 100) break;
+    }
+  }
 }
 
