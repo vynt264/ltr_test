@@ -106,6 +106,7 @@ export class AdminHiloService {
           .addSelect("entity.bookmakerId as bookmakerId")
           .addSelect("entity.multi as multi")
           .addSelect("entity.id as id")
+          .addSelect("entity.isUserFake as isUserFake")
           .where(condition, conditionParams)
           .orderBy("id", "DESC")
           .limit(perPage)
