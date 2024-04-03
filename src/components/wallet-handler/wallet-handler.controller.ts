@@ -2,9 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards }
 import { WalletHandlerService } from './wallet-handler.service';
 import { CreateWalletHandlerDto } from './dto/create-wallet-handler.dto';
 import { UpdateWalletHandlerDto } from './dto/update-wallet-handler.dto';
-import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { BacklistGuard } from '../backlist/backlist.guard';
-import { RateLimitGuard } from '../auth/rate.guard/rate.limit.guard';
 import { Roles } from '../auth/roles.guard/roles.decorator';
 import { UserRoles } from '../user/enums/user.enum';
 import { AuthGuard } from '../auth/guards/auth.guard';

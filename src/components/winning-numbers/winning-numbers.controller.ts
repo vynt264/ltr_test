@@ -2,9 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { WinningNumbersService } from './winning-numbers.service';
 import { CreateWinningNumberDto } from './dto/create-winning-number.dto';
 import { UpdateWinningNumberDto } from './dto/update-winning-number.dto';
-import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { BacklistGuard } from '../backlist/backlist.guard';
-import { RateLimitGuard } from '../auth/rate.guard/rate.limit.guard';
 import { Roles } from '../auth/roles.guard/roles.decorator';
 import { UserRoles } from '../user/enums/user.enum';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -14,8 +12,7 @@ export class WinningNumbersController {
   constructor(private readonly winningNumbersService: WinningNumbersService) {}
 
   @Post()
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   create(@Body() createWinningNumberDto: CreateWinningNumberDto) {
     return this.winningNumbersService.create(createWinningNumberDto);
   }

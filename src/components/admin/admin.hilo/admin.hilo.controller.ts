@@ -1,17 +1,13 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   ParseIntPipe,
   Patch,
-  Post,
   Query,
   Request,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -20,14 +16,10 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Response } from "../../../system/interfaces";
-import { JwtAuthGuard } from "../../auth/jwt/jwt-auth.guard";
 import { Roles } from "../../auth/roles.guard/roles.decorator";
-import { RolesGuard } from "../../auth/roles.guard/roles.guard";
-import { BacklistGuard } from "../../backlist/backlist.guard";
 import { AdminHiloService } from "./admin.hilo.service";
 import { PaginationQueryDto } from "../../../common/common.dto/pagination.query.dto";
 import { UserRoles } from "../../user/enums/user.enum";
-import { RateLimitGuard } from "../../auth/rate.guard/rate.limit.guard";
 import { UpdateSysConfigHiloDto } from "./dto/update.dto";
 import { AuthAdminGuard } from "../../auth/guards/auth-admin.guard";
 @Controller("/api/v1/adminHilo")

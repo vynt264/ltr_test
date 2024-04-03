@@ -825,23 +825,6 @@ export class OrdersService {
     }
   }
 
-  // async prepareDataToGenerateAward(orders: any, bookmakerId: string, turnIndex: string, usernameReal: string) {
-  //   if (!orders || orders.length === 0) return;
-
-  //   let key = OrderHelper.getKeyPrepareOrders(bookmakerId, orders[0]?.type, turnIndex);
-  //   if (usernameReal) {
-  //     key = OrderHelper.getKeyPrepareOrdersOfTestPlayer(bookmakerId, orders[0]?.type, turnIndex);
-  //   }
-  //   let initData = await this.redisService.get(key);
-  //   if (!initData) {
-  //     initData = OrderHelper.initData();
-  //   }
-
-  //   initData = this.getDataToGenerateAward(orders, initData);
-  //   // save data to redis
-  //   await this.redisService.set(key, initData);
-  // }
-
   async prepareDataToGeneratePrizes(orders: any, bookmakerId: string, turnIndex: string, usernameReal: string) {
     if (!orders || orders.length === 0) return;
 

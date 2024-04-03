@@ -20,7 +20,7 @@ export class RedisCacheService {
   }
 
   public async del(key: any) {
-    await this.cacheManager.del(key);
+    return this.cacheManager.del(key);
   }
 
   public async incr(key: string) {

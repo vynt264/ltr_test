@@ -39,8 +39,7 @@ import { AuthGuard } from "../auth/guards/auth.guard";
 @Controller("/api/v1/user-history")
 @ApiTags("User-History")
 @ApiBearerAuth("Authorization")
-// @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-@UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+@UseGuards(AuthGuard, BacklistGuard)
 export class UserHistoryController {
   constructor(private userHisService: UserHistoryService) {}
 
@@ -103,7 +102,6 @@ export class UserHistoryController {
   @ApiOkResponse({
     type: Response<UserHistory[]>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
   @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async GetAll(@Query() paginationQueryDto: PaginationQueryDto): Promise<any> {
@@ -117,7 +115,6 @@ export class UserHistoryController {
   @ApiOkResponse({
     type: Response<UserHistory>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
   @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
@@ -132,7 +129,6 @@ export class UserHistoryController {
     type: Response<UserHistory>,
   })
   @UsePipes(ValidationPipe)
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
   @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async update(
@@ -146,7 +142,6 @@ export class UserHistoryController {
   @ApiOperation({
     description: "Delete User-History",
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
   @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async delete(@Param("id") id: number): Promise<any> {

@@ -20,7 +20,6 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Response } from "../../system/interfaces";
-import { JwtAuthGuard } from "../auth/jwt/jwt-auth.guard";
 import { Roles } from "../auth/roles.guard/roles.decorator";
 import { RolesGuard } from "../auth/roles.guard/roles.guard";
 import { BacklistGuard } from "../backlist/backlist.guard";
@@ -69,8 +68,7 @@ export class WalletInoutController {
     type: Response<WalletInout>,
   })
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async create(@Body() userDto: CreateWalletInoutDto, @Request() req: any): Promise<any> {
     return this.walletInoutService.create(userDto, req.user);
@@ -85,8 +83,7 @@ export class WalletInoutController {
   })
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async updateWalletInout(
     @Param("id", ParseIntPipe) id: number,
@@ -101,8 +98,7 @@ export class WalletInoutController {
     description: "Delete WalletInout",
   })
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.walletInoutService.delete(id);

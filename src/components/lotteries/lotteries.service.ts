@@ -3,7 +3,6 @@ import * as _ from "lodash";
 import { CreateLotteryDto } from './dto/create-lottery.dto';
 import { UpdateLotteryDto } from './dto/update-lottery.dto';
 import {
-  INIT_TIME_CREATE_JOB,
   MAINTENANCE_PERIOD,
   PRIZES,
   START_TIME_CREATE_JOB,
@@ -182,49 +181,49 @@ export class LotteriesService {
     };
   }
 
-  calcPayoutPerOrderNumber({
-    number,
-    orders,
-    oddBet,
-    type,
-  }: any) {
+  // calcPayoutPerOrderNumber({
+  //   number,
+  //   orders,
+  //   oddBet,
+  //   type,
+  // }: any) {
 
-    let pricePerOrder = 0;
-    let order;
+  //   let pricePerOrder = 0;
+  //   let order;
 
-    switch (type) {
-      case BaoLoType.Lo2So:
-      case BaoLoType.Lo2So1k:
-      case BaoLoType.Lo3So:
-      case BaoLoType.Lo4So:
-      case DauDuoiType.Duoi:
-      case BaCangType.BaCangDacBiet:
-      case BaCangType.BaCangDauDuoi:
-      case BonCangType.BonCangDacBiet:
-      case DanhDeType.DeDauDuoi:
-      case DanhDeType.DeDau:
-      case BaCangType.BaCangDau:
-      case BaCangType.BaCangDauDuoi:
-        order = this.getOrderEndsWith(number, orders);
-        break;
+  //   switch (type) {
+  //     case BaoLoType.Lo2So:
+  //     case BaoLoType.Lo2So1k:
+  //     case BaoLoType.Lo3So:
+  //     case BaoLoType.Lo4So:
+  //     case DauDuoiType.Duoi:
+  //     case BaCangType.BaCangDacBiet:
+  //     case BaCangType.BaCangDauDuoi:
+  //     case BonCangType.BonCangDacBiet:
+  //     case DanhDeType.DeDauDuoi:
+  //     case DanhDeType.DeDau:
+  //     case BaCangType.BaCangDau:
+  //     case BaCangType.BaCangDauDuoi:
+  //       order = this.getOrderEndsWith(number, orders);
+  //       break;
 
-      case DauDuoiType.Dau:
-        order = this.getOrderStartWith(number, orders);
-        break;
+  //     case DauDuoiType.Dau:
+  //       order = this.getOrderStartWith(number, orders);
+  //       break;
 
-      case TroChoiThuViType.Lo2SoGiaiDacBiet:
-        break;
+  //     case TroChoiThuViType.Lo2SoGiaiDacBiet:
+  //       break;
 
-      default:
-        break;
-    }
+  //     default:
+  //       break;
+  //   }
 
-    if (order) {
-      pricePerOrder = (order?.score || 0) * (oddBet * 1000);
-    }
+  //   if (order) {
+  //     pricePerOrder = (order?.score || 0) * (oddBet * 1000);
+  //   }
 
-    return pricePerOrder;
-  }
+  //   return pricePerOrder;
+  // }
 
 
   calcPayoutTroChoiThuVi({
@@ -1070,87 +1069,87 @@ export class LotteriesService {
     this.processingXien4({ ordersXien4, prizesFinal, prizes: mergeResult, type, xien4Checked });
   }
 
-  checkXienTemp({
-    ordersXien2,
-    ordersXien3,
-    ordersXien4,
-    prizesFinal,
-    number,
-    mergeResult,
-  }: any) {
-    const resultXien2 = this.checkXien2(ordersXien2, prizesFinal, number);
-    if (resultXien2.length > 0) {
-      mergeResult = mergeResult.map((n: any) => {
-        const lastTwoDigits = n?.number.slice(-2);
-        const ord = resultXien2.find((item: any) => item.number === lastTwoDigits);
-        if (ord) {
-          if (
-            (
-              (!n?.xienUpdated?.index && n?.xienUpdated?.index != 0)
-              || n?.xienUpdated?.index !== ord?.index
-            )
-          ) {
-            n.payOut += (ord?.score || 0) * (OddBet.Xien2 * 1000);
-            n.xienUpdated = {
-              index: ord.index,
-              type: ord.type,
-            };
-          }
-        }
+  // checkXienTemp({
+  //   ordersXien2,
+  //   ordersXien3,
+  //   ordersXien4,
+  //   prizesFinal,
+  //   number,
+  //   mergeResult,
+  // }: any) {
+  //   const resultXien2 = this.checkXien2(ordersXien2, prizesFinal, number);
+  //   if (resultXien2.length > 0) {
+  //     mergeResult = mergeResult.map((n: any) => {
+  //       const lastTwoDigits = n?.number.slice(-2);
+  //       const ord = resultXien2.find((item: any) => item.number === lastTwoDigits);
+  //       if (ord) {
+  //         if (
+  //           (
+  //             (!n?.xienUpdated?.index && n?.xienUpdated?.index != 0)
+  //             || n?.xienUpdated?.index !== ord?.index
+  //           )
+  //         ) {
+  //           n.payOut += (ord?.score || 0) * (OddBet.Xien2 * 1000);
+  //           n.xienUpdated = {
+  //             index: ord.index,
+  //             type: ord.type,
+  //           };
+  //         }
+  //       }
 
-        return n;
-      });
-    }
+  //       return n;
+  //     });
+  //   }
 
-    const resultXien3 = this.checkXien3(ordersXien3, prizesFinal, number);
-    if (resultXien3.length > 0) {
-      mergeResult = mergeResult.map((n: any) => {
-        const lastTwoDigits = n?.number.slice(-2);
-        const ord = resultXien3.find((item: any) => item.number === lastTwoDigits);
+  //   const resultXien3 = this.checkXien3(ordersXien3, prizesFinal, number);
+  //   if (resultXien3.length > 0) {
+  //     mergeResult = mergeResult.map((n: any) => {
+  //       const lastTwoDigits = n?.number.slice(-2);
+  //       const ord = resultXien3.find((item: any) => item.number === lastTwoDigits);
 
-        if (ord) {
-          if (
-            (
-              (!n?.xienUpdated?.index && n?.xienUpdated?.index != 0)
-              || n?.xienUpdated?.index !== ord?.index
-            )
-          ) {
-            n.payOut += (ord?.score || 0) * (OddBet.Xien3 * 1000);
-            n.xienUpdated = {
-              index: ord.index,
-              type: ord.type,
-            };
-          }
-        }
+  //       if (ord) {
+  //         if (
+  //           (
+  //             (!n?.xienUpdated?.index && n?.xienUpdated?.index != 0)
+  //             || n?.xienUpdated?.index !== ord?.index
+  //           )
+  //         ) {
+  //           n.payOut += (ord?.score || 0) * (OddBet.Xien3 * 1000);
+  //           n.xienUpdated = {
+  //             index: ord.index,
+  //             type: ord.type,
+  //           };
+  //         }
+  //       }
 
-        return n;
-      });
-    }
+  //       return n;
+  //     });
+  //   }
 
-    const resultXien4 = this.checkXien4(ordersXien4, prizesFinal, number);
-    if (resultXien4.length > 0) {
-      mergeResult = mergeResult.map((n: any) => {
-        const lastTwoDigits = n?.number.slice(-2);
-        const ord = resultXien4.find((item: any) => item.number === lastTwoDigits);
-        if (ord) {
-          if (
-            (
-              (!n?.xienUpdated?.index && n?.xienUpdated?.index != 0)
-              || n?.xienUpdated?.index !== ord?.index
-            )
-          ) {
-            n.payOut += (ord?.score || 0) * (OddBet.Xien4 * 1000);
-            n.xienUpdated = {
-              index: ord.index,
-              type: ord.type,
-            };
-          }
-        }
+  //   const resultXien4 = this.checkXien4(ordersXien4, prizesFinal, number);
+  //   if (resultXien4.length > 0) {
+  //     mergeResult = mergeResult.map((n: any) => {
+  //       const lastTwoDigits = n?.number.slice(-2);
+  //       const ord = resultXien4.find((item: any) => item.number === lastTwoDigits);
+  //       if (ord) {
+  //         if (
+  //           (
+  //             (!n?.xienUpdated?.index && n?.xienUpdated?.index != 0)
+  //             || n?.xienUpdated?.index !== ord?.index
+  //           )
+  //         ) {
+  //           n.payOut += (ord?.score || 0) * (OddBet.Xien4 * 1000);
+  //           n.xienUpdated = {
+  //             index: ord.index,
+  //             type: ord.type,
+  //           };
+  //         }
+  //       }
 
-        return n;
-      });
-    }
-  }
+  //       return n;
+  //     });
+  //   }
+  // }
 
   checkLoTruot({
     totalBetAmount,
@@ -1385,180 +1384,180 @@ export class LotteriesService {
     };
   }
 
-  checkLoTruot2({
-    totalBetAmount,
-    finalResult,
-    ordersTruotXien4,
-    ordersTruotXien8,
-    ordersTruotXien10,
-    prizes,
-    ordersXien2HasCounted,
-    ordersXien3HasCounted,
-    ordersXien4HasCounted,
-  }: any) {
-    if (totalBetAmount < 0) {
-      for (const orders of ordersTruotXien4) {
-        const firstItem = orders.number[0];
-        const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
+  // checkLoTruot2({
+  //   totalBetAmount,
+  //   finalResult,
+  //   ordersTruotXien4,
+  //   ordersTruotXien8,
+  //   ordersTruotXien10,
+  //   prizes,
+  //   ordersXien2HasCounted,
+  //   ordersXien3HasCounted,
+  //   ordersXien4HasCounted,
+  // }: any) {
+  //   if (totalBetAmount < 0) {
+  //     for (const orders of ordersTruotXien4) {
+  //       const firstItem = orders.number[0];
+  //       const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
 
-        for (let i = 0; i <= 99; i++) {
-          let key = i.toString();
-          if (i.toString().length === 1) {
-            key = `0${i}`;
-          }
-          key = `${key}${firstItem}`;
+  //       for (let i = 0; i <= 99; i++) {
+  //         let key = i.toString();
+  //         if (i.toString().length === 1) {
+  //           key = `0${i}`;
+  //         }
+  //         key = `${key}${firstItem}`;
 
-          //
-          // 0000
+  //         //
+  //         // 0000
 
-          if (prizes.has(key) && !hasInFinalResult) {
-            let payOut = prizes.get(key);
-            payOut -= ((orders.score || 0) * (OddBet.TruotXien4 * 1000));
-            prizes.set(key, payOut);
-          } else {
-            let payOut = prizes.get(key);
-            payOut += ((orders.score || 0) * (OddBet.TruotXien4 * 1000));
-            prizes.set(key, payOut);
-          }
-        }
-      }
-    }
+  //         if (prizes.has(key) && !hasInFinalResult) {
+  //           let payOut = prizes.get(key);
+  //           payOut -= ((orders.score || 0) * (OddBet.TruotXien4 * 1000));
+  //           prizes.set(key, payOut);
+  //         } else {
+  //           let payOut = prizes.get(key);
+  //           payOut += ((orders.score || 0) * (OddBet.TruotXien4 * 1000));
+  //           prizes.set(key, payOut);
+  //         }
+  //       }
+  //     }
+  //   }
 
-    ordersTruotXien4 = ordersTruotXien4.reduce((result: any, currentValue: any, currentIndex: number) => {
-      let exist;
-      for (const res of finalResult) {
-        exist = currentValue?.number.some((n: any) => res?.number.endsWith(n));
-        if (exist) {
-          break;
-        }
-      }
+  //   ordersTruotXien4 = ordersTruotXien4.reduce((result: any, currentValue: any, currentIndex: number) => {
+  //     let exist;
+  //     for (const res of finalResult) {
+  //       exist = currentValue?.number.some((n: any) => res?.number.endsWith(n));
+  //       if (exist) {
+  //         break;
+  //       }
+  //     }
 
-      if (exist) {
-        const hasIndex = ordersXien2HasCounted.some((index: any) => index == currentIndex);
-        if (!hasIndex) {
-          totalBetAmount += (OddBet.TruotXien4 * 1000 * (currentValue?.score || 0));
-          ordersXien2HasCounted.push(currentIndex);
-        }
-      }
-      // else {
-      //   result.push(currentValue);
-      // }
+  //     if (exist) {
+  //       const hasIndex = ordersXien2HasCounted.some((index: any) => index == currentIndex);
+  //       if (!hasIndex) {
+  //         totalBetAmount += (OddBet.TruotXien4 * 1000 * (currentValue?.score || 0));
+  //         ordersXien2HasCounted.push(currentIndex);
+  //       }
+  //     }
+  //     // else {
+  //     //   result.push(currentValue);
+  //     // }
 
-      result.push(currentValue);
+  //     result.push(currentValue);
 
-      return result;
-    }, []);
+  //     return result;
+  //   }, []);
 
 
 
-    //
-    ordersTruotXien8 = ordersTruotXien8.reduce((result: any, currentValue: any, currentIndex: number) => {
-      let exist;
-      for (const res of finalResult) {
-        exist = currentValue?.number.some((n: any) => res?.number.endsWith(n));
-        if (exist) {
-          break;
-        }
-      }
+  //   //
+  //   ordersTruotXien8 = ordersTruotXien8.reduce((result: any, currentValue: any, currentIndex: number) => {
+  //     let exist;
+  //     for (const res of finalResult) {
+  //       exist = currentValue?.number.some((n: any) => res?.number.endsWith(n));
+  //       if (exist) {
+  //         break;
+  //       }
+  //     }
 
-      if (exist) {
-        const hasIndex = ordersXien3HasCounted.some((index: any) => index == currentIndex);
-        if (!hasIndex) {
-          totalBetAmount += (OddBet.TruotXien8 * 1000 * (currentValue?.score || 0));
-          ordersXien3HasCounted.push(currentIndex);
-        }
-      }
+  //     if (exist) {
+  //       const hasIndex = ordersXien3HasCounted.some((index: any) => index == currentIndex);
+  //       if (!hasIndex) {
+  //         totalBetAmount += (OddBet.TruotXien8 * 1000 * (currentValue?.score || 0));
+  //         ordersXien3HasCounted.push(currentIndex);
+  //       }
+  //     }
 
-      result.push(currentValue);
+  //     result.push(currentValue);
 
-      return result;
-    }, []);
+  //     return result;
+  //   }, []);
 
-    for (const orders of ordersTruotXien8) {
-      const firstItem = orders.number[0];
-      const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
+  //   for (const orders of ordersTruotXien8) {
+  //     const firstItem = orders.number[0];
+  //     const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
 
-      for (let i = 0; i <= 99; i++) {
-        let key = i.toString();
-        if (i.toString().length === 1) {
-          key = `0${i}`;
-        }
-        key = `${key}${firstItem}`;
+  //     for (let i = 0; i <= 99; i++) {
+  //       let key = i.toString();
+  //       if (i.toString().length === 1) {
+  //         key = `0${i}`;
+  //       }
+  //       key = `${key}${firstItem}`;
 
-        if (prizes.has(key) && !hasInFinalResult) {
-          let payOut = prizes.get(key);
-          payOut -= ((orders.score || 0) * (OddBet.TruotXien8 * 1000));
-          prizes.set(key, payOut);
-        } else {
-          let payOut = prizes.get(key);
-          payOut += ((orders.score || 0) * (OddBet.TruotXien8 * 1000));
-          prizes.set(key, payOut);
-        }
-      }
-    }
+  //       if (prizes.has(key) && !hasInFinalResult) {
+  //         let payOut = prizes.get(key);
+  //         payOut -= ((orders.score || 0) * (OddBet.TruotXien8 * 1000));
+  //         prizes.set(key, payOut);
+  //       } else {
+  //         let payOut = prizes.get(key);
+  //         payOut += ((orders.score || 0) * (OddBet.TruotXien8 * 1000));
+  //         prizes.set(key, payOut);
+  //       }
+  //     }
+  //   }
 
-    //
-    ordersTruotXien10 = ordersTruotXien10.reduce((result: any, currentValue: any, currentIndex: number) => {
-      let exist;
-      for (const res of finalResult) {
-        exist = currentValue?.number.some((n: any) => res?.number.endsWith(n));
-        if (exist) {
-          break;
-        }
-      }
+  //   //
+  //   ordersTruotXien10 = ordersTruotXien10.reduce((result: any, currentValue: any, currentIndex: number) => {
+  //     let exist;
+  //     for (const res of finalResult) {
+  //       exist = currentValue?.number.some((n: any) => res?.number.endsWith(n));
+  //       if (exist) {
+  //         break;
+  //       }
+  //     }
 
-      if (exist) {
-        const hasIndex = ordersXien4HasCounted.some((index: any) => index == currentIndex);
-        if (!hasIndex) {
-          totalBetAmount += (OddBet.TruotXien10 * 1000 * (currentValue?.score || 0));
-          ordersXien4HasCounted.push(currentIndex);
-        }
-      }
+  //     if (exist) {
+  //       const hasIndex = ordersXien4HasCounted.some((index: any) => index == currentIndex);
+  //       if (!hasIndex) {
+  //         totalBetAmount += (OddBet.TruotXien10 * 1000 * (currentValue?.score || 0));
+  //         ordersXien4HasCounted.push(currentIndex);
+  //       }
+  //     }
 
-      result.push(currentValue);
+  //     result.push(currentValue);
 
-      return result;
-    }, []);
+  //     return result;
+  //   }, []);
 
-    for (const orders of ordersTruotXien10) {
-      const firstItem = orders.number[0];
-      const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
+  //   for (const orders of ordersTruotXien10) {
+  //     const firstItem = orders.number[0];
+  //     const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
 
-      for (let i = 0; i <= 99; i++) {
-        let key = i.toString();
-        if (i.toString().length === 1) {
-          key = `0${i}`;
-        }
-        key = `${key}${firstItem}`;
+  //     for (let i = 0; i <= 99; i++) {
+  //       let key = i.toString();
+  //       if (i.toString().length === 1) {
+  //         key = `0${i}`;
+  //       }
+  //       key = `${key}${firstItem}`;
 
-        if (prizes.has(key) && !hasInFinalResult) {
-          let payOut = prizes.get(key);
-          payOut -= ((orders.score || 0) * (OddBet.TruotXien10 * 1000));
-          prizes.set(key, payOut);
-        } else {
-          let payOut = prizes.get(key);
-          payOut += ((orders.score || 0) * (OddBet.TruotXien10 * 1000));
-          prizes.set(key, payOut);
-        }
-      }
-    }
+  //       if (prizes.has(key) && !hasInFinalResult) {
+  //         let payOut = prizes.get(key);
+  //         payOut -= ((orders.score || 0) * (OddBet.TruotXien10 * 1000));
+  //         prizes.set(key, payOut);
+  //       } else {
+  //         let payOut = prizes.get(key);
+  //         payOut += ((orders.score || 0) * (OddBet.TruotXien10 * 1000));
+  //         prizes.set(key, payOut);
+  //       }
+  //     }
+  //   }
 
-    let result: any = [];
-    prizes.forEach((value: any, key: any) => {
-      result.push({
-        number: key,
-        payOut: value
-      });
-    });
+  //   let result: any = [];
+  //   prizes.forEach((value: any, key: any) => {
+  //     result.push({
+  //       number: key,
+  //       payOut: value
+  //     });
+  //   });
 
-    return {
-      totalBetAmount,
-      ordersTruotXien4,
-      ordersTruotXien8,
-      ordersTruotXien10,
-      prizes: result,
-    };
-  }
+  //   return {
+  //     totalBetAmount,
+  //     ordersTruotXien4,
+  //     ordersTruotXien8,
+  //     ordersTruotXien10,
+  //     prizes: result,
+  //   };
+  // }
 
   getPrize7Temp({
     profit,
@@ -1643,88 +1642,6 @@ export class LotteriesService {
       prizesSpecialAnd8And7,
     };
   }
-
-  // getPrize7({
-  //   totalBetAmount,
-  //   ordersTruotXien4,
-  //   ordersTruotXien8,
-  //   ordersTruotXien10,
-  //   prizesSpecialAnd8,
-  //   prizes7,
-  //   ordersXien2,
-  //   ordersXien3,
-  //   ordersXien4,
-  //   ordersXien2HasCounted,
-  //   ordersXien3HasCounted,
-  //   ordersXien4HasCounted,
-  // }: any) {
-  //   let resultLoTruotOfPrize7: any = [];
-  //   ({
-  //     totalBetAmount,
-  //     ordersTruotXien4,
-  //     ordersTruotXien8,
-  //     ordersTruotXien10,
-  //     prizes: resultLoTruotOfPrize7,
-  //   } = this.checkLoTruot2({
-  //     totalBetAmount,
-  //     finalResult: prizesSpecialAnd8,
-  //     ordersTruotXien4,
-  //     ordersTruotXien8,
-  //     ordersTruotXien10,
-  //     prizes: prizes7,
-  //     ordersXien2HasCounted,
-  //     ordersXien3HasCounted,
-  //     ordersXien4HasCounted,
-  //     type: 'giai-7',
-  //   }));
-
-  //   // transform data
-  //   const tempResultLoTruotOfPrize7 = resultLoTruotOfPrize7.reduce((init: any, currentValue: any) => {
-  //     if (!currentValue.payOut || currentValue.payOut === 0) {
-  //       init.resultHavePayout0.push(currentValue);
-  //     } else {
-  //       init.resultNotHavePayout0.push(currentValue);
-  //     }
-
-  //     return init;
-  //   }, { resultHavePayout0: [], resultNotHavePayout0: [] });
-  //   resultLoTruotOfPrize7 = [...tempResultLoTruotOfPrize7.resultNotHavePayout0, ...tempResultLoTruotOfPrize7.resultHavePayout0];
-  //   resultLoTruotOfPrize7 = [...prizesSpecialAnd8, ...resultLoTruotOfPrize7];
-
-  //   let count1 = 0;
-  //   const prizesSpecialAnd8And7 = [];
-  //   let totalPayout = 0;
-  //   for (const order of resultLoTruotOfPrize7) {
-  //     if (count1 === 3) break;
-
-  //     // if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
-  //     if ((totalPayout + order?.payOut) >= (OrderHelper.getPayOut(totalBetAmount))) {
-  //       continue;
-  //     }
-
-  //     let lastTwoDigits = order?.number.slice(-2);
-  //     prizesSpecialAnd8And7.push(order);
-  //     count1++;
-  //     totalPayout += order?.payOut;
-
-  //     this.checkXienTemp({
-  //       ordersXien2,
-  //       ordersXien3,
-  //       ordersXien4,
-  //       prizesFinal: prizesSpecialAnd8And7,
-  //       mergeResult: resultLoTruotOfPrize7,
-  //       number: lastTwoDigits,
-  //     });
-  //   }
-
-  //   return {
-  //     totalBetAmount,
-  //     ordersTruotXien4,
-  //     ordersTruotXien8,
-  //     ordersTruotXien10,
-  //     prizesSpecialAnd8And7,
-  //   };
-  // }
 
   getPrizeRemainsTemp({
     profit,
@@ -1820,7 +1737,6 @@ export class LotteriesService {
       const prizes: any = [];
 
       remainPrizes.forEach((value: number, key: string) => {
-        // if ((totalPayout - (item.payOut || 0) + value) < ((totalBetAmount * 95) / 100)) {
         if ((totalPayout - (item.payOut || 0) + value) < (OrderHelper.getPayOut(totalBetAmount, profit))) {
           prizes.push({
             number: key,
@@ -1851,89 +1767,6 @@ export class LotteriesService {
       allPrizes: prizesSpecialAnd8And7,
     };
   }
-
-  // getPrizeRemains({
-  //   totalBetAmount,
-  //   ordersTruotXien4,
-  //   ordersTruotXien8,
-  //   ordersTruotXien10,
-  //   prizesSpecialAnd8And7,
-  //   remainPrizes,
-  //   ordersXien2,
-  //   ordersXien3,
-  //   ordersXien4,
-  //   ordersXien2HasCounted,
-  //   ordersXien3HasCounted,
-  //   ordersXien4HasCounted,
-  // }: any) {
-  //   let resultLoTruotOfRemainSpecial;
-  //   ({
-  //     totalBetAmount,
-  //     ordersTruotXien4,
-  //     ordersTruotXien8,
-  //     ordersTruotXien10,
-  //     prizes: resultLoTruotOfRemainSpecial,
-  //   } = this.checkLoTruot2({
-  //     totalBetAmount,
-  //     finalResult: prizesSpecialAnd8And7,
-  //     ordersTruotXien4,
-  //     ordersTruotXien8,
-  //     ordersTruotXien10,
-  //     prizes: remainPrizes,
-  //     ordersXien2HasCounted,
-  //     ordersXien3HasCounted,
-  //     ordersXien4HasCounted,
-  //   }));
-
-  //   // transform data
-  //   const tempResultLoTruotOfRemainSpecial = resultLoTruotOfRemainSpecial.reduce((init: any, currentValue: any) => {
-  //     if (!currentValue.payOut || currentValue.payOut === 0) {
-  //       init.resultHavePayout0.push(currentValue);
-  //     } else {
-  //       init.resultNotHavePayout0.push(currentValue);
-  //     }
-
-  //     return init;
-  //   }, { resultHavePayout0: [], resultNotHavePayout0: [] });
-  //   resultLoTruotOfRemainSpecial = [...tempResultLoTruotOfRemainSpecial.resultNotHavePayout0, ...tempResultLoTruotOfRemainSpecial.resultHavePayout0];
-  //   resultLoTruotOfRemainSpecial = [...prizesSpecialAnd8And7, ...resultLoTruotOfRemainSpecial];
-  //   let count2 = 0;
-  //   const allPrizes = [];
-
-  //   let totalPayout = 0;
-  //   //resultLoTruotOfRemainSpecial danh sach 10000
-  //   for (const order of resultLoTruotOfRemainSpecial) {
-
-  //     if (count2 === 18) break;
-
-  //     // if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
-  //     if ((totalPayout + order?.payOut) >= OrderHelper.getPayOut(totalBetAmount)) {
-  //       continue;
-  //     }
-
-  //     let lastTwoDigits = order?.number.slice(-2);
-  //     allPrizes.push(order);
-  //     count2++;
-  //     totalPayout += order?.payOut;
-
-  //     this.checkXienTemp({
-  //       ordersXien2,
-  //       ordersXien3,
-  //       ordersXien4,
-  //       prizesFinal: allPrizes,
-  //       mergeResult: resultLoTruotOfRemainSpecial,
-  //       number: lastTwoDigits,
-  //     });
-  //   }
-
-  //   return {
-  //     totalBetAmount,
-  //     ordersTruotXien4,
-  //     ordersTruotXien8,
-  //     ordersTruotXien10,
-  //     allPrizes,
-  //   };
-  // }
 
   getPrize8Temp({
     profit,
@@ -1983,7 +1816,6 @@ export class LotteriesService {
       if (!value) {
         map2.set(key, value);
       } else {
-        // if ((value + amountPaid) < (totalBetAmount * 95) / 100) {
         if ((value + amountPaid) < OrderHelper.getPayOut(totalBetAmount, profit)) {
           map1.set(key, value);
         }
@@ -2020,89 +1852,6 @@ export class LotteriesService {
       prizesSpecialAnd8,
     };
   }
-
-  // getPrize8({
-  //   totalBetAmount,
-  //   ordersTruotXien4,
-  //   ordersTruotXien8,
-  //   ordersTruotXien10,
-  //   prizes8,
-  //   finalPrizeSpecial,
-  //   ordersXien2,
-  //   ordersXien3,
-  //   ordersXien4,
-  //   ordersXien2HasCounted,
-  //   ordersXien3HasCounted,
-  //   ordersXien4HasCounted,
-  // }: any) {
-
-  //   let resultLoTruotOfPrize8;
-  //   ({
-  //     totalBetAmount,
-  //     ordersTruotXien4,
-  //     ordersTruotXien8,
-  //     ordersTruotXien10,
-  //     prizes: resultLoTruotOfPrize8,
-  //   } = this.checkLoTruot2({
-  //     totalBetAmount,
-  //     finalResult: finalPrizeSpecial,
-  //     ordersTruotXien4,
-  //     ordersTruotXien8,
-  //     ordersTruotXien10,
-  //     prizes: prizes8,
-  //     ordersXien2HasCounted,
-  //     ordersXien3HasCounted,
-  //     ordersXien4HasCounted,
-  //   }));
-
-  //   let count = 0;
-  //   const prizesSpecialAnd8 = [];
-
-  //   // transform data
-  //   const tempResultLoTruotOfPrize8 = resultLoTruotOfPrize8.reduce((init: any, currentValue: any) => {
-  //     if (!currentValue.payOut || currentValue.payOut === 0) {
-  //       init.resultHavePayout0.push(currentValue);
-  //     } else {
-  //       init.resultNotHavePayout0.push(currentValue);
-  //     }
-
-  //     return init;
-  //   }, { resultHavePayout0: [], resultNotHavePayout0: [] });
-  //   resultLoTruotOfPrize8 = [...tempResultLoTruotOfPrize8.resultNotHavePayout0, ...tempResultLoTruotOfPrize8.resultHavePayout0];
-
-  //   resultLoTruotOfPrize8 = [...finalPrizeSpecial, ...resultLoTruotOfPrize8];
-  //   let totalPayout = 0;
-  //   for (const order of resultLoTruotOfPrize8) {
-  //     if (count === 2) break;
-
-  //     // if ((totalPayout + order?.payOut) >= ((totalBetAmount * 95) / 100)) {
-  //     if ((totalPayout + order?.payOut) >= OrderHelper.getPayOut(totalBetAmount)) {
-  //       continue;
-  //     }
-
-  //     let lastTwoDigits = order?.number.slice(-2);
-  //     prizesSpecialAnd8.push(order);
-  //     count++;
-  //     totalPayout += order?.payOut;
-
-  //     this.checkXienTemp({
-  //       ordersXien2,
-  //       ordersXien3,
-  //       ordersXien4,
-  //       prizesFinal: prizesSpecialAnd8,
-  //       mergeResult: resultLoTruotOfPrize8,
-  //       number: lastTwoDigits,
-  //     });
-  //   }
-
-  //   return {
-  //     totalBetAmount,
-  //     ordersTruotXien4,
-  //     ordersTruotXien8,
-  //     ordersTruotXien10,
-  //     prizesSpecialAnd8,
-  //   };
-  // }
 
   getPrizeSpecial({
     profit,
@@ -2144,7 +1893,6 @@ export class LotteriesService {
       if (!value) {
         map2.set(key, value);
       } else {
-        // if (value < (totalBetAmount * 95) / 100) {
         if (value < OrderHelper.getPayOut(totalBetAmount, profit)) {
           map1.set(key, value);
         }
@@ -2949,164 +2697,164 @@ export class LotteriesService {
     };
   }
 
-  getInfoToGeneratePrize({
-    typePrize,
-  }: any) {
-    let numberOfNumbers = 0;
-    let actualLength = 0;
-    let expectedLength = 0;
+  // getInfoToGeneratePrize({
+  //   typePrize,
+  // }: any) {
+  //   let numberOfNumbers = 0;
+  //   let actualLength = 0;
+  //   let expectedLength = 0;
 
-    switch (typePrize) {
-      case PRIZES.SPECIAL_PRIZE:
-        numberOfNumbers = 1;
-        actualLength = 6;
+  //   switch (typePrize) {
+  //     case PRIZES.SPECIAL_PRIZE:
+  //       numberOfNumbers = 1;
+  //       actualLength = 6;
 
-        break;
-      case PRIZES.PRIZE_1:
-        numberOfNumbers = 1;
-        actualLength = 5;
+  //       break;
+  //     case PRIZES.PRIZE_1:
+  //       numberOfNumbers = 1;
+  //       actualLength = 5;
 
-        break;
-      case PRIZES.PRIZE_2:
-        numberOfNumbers = 1;
-        actualLength = 5;
+  //       break;
+  //     case PRIZES.PRIZE_2:
+  //       numberOfNumbers = 1;
+  //       actualLength = 5;
 
-        break;
-      case PRIZES.PRIZE_3:
-        numberOfNumbers = 2;
-        actualLength = 5;
+  //       break;
+  //     case PRIZES.PRIZE_3:
+  //       numberOfNumbers = 2;
+  //       actualLength = 5;
 
-        break;
-      case PRIZES.PRIZE_4:
-        numberOfNumbers = 7;
-        actualLength = 5;
+  //       break;
+  //     case PRIZES.PRIZE_4:
+  //       numberOfNumbers = 7;
+  //       actualLength = 5;
 
-        break;
-      case PRIZES.PRIZE_5:
-        numberOfNumbers = 1;
-        actualLength = 4;
+  //       break;
+  //     case PRIZES.PRIZE_5:
+  //       numberOfNumbers = 1;
+  //       actualLength = 4;
 
-        break;
-      case PRIZES.PRIZE_6:
-        numberOfNumbers = 3;
-        actualLength = 4;
+  //       break;
+  //     case PRIZES.PRIZE_6:
+  //       numberOfNumbers = 3;
+  //       actualLength = 4;
 
-        break;
-      case PRIZES.PRIZE_7:
-        numberOfNumbers = 1;
-        actualLength = 3;
+  //       break;
+  //     case PRIZES.PRIZE_7:
+  //       numberOfNumbers = 1;
+  //       actualLength = 3;
 
-        break;
-      case PRIZES.PRIZE_8:
-        numberOfNumbers = 1;
-        actualLength = 2;
+  //       break;
+  //     case PRIZES.PRIZE_8:
+  //       numberOfNumbers = 1;
+  //       actualLength = 2;
 
-        break;
-      default:
-        break;
-    }
+  //       break;
+  //     default:
+  //       break;
+  //   }
 
-    return {
-      actualLength,
-      expectedLength,
-      numberOfNumbers,
-    };
-  }
+  //   return {
+  //     actualLength,
+  //     expectedLength,
+  //     numberOfNumbers,
+  //   };
+  // }
 
-  createPrizes({
-    numbers,
-    typePrize,
-    exclusionNumbers,
-  }: any) {
+  // createPrizes({
+  //   numbers,
+  //   typePrize,
+  //   exclusionNumbers,
+  // }: any) {
 
-    let { numberOfNumbers, actualLength, expectedLength } = this.getInfoToGeneratePrize({
-      typePrize,
-    });
+  //   let { numberOfNumbers, actualLength, expectedLength } = this.getInfoToGeneratePrize({
+  //     typePrize,
+  //   });
 
-    const result = [];
-    if (!numbers || numbers.length === 0) {
-      for (let i = 0; i < numberOfNumbers; i++) {
-        const tempNumber = this.randomNumber(actualLength, { excludeNumbers: exclusionNumbers });
-        result.push(tempNumber);
-      }
-    } else {
-      for (const number of numbers) {
-        expectedLength = actualLength - number.toString().length;
-        const tempNumber = this.randomNumber(expectedLength);
-        result.push(`${tempNumber}${number}`);
-      }
+  //   const result = [];
+  //   if (!numbers || numbers.length === 0) {
+  //     for (let i = 0; i < numberOfNumbers; i++) {
+  //       const tempNumber = this.randomNumber(actualLength, { excludeNumbers: exclusionNumbers });
+  //       result.push(tempNumber);
+  //     }
+  //   } else {
+  //     for (const number of numbers) {
+  //       expectedLength = actualLength - number.toString().length;
+  //       const tempNumber = this.randomNumber(expectedLength);
+  //       result.push(`${tempNumber}${number}`);
+  //     }
 
-      while (true) {
-        if (result.length >= numberOfNumbers) {
-          break;
-        }
+  //     while (true) {
+  //       if (result.length >= numberOfNumbers) {
+  //         break;
+  //       }
 
-        const tempNumber = this.randomNumber(actualLength, { excludeNumbers: exclusionNumbers });
-        result.push(tempNumber);
-      }
-    }
+  //       const tempNumber = this.randomNumber(actualLength, { excludeNumbers: exclusionNumbers });
+  //       result.push(tempNumber);
+  //     }
+  //   }
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  randomNumber(length: number, options?: any) {
-    if (!length) return '';
+  // randomNumber(length: number, options?: any) {
+  //   if (!length) return '';
 
-    let numberLength;
-    switch (length) {
-      case 1:
-        numberLength = 10;
-        break;
-      case 2:
-        numberLength = 100;
-        break;
-      case 3:
-        numberLength = 1000;
-        break;
-      case 4:
-        numberLength = 10000;
-        break;
-      case 5:
-        numberLength = 100000;
-        break;
-      case 6:
-        numberLength = 1000000;
-        break;
+  //   let numberLength;
+  //   switch (length) {
+  //     case 1:
+  //       numberLength = 10;
+  //       break;
+  //     case 2:
+  //       numberLength = 100;
+  //       break;
+  //     case 3:
+  //       numberLength = 1000;
+  //       break;
+  //     case 4:
+  //       numberLength = 10000;
+  //       break;
+  //     case 5:
+  //       numberLength = 100000;
+  //       break;
+  //     case 6:
+  //       numberLength = 1000000;
+  //       break;
 
-      default:
-        break;
-    }
+  //     default:
+  //       break;
+  //   }
 
-    let newNumber;
-    let condition = true;
-    do {
-      newNumber = (Math.floor(Math.random() * numberLength)).toString();
-      if (!options?.excludeNumbers || options?.excludeNumbers?.length === 0) {
-        condition = false;
-      } else {
+  //   let newNumber;
+  //   let condition = true;
+  //   do {
+  //     newNumber = (Math.floor(Math.random() * numberLength)).toString();
+  //     if (!options?.excludeNumbers || options?.excludeNumbers?.length === 0) {
+  //       condition = false;
+  //     } else {
 
-        for (const excludeNumber of options.excludeNumbers) {
-          if (newNumber.length >= 2) {
-            const lastTwoDigits = newNumber.substr(-2);
-            const lastTwoDigitsOfExcludeNumber = excludeNumber.substr(-2);
-            condition = lastTwoDigits == lastTwoDigitsOfExcludeNumber;
+  //       for (const excludeNumber of options.excludeNumbers) {
+  //         if (newNumber.length >= 2) {
+  //           const lastTwoDigits = newNumber.substr(-2);
+  //           const lastTwoDigitsOfExcludeNumber = excludeNumber.substr(-2);
+  //           condition = lastTwoDigits == lastTwoDigitsOfExcludeNumber;
 
-            if (condition) break;
-          }
-        }
-      }
-    } while (condition)
-    const tempLength = length - newNumber.length;
-    for (let i = 0; i < tempLength; i++) {
-      newNumber = '0' + newNumber;
-    }
+  //           if (condition) break;
+  //         }
+  //       }
+  //     }
+  //   } while (condition)
+  //   const tempLength = length - newNumber.length;
+  //   for (let i = 0; i < tempLength; i++) {
+  //     newNumber = '0' + newNumber;
+  //   }
 
-    return newNumber;
-  }
+  //   return newNumber;
+  // }
 
-  compareRandom(a: any, b: any) {
-    return Math.random() - 0.5;
-  }
+  // compareRandom(a: any, b: any) {
+  //   return Math.random() - 0.5;
+  // }
 
   getTotalBetAmount(orders: any): number {
     if (!orders || orders.length === 0) return 0;
@@ -3405,12 +3153,12 @@ export class LotteriesService {
     }, 0);
   }
 
-  getOrdersNumber(orders: OrderDto[]): string[] {
-    if (!orders || orders.length === 0) return [];
+  // getOrdersNumber(orders: OrderDto[]): string[] {
+  //   if (!orders || orders.length === 0) return [];
 
-    return orders.reduce((accumulator: string[], currentValue: OrderDto) => {
-      accumulator.push(currentValue.number.toString());
-      return accumulator;
-    }, []);
-  }
+  //   return orders.reduce((accumulator: string[], currentValue: OrderDto) => {
+  //     accumulator.push(currentValue.number.toString());
+  //     return accumulator;
+  //   }, []);
+  // }
 }
