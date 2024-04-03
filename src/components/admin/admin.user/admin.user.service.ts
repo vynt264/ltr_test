@@ -52,10 +52,11 @@ export class AdminUserService {
       password: createAdminUserDto.password,
       bookmaker: { id: createAdminUserDto.bookmakerId }
     }
-    const result = await this.adminUserRepository.save(createDto);
+    const createdUser = await this.adminUserRepository.create(createDto);
+    const user = await this.adminUserRepository.save(createdUser);
     return new ErrorResponse(
       STATUSCODE.COMMON_SUCCESS,
-      result,
+      user,
       MESSAGE.CREATE_SUCCESS
     );
   }
