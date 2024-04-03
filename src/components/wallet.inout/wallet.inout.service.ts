@@ -155,7 +155,7 @@ export class WalletInoutService {
       if (key === "isTestPlayer") {
         data.user = {
           ...data.user,
-          usernameReal: object.isTestPlayer ? Not("") : "",
+          usernameReal: object.isTestPlayer == "true" ? Not("") : "",
         }
       }
     }

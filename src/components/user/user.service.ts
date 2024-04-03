@@ -182,6 +182,7 @@ export class UserService {
         id: true,
         username: true,
         usernameFromAgent: true,
+        usernameReal: true,
         createdAt: true,
         role: true,
         password: true,
@@ -237,7 +238,7 @@ export class UserService {
       }
 
       if (key == "isTestPlayer") {
-        data.usernameReal = object.isTestPlayer ? Not("") : "";
+        data.usernameReal = object.isTestPlayer == "true" ? Not("") : "";
       }
     }
 

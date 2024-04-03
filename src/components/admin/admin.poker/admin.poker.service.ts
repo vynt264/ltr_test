@@ -61,7 +61,7 @@ export class AdminPokerService {
         conditionParams.timeEnd = endOfDay(endDate);
       }
       if (object?.isTestPlayer != undefined) {
-        condition = condition.concat(` AND entity.isUserFake = ${object.isTestPlayer ? 1 : 0}`);
+        condition = condition.concat(` AND entity.isUserFake = ${object.isTestPlayer == "true" ? 1 : 0}`);
       }
       if (object?.code) {
         condition = condition.concat(` AND entity.code LIKE :codeFind`);
