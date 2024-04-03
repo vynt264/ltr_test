@@ -29,16 +29,16 @@ export class PlayHistoryHilo {
   @Column({ nullable: false })
   step: number;
 
-  @Column({ nullable: false })
+  @Column({ type: "text", nullable: false })
   cards: string;
 
   @Column({ nullable: false })
   multi: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "text", nullable: true })
   hiLo: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "text", nullable: true })
   multiHis: string;
 
   @Column({ nullable: false })
