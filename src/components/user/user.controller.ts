@@ -20,10 +20,8 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Response } from "../../system/interfaces";
-import { JwtAuthGuard } from "../auth/jwt/jwt-auth.guard";
 import { Roles } from "../auth/roles.guard/roles.decorator";
 import { RolesGuard } from "../auth/roles.guard/roles.guard";
-import { BacklistGuard } from "../backlist/backlist.guard";
 import { UserService } from "../user/user.service";
 import { PaginationQueryDto } from "./../../common/common.dto/pagination.query.dto";
 import UserUpdateDto from "./dto/beginner.dto";
@@ -35,10 +33,9 @@ import {
 } from "./dto/index";
 import { UserRoles } from "./enums/user.enum";
 import { User } from "./user.entity";
-import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import PermissionUserDto from "./dto/permission.dto";
-import { AuthGuard } from "../auth/guards/auth.guard";
 import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
+
 @Controller("/api/v1/user")
 @ApiTags("user")
 @ApiBearerAuth("Authorization")
@@ -52,7 +49,6 @@ export class UserController {
   @ApiOkResponse({
     type: Response<User>,
   })
-  // @UseGuards(JwtAuthGuard)
   @UseGuards(AuthAdminGuard)
   async userGetInfo(@Request() req: any): Promise<any> {
     return this.userService.userGetInfo(req.user.id);
@@ -65,7 +61,6 @@ export class UserController {
   @ApiOkResponse({
     type: Response<User>,
   })
-  // @UseGuards(JwtAuthGuard)
   @UseGuards(AuthAdminGuard)
   async userUpdateInfo(
     @Body() userBeginner: UserUpdateDto,
@@ -82,7 +77,6 @@ export class UserController {
   @ApiOkResponse({
     type: Response<User>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
   @UseGuards(AuthAdminGuard, RolesGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async create(@Body() userDto: CreateUserDto): Promise<any> {
@@ -96,7 +90,6 @@ export class UserController {
   @ApiOkResponse({
     type: Response<User[]>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
   @UseGuards(AuthAdminGuard, RolesGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
@@ -110,7 +103,6 @@ export class UserController {
   @ApiOkResponse({
     type: Response<User>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
   @UseGuards(AuthAdminGuard, RolesGuard)
     @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
@@ -143,7 +135,6 @@ export class UserController {
   })
   @UsePipes(ValidationPipe)
   @UseGuards(AuthAdminGuard, RolesGuard)
-  // @UseGuards(RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async updateRole(
     @Param("id", ParseIntPipe) id: number,
@@ -161,7 +152,6 @@ export class UserController {
   })
   @UsePipes(ValidationPipe)
   @UseGuards(AuthAdminGuard, RolesGuard)
-  // @UseGuards(RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async updatePermission(
     @Param("id", ParseIntPipe) id: number,
@@ -178,7 +168,6 @@ export class UserController {
     type: Response<User>,
   })
   @UsePipes(ValidationPipe)
-  // @UseGuards(RolesGuard)
   @UseGuards(AuthAdminGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async blockUser(
@@ -192,7 +181,6 @@ export class UserController {
   @ApiOperation({
     description: "Delete user",
   })
-  // @UseGuards(RolesGuard)
   @UseGuards(AuthAdminGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {
