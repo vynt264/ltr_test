@@ -18,10 +18,10 @@ export class AdminUserController {
 
   @Post('register')
   async register(@Body() createAdminUserDto: CreateAdminUserDto) {
-    const createdUser = await this.adminUserService.create(createAdminUserDto);
-    const { password, ...rest } = createdUser;
+    // const createdUser = await this.adminUserService.create(createAdminUserDto);
+    // const { password, ...rest } = createdUser;
 
-    return rest;
+    return this.adminUserService.create(createAdminUserDto);
   }
 
   @Post('login')

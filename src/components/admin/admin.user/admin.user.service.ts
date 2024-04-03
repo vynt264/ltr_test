@@ -29,8 +29,35 @@ export class AdminUserService {
     private userService: UserService,
   ) { }
 
-  create(createAdminUserDto: CreateAdminUserDto) {
-    return this.adminUserRepository.save(createAdminUserDto);
+  async create(createAdminUserDto: CreateAdminUserDto): Promise<any> {
+    const dataDup = await this.adminUserRepository.findOne({
+      where: {
+        username: createAdminUserDto.username,
+        bookmaker: {
+          id: createAdminUserDto.bookmakerId,
+        }
+      }
+    });
+
+    if (dataDup) {
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        "Username is unique",
+        ERROR.CREATE_FAILED
+      );
+    }
+
+    const createDto = { 
+      username: createAdminUserDto.username,
+      password: createAdminUserDto.password,
+      bookmaker: { id: createAdminUserDto.bookmakerId }
+    }
+    const result = await this.adminUserRepository.save(createDto);
+    return new ErrorResponse(
+      STATUSCODE.COMMON_SUCCESS,
+      result,
+      MESSAGE.CREATE_SUCCESS
+    );
   }
 
   async getAll(paginationQuery: PaginationQueryDto): Promise<any> {
@@ -68,7 +95,6 @@ export class AdminUserService {
         username: true,
         createdAt: true,
         role: true,
-        password: true,
         bookmaker: {
           id: true,
           name: true,
