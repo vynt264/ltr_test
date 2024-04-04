@@ -143,7 +143,7 @@ export class ScheduleService implements OnModuleInit {
 
         await Promise.all(promises);
 
-        this.finishJob(jobName, time);
+        // this.finishJob(jobName, time);
     }
 
     async processingData(time: number, turnIndex: string, nextTurnIndex: string, nextTime: number, gameType: string, bookMakers: any) {

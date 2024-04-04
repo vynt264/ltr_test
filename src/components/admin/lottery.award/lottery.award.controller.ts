@@ -20,6 +20,11 @@ export class LotteryAwardController {
     return this.lotteryAwardService.findAll(paginationQueryDto);
   }
 
+  @Get('report')
+  report(@Query() query: any) {
+    return this.lotteryAwardService.report(query);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.lotteryAwardService.findOne(+id);

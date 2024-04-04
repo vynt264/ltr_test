@@ -7,7 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LotteryAward } from './entities/lottery.award.entity';
 import { Between, Repository } from 'typeorm';
 import { MESSAGE, STATUSCODE } from 'src/system/constants';
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, startOfDay, addHours, addDays } from 'date-fns';
+
 
 @Injectable()
 export class LotteryAwardService {
@@ -41,6 +42,23 @@ export class LotteryAwardService {
         MESSAGE.LIST_FAILED
       );
     }
+  }
+
+  async report({ date }: any) {
+    const currentDate = new Date(date);
+    let fromD = startOfDay(new Date(currentDate));
+    fromD = addHours(fromD, 7);
+    let toD = endOfDay(new Date(currentDate));
+    toD = addHours(toD, 7);
+    const lotteryAward = await this.lotteryAwardRepository.query(
+      `
+        SELECT type, SUM(lottery.totalProfit) as totalProfit FROM lottery_award AS lottery
+        WHERE lottery.createdAt >= '${fromD.toISOString()}' AND lottery.createdAt <= '${toD.toISOString()}'
+        GROUP BY type
+      `
+    );
+
+    return lotteryAward;
   }
 
   async searchAdminGetAll(
