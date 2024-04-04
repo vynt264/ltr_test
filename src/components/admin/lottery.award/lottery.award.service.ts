@@ -52,7 +52,7 @@ export class LotteryAwardService {
     toD = addHours(toD, 7);
     const lotteryAward = await this.lotteryAwardRepository.query(
       `
-        SELECT type, SUM(lottery.totalProfit) as totalProfit FROM lottery_award AS lottery
+        SELECT type, SUM(lottery.totalProfit) as totalProfit, SUM(lottery.totalRevenue) as totalRevenue FROM lottery_award AS lottery
         WHERE lottery.createdAt >= '${fromD.toISOString()}' AND lottery.createdAt <= '${toD.toISOString()}'
         GROUP BY type
       `
