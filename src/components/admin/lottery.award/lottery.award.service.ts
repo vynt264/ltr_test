@@ -44,12 +44,25 @@ export class LotteryAwardService {
     }
   }
 
-  async report({ date }: any) {
-    const currentDate = new Date(date);
-    let fromD = startOfDay(new Date(currentDate));
+  async report({ fromDate, toDate }: any) {
+    if (!fromDate) return;
+
+    let fromD;
+    let toD;
+    if (fromDate && toDate) {
+      fromD = startOfDay(new Date(fromDate));
+      toD = endOfDay(new Date(toDate));
+    } else if (fromDate) {
+      fromD = startOfDay(new Date(fromDate));
+      toD = endOfDay(new Date(fromDate));
+    } else if (toDate) {
+      fromD = startOfDay(new Date());
+      toD = endOfDay(new Date(fromDate));
+    }
+
     fromD = addHours(fromD, 7);
-    let toD = endOfDay(new Date(currentDate));
     toD = addHours(toD, 7);
+
     const lotteryAward = await this.lotteryAwardRepository.query(
       `
         SELECT type, SUM(lottery.totalProfit) as totalProfit, SUM(lottery.totalRevenue) as totalRevenue FROM lottery_award AS lottery
