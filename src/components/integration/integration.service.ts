@@ -153,7 +153,7 @@ export class IntegrationService {
       const params = Helper.encryptData(
         `username=${usernameEncrypt}&bookmakerId=${verifyAccountDto.bookmakerId}`
       );
-      const url = `${FE_URL_1}/?params=${params}`
+      const url = `${FE_URL_1}/?params=${params}&gameType=0`
 
       const userResponse = {
         user: {
