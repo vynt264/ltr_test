@@ -614,7 +614,7 @@ export class OrdersService {
     return this.orderRequestRepository.delete(id);
   }
 
-  async getCurrentTurnIndex(query: { seconds: string, type: string, isTestPlayerClient: boolean }, user: any) {
+  async getCurrentTurnIndex(query: { seconds: string, type: string, isTestPlayerClient: any }, user: any) {
     if (!query.seconds) {
       return {};
     }
@@ -625,7 +625,7 @@ export class OrdersService {
     const secondsInCurrentRound = (toDate / 1000) % parseInt(query.seconds);
     const openTime = toDate - (secondsInCurrentRound * 1000);
     let isTestPlayer = false;
-    if (query.isTestPlayerClient) {
+    if (query.isTestPlayerClient === 'true') {
       isTestPlayer = true;
     }
 
