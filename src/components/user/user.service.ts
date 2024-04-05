@@ -50,6 +50,7 @@ export class UserService {
         role: true,
         isAuth: true,
         isBlocked: true,
+        usernameReal: true,
       },
       where: {
         username,
