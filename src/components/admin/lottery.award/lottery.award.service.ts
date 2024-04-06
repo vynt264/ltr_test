@@ -44,7 +44,7 @@ export class LotteryAwardService {
     }
   }
 
-  async report({ fromDate, toDate }: any) {
+  async report({ fromDate, toDate, bookmarkerId, type }: any) {
     if (!fromDate) return;
 
     let fromD;
@@ -63,13 +63,30 @@ export class LotteryAwardService {
     fromD = addHours(fromD, 7);
     toD = addHours(toD, 7);
 
-    const lotteryAward = await this.lotteryAwardRepository.query(
-      `
-        SELECT type, SUM(lottery.totalProfit) as totalProfit, SUM(lottery.totalRevenue) as totalRevenue FROM lottery_award AS lottery
-        WHERE lottery.createdAt >= '${fromD.toISOString()}' AND lottery.createdAt <= '${toD.toISOString()}'
-        GROUP BY type
-      `
-    );
+    let gameType = '';
+    if (type) {
+      for (let i = 0; i < type.split('-').length; i++) {
+        gameType += type.split('-')[i];
+      }
+
+      gameType += 's';
+    }
+
+    let query = `
+      SELECT type, SUM(lottery.totalProfit) as totalProfit, SUM(lottery.totalRevenue) as totalRevenue FROM lottery_award AS lottery
+      WHERE lottery.createdAt >= '${fromD.toISOString()}' AND lottery.createdAt <= '${toD.toISOString()}'
+    `;
+
+    if (bookmarkerId) {
+      query += `AND lottery.bookmakerId = '${Number(bookmarkerId)}'`
+    }
+    if (gameType) {
+      query += `AND lottery.type = '${gameType}'`
+    }
+
+    query += `GROUP BY type`;
+
+    const lotteryAward = await this.lotteryAwardRepository.query(query);
 
     return lotteryAward;
   }

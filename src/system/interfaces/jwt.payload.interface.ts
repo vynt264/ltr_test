@@ -7,4 +7,5 @@ export interface JwtPayload {
   bookmakerId: number;
   usernameReal?: string;
   id?: string;
+  isTestPlayer?: boolean,
 }

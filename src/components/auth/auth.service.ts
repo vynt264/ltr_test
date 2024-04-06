@@ -80,6 +80,7 @@ export class AuthService {
       nickname: user.username,
       bookmakerId: user?.bookmakerId || 1,
       usernameReal: user?.usernameReal || '',
+      isTestPlayer: user.isTestPlayer,
     };
 
     let userHistoryDto = new CreateUserHistoryDto();
@@ -248,6 +249,7 @@ export class AuthService {
         role: user.role,
         bookmakerId: user?.bookmaker?.id || 1,
         usernameReal: user?.usernameReal,
+        isTestPlayer: user?.usernameReal ? true : false,
       },
       username,
     };
