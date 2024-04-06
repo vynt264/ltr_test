@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString, IsNumber } from "class-validator";
+import { IsNotEmpty, IsString, IsNumber, IsOptional } from "class-validator";
 export class VerifyAccountDto {
   @ApiProperty()
   @IsString()
@@ -15,6 +15,10 @@ export class VerifyAccountDto {
   @IsString()
   @IsNotEmpty()
   sign: string;
+
+  @IsOptional()
+  @IsNumber()
+  typeGame: number;
 }
 
 export default VerifyAccountDto;
