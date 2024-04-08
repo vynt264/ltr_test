@@ -8,6 +8,7 @@ import { LotteryAward } from './entities/lottery.award.entity';
 import { Between, Repository } from 'typeorm';
 import { MESSAGE, STATUSCODE } from 'src/system/constants';
 import { endOfDay, startOfDay, addHours, addDays } from 'date-fns';
+import { Order } from 'src/components/orders/entities/order.entity';
 
 
 @Injectable()
@@ -15,6 +16,8 @@ export class LotteryAwardService {
   constructor(
     @InjectRepository(LotteryAward)
     private lotteryAwardRepository: Repository<LotteryAward>,
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>,
   ) { }
 
   create(createLotteryAwardDto: CreateLotteryAwardDto) {
@@ -72,8 +75,18 @@ export class LotteryAwardService {
       gameType += 's';
     }
 
+    // count orders by type
+    const queryOrders = `
+      SELECT type, seconds, COUNT(*) as count from orders
+      WHERE created_at >= '${fromD.toISOString()}' AND created_at <= '${toD.toISOString()}' AND status = 'closed'
+      GROUP BY type, seconds
+    `;
+    const orders = await this.orderRepository.query(queryOrders);
+
+    // calc totalbet and profit
     let query = `
-      SELECT type, SUM(lottery.totalProfit) as totalProfit, SUM(lottery.totalRevenue) as totalRevenue FROM lottery_award AS lottery
+      SELECT lottery.type, SUM(lottery.totalProfit) as totalProfit, SUM(lottery.totalRevenue) as totalRevenue
+      FROM lottery_award AS lottery
       WHERE lottery.createdAt >= '${fromD.toISOString()}' AND lottery.createdAt <= '${toD.toISOString()}'
     `;
 
@@ -83,10 +96,19 @@ export class LotteryAwardService {
     if (gameType) {
       query += `AND lottery.type = '${gameType}'`
     }
-
     query += `GROUP BY type`;
-
     const lotteryAward = await this.lotteryAwardRepository.query(query);
+
+    // assign number of order by type
+    for (const lt of lotteryAward) {
+      lt.count = 0;
+      for (const order of orders) {
+        const type = `${order.type}${order.seconds}s`;
+        if (type === lt.type) {
+          lt.count = order.count;
+        }
+      }
+    }
 
     return lotteryAward;
   }
