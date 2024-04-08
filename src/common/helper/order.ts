@@ -1079,6 +1079,10 @@ export class OrderHelper {
                     case BaoLoType.Lo2So1k:
                     case BaoLoType.Lo3So:
                     case BaoLoType.Lo4So:
+                    case BaCangType.BaCangDau:
+                    case BaCangType.BaCangDacBiet:
+                    case BaCangType.BaCangDauDuoi:
+                    case BonCangType.BonCangDacBiet:
                     case DanhDeType.DeDau:
                     case DanhDeType.DeDacBiet:
                     case DanhDeType.DeDauDuoi:

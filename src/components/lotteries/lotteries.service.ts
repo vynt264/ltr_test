@@ -2966,6 +2966,10 @@ export class LotteriesService {
                 totalBetAmount += (totalScore * PricePerScore.BaCangDauDuoi);
                 break;
 
+              case BaCangType.BaCangDau:
+                totalBetAmount += (totalScore * PricePerScore.BaCangDau);
+                break;
+
               default:
                 break;
             }
