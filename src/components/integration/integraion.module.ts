@@ -12,6 +12,8 @@ import { IntegrationController } from "./integration.controller";
 import { UserInfo } from "../user.info/user.info.entity";
 import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
 import { RedisCacheModule } from 'src/system/redis/redis.module';
+import { PlayHistoryHilo } from '../admin/admin.hilo/entities/play.history.hilo.entity';
+import { PlayHistoryPoker } from '../admin/admin.poker/entities/play.history.poker.entity';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { RedisCacheModule } from 'src/system/redis/redis.module';
       Order,
       UserInfo,
       CoinWallet,
+      PlayHistoryHilo,
+      PlayHistoryPoker,
     ]),
     RedisCacheModule,
   ],
