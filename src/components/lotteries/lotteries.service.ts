@@ -181,51 +181,6 @@ export class LotteriesService {
     };
   }
 
-  // calcPayoutPerOrderNumber({
-  //   number,
-  //   orders,
-  //   oddBet,
-  //   type,
-  // }: any) {
-
-  //   let pricePerOrder = 0;
-  //   let order;
-
-  //   switch (type) {
-  //     case BaoLoType.Lo2So:
-  //     case BaoLoType.Lo2So1k:
-  //     case BaoLoType.Lo3So:
-  //     case BaoLoType.Lo4So:
-  //     case DauDuoiType.Duoi:
-  //     case BaCangType.BaCangDacBiet:
-  //     case BaCangType.BaCangDauDuoi:
-  //     case BonCangType.BonCangDacBiet:
-  //     case DanhDeType.DeDauDuoi:
-  //     case DanhDeType.DeDau:
-  //     case BaCangType.BaCangDau:
-  //     case BaCangType.BaCangDauDuoi:
-  //       order = this.getOrderEndsWith(number, orders);
-  //       break;
-
-  //     case DauDuoiType.Dau:
-  //       order = this.getOrderStartWith(number, orders);
-  //       break;
-
-  //     case TroChoiThuViType.Lo2SoGiaiDacBiet:
-  //       break;
-
-  //     default:
-  //       break;
-  //   }
-
-  //   if (order) {
-  //     pricePerOrder = (order?.score || 0) * (oddBet * 1000);
-  //   }
-
-  //   return pricePerOrder;
-  // }
-
-
   calcPayoutTroChoiThuVi({
     orders,
     lastTwoDigits,
@@ -338,111 +293,111 @@ export class LotteriesService {
       if (item) {
         switch (order.number) {
           case Lo2SoGiaiDacBietType.Tai:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tai * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tai * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Xiu:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Xiu * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Xiu * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Chan:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Chan * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Chan * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Le:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Le * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Le * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong0:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong0 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong0 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong1:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong1 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong1 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong2:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong2 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong2 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong3:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong3 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong3 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong4:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong4 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score)|| 0) * (OddBet.Tong4 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong5:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong5 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong5 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong6:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong6 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong6 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong7:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong7 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong7 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong8:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong8 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong8 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong9:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong9 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong9 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong10:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong10 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong10 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong11:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong11 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong11 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong12:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong12 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong12 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong13:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong13 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong13 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong14:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong14 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong14 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong15:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong15 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong15 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong16:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong16 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong16 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong17:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong17 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong17 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.Tong18:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.Tong18 * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.Tong18 * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.TongTai:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.TongTai * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.TongTai * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.TongXiu:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.TongXiu * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.TongXiu * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.TongChan:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.TongChan * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.TongChan * 1000);
             break;
 
           case Lo2SoGiaiDacBietType.TongLe:
-            payOutLo2SoGiaiDacBiet += (order?.score || 0) * (OddBet.TongLe * 1000);
+            payOutLo2SoGiaiDacBiet += (Number(order?.score) || 0) * (OddBet.TongLe * 1000);
             break;
 
           default:
@@ -493,7 +448,7 @@ export class LotteriesService {
     arrayOf9999Numbers,
   }: any) {
     for (const order of ordersLo4So) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.Lo4So * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.Lo4So * 1000);
       arrayOf9999Numbers[order.number] += pricePerOrder;
     }
 
@@ -505,7 +460,7 @@ export class LotteriesService {
     arrayOf9999Numbers,
   }: any) {
     for (const order of ordersLo3So) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.Lo3So * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.Lo3So * 1000);
 
       for (let i = 0; i <= 9; i++) {
         const number = `${i.toString()}${order.number}`;
@@ -521,7 +476,7 @@ export class LotteriesService {
     arrayOf9999Numbers,
   }: any) {
     for (const order of ordersLo2So) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.Lo2So * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.Lo2So * 1000);
 
       for (let i = 0; i <= 99; i++) {
         let number = i.toString();
@@ -543,7 +498,7 @@ export class LotteriesService {
     arrayOf9999Numbers,
   }: any) {
     for (const order of ordersLo2So1k) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.Lo2So1k * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.Lo2So1k * 1000);
 
       for (let i = 0; i <= 99; i++) {
         let number = i.toString();
@@ -565,7 +520,7 @@ export class LotteriesService {
     arrayOf9999Numbers,
   }: any) {
     for (const order of ordersDeDacBiet) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.DeDacBiet * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.DeDacBiet * 1000);
 
       for (let i = 0; i <= 99; i++) {
         let number = i.toString();
@@ -587,7 +542,7 @@ export class LotteriesService {
     arrayOf9999Numbers,
   }: any) {
     for (const order of ordersDeDauDuoi) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.DeDauDuoi * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.DeDauDuoi * 1000);
 
       for (let i = 0; i <= 99; i++) {
         let number = i.toString();
@@ -609,7 +564,7 @@ export class LotteriesService {
     arrayOf9999Numbers,
   }: any) {
     for (const order of ordersBaCangDacBiet) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.BaCangDacBiet * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.BaCangDacBiet * 1000);
 
       for (let i = 0; i <= 9; i++) {
         const number = `${i.toString()}${order.number}`;
@@ -625,7 +580,7 @@ export class LotteriesService {
     arrayOf9999Numbers,
   }: any) {
     for (const order of ordersBaCangDauDuoi) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.BaCangDauDuoi * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.BaCangDauDuoi * 1000);
 
       for (let i = 0; i <= 9; i++) {
         const number = `${i.toString()}${order.number}`;
@@ -641,7 +596,7 @@ export class LotteriesService {
     arrayOf9999Numbers,
   }: any) {
     for (const order of ordersBonCangDacBiet) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.BonCangDacBiet * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.BonCangDacBiet * 1000);
       arrayOf9999Numbers[order.number] += pricePerOrder;
     }
 
@@ -653,7 +608,7 @@ export class LotteriesService {
     arrayOf9999Numbers,
   }: any) {
     for (const order of ordersDau) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.Duoi * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.Duoi * 1000);
       for (let i = 0; i <= 99; i++) {
         let number = i.toString();
         if (number.length === 1) {
@@ -677,7 +632,7 @@ export class LotteriesService {
     arrayOf9999Numbers,
   }: any) {
     for (const order of ordersDuoi) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.Dau * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.Dau * 1000);
       for (let i = 0; i <= 999; i++) {
         let number = i.toString();
         if (number.length === 1) {
@@ -801,26 +756,26 @@ export class LotteriesService {
     let arrayOf99Numbers = this.generateOf99Numbers();
 
     for (const order of ordersLo2So) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.Lo2So * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.Lo2So * 1000);
 
       arrayOf99Numbers[order.number] += pricePerOrder;
     }
 
     for (const order of ordersLo2So1k) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.Lo2So1k * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.Lo2So1k * 1000);
 
       arrayOf99Numbers[order.number] += pricePerOrder;
     }
 
 
     for (const order of ordersDeDau) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.DeDau * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.DeDau * 1000);
 
       arrayOf99Numbers[order.number] += pricePerOrder;
     }
 
     for (const order of ordersDeDauDuoi) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.DeDauDuoi * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.DeDauDuoi * 1000);
 
       arrayOf99Numbers[order.number] += pricePerOrder;
     }
@@ -848,7 +803,7 @@ export class LotteriesService {
 
     let arrayOf999Numbers = this.generateOf999Numbers();
     for (const order of ordersLo2So) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.Lo2So * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.Lo2So * 1000);
 
       for (let i = 0; i <= 9; i++) {
         const number = `${i.toString()}${order.number}`;
@@ -857,7 +812,7 @@ export class LotteriesService {
     }
 
     for (const order of ordersLo2So1k) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.Lo2So1k * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.Lo2So1k * 1000);
 
       for (let i = 0; i <= 9; i++) {
         const number = `${i.toString()}${order.number}`;
@@ -866,19 +821,19 @@ export class LotteriesService {
     }
 
     for (const order of ordersLo3So) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.Lo3So * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.Lo3So * 1000);
 
       arrayOf999Numbers[order?.number] += pricePerOrder;
     }
 
     for (const order of ordersBaCangDau) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.BaCangDau * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.BaCangDau * 1000);
 
       arrayOf999Numbers[order?.number] += pricePerOrder;
     }
 
     for (const order of ordersBaCangDauDuoi) {
-      const pricePerOrder = (order?.score || 0) * (OddBet.BaCangDauDuoi * 1000);
+      const pricePerOrder = (Number(order?.score) || 0) * (OddBet.BaCangDauDuoi * 1000);
 
       arrayOf999Numbers[order?.number] += pricePerOrder;
     }
@@ -965,7 +920,7 @@ export class LotteriesService {
 
         if (!existed) {
           let payOut = prizes.get(key);
-          payOut += ((orderXien2.score || 0) * (OddBet.Xien2 * 1000));
+          payOut += ((Number(orderXien2.score) || 0) * (OddBet.Xien2 * 1000));
           prizes.set(key, payOut);
 
           xien2Checked.push({
@@ -1004,7 +959,7 @@ export class LotteriesService {
 
         if (!existed) {
           let payOut = prizes.get(key);
-          payOut += ((orderXien3.score || 0) * (OddBet.Xien3 * 1000));
+          payOut += ((Number(orderXien3.score) || 0) * (OddBet.Xien3 * 1000));
           prizes.set(key, payOut);
           xien3Checked.push({
             indexOfXien: index,
@@ -1042,7 +997,7 @@ export class LotteriesService {
 
         if (!existed) {
           let payOut = prizes.get(key);
-          payOut += ((orderXien4.score || 0) * (OddBet.Xien4 * 1000));
+          payOut += ((Number(orderXien4.score) || 0) * (OddBet.Xien4 * 1000));
           prizes.set(key, payOut);
           xien4Checked.push({
             indexOfXien: index,
@@ -1068,88 +1023,6 @@ export class LotteriesService {
     this.processingXien3({ ordersXien3, prizesFinal, prizes: mergeResult, type, xien3Checked });
     this.processingXien4({ ordersXien4, prizesFinal, prizes: mergeResult, type, xien4Checked });
   }
-
-  // checkXienTemp({
-  //   ordersXien2,
-  //   ordersXien3,
-  //   ordersXien4,
-  //   prizesFinal,
-  //   number,
-  //   mergeResult,
-  // }: any) {
-  //   const resultXien2 = this.checkXien2(ordersXien2, prizesFinal, number);
-  //   if (resultXien2.length > 0) {
-  //     mergeResult = mergeResult.map((n: any) => {
-  //       const lastTwoDigits = n?.number.slice(-2);
-  //       const ord = resultXien2.find((item: any) => item.number === lastTwoDigits);
-  //       if (ord) {
-  //         if (
-  //           (
-  //             (!n?.xienUpdated?.index && n?.xienUpdated?.index != 0)
-  //             || n?.xienUpdated?.index !== ord?.index
-  //           )
-  //         ) {
-  //           n.payOut += (ord?.score || 0) * (OddBet.Xien2 * 1000);
-  //           n.xienUpdated = {
-  //             index: ord.index,
-  //             type: ord.type,
-  //           };
-  //         }
-  //       }
-
-  //       return n;
-  //     });
-  //   }
-
-  //   const resultXien3 = this.checkXien3(ordersXien3, prizesFinal, number);
-  //   if (resultXien3.length > 0) {
-  //     mergeResult = mergeResult.map((n: any) => {
-  //       const lastTwoDigits = n?.number.slice(-2);
-  //       const ord = resultXien3.find((item: any) => item.number === lastTwoDigits);
-
-  //       if (ord) {
-  //         if (
-  //           (
-  //             (!n?.xienUpdated?.index && n?.xienUpdated?.index != 0)
-  //             || n?.xienUpdated?.index !== ord?.index
-  //           )
-  //         ) {
-  //           n.payOut += (ord?.score || 0) * (OddBet.Xien3 * 1000);
-  //           n.xienUpdated = {
-  //             index: ord.index,
-  //             type: ord.type,
-  //           };
-  //         }
-  //       }
-
-  //       return n;
-  //     });
-  //   }
-
-  //   const resultXien4 = this.checkXien4(ordersXien4, prizesFinal, number);
-  //   if (resultXien4.length > 0) {
-  //     mergeResult = mergeResult.map((n: any) => {
-  //       const lastTwoDigits = n?.number.slice(-2);
-  //       const ord = resultXien4.find((item: any) => item.number === lastTwoDigits);
-  //       if (ord) {
-  //         if (
-  //           (
-  //             (!n?.xienUpdated?.index && n?.xienUpdated?.index != 0)
-  //             || n?.xienUpdated?.index !== ord?.index
-  //           )
-  //         ) {
-  //           n.payOut += (ord?.score || 0) * (OddBet.Xien4 * 1000);
-  //           n.xienUpdated = {
-  //             index: ord.index,
-  //             type: ord.type,
-  //           };
-  //         }
-  //       }
-
-  //       return n;
-  //     });
-  //   }
-  // }
 
   checkLoTruot({
     totalBetAmount,
@@ -1199,7 +1072,7 @@ export class LotteriesService {
         if (!exist) {
           if (prizes.has(key) && !hasInFinalResult) {
             let payOut = prizes.get(key);
-            payOut -= ((orders.score || 0) * (OddBet.TruotXien4 * 1000));
+            payOut -= ((Number(orders.score) || 0) * (OddBet.TruotXien4 * 1000));
             prizes.set(key, payOut);
             indexOrdersTruotXien4HasCounted.push(index);
           }
@@ -1219,7 +1092,7 @@ export class LotteriesService {
       if (exist) {
         const hasIndex = ordersXien2HasCounted.some((index: any) => index == currentIndex);
         if (!hasIndex) {
-          totalBetAmount += (OddBet.TruotXien4 * 1000 * (currentValue?.score || 0));
+          totalBetAmount += (OddBet.TruotXien4 * 1000 * (Number(currentValue?.score) || 0));
           ordersXien2HasCounted.push(currentIndex);
         }
       }
@@ -1268,7 +1141,7 @@ export class LotteriesService {
         if (!exist) {
           if (prizes.has(key) && !hasInFinalResult) {
             let payOut = prizes.get(key);
-            payOut -= ((orders.score || 0) * (OddBet.TruotXien8 * 1000));
+            payOut -= ((Number(orders.score) || 0) * (OddBet.TruotXien8 * 1000));
             prizes.set(key, payOut);
             indexOrdersTruotXien8HasCounted.push(index);
           }
@@ -1289,7 +1162,7 @@ export class LotteriesService {
       if (exist) {
         const hasIndex = ordersXien3HasCounted.some((index: any) => index == currentIndex);
         if (!hasIndex) {
-          totalBetAmount += (OddBet.TruotXien8 * 1000 * (currentValue?.score || 0));
+          totalBetAmount += (OddBet.TruotXien8 * 1000 * (Number(currentValue?.score) || 0));
           ordersXien3HasCounted.push(currentIndex);
         }
       }
@@ -1335,7 +1208,7 @@ export class LotteriesService {
         if (!exist) {
           if (prizes.has(key) && !hasInFinalResult) {
             let payOut = prizes.get(key);
-            payOut -= ((orders.score || 0) * (OddBet.TruotXien10 * 1000));
+            payOut -= ((Number(orders.score) || 0) * (OddBet.TruotXien10 * 1000));
             prizes.set(key, payOut);
             indexOrdersTruotXien10HasCounted.push(index);
           }
@@ -1356,7 +1229,7 @@ export class LotteriesService {
       if (exist) {
         const hasIndex = ordersXien4HasCounted.some((index: any) => index == currentIndex);
         if (!hasIndex) {
-          totalBetAmount += (OddBet.TruotXien10 * 1000 * (currentValue?.score || 0));
+          totalBetAmount += (OddBet.TruotXien10 * 1000 * (Number(currentValue?.score) || 0));
           ordersXien4HasCounted.push(currentIndex);
         }
       }
@@ -1383,181 +1256,6 @@ export class LotteriesService {
       prizes: result,
     };
   }
-
-  // checkLoTruot2({
-  //   totalBetAmount,
-  //   finalResult,
-  //   ordersTruotXien4,
-  //   ordersTruotXien8,
-  //   ordersTruotXien10,
-  //   prizes,
-  //   ordersXien2HasCounted,
-  //   ordersXien3HasCounted,
-  //   ordersXien4HasCounted,
-  // }: any) {
-  //   if (totalBetAmount < 0) {
-  //     for (const orders of ordersTruotXien4) {
-  //       const firstItem = orders.number[0];
-  //       const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
-
-  //       for (let i = 0; i <= 99; i++) {
-  //         let key = i.toString();
-  //         if (i.toString().length === 1) {
-  //           key = `0${i}`;
-  //         }
-  //         key = `${key}${firstItem}`;
-
-  //         //
-  //         // 0000
-
-  //         if (prizes.has(key) && !hasInFinalResult) {
-  //           let payOut = prizes.get(key);
-  //           payOut -= ((orders.score || 0) * (OddBet.TruotXien4 * 1000));
-  //           prizes.set(key, payOut);
-  //         } else {
-  //           let payOut = prizes.get(key);
-  //           payOut += ((orders.score || 0) * (OddBet.TruotXien4 * 1000));
-  //           prizes.set(key, payOut);
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   ordersTruotXien4 = ordersTruotXien4.reduce((result: any, currentValue: any, currentIndex: number) => {
-  //     let exist;
-  //     for (const res of finalResult) {
-  //       exist = currentValue?.number.some((n: any) => res?.number.endsWith(n));
-  //       if (exist) {
-  //         break;
-  //       }
-  //     }
-
-  //     if (exist) {
-  //       const hasIndex = ordersXien2HasCounted.some((index: any) => index == currentIndex);
-  //       if (!hasIndex) {
-  //         totalBetAmount += (OddBet.TruotXien4 * 1000 * (currentValue?.score || 0));
-  //         ordersXien2HasCounted.push(currentIndex);
-  //       }
-  //     }
-  //     // else {
-  //     //   result.push(currentValue);
-  //     // }
-
-  //     result.push(currentValue);
-
-  //     return result;
-  //   }, []);
-
-
-
-  //   //
-  //   ordersTruotXien8 = ordersTruotXien8.reduce((result: any, currentValue: any, currentIndex: number) => {
-  //     let exist;
-  //     for (const res of finalResult) {
-  //       exist = currentValue?.number.some((n: any) => res?.number.endsWith(n));
-  //       if (exist) {
-  //         break;
-  //       }
-  //     }
-
-  //     if (exist) {
-  //       const hasIndex = ordersXien3HasCounted.some((index: any) => index == currentIndex);
-  //       if (!hasIndex) {
-  //         totalBetAmount += (OddBet.TruotXien8 * 1000 * (currentValue?.score || 0));
-  //         ordersXien3HasCounted.push(currentIndex);
-  //       }
-  //     }
-
-  //     result.push(currentValue);
-
-  //     return result;
-  //   }, []);
-
-  //   for (const orders of ordersTruotXien8) {
-  //     const firstItem = orders.number[0];
-  //     const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
-
-  //     for (let i = 0; i <= 99; i++) {
-  //       let key = i.toString();
-  //       if (i.toString().length === 1) {
-  //         key = `0${i}`;
-  //       }
-  //       key = `${key}${firstItem}`;
-
-  //       if (prizes.has(key) && !hasInFinalResult) {
-  //         let payOut = prizes.get(key);
-  //         payOut -= ((orders.score || 0) * (OddBet.TruotXien8 * 1000));
-  //         prizes.set(key, payOut);
-  //       } else {
-  //         let payOut = prizes.get(key);
-  //         payOut += ((orders.score || 0) * (OddBet.TruotXien8 * 1000));
-  //         prizes.set(key, payOut);
-  //       }
-  //     }
-  //   }
-
-  //   //
-  //   ordersTruotXien10 = ordersTruotXien10.reduce((result: any, currentValue: any, currentIndex: number) => {
-  //     let exist;
-  //     for (const res of finalResult) {
-  //       exist = currentValue?.number.some((n: any) => res?.number.endsWith(n));
-  //       if (exist) {
-  //         break;
-  //       }
-  //     }
-
-  //     if (exist) {
-  //       const hasIndex = ordersXien4HasCounted.some((index: any) => index == currentIndex);
-  //       if (!hasIndex) {
-  //         totalBetAmount += (OddBet.TruotXien10 * 1000 * (currentValue?.score || 0));
-  //         ordersXien4HasCounted.push(currentIndex);
-  //       }
-  //     }
-
-  //     result.push(currentValue);
-
-  //     return result;
-  //   }, []);
-
-  //   for (const orders of ordersTruotXien10) {
-  //     const firstItem = orders.number[0];
-  //     const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
-
-  //     for (let i = 0; i <= 99; i++) {
-  //       let key = i.toString();
-  //       if (i.toString().length === 1) {
-  //         key = `0${i}`;
-  //       }
-  //       key = `${key}${firstItem}`;
-
-  //       if (prizes.has(key) && !hasInFinalResult) {
-  //         let payOut = prizes.get(key);
-  //         payOut -= ((orders.score || 0) * (OddBet.TruotXien10 * 1000));
-  //         prizes.set(key, payOut);
-  //       } else {
-  //         let payOut = prizes.get(key);
-  //         payOut += ((orders.score || 0) * (OddBet.TruotXien10 * 1000));
-  //         prizes.set(key, payOut);
-  //       }
-  //     }
-  //   }
-
-  //   let result: any = [];
-  //   prizes.forEach((value: any, key: any) => {
-  //     result.push({
-  //       number: key,
-  //       payOut: value
-  //     });
-  //   });
-
-  //   return {
-  //     totalBetAmount,
-  //     ordersTruotXien4,
-  //     ordersTruotXien8,
-  //     ordersTruotXien10,
-  //     prizes: result,
-  //   };
-  // }
 
   getPrize7Temp({
     profit,
@@ -2259,7 +1957,7 @@ export class LotteriesService {
       if (count === 1) {
         finalResult.push({
           number: tempNumber,
-          score: orderXien2.score,
+          score: Number(orderXien2.score),
           payOut: orderXien2.payOut,
           index: orderXien2.index,
           type: 'xien-2',
@@ -2298,7 +1996,7 @@ export class LotteriesService {
       if (count === 2) {
         finalResult.push({
           number: tempNumber,
-          score: orderXien3.score,
+          score: Number(orderXien3.score),
           payOut: orderXien3.payOut,
           index: orderXien3.index,
           type: 'xien-3',
@@ -2337,7 +2035,7 @@ export class LotteriesService {
       if (count === 3) {
         finalResult.push({
           number: tempNumber,
-          score: orderXien4.score,
+          score: Number(orderXien4.score),
           payOut: orderXien4.payOut,
           index: orderXien4.index,
           type: 'xien-4',
@@ -2358,19 +2056,19 @@ export class LotteriesService {
 
     // truot 4
     for (const order of ordersTruotXien4) {
-      const pricePerOrderTruotXien4 = (order?.score || 0) * (OddBet.TruotXien4 * 1000);
+      const pricePerOrderTruotXien4 = (Number(order?.score) || 0) * (OddBet.TruotXien4 * 1000);
       totalAmountLoXienTruot += pricePerOrderTruotXien4;
     }
 
     // truot 8
     for (const order of ordersTruotXien8) {
-      const pricePerOrderTruotXien8 = (order?.score || 0) * (OddBet.TruotXien8 * 1000);
+      const pricePerOrderTruotXien8 = (Number(order?.score) || 0) * (OddBet.TruotXien8 * 1000);
       totalAmountLoXienTruot += pricePerOrderTruotXien8;
     }
 
     // truot 10
     for (const order of ordersTruotXien10) {
-      const pricePerOrderTruotXien10 = (order?.score || 0) * (OddBet.TruotXien10 * 1000);
+      const pricePerOrderTruotXien10 = (Number(order?.score) || 0) * (OddBet.TruotXien10 * 1000);
       totalAmountLoXienTruot += pricePerOrderTruotXien10;
     }
 
@@ -2697,165 +2395,6 @@ export class LotteriesService {
     };
   }
 
-  // getInfoToGeneratePrize({
-  //   typePrize,
-  // }: any) {
-  //   let numberOfNumbers = 0;
-  //   let actualLength = 0;
-  //   let expectedLength = 0;
-
-  //   switch (typePrize) {
-  //     case PRIZES.SPECIAL_PRIZE:
-  //       numberOfNumbers = 1;
-  //       actualLength = 6;
-
-  //       break;
-  //     case PRIZES.PRIZE_1:
-  //       numberOfNumbers = 1;
-  //       actualLength = 5;
-
-  //       break;
-  //     case PRIZES.PRIZE_2:
-  //       numberOfNumbers = 1;
-  //       actualLength = 5;
-
-  //       break;
-  //     case PRIZES.PRIZE_3:
-  //       numberOfNumbers = 2;
-  //       actualLength = 5;
-
-  //       break;
-  //     case PRIZES.PRIZE_4:
-  //       numberOfNumbers = 7;
-  //       actualLength = 5;
-
-  //       break;
-  //     case PRIZES.PRIZE_5:
-  //       numberOfNumbers = 1;
-  //       actualLength = 4;
-
-  //       break;
-  //     case PRIZES.PRIZE_6:
-  //       numberOfNumbers = 3;
-  //       actualLength = 4;
-
-  //       break;
-  //     case PRIZES.PRIZE_7:
-  //       numberOfNumbers = 1;
-  //       actualLength = 3;
-
-  //       break;
-  //     case PRIZES.PRIZE_8:
-  //       numberOfNumbers = 1;
-  //       actualLength = 2;
-
-  //       break;
-  //     default:
-  //       break;
-  //   }
-
-  //   return {
-  //     actualLength,
-  //     expectedLength,
-  //     numberOfNumbers,
-  //   };
-  // }
-
-  // createPrizes({
-  //   numbers,
-  //   typePrize,
-  //   exclusionNumbers,
-  // }: any) {
-
-  //   let { numberOfNumbers, actualLength, expectedLength } = this.getInfoToGeneratePrize({
-  //     typePrize,
-  //   });
-
-  //   const result = [];
-  //   if (!numbers || numbers.length === 0) {
-  //     for (let i = 0; i < numberOfNumbers; i++) {
-  //       const tempNumber = this.randomNumber(actualLength, { excludeNumbers: exclusionNumbers });
-  //       result.push(tempNumber);
-  //     }
-  //   } else {
-  //     for (const number of numbers) {
-  //       expectedLength = actualLength - number.toString().length;
-  //       const tempNumber = this.randomNumber(expectedLength);
-  //       result.push(`${tempNumber}${number}`);
-  //     }
-
-  //     while (true) {
-  //       if (result.length >= numberOfNumbers) {
-  //         break;
-  //       }
-
-  //       const tempNumber = this.randomNumber(actualLength, { excludeNumbers: exclusionNumbers });
-  //       result.push(tempNumber);
-  //     }
-  //   }
-
-  //   return result;
-  // }
-
-  // randomNumber(length: number, options?: any) {
-  //   if (!length) return '';
-
-  //   let numberLength;
-  //   switch (length) {
-  //     case 1:
-  //       numberLength = 10;
-  //       break;
-  //     case 2:
-  //       numberLength = 100;
-  //       break;
-  //     case 3:
-  //       numberLength = 1000;
-  //       break;
-  //     case 4:
-  //       numberLength = 10000;
-  //       break;
-  //     case 5:
-  //       numberLength = 100000;
-  //       break;
-  //     case 6:
-  //       numberLength = 1000000;
-  //       break;
-
-  //     default:
-  //       break;
-  //   }
-
-  //   let newNumber;
-  //   let condition = true;
-  //   do {
-  //     newNumber = (Math.floor(Math.random() * numberLength)).toString();
-  //     if (!options?.excludeNumbers || options?.excludeNumbers?.length === 0) {
-  //       condition = false;
-  //     } else {
-
-  //       for (const excludeNumber of options.excludeNumbers) {
-  //         if (newNumber.length >= 2) {
-  //           const lastTwoDigits = newNumber.substr(-2);
-  //           const lastTwoDigitsOfExcludeNumber = excludeNumber.substr(-2);
-  //           condition = lastTwoDigits == lastTwoDigitsOfExcludeNumber;
-
-  //           if (condition) break;
-  //         }
-  //       }
-  //     }
-  //   } while (condition)
-  //   const tempLength = length - newNumber.length;
-  //   for (let i = 0; i < tempLength; i++) {
-  //     newNumber = '0' + newNumber;
-  //   }
-
-  //   return newNumber;
-  // }
-
-  // compareRandom(a: any, b: any) {
-  //   return Math.random() - 0.5;
-  // }
-
   getTotalBetAmount(orders: any): number {
     if (!orders || orders.length === 0) return 0;
 
@@ -3021,111 +2560,111 @@ export class LotteriesService {
                 for (const order of ordersOfTroChoiThuVi?.data) {
                   switch (order.number) {
                     case Lo2SoGiaiDacBietType.Tai:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Xiu:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Chan:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Le:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong0:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong1:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong2:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong3:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong4:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong5:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong6:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong7:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong8:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong9:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong10:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong11:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong12:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong13:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong14:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong15:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong16:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong17:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.Tong18:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.TongTai:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.TongXiu:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.TongChan:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     case Lo2SoGiaiDacBietType.TongLe:
-                      totalBetAmount += (order?.score || 0) * PricePerScore.TroChoiThuVi;
+                      totalBetAmount += (Number(order?.score) || 0) * PricePerScore.TroChoiThuVi;
                       break;
 
                     default:
@@ -3156,13 +2695,4 @@ export class LotteriesService {
       return accumulator + Number(currentValue.score);
     }, 0);
   }
-
-  // getOrdersNumber(orders: OrderDto[]): string[] {
-  //   if (!orders || orders.length === 0) return [];
-
-  //   return orders.reduce((accumulator: string[], currentValue: OrderDto) => {
-  //     accumulator.push(currentValue.number.toString());
-  //     return accumulator;
-  //   }, []);
-  // }
 }
