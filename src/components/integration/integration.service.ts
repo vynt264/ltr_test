@@ -26,6 +26,8 @@ import * as moment from "moment";
 import { FE_URL_1 } from 'src/system/config.system/config.default';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { OrderHelper } from 'src/common/helper';
+import { PlayHistoryHilo } from '../admin/admin.hilo/entities/play.history.hilo.entity';
+import { PlayHistoryPoker } from '../admin/admin.poker/entities/play.history.poker.entity';
 
 @Injectable()
 export class IntegrationService {
@@ -48,6 +50,10 @@ export class IntegrationService {
     private userInfoRepository: Repository<UserInfo>,
     @InjectRepository(CoinWallet)
     private coinWalletRepository: Repository<CoinWallet>,
+    @InjectRepository(PlayHistoryHilo)
+    private playHistoryHiloRepository: Repository<PlayHistoryHilo>,
+    @InjectRepository(PlayHistoryPoker)
+    private playHistoryPokerRepository: Repository<PlayHistoryPoker>,
     @Inject("winston")
     private readonly logger: Logger,
     private readonly redisService: RedisCacheService,
@@ -599,8 +605,8 @@ export class IntegrationService {
       let condition = "bookmaker.id = :bookmarkerFind AND (entity.created_at BETWEEN :timeStart AND :timeEnd)";
       const conditionParams: any = { 
         bookmarkerFind: bookmaker.id,
-        timeStart: moment(tiemStartCV).add("hours", 7).toDate(),
-        timeEnd: moment(timeEndCV).add("hours", 7).toDate()
+        timeStart: moment(tiemStartCV).toDate(),
+        timeEnd: moment(timeEndCV).toDate()
       }
       if (getBetInfo.username) {
         const usernameEncrypt = Helper.encryptData(getBetInfo.username)
@@ -671,6 +677,154 @@ export class IntegrationService {
         };
         result.push(newIt)
       })
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        result,
+        MESSAGE.GET_BET_INFO_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${IntegrationService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        ERROR.SYSTEM_OCCURRENCE
+      );
+    }
+  }
+
+  async getBetOriginalsInfo(getBetInfo: GetBetInfoDto) {
+    try {
+      const bookmaker = await this.bookmakerRepository.findOneBy({
+        id: getBetInfo.bookmakerId,
+      });
+      if (!bookmaker) {
+        return new SuccessResponse(
+          STATUSCODE.COMMON_BAD_REQUEST,
+          "Bookmaker is not exists",
+          MESSAGE.GET_BET_INFO_FAILUTE
+        );
+      }
+
+      const signLocal = Helper.endCodeUsername(
+        `${getBetInfo.bookmakerId}|${getBetInfo.timeStart}|${getBetInfo.timeEnd}`
+      );
+      if (getBetInfo.sign != signLocal) {
+        return new SuccessResponse(
+          STATUSCODE.COMMON_BAD_REQUEST,
+          "Sign is wrong",
+          MESSAGE.GET_BET_INFO_FAILUTE
+        );
+      }
+
+      const tiemStartCV = moment(getBetInfo.timeStart, "YYYYMMDDHHmmss").format("YYYY-MM-DD HH:mm:ss");
+      const timeEndCV = moment(getBetInfo.timeEnd, "YYYYMMDDHHmmss").format("YYYY-MM-DD HH:mm:ss");
+      let condition = "bookmaker.id = :bookmarkerFind AND (entity.createdAt BETWEEN :timeStart AND :timeEnd)";
+      const conditionParams: any = { 
+        bookmarkerFind: bookmaker.id,
+        timeStart: moment(tiemStartCV).toDate(),
+        timeEnd: moment(timeEndCV).toDate()
+      }
+      if (getBetInfo.username) {
+        const usernameEncrypt = Helper.encryptData(getBetInfo.username)
+        const userFind: User = await this.userRepository.findOneBy({
+          username: usernameEncrypt,
+          bookmaker: {
+            id: getBetInfo.bookmakerId
+          }
+        })
+
+        if (!userFind) {
+          return new SuccessResponse(
+            STATUSCODE.COMMON_BAD_REQUEST,
+            "Username is not exists",
+            MESSAGE.GET_BET_INFO_FAILUTE
+          );
+        } else {
+          condition = condition.concat(` AND user.id = :userId`);
+          conditionParams.userId = userFind.id;
+        }
+      }
+
+      const [ordersHilo, ordersPoker] = await Promise.all([
+        this.playHistoryHiloRepository
+        .createQueryBuilder("entity")
+        .leftJoinAndSelect("users", "user", "entity.userId = user.id")
+        .leftJoinAndSelect(
+          "bookmaker",
+          "bookmaker",
+          "entity.bookmakerId = bookmaker.id"
+        )
+        .select("bookmaker.id as bookmakerId")
+        // .addSelect("user.username as username")
+        .addSelect("user.usernameFromAgent as usernameFromAgent")
+        .addSelect("entity.revenue as revenue")
+        .addSelect("(entity.totalPaymentWin - entity.revenue) as totalPaymentWin")
+        .addSelect("entity.createdAt as createdAt")
+        .addSelect("entity.createdBy as createdBy")
+        .addSelect("entity.updatedAt as updatedAt")
+        .addSelect("entity.updatedBy as updatedBy")
+        .addSelect("entity.isGameOver as isGameOver")
+        .where(condition, conditionParams)
+        .getRawMany(),
+        this.playHistoryPokerRepository
+        .createQueryBuilder("entity")
+        .leftJoinAndSelect("users", "user", "entity.userId = user.id")
+        .leftJoinAndSelect(
+          "bookmaker",
+          "bookmaker",
+          "entity.bookmakerId = bookmaker.id"
+        )
+        .select("bookmaker.id as bookmakerId")
+        // .addSelect("user.username as username")
+        .addSelect("user.usernameFromAgent as usernameFromAgent")
+        .addSelect("entity.revenue as revenue")
+        .addSelect("(entity.paymentWin - entity.revenue) as totalPaymentWin")
+        .addSelect("entity.createdAt as createdAt")
+        .addSelect("entity.createdBy as createdBy")
+        .addSelect("entity.updatedAt as updatedAt")
+        .addSelect("entity.updatedBy as updatedBy")
+        .addSelect("entity.isGameOver as isGameOver")
+        .where(condition, conditionParams)
+        .getRawMany()
+      ]);
+
+      const result: any = [];
+      ordersHilo?.map((order: any) => {
+        const newIt = {
+          // username: order?.username,
+          username: order?.usernameFromAgent,
+          gameCategory: 1, // 1: orginals
+          gameType: "Hilo",
+          amount: parseFloat(order?.revenue.toString()),
+          timeCreate: moment(order?.createdAt).utcOffset(7).format("yyyyMMDDHHmmss"),
+          status: order?.isGameOver == 1 ? "close" : "open",
+          paymentWin: order?.totalPaymentWin ? parseFloat(order?.totalPaymentWin.toString()) : 0.00,
+          timeResult: order?.status != "open" ? moment(order?.updatedAt).utcOffset(7).format("yyyyMMDDHHmmss") : "" // tính lại time kết thúc
+        };
+        result.push(newIt)
+      });
+      ordersPoker?.map((order: any) => {
+        const newIt = {
+          // username: order?.username,
+          username: order?.usernameFromAgent,
+          gameCategory: 1, // 1: orginals
+          gameType: "Poker",
+          amount: parseFloat(order?.revenue.toString()),
+          timeCreate: moment(order?.createdAt).utcOffset(7).format("yyyyMMDDHHmmss"),
+          status: order?.isGameOver == 1 ? "close" : "open",
+          paymentWin: order?.totalPaymentWin ? parseFloat(order?.totalPaymentWin.toString()) : 0.00,
+          timeResult: order?.status != "open" ? moment(order?.updatedAt).utcOffset(7).format("yyyyMMDDHHmmss") : "" // tính lại time kết thúc
+        };
+        result.push(newIt)
+      })
+
+      result.sort(
+        (a: any, b: any) =>
+          moment(a.timeCreate).valueOf() - moment(b.timeCreate).valueOf()
+      )
 
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,

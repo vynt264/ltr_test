@@ -98,4 +98,15 @@ export class IntegrationController {
   async getBetInfo(@Body() getBetInfo: GetBetInfoDto): Promise<any> {
     return this.integrationService.getBetInfo(getBetInfo);
   }
+
+  @Post("getBetOriginalsInfo")
+  @ApiOperation({
+    description: "Get bet originals info",
+  })
+  @ApiOkResponse({
+    type: Response<any>,
+  })
+  async getBetOriginalsInfo(@Body() getBetInfo: GetBetInfoDto): Promise<any> {
+    return this.integrationService.getBetOriginalsInfo(getBetInfo);
+  }
 }
