@@ -203,8 +203,8 @@ export class LotteriesService {
         prizes,
       });
 
-      if (realWinningAmount > 0) {
-        totalPayoutOfLoTruot += realWinningAmount;
+      if (winningAmount > 0) {
+        totalPayoutOfLoTruot += winningAmount;
       }
     }
 
@@ -216,8 +216,8 @@ export class LotteriesService {
         prizes,
       });
 
-      if (realWinningAmount > 0) {
-        totalPayoutOfLoTruot += realWinningAmount;
+      if (winningAmount > 0) {
+        totalPayoutOfLoTruot += winningAmount;
       }
     }
 
@@ -229,8 +229,8 @@ export class LotteriesService {
         prizes,
       });
 
-      if (realWinningAmount > 0) {
-        totalPayoutOfLoTruot += realWinningAmount;
+      if (winningAmount > 0) {
+        totalPayoutOfLoTruot += winningAmount;
       }
     }
 
