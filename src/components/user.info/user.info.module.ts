@@ -15,10 +15,17 @@ import { UploadS3Module } from "../upload.s3/upload.s3.module";
 import { OrdersModule } from "../orders/orders.module";
 import { JwtModule } from "@nestjs/jwt";
 import { MaintenanceModule } from "../maintenance/maintenance.module";
+import { PlayHistoryHilo } from "../admin/admin.hilo/entities/play.history.hilo.entity";
+import { PlayHistoryPoker } from "../admin/admin.poker/entities/play.history.poker.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserInfo]),
+    TypeOrmModule.forFeature([
+      User,
+      UserInfo,
+      PlayHistoryHilo,
+      PlayHistoryPoker,
+    ]),
     BacklistModule,
     UserModule,
     SysConfigsModule,

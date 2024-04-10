@@ -73,7 +73,7 @@ export class UserInfoController {
     return this.userInfoService.create(userDto);
   }
 
-  @Get(":userId")
+  @Get("lottery/:userId")
   @ApiOperation({
     description: "Get user info by userId",
   })
@@ -84,6 +84,21 @@ export class UserInfoController {
   @UseGuards(AuthGuard, BacklistGuard)
   async GetOne(@Param("userId", ParseIntPipe) userId: number): Promise<any> {
     return this.userInfoService.getByUserId(userId);
+  }
+
+  @Get("originals/:userId")
+  @ApiOperation({
+    description: "Get user info by userId for orginals",
+  })
+  @ApiOkResponse({
+    type: Response<UserInfo>,
+  })
+  // @UseGuards(JwtAuthGuard, BacklistGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
+  async GetOneOriginals(
+    @Param("userId", ParseIntPipe) userId: number
+  ): Promise<any> {
+    return this.userInfoService.getByUserIdOrinals(userId);
   }
 
   @Patch(":id")
@@ -155,7 +170,7 @@ export class UserInfoController {
     return this.userInfoService.updateAvatar(id, updateAvatarDto);
   }
 
-  @Get("detail-statiscal/:category")
+  @Get("detail-statiscal-lottery/:category")
   @ApiOperation({
     description: "Get user info by userId",
   })
@@ -169,5 +184,21 @@ export class UserInfoController {
     @Request() req: any,
   ): Promise<any> {
     return this.userInfoService.getDetailStatiscal(category, req.user);
+  }
+
+  @Get("detail-statiscal-originals/:category")
+  @ApiOperation({
+    description: "Get user info by userId",
+  })
+  @ApiOkResponse({
+    type: Response<UserInfo>,
+  })
+  // @UseGuards(JwtAuthGuard, BacklistGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
+  async GetDetailStatiscalOrginals(
+    @Param("category") category: string,
+    @Request() req: any,
+  ): Promise<any> {
+    return this.userInfoService.getDetailStatiscalOri(category, req.user);
   }
 }

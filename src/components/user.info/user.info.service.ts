@@ -16,12 +16,18 @@ import { ConnectService } from "../connect/connect.service";
 import { UploadS3Service } from "../upload.s3/upload.s3.service";
 import { ConfigSys } from "src/common/helper";
 import { OrdersService } from "../orders/orders.service";
+import { PlayHistoryHilo } from "../admin/admin.hilo/entities/play.history.hilo.entity";
+import { PlayHistoryPoker } from "../admin/admin.poker/entities/play.history.poker.entity";
 @Injectable()
 export class UserInfoService { 
 
   constructor(
     @InjectRepository(UserInfo)
     private userInfoRepository: Repository<UserInfo>,
+    @InjectRepository(PlayHistoryHilo)
+    private playHistoryHiloRepository: Repository<PlayHistoryHilo>,
+    @InjectRepository(PlayHistoryPoker)
+    private playHistoryPokerRepository: Repository<PlayHistoryPoker>,
     @Inject("winston")
     private readonly logger: Logger,
     private userService: UserService,
@@ -110,6 +116,177 @@ export class UserInfoService {
         });
         sumOrder = listOrderRes?.total;
 
+        listFv = listFv.reduce((accumulator: any, currentValue: any) => {
+          const { type, bet } = currentValue;
+          if (!accumulator[type]) {
+            accumulator[type] = { type, bet: 0 };
+          }
+          accumulator[type].bet += Number(bet);
+          return accumulator;
+        }, {});
+        favoriteGame = JSON.stringify(Object.values(listFv));
+
+        userInfo = {
+          ...userInfo,
+          sumBet,
+          sumOrder,
+          sumOrderLose,
+          sumOrderWin,
+          favoriteGame,
+        }
+        await this.userInfoRepository.save(userInfo);
+      }
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        userInfo,
+        MESSAGE.LIST_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${UserInfoService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        MESSAGE.LIST_FAILED
+      );
+    }
+  }
+
+  async getByUserIdOrinals(userId: number): Promise<any> {
+    try {
+      let userInfo = await this.userInfoRepository.findOne({
+        where: {
+          user: {
+            id: userId
+          }
+        }
+      });
+
+      let orders: any[] = [];
+      let listFv: any[] = [];
+      let sumBet = 0,
+        sumOrder = 0,
+        sumOrderWin = 0,
+        sumOrderLose = 0,
+        favoriteGame = "";
+      const paginationDto: any = {
+        take: 100,
+        skip: 1,
+        order: Order.DESC,
+      }
+      const skip =
+        +paginationDto.take * +paginationDto?.skip - +paginationDto.take;
+      // get hilo
+      const resultHilo = await this.playHistoryHiloRepository.findAndCount({
+        where: [
+          {
+            userId: userId,
+          }
+        ],
+        order: { id: paginationDto.order },
+        take: paginationDto.take,
+        skip: skip
+      });
+      const lastPageHilo = Math.ceil(resultHilo[1] / paginationDto.take);
+      if (resultHilo[1] <= paginationDto.take) {
+        orders = resultHilo[0];
+      } else if (resultHilo[1] > paginationDto.take) {
+        for (let i = 1; i <= lastPageHilo; i++) {
+          const pagingDto: any = {
+            take: 100,
+            skip: i,
+            order: Order.DESC,
+          }
+          const skipNext = +pagingDto.take * +pagingDto?.skip - +pagingDto.take;
+          const listOrderResPage =
+            await this.playHistoryHiloRepository.findAndCount({
+              where: [
+                {
+                  userId: userId,
+                }
+              ],
+              order: { id: pagingDto.order },
+              take: pagingDto.take,
+              skip: skipNext
+            });
+          orders = orders.concat(listOrderResPage[0]);
+        }
+      }
+      if (orders?.length > 0) {
+        const listOrder = orders;
+        listOrder?.map((order: any) => {
+          sumBet += Number(order?.revenue);
+          if (order?.totalPaymentWin > 0) {
+            sumOrderWin += 1; 
+          } else {
+            sumOrderLose += 1
+          }
+          const itemFv = {
+            type: `Hilo`,
+            bet: order?.revenue
+          }
+          listFv.push(itemFv);
+        });
+        sumOrder += resultHilo[1];
+      }
+      // get poker
+      orders = [];
+      const resultPoker = await this.playHistoryPokerRepository.findAndCount({
+        where: [
+          {
+            userId: userId,
+          }
+        ],
+        order: { id: paginationDto.order },
+        take: paginationDto.take,
+        skip: skip
+      });
+      const lastPagePoker = Math.ceil(resultPoker[1] / paginationDto.take);
+      if (resultPoker[1] <= paginationDto.take) {
+        orders = resultPoker[0];
+      } else if (resultPoker[1] > paginationDto.take) {
+        for (let i = 1; i <= lastPagePoker; i++) {
+          const pagingDto: any = {
+            take: 100,
+            skip: i,
+            order: Order.DESC,
+          }
+          const skipNext = +pagingDto.take * +pagingDto?.skip - +pagingDto.take;
+          const listOrderResPage =
+            await this.playHistoryPokerRepository.findAndCount({
+              where: [
+                {
+                  userId: userId,
+                }
+              ],
+              order: { id: pagingDto.order },
+              take: pagingDto.take,
+              skip: skipNext
+            });
+          orders = orders.concat(listOrderResPage[0]);
+        }
+      }
+      if (orders?.length > 0) {
+        const listOrder = orders;
+        listOrder?.map((order: any) => {
+          sumBet += Number(order?.revenue);
+          if (order?.paymentWin > 0) {
+            sumOrderWin += 1; 
+          } else {
+            sumOrderLose += 1
+          }
+          const itemFv = {
+            type: `Poker`,
+            bet: order?.revenue
+          }
+          listFv.push(itemFv);
+        });
+        sumOrder += resultPoker[1];
+      }
+
+      if (orders?.length > 0) {
         listFv = listFv.reduce((accumulator: any, currentValue: any) => {
           const { type, bet } = currentValue;
           if (!accumulator[type]) {
@@ -403,7 +580,6 @@ export class UserInfoService {
             }
             listFv.push(itemFv);
           });
-          // console.log(listFv)
           listFv = listFv.reduce((accumulator: any, currentValue: any) => {
             const { type, bet, orderWin, sumOrder } = currentValue;
             if (!accumulator[type]) {
@@ -414,12 +590,276 @@ export class UserInfoService {
             accumulator[type].sumOrder += Number(sumOrder);
             return accumulator;
           }, {});
-          // console.log("listFv: ", Object.values(listFv));
           orders = Object.values(listFv);
         }
       } else {
         // to go category != "xoso"
       }
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        orders,
+        MESSAGE.LIST_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${UserInfoService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        MESSAGE.LIST_FAILED
+      );
+    }
+  }
+
+  async getDetailStatiscalOri(category: string, member: any) {
+    try {
+      let orders: any[] = [];
+      let listFv: any[] = [];
+
+      if (category == "all") {
+        const paginationDto: any = {
+          take: 100,
+          skip: 1,
+          order: Order.DESC,
+        }
+        const skip =
+          +paginationDto.take * +paginationDto?.skip - +paginationDto.take;
+        // get hilo
+        const resultHilo = await this.playHistoryHiloRepository.findAndCount({
+          where: [
+            {
+              userId: member?.id,
+              bookmakerId: member?.bookmakerId
+            }
+          ],
+          order: { id: paginationDto.order },
+          take: paginationDto.take,
+          skip: skip
+        });
+        const lastPageHilo = Math.ceil(resultHilo[1] / paginationDto.take);
+        if (resultHilo[1] <= paginationDto.take) {
+          orders = resultHilo[0];
+        } else if (resultHilo[1] > paginationDto.take) {
+          for (let i = 1; i <= lastPageHilo; i++) {
+            const pagingDto: any = {
+              take: 100,
+              skip: i,
+              order: Order.DESC,
+            }
+            const skipNext = 
+              +pagingDto.take * +pagingDto?.skip - +pagingDto.take;
+            const listOrderResPage =
+              await this.playHistoryHiloRepository.findAndCount({
+                where: [
+                  {
+                    userId: member?.id,
+                    bookmakerId: member?.bookmakerId
+                  }
+                ],
+                order: { id: pagingDto.order },
+                take: pagingDto.take,
+                skip: skipNext
+              });
+            orders = orders.concat(listOrderResPage[0]);
+          }
+        }
+        if (orders?.length > 0) {
+          const listOrder = orders;
+          listOrder?.map((order: any) => {
+            const itemFv = {
+              type: `Hilo`,
+              bet: Number(order?.revenue),
+              orderWin: Number(order?.totalPaymentWin) > 0 ? 1 : 0,
+              sumOrder: 1,
+            }
+            listFv.push(itemFv);
+          });
+        }
+        // get poker
+        orders = [];
+        const resultPoker = await this.playHistoryPokerRepository.findAndCount({
+          where: [
+            {
+              userId: member?.id,
+              bookmakerId: member?.bookmakerId
+            }
+          ],
+          order: { id: paginationDto.order },
+          take: paginationDto.take,
+          skip: skip
+        });
+        const lastPagePoker = Math.ceil(resultPoker[1] / paginationDto.take);
+        if (resultPoker[1] <= paginationDto.take) {
+          orders = resultPoker[0];
+        } else if (resultPoker[1] > paginationDto.take) {
+          for (let i = 1; i <= lastPagePoker; i++) {
+            const pagingDto: any = {
+              take: 100,
+              skip: i,
+              order: Order.DESC,
+            }
+            const skipNext = 
+              +pagingDto.take * +pagingDto?.skip - +pagingDto.take;
+            const listOrderResPage =
+              await this.playHistoryPokerRepository.findAndCount({
+                where: [
+                  {
+                    userId: member?.id,
+                    bookmakerId: member?.bookmakerId
+                  }
+                ],
+                order: { id: pagingDto.order },
+                take: pagingDto.take,
+                skip: skipNext
+              });
+            orders = orders.concat(listOrderResPage[0]);
+          }
+        }
+        if (orders?.length > 0) {
+          const listOrder = orders;
+          listOrder?.map((order: any) => {
+            const itemFv = {
+              type: `Poker`,
+              bet: Number(order?.revenue),
+              orderWin: Number(order?.paymentWin) > 0 ? 1 : 0,
+              sumOrder: 1,
+            }
+            listFv.push(itemFv);
+          });
+        }
+      } else if (category == "hilo") {
+        const paginationDto: any = {
+          take: 100,
+          skip: 1,
+          order: Order.DESC,
+        }
+        const skip =
+          +paginationDto.take * +paginationDto?.skip - +paginationDto.take;
+        // get hilo
+        const resultHilo = await this.playHistoryHiloRepository.findAndCount({
+          where: [
+            {
+              userId: member?.id,
+              bookmakerId: member?.bookmakerId
+            }
+          ],
+          order: { id: paginationDto.order },
+          take: paginationDto.take,
+          skip: skip
+        });
+        const lastPageHilo = Math.ceil(resultHilo[1] / paginationDto.take);
+        if (resultHilo[1] <= paginationDto.take) {
+          orders = resultHilo[0];
+        } else if (resultHilo[1] > paginationDto.take) {
+          for (let i = 1; i <= lastPageHilo; i++) {
+            const pagingDto: any = {
+              take: 100,
+              skip: i,
+              order: Order.DESC,
+            }
+            const skipNext = 
+              +pagingDto.take * +pagingDto?.skip - +pagingDto.take;
+            const listOrderResPage =
+              await this.playHistoryHiloRepository.findAndCount({
+                where: [
+                  {
+                    userId: member?.id,
+                    bookmakerId: member?.bookmakerId
+                  }
+                ],
+                order: { id: pagingDto.order },
+                take: pagingDto.take,
+                skip: skipNext
+              });
+            orders = orders.concat(listOrderResPage[0]);
+          }
+        }
+        if (orders?.length > 0) {
+          const listOrder = orders;
+          listOrder?.map((order: any) => {
+            const itemFv = {
+              type: `Hilo`,
+              bet: Number(order?.revenue),
+              orderWin: Number(order?.totalPaymentWin) > 0 ? 1 : 0,
+              sumOrder: 1,
+            }
+            listFv.push(itemFv);
+          });
+        }
+      } else if (category == "poker") {
+        const paginationDto: any = {
+          take: 100,
+          skip: 1,
+          order: Order.DESC,
+        }
+        const skip =
+          +paginationDto.take * +paginationDto?.skip - +paginationDto.take;
+        
+        const resultPoker = await this.playHistoryPokerRepository.findAndCount({
+          where: [
+            {
+              userId: member?.id,
+              bookmakerId: member?.bookmakerId
+            }
+          ],
+          order: { id: paginationDto.order },
+          take: paginationDto.take,
+          skip: skip
+        });
+        const lastPagePoker = Math.ceil(resultPoker[1] / paginationDto.take);
+        if (resultPoker[1] <= paginationDto.take) {
+          orders = resultPoker[0];
+        } else if (resultPoker[1] > paginationDto.take) {
+          for (let i = 1; i <= lastPagePoker; i++) {
+            const pagingDto: any = {
+              take: 100,
+              skip: i,
+              order: Order.DESC,
+            }
+            const skipNext = 
+              +pagingDto.take * +pagingDto?.skip - +pagingDto.take;
+            const listOrderResPage =
+              await this.playHistoryPokerRepository.findAndCount({
+                where: [
+                  {
+                    userId: member?.id,
+                    bookmakerId: member?.bookmakerId
+                  }
+                ],
+                order: { id: pagingDto.order },
+                take: pagingDto.take,
+                skip: skipNext
+              });
+            orders = orders.concat(listOrderResPage[0]);
+          }
+        }
+        if (orders?.length > 0) {
+          const listOrder = orders;
+          listOrder?.map((order: any) => {
+            const itemFv = {
+              type: `Poker`,
+              bet: Number(order?.revenue),
+              orderWin: Number(order?.paymentWin) > 0 ? 1 : 0,
+              sumOrder: 1,
+            }
+            listFv.push(itemFv);
+          });
+        }
+      }
+
+      listFv = listFv.reduce((accumulator: any, currentValue: any) => {
+        const { type, bet, orderWin, sumOrder } = currentValue;
+        if (!accumulator[type]) {
+          accumulator[type] = { type, bet: 0, orderWin: 0, sumOrder: 0 };
+        }
+        accumulator[type].bet += Number(bet);
+        accumulator[type].orderWin += Number(orderWin);
+        accumulator[type].sumOrder += Number(sumOrder);
+        return accumulator;
+      }, {});
+      orders = Object.values(listFv);
 
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
