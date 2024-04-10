@@ -580,7 +580,6 @@ export class UserInfoService {
             }
             listFv.push(itemFv);
           });
-          // console.log(listFv)
           listFv = listFv.reduce((accumulator: any, currentValue: any) => {
             const { type, bet, orderWin, sumOrder } = currentValue;
             if (!accumulator[type]) {
@@ -591,7 +590,6 @@ export class UserInfoService {
             accumulator[type].sumOrder += Number(sumOrder);
             return accumulator;
           }, {});
-          // console.log("listFv: ", Object.values(listFv));
           orders = Object.values(listFv);
         }
       } else {
