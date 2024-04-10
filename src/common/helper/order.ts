@@ -1086,6 +1086,8 @@ export class OrderHelper {
                     case DanhDeType.DeDau:
                     case DanhDeType.DeDacBiet:
                     case DanhDeType.DeDauDuoi:
+                    case DauDuoiType.Dau:
+                    case DauDuoiType.Duoi:
                     case TroChoiThuViType.Lo2SoGiaiDacBiet:
                         for (const number in data[categoryLotteryType][type]) {
                             const item = {
