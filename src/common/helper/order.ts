@@ -1730,6 +1730,9 @@ export class OrderHelper {
     }
 
     static getPayOut(betAmount: number, profit?: number) {
+        if (betAmount < 0) {
+            betAmount = -betAmount;
+        }
         return ((betAmount * (100 - Number(profit))) / 100);
     }
 

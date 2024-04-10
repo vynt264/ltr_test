@@ -205,7 +205,8 @@ export class ScheduleService implements OnModuleInit {
 
         const dataTransform = OrderHelper.transformData(dataReal);
         const {
-            prizes,
+            finalResult,
+            // prizes,
             totalRevenue,
             totalPayout,
             bonusPrice,
@@ -214,9 +215,8 @@ export class ScheduleService implements OnModuleInit {
             type: gameType,
             data: dataTransform,
             isTestPlayer: false,
-            // bookmakerId,
         });
-        const finalResult = OrderHelper.randomPrizes(prizes);
+        // const finalResult = OrderHelper.randomPrizes(prizes);
         const eventSendAwards = `${gameType}-receive-prizes`;
         this.socketGateway.sendEventToClient(eventSendAwards, {
             type: gameType,
@@ -283,6 +283,7 @@ export class ScheduleService implements OnModuleInit {
 
         const dataTransformOfFakeUsers = OrderHelper.transformData(dataOfTestPlayer);
         const {
+            finalResult: finalResultOfFakeUsers,
             prizes: prizesOfTestPlayer,
             totalRevenue: totalRevenueOfTestPlayer,
             totalPayout: totalPayoutOfTestPlayer,
@@ -293,7 +294,7 @@ export class ScheduleService implements OnModuleInit {
             data: dataTransformOfFakeUsers,
             isTestPlayer: true,
         });
-        const finalResultOfFakeUsers = OrderHelper.randomPrizes(prizesOfTestPlayer);
+        // const finalResultOfFakeUsers = OrderHelper.randomPrizes(prizesOfTestPlayer);
         const eventSendAwardsOfFakeUsers = `${gameType}-test-player-receive-prizes`;
         this.socketGateway.sendEventToClient(eventSendAwardsOfFakeUsers, {
             type: gameType,

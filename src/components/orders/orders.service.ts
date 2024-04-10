@@ -298,7 +298,8 @@ export class OrdersService {
       isTestPlayer = true;
     }
     const {
-      prizes,
+      finalResult,
+      // prizes,
       totalRevenue,
       totalPayout,
       bonusPrice,
@@ -308,7 +309,7 @@ export class OrdersService {
       data: dataTransform,
       isTestPlayer,
     });
-    const finalResult = OrderHelper.randomPrizes(prizes);
+    // const finalResult = OrderHelper.randomPrizes(prizes);
 
     // create lottery award
     this.lotteryAwardService.createLotteryAward({
