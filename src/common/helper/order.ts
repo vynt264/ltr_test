@@ -828,13 +828,13 @@ export class OrderHelper {
     static addOrder({ typeBet, childBetType, number, multiple, initData }: any) {
         let multipleTemp;
         if (initData[typeBet][childBetType][number]) {
-            multipleTemp = initData[typeBet][childBetType][number] + multiple;
-            initData[typeBet][childBetType][number] = multipleTemp;
+            multipleTemp = Number(initData[typeBet][childBetType][number]) + Number(multiple);
+            initData[typeBet][childBetType][number] = Number(multipleTemp);
         } else {
-            multipleTemp = multiple;
+            multipleTemp = Number(multiple);
         }
 
-        initData[typeBet][childBetType][number] = multipleTemp;
+        initData[typeBet][childBetType][number] = Number(multipleTemp);
     }
 
     static getBalance(orders: any) {
