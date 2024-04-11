@@ -174,7 +174,7 @@ export class LotteryAwardService {
   }
 
   guestHoldQueryNoBookmaker(object: any = null) {
-    const data: any = { isTestPlayer: object.isTestPlayer };
+    const data: any = { };
     if (!object) return data;
 
     for (const key in object) {
