@@ -642,6 +642,7 @@ export class IntegrationService {
         .addSelect("user.usernameFromAgent as usernameFromAgent")
         .addSelect("entity.type as type")
         .addSelect("entity.seconds as seconds")
+        .addSelect("entity.numericalOrder as numericalOrder")
         .addSelect("entity.revenue as revenue")
         .addSelect("entity.betType as betType")
         .addSelect("entity.betTypeName as betTypeName")
@@ -663,6 +664,7 @@ export class IntegrationService {
           username: order?.usernameFromAgent,
           gameCategory: order?.type.indexOf("xs") > -1 ? 0 : 1, // 0: xoso
           gameType: `${order?.type}${order.seconds}s`,
+          numericalOrder: order?.numericalOrder,
           amount: parseFloat(order?.revenue.toString()),
           betType: order?.betType,
           betTypeName: order?.betTypeName,
@@ -760,6 +762,7 @@ export class IntegrationService {
         .select("bookmaker.id as bookmakerId")
         // .addSelect("user.username as username")
         .addSelect("user.usernameFromAgent as usernameFromAgent")
+        .addSelect("entity.code as code")
         .addSelect("entity.revenue as revenue")
         .addSelect("(entity.totalPaymentWin - entity.revenue) as totalPaymentWin")
         .addSelect("entity.createdAt as createdAt")
@@ -780,6 +783,7 @@ export class IntegrationService {
         .select("bookmaker.id as bookmakerId")
         // .addSelect("user.username as username")
         .addSelect("user.usernameFromAgent as usernameFromAgent")
+        .addSelect("entity.code as code")
         .addSelect("entity.revenue as revenue")
         .addSelect("(entity.paymentWin - entity.revenue) as totalPaymentWin")
         .addSelect("entity.createdAt as createdAt")
@@ -795,6 +799,7 @@ export class IntegrationService {
       ordersHilo?.map((order: any) => {
         const newIt = {
           // username: order?.username,
+          code: order.code,
           username: order?.usernameFromAgent,
           gameCategory: 1, // 1: orginals
           gameType: "Hilo",
@@ -809,6 +814,7 @@ export class IntegrationService {
       ordersPoker?.map((order: any) => {
         const newIt = {
           // username: order?.username,
+          code: order.code,
           username: order?.usernameFromAgent,
           gameCategory: 1, // 1: orginals
           gameType: "Poker",

@@ -213,9 +213,9 @@ export class LotteryAwardController {
   @ApiOkResponse({
     type: Response<LotteryAward>,
   })
-  @Roles(UserRoles.SUPPER)
-  @ApiBearerAuth("Authorization")
-  @UseGuards(AuthGuard, BacklistGuard)
+  // @Roles(UserRoles.SUPPER)
+  // @ApiBearerAuth("Authorization")
+  // @UseGuards(AuthGuard, BacklistGuard)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
     return this.lotteryAwardService.getOneById(id);
   }
