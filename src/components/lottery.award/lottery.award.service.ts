@@ -477,6 +477,7 @@ export class LotteryAwardService {
     data.bookmaker = { id: bookMakerId };
     data.isTestPlayer = isTestPlayer;
     if (object.type.indexOf("1s") > -1) {
+      data.userId = userId
       const startDate = startOfDay(new Date());
       const endDate = endOfDay(new Date());
       data.openTime = Between(startDate, endDate);
