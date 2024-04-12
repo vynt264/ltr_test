@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { endOfDay, format, startOfDay } from "date-fns";
-import { Between, Repository } from "typeorm";
+import { Between, Repository, EntityManager } from "typeorm";
 import { Logger } from "winston";
 import { PaginationQueryDto } from "../../common/common.dto";
 import {
@@ -26,7 +26,8 @@ export class LotteryAwardService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @Inject("winston")
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly entityManager: EntityManager,
   ) { }
 
   async adminGetAll(
@@ -149,8 +150,11 @@ export class LotteryAwardService {
         return "The skip must be more than 0";
       }
       const skip = +perPage * +page - +perPage;
+      const bookmakerDf = await this.entityManager.query(
+        `SELECT id, name FROM bookmaker limit 1`
+      );
       const searching = await this.lotteryAwardRepository.findAndCount({
-        where: this.guestHoldQueryNoBookmaker(object),
+        where: this.guestHoldQueryNoBookmaker(object, bookmakerDf[0]?.id),
         take: +perPage,
         skip,
         order: { createdAt: paginationQueryDto.order },
@@ -173,8 +177,8 @@ export class LotteryAwardService {
     }
   }
 
-  guestHoldQueryNoBookmaker(object: any = null) {
-    const data: any = { };
+  guestHoldQueryNoBookmaker(object: any = null, bookMakerId: number) {
+    const data: any = { bookmaker: { id: bookMakerId } };
     if (!object) return data;
 
     for (const key in object) {
