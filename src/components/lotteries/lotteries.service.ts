@@ -188,13 +188,29 @@ export class LotteriesService {
       return order.categoryLotteryType == 'Lo_Truot';
     }).data || [];
 
+    const ordersLoXien = data.find((order: any) => {
+      return order.categoryLotteryType == 'Lo_Xien';
+    }).data || [];
+
     let totalPayoutOfLoTruot = 0;
+    let totalPayoutOfLoXien = 0;
     const ordersTruot4 = ordersLoTruot.find((ord: any) => ord.type === "Xien_Truot_4").data || [];
     const ordersTruot8 = ordersLoTruot.find((ord: any) => ord.type === "Xien_Truot_8").data || [];
     const ordersTruot10 = ordersLoTruot.find((ord: any) => ord.type === "Xien_Truot_10").data || [];
+    const ordersXien2 = ordersLoXien.find((ord: any) => ord.type === "Xien_2").data || [];
+    const ordersXien3 = ordersLoXien.find((ord: any) => ord.type === "Xien_3").data || [];
+    const ordersXien4 = ordersLoXien.find((ord: any) => ord.type === "Xien_4").data || [];
 
-    if (ordersTruot4.length === 0 && ordersTruot8.length === 0 && ordersTruot10.length === 0) return totalPayout;
+    if (
+      ordersTruot4.length === 0
+      && ordersTruot8.length === 0
+      && ordersTruot10.length === 0
+      && ordersXien2.length === 0
+      && ordersXien3.length === 0
+      && ordersXien4.length === 0
+    ) return totalPayout;
 
+    // lo truot
     for (const order of ordersTruot4) {
       const objOrder = order.number.join();
       const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
@@ -234,7 +250,47 @@ export class LotteriesService {
       }
     }
 
-    return (totalPayout + totalPayoutOfLoTruot);
+    // lo xien
+    for (const order of ordersXien2) {
+      const objOrder = order.number.join();
+      const { winningAmount } = OrderHelper.calcBalanceEachOrder({
+        orders: { [objOrder]: Number(order.score) },
+        childBetType: 'Xien_2',
+        prizes,
+      });
+
+      if (winningAmount > 0) {
+        totalPayoutOfLoXien += winningAmount;
+      }
+    }
+
+    for (const order of ordersXien3) {
+      const objOrder = order.number.join();
+      const { winningAmount } = OrderHelper.calcBalanceEachOrder({
+        orders: { [objOrder]: Number(order.score) },
+        childBetType: 'Xien_3',
+        prizes,
+      });
+
+      if (winningAmount > 0) {
+        totalPayoutOfLoXien += winningAmount;
+      }
+    }
+
+    for (const order of ordersXien4) {
+      const objOrder = order.number.join();
+      const { winningAmount } = OrderHelper.calcBalanceEachOrder({
+        orders: { [objOrder]: Number(order.score) },
+        childBetType: 'Xien_4',
+        prizes,
+      });
+
+      if (winningAmount > 0) {
+        totalPayoutOfLoXien += winningAmount;
+      }
+    }
+
+    return (totalPayout + totalPayoutOfLoTruot + totalPayoutOfLoXien);
   }
 
   calcPayoutTroChoiThuVi({
