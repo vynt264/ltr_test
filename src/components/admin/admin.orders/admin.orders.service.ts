@@ -199,6 +199,102 @@ export class AdminOrdersService {
     }
   }
 
+  async getReportOrders({
+    bookmarkerId,
+    username,
+    fromDate,
+    toDate,
+    type,
+    skip: page,
+    take: perPage,
+  }: any) {
+    if (!fromDate && !toDate) return {};
+
+    let fromD;
+    let toD;
+    if (fromDate && toDate) {
+      fromD = startOfDay(new Date(fromDate));
+      toD = endOfDay(new Date(toDate));
+    } else if (fromDate) {
+      fromD = startOfDay(new Date(fromDate));
+      toD = endOfDay(new Date(fromDate));
+    } else if (toDate) {
+      fromD = startOfDay(new Date());
+      toD = endOfDay(new Date(fromDate));
+    }
+
+    // get user by username
+    let user;
+    let userId;
+    if (username) {
+      user = await this.userService.getByUsername(username);
+      userId = user.id;
+    }
+
+    let seconds = 0;
+    let gameType = '';
+    if (type) {
+      seconds = type.split('-')[1];
+      gameType = type.split('-')[0];
+    }
+
+    // count orders by type
+    let queryOrders = `
+        SELECT type, seconds, user.name,
+          SUM(paymentWin) as paymentWin,
+          SUM(revenue) as revenue,
+          COUNT(*) as count
+        FROM orders
+        INNER JOIN users as user ON orders.userId = user.id
+        WHERE orders.created_at >= '${fromD.toISOString()}' 
+          AND orders.created_at <= '${toD.toISOString()}' 
+          AND orders.status = 'closed'
+          AND orders.bookMakerId = '${bookmarkerId}'
+      `;
+    if (gameType) {
+      queryOrders += `AND orders.type = '${gameType}'`
+    }
+
+    if (seconds) {
+      queryOrders += `AND orders.seconds = '${seconds}'`
+    }
+
+    if (userId) {
+      queryOrders += `AND orders.userId = '${userId}'`
+    }
+    queryOrders += `
+      GROUP BY type, seconds, user.name
+    `;
+
+    if (!page) {
+      page = 1;
+    }
+
+    if (!perPage) {
+      perPage = 10;
+    }
+
+    const allOrders = await this.orderRepository.query(queryOrders);
+    const total = allOrders.length;
+    const lastPage = Math.ceil(total / (perPage || 10));
+    const nextPage = (page) + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+    const offset = (page - 1) * (perPage || 10);
+
+    queryOrders += `LIMIT ${perPage} OFFSET ${offset}`;
+
+    const orders = await this.orderRepository.query(queryOrders);
+
+    return {
+      total,
+      nextPage,
+      prevPage,
+      lastPage,
+      orders,
+      currentPage: page,
+    }
+  }
+
   async reportChart(bookmakerId: number) {
     try {
       let condition = "user.usernameReal = '' AND entity.status = 'closed'";

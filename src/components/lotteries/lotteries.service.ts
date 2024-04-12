@@ -198,7 +198,7 @@ export class LotteriesService {
     for (const order of ordersTruot4) {
       const objOrder = order.number.join();
       const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
-        orders: { [objOrder]: order.score },
+        orders: { [objOrder]: Number(order.score) },
         childBetType: 'Xien_Truot_4',
         prizes,
       });
@@ -211,7 +211,7 @@ export class LotteriesService {
     for (const order of ordersTruot8) {
       const objOrder = order.number.join();
       const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
-        orders: { [objOrder]: order.score },
+        orders: { [objOrder]: Number(order.score) },
         childBetType: 'Xien_Truot_8',
         prizes,
       });
@@ -224,7 +224,7 @@ export class LotteriesService {
     for (const order of ordersTruot10) {
       const objOrder = order.number.join();
       const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
-        orders: { [objOrder]: order.score },
+        orders: { [objOrder]: Number(order.score) },
         childBetType: 'Xien_Truot_10',
         prizes,
       });

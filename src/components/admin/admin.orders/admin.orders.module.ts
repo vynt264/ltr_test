@@ -23,7 +23,8 @@ import { MaintenanceModule } from "../../maintenance/maintenance.module";
     ScheduleModule.forRoot(),
     LotteryAwardModule,
     JwtModule.register({}),
-    MaintenanceModule
+    MaintenanceModule,
+    UserModule
   ],
   controllers: [AdminOrdersController],
   providers: [AdminOrdersService],

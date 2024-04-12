@@ -845,83 +845,83 @@ export class OrderHelper {
 
             switch (order.childBetType) {
                 case BaoLoType.Lo3So:
-                    amount = (numberOfBets * PricePerScore.Lo3So) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.Lo3So) * Number(order.multiple);
                     break;
 
                 case BaoLoType.Lo2So:
-                    amount = (numberOfBets * PricePerScore.Lo2So) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.Lo2So) * Number(order.multiple);
                     break;
 
                 case BaoLoType.Lo2So1k:
-                    amount = (numberOfBets * PricePerScore.Lo2So1k) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.Lo2So1k) * Number(order.multiple);
                     break;
 
                 case BaoLoType.Lo4So:
-                    amount = (numberOfBets * PricePerScore.Lo4So) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.Lo4So) * Number(order.multiple);
                     break;
 
                 case DanhDeType.DeDau:
-                    amount = (numberOfBets * PricePerScore.DeDau) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.DeDau) * Number(order.multiple);
                     break;
 
                 case DanhDeType.DeDacBiet:
-                    amount = (numberOfBets * PricePerScore.DeDacBiet) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.DeDacBiet) * Number(order.multiple);
                     break;
 
                 case DanhDeType.DeDauDuoi:
-                    amount = (numberOfBets * PricePerScore.DeDauDuoi) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.DeDauDuoi) * Number(order.multiple);
                     break;
 
                 case DauDuoiType.Dau:
-                    amount = (numberOfBets * PricePerScore.Dau) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.Dau) * Number(order.multiple);
                     break;
 
                 case DauDuoiType.Duoi:
-                    amount = (numberOfBets * PricePerScore.Duoi) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.Duoi) * Number(order.multiple);
                     break;
 
                 case BaCangType.BaCangDau:
-                    amount = (numberOfBets * PricePerScore.BaCangDau) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.BaCangDau) * Number(order.multiple);
                     break;
 
                 case BaCangType.BaCangDacBiet:
-                    amount = (numberOfBets * PricePerScore.BaCangDacBiet) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.BaCangDacBiet) * Number(order.multiple);
                     break;
 
                 case BaCangType.BaCangDauDuoi:
-                    amount = (numberOfBets * PricePerScore.BaCangDauDuoi) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.BaCangDauDuoi) * Number(order.multiple);
                     break;
 
                 case BonCangType.BonCangDacBiet:
-                    amount = (numberOfBets * PricePerScore.BonCangDacBiet) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.BonCangDacBiet) * Number(order.multiple);
                     break;
 
                 case LoXienType.Xien2:
-                    amount = (numberOfBets * PricePerScore.Xien2) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.Xien2) * Number(order.multiple);
                     break;
 
                 case LoXienType.Xien3:
-                    amount = (numberOfBets * PricePerScore.Xien3) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.Xien3) * Number(order.multiple);
                     break;
 
                 case LoXienType.Xien4:
-                    amount = (numberOfBets * PricePerScore.Xien4) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.Xien4) * Number(order.multiple);
                     break;
 
                 case LoTruocType.TruotXien4:
-                    amount = (numberOfBets * PricePerScore.TruotXien4) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.TruotXien4) * Number(order.multiple);
                     break;
 
                 case LoTruocType.TruotXien8:
-                    amount = (numberOfBets * PricePerScore.TruotXien8) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.TruotXien8) * Number(order.multiple);
                     break;
 
                 case LoTruocType.TruotXien10:
-                    amount = (numberOfBets * PricePerScore.TruotXien10) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.TruotXien10) * Number(order.multiple);
                     break;
 
                 case TroChoiThuViType.Lo2SoGiaiDacBiet:
-                    amount = (numberOfBets * PricePerScore.TroChoiThuVi) * order.multiple;
+                    amount = (numberOfBets * PricePerScore.TroChoiThuVi) * Number(order.multiple);
                     break;
 
                 default:
@@ -1091,7 +1091,7 @@ export class OrderHelper {
                     case TroChoiThuViType.Lo2SoGiaiDacBiet:
                         for (const number in data[categoryLotteryType][type]) {
                             const item = {
-                                score: data[categoryLotteryType][type][number],
+                                score: Number(data[categoryLotteryType][type][number]),
                                 number: number,
                             };
                             dataChild.data.push(item);
@@ -1106,7 +1106,7 @@ export class OrderHelper {
                     case LoTruocType.TruotXien10:
                         for (const number in data[categoryLotteryType][type]) {
                             const item = {
-                                score: data[categoryLotteryType][type][number],
+                                score: Number(data[categoryLotteryType][type][number]),
                                 number: JSON.parse(number),
                             };
                             dataChild.data.push(item);

@@ -48,7 +48,7 @@ export class LotteryAwardService {
   }
 
   async report({ fromDate, toDate, bookmarkerId, type }: any) {
-    if (!fromDate) return;
+    if (!fromDate && !toDate) return;
 
     let fromD;
     let toD;

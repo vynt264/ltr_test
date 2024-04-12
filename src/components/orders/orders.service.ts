@@ -76,7 +76,7 @@ export class OrdersService {
       const { betTypeName, childBetTypeName, numberOfBets } = OrderHelper.getInfoDetailOfOrder(order);
       order.seconds = OrderHelper.getPlayingTimeByType(order.type);
       order.type = OrderHelper.getTypeLottery(order.type);
-      order.revenue = OrderHelper.getBetAmount(order.multiple, order.childBetType, numberOfBets);
+      order.revenue = OrderHelper.getBetAmount(Number(order.multiple), order.childBetType, numberOfBets);
       order.betTypeName = betTypeName;
       order.childBetTypeName = childBetTypeName;
       order.numberOfBets = numberOfBets;

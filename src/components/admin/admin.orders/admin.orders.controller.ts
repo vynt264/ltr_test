@@ -30,7 +30,7 @@ import { AuthAdminGuard } from "../../auth/guards/auth-admin.guard";
 @UseGuards(AuthAdminGuard)
 @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
 export class AdminOrdersController {
-  constructor(private readonly adminOrdersService: AdminOrdersService) {}
+  constructor(private readonly adminOrdersService: AdminOrdersService) { }
 
   @Get("all")
   @ApiOperation({
@@ -49,6 +49,11 @@ export class AdminOrdersController {
       reportQueryDto?.bookmakerId,
       reportQueryDto?.timeFillter
     );
+  }
+
+  @Get("statistic-orders")
+  async getReportOrders(@Query() query: any): Promise<any> {
+    return this.adminOrdersService.getReportOrders(query);
   }
 
   @Get("chart")
