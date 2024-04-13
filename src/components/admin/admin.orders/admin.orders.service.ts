@@ -229,6 +229,9 @@ export class AdminOrdersService {
       toD = endOfDay(new Date(fromDate));
     }
 
+    fromD = addHours(fromD, 7);
+    toD = addHours(toD, 7);
+
     // get user by username
     let user;
     let userId;
