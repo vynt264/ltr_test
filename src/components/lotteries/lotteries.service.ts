@@ -1542,8 +1542,6 @@ export class LotteriesService {
         xien4Checked,
       });
 
-      const mang0: any = [];
-      const mangKhac0: any = [];
       const prizes: any = [];
 
       remainPrizes.forEach((value: number, key: string) => {
@@ -1674,7 +1672,7 @@ export class LotteriesService {
     ordersXien3HasCounted,
     ordersXien4HasCounted,
   }: any) {
-    const finalPrizeSpecial1: any = [];
+    const finalPrizeSpecial: any = [];
 
     let resultLoTruotOfPrizeSpecial;
     ({
@@ -1685,7 +1683,7 @@ export class LotteriesService {
       prizes: resultLoTruotOfPrizeSpecial,
     } = this.checkLoTruot({
       totalBetAmount,
-      finalResult: finalPrizeSpecial1,
+      finalResult: finalPrizeSpecial,
       ordersTruotXien4,
       ordersTruotXien8,
       ordersTruotXien10,

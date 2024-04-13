@@ -208,6 +208,7 @@ export class AdminOrdersService {
     skip: page,
     take: perPage,
     isTestPlayer,
+    turnIndex,
   }: any) {
     if (!fromDate && !toDate) return {};
 
@@ -272,6 +273,11 @@ export class AdminOrdersService {
     if (userId) {
       queryOrders += `AND orders.userId = '${userId}'`
     }
+
+    if (turnIndex) {
+      queryOrders += `AND orders.turnIndex = '${turnIndex}'`
+    }
+
     queryOrders += `
       GROUP BY type, seconds, user.name
     `;
