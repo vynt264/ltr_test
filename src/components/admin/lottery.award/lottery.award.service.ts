@@ -47,8 +47,12 @@ export class LotteryAwardService {
     }
   }
 
-  async report({ fromDate, toDate, bookmarkerId, type }: any) {
+  async report({ fromDate, toDate, bookmarkerId, type, isTestPlayer }: any) {
     if (!fromDate && !toDate) return;
+    let isTest = false;
+    if (isTestPlayer === 'true') {
+      isTest = true;
+    }
 
     let fromD;
     let toD;
@@ -78,7 +82,7 @@ export class LotteryAwardService {
     // count orders by type
     const queryOrders = `
       SELECT type, seconds, COUNT(*) as count from orders
-      WHERE created_at >= '${fromD.toISOString()}' AND created_at <= '${toD.toISOString()}' AND status = 'closed'
+      WHERE created_at >= '${fromD.toISOString()}' AND created_at <= '${toD.toISOString()}' AND status = 'closed' AND isTestPlayer = ${isTest}
       GROUP BY type, seconds
     `;
     const orders = await this.orderRepository.query(queryOrders);
@@ -87,7 +91,7 @@ export class LotteryAwardService {
     let query = `
       SELECT lottery.type, SUM(lottery.totalProfit) as totalProfit, SUM(lottery.totalRevenue) as totalRevenue
       FROM lottery_award AS lottery
-      WHERE lottery.createdAt >= '${fromD.toISOString()}' AND lottery.createdAt <= '${toD.toISOString()}'
+      WHERE lottery.createdAt >= '${fromD.toISOString()}' AND lottery.createdAt <= '${toD.toISOString()}' AND lottery.isTestPlayer = ${isTest}
     `;
 
     if (bookmarkerId) {

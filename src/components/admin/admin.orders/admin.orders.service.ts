@@ -207,8 +207,14 @@ export class AdminOrdersService {
     type,
     skip: page,
     take: perPage,
+    isTestPlayer,
   }: any) {
     if (!fromDate && !toDate) return {};
+
+    let isTest = false;
+    if (isTestPlayer === 'true') {
+      isTest = true;
+    }
 
     let fromD;
     let toD;
@@ -250,6 +256,7 @@ export class AdminOrdersService {
           AND orders.created_at <= '${toD.toISOString()}' 
           AND orders.status = 'closed'
           AND orders.bookMakerId = '${bookmarkerId}'
+          AND orders.isTestPlayer = ${isTest}
       `;
     if (gameType) {
       queryOrders += `AND orders.type = '${gameType}'`
