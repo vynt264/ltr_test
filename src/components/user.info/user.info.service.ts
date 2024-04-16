@@ -6,7 +6,7 @@ import {
   ErrorResponse,
   SuccessResponse,
 } from "../../system/BaseResponse/index";
-import { ERROR, MESSAGE, Order, STATUSCODE } from "../../system/constants";
+import { ERROR, MESSAGE, ORDER_STATUS, Order, STATUSCODE } from "../../system/constants";
 import { Between, Like, Repository } from "typeorm";
 import { Logger } from "winston";
 import { CreateUserInfoDto, UpdateUserInfoDto } from "./dto/index";
@@ -73,6 +73,7 @@ export class UserInfoService {
         order: Order.DESC,
       }
       const listOrderRes = await this.ordersService.findAll(paginationDto, {
+        status: ORDER_STATUS.closed,
         id: userId,
       });
       if (listOrderRes?.lastPage == 1) {

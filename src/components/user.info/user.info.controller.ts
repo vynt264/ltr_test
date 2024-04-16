@@ -23,12 +23,10 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Response } from "../../system/interfaces";
-import { JwtAuthGuard } from "../auth/jwt/jwt-auth.guard";
 import { Roles } from "../auth/roles.guard/roles.decorator";
 import { RolesGuard } from "../auth/roles.guard/roles.guard";
 import { BacklistGuard } from "../backlist/backlist.guard";
 import { UserInfoService } from "./user.info.service";
-import { PaginationQueryDto } from "./../../common/common.dto/pagination.query.dto";
 import {
   CreateUserInfoDto,
   UpdateUserInfoDto,
@@ -40,8 +38,7 @@ import { AuthGuard } from "../auth/guards/auth.guard";
 @Controller("/api/v1/userInfo")
 @ApiTags("userInfo")
 @ApiBearerAuth("Authorization")
-// @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
-@UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
+@UseGuards(AuthGuard, BacklistGuard)
 export class UserInfoController {
   constructor(private userInfoService: UserInfoService) { }
 
@@ -52,8 +49,7 @@ export class UserInfoController {
   @ApiOkResponse({
     type: Response<UserInfo[]>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   @Roles(UserRoles.SUPPER)
   async GetAll(): Promise<any> {
     return this.userInfoService.getAll();
@@ -66,8 +62,7 @@ export class UserInfoController {
   @ApiOkResponse({
     type: Response<UserInfo>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
+  @UseGuards(AuthGuard, BacklistGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async create(@Body() userDto: CreateUserInfoDto): Promise<any> {
     return this.userInfoService.create(userDto);
@@ -80,7 +75,6 @@ export class UserInfoController {
   @ApiOkResponse({
     type: Response<UserInfo>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async GetOne(@Param("userId", ParseIntPipe) userId: number): Promise<any> {
     return this.userInfoService.getByUserId(userId);
@@ -93,7 +87,6 @@ export class UserInfoController {
   @ApiOkResponse({
     type: Response<UserInfo>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async GetOneOriginals(
     @Param("userId", ParseIntPipe) userId: number
@@ -177,7 +170,6 @@ export class UserInfoController {
   @ApiOkResponse({
     type: Response<UserInfo>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async GetDetailStatiscal(
     @Param("category") category: string,
@@ -193,7 +185,6 @@ export class UserInfoController {
   @ApiOkResponse({
     type: Response<UserInfo>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   async GetDetailStatiscalOrginals(
     @Param("category") category: string,
