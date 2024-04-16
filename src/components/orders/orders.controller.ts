@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, HttpStatus, Res, Param, Delete, UseGuards, Request, Query, Put, Inject } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpStatus, Res, Param, Delete, UseGuards, Request, Query, Put, Inject, BadRequestException } from '@nestjs/common';
 import { Response } from 'express';
 
 import { OrdersService } from './orders.service';
@@ -21,7 +21,12 @@ export class OrdersController {
   @Post()
   @UseGuards(AuthGuard, BacklistGuard)
   async create(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
-    return await this.ordersService.create(orders, req.user);
+    try {
+      return await this.ordersService.create(orders, req.user);
+    } catch (err) {
+      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(err)}`);
+      throw new BadRequestException(err);
+    }
   }
 
   @Get()
@@ -31,19 +36,30 @@ export class OrdersController {
       return await this.ordersService.findAll(paginationDto, req.user);
     } catch (error) {
       this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
     }
   }
 
   @Post('1s/validation')
   @UseGuards(AuthGuard, BacklistGuard)
   async validationOrdersImmediate(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
-    return await this.ordersService.validationOrdersImmediate(orders, req.user);
+    try {
+      return await this.ordersService.validationOrdersImmediate(orders, req.user);
+    } catch (error) {
+      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
+    }
   }
 
   @Post('1s')
   @UseGuards(AuthGuard, BacklistGuard)
   async betOrdersImmediate(@Body(new ValidationPipe()) orders: CreateListOrdersDto, @Request() req: any) {
-    return await this.ordersService.betOrdersImmediate(orders, req.user);
+    try {
+      return await this.ordersService.betOrdersImmediate(orders, req.user);
+    } catch (error) {
+      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
+    }
   }
 
   @Get('combine-orders-by-date')
@@ -53,6 +69,7 @@ export class OrdersController {
       return await this.ordersService.combineOrdersByDate(paginationDto, req.user);
     } catch (error) {
       this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
     }
   }
 
@@ -62,6 +79,7 @@ export class OrdersController {
       return this.ordersService.getCurrentTurnIndex(query, req.user);
     } catch (error) {
       this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
     }
   }
 
@@ -102,6 +120,7 @@ export class OrdersController {
 
     } catch (error) {
       this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
     }
   }
 
@@ -111,7 +130,12 @@ export class OrdersController {
     @Body() data: any,
     @Request() req: any,
   ) {
-    return await this.ordersService.confirmGenerateFollowUpPlan(data, req.user);
+    try {
+      return await this.ordersService.confirmGenerateFollowUpPlan(data, req.user);
+    } catch (error) {
+      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
+    }
   }
 
   @Get(':id')
@@ -121,13 +145,19 @@ export class OrdersController {
       return await this.ordersService.findOne(+id);
     } catch (error) {
       this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
     }
   }
 
   @Put(':id')
   @UseGuards(AuthGuard, BacklistGuard)
   async update(@Param('id') id: string, @Body() updateOrderDto: any, @Request() req: any) {
-    return await this.ordersService.update(+id, updateOrderDto, req.user);
+    try {
+      return await this.ordersService.update(+id, updateOrderDto, req.user);
+    } catch (error) {
+      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
+    }
   }
 
   @Delete(':id')
@@ -149,11 +179,16 @@ export class OrdersController {
       gameType,
     } = data;
 
-    return this.ordersService.handleBalance({
-      turnIndex,
-      prizes,
-      gameType,
-      user: req.user,
-    });
+    try {
+      return this.ordersService.handleBalance({
+        turnIndex,
+        prizes,
+        gameType,
+        user: req.user,
+      });
+    } catch (error) {
+      this.logger.error(`${OrdersController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
+    }
   }
 }

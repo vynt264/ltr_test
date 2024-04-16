@@ -1,49 +1,70 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Inject, BadRequestException } from '@nestjs/common';
 import { MaintenanceService } from './maintenance.service';
 import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
 import { UpdateMaintenanceDto } from './dto/update-maintenance.dto';
-import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
-import { BacklistGuard } from '../backlist/backlist.guard';
-import { RateLimitGuard } from '../auth/rate.guard/rate.limit.guard';
-import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthAdminGuard } from '../auth/guards/auth-admin.guard';
+import { Logger } from 'winston';
 
 @Controller('api/v1/maintenance')
 export class MaintenanceController {
-  constructor(private readonly maintenanceService: MaintenanceService) {}
+  constructor(
+    private readonly maintenanceService: MaintenanceService,
+    @Inject("winston")
+    private readonly logger: Logger
+  ) { }
 
   @Post()
-  // @UseGuards(AuthGuard, BacklistGuard)
   @UseGuards(AuthAdminGuard)
   create(@Body() createMaintenanceDto: CreateMaintenanceDto) {
-    return this.maintenanceService.create(createMaintenanceDto);
+    try {
+      return this.maintenanceService.create(createMaintenanceDto);
+    } catch (err) {
+      this.logger.error(`${MaintenanceController.name} is Logging error: ${JSON.stringify(err)}`);
+      throw new BadRequestException(err);
+    }
   }
 
   @Get()
-  // @UseGuards(AuthGuard, BacklistGuard)
   @UseGuards(AuthAdminGuard)
   findAll() {
-    return this.maintenanceService.findAll();
+    try {
+      return this.maintenanceService.findAll();
+    } catch (error) {
+      this.logger.error(`${MaintenanceController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
+    }
   }
 
   @Get(':id')
-  // @UseGuards(AuthGuard, BacklistGuard)
   @UseGuards(AuthAdminGuard)
   findOne(@Param('id') id: string) {
-    return this.maintenanceService.findOne(+id);
+    try {
+      return this.maintenanceService.findOne(+id);
+    } catch (error) {
+      this.logger.error(`${MaintenanceController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
+    }
   }
 
   @Put(':id')
-  // @UseGuards(AuthGuard, BacklistGuard)
   @UseGuards(AuthAdminGuard)
   update(@Param('id') id: string, @Body() updateMaintenanceDto: UpdateMaintenanceDto) {
-    return this.maintenanceService.update(+id, updateMaintenanceDto);
+    try {
+      return this.maintenanceService.update(+id, updateMaintenanceDto);
+    } catch (error) {
+      this.logger.error(`${MaintenanceController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
+    }
   }
 
   @Delete(':id')
-  // @UseGuards(AuthGuard, BacklistGuard)
   @UseGuards(AuthAdminGuard)
   remove(@Param('id') id: string) {
-    return this.maintenanceService.remove(+id);
+    try {
+      return this.maintenanceService.remove(+id);
+    } catch (error) {
+      this.logger.error(`${MaintenanceController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
+    }
   }
 }

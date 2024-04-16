@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Inject } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, BadRequestException } from '@nestjs/common';
 import { ManageBonusPriceService } from './manage-bonus-price.service';
 import { CreateManageBonusPriceDto } from './dto/create-manage-bonus-price.dto';
 import { UpdateManageBonusPriceDto } from './dto/update-manage-bonus-price.dto';
@@ -18,6 +18,7 @@ export class ManageBonusPriceController {
       return await this.manageBonusPriceService.create(createManageBonusPriceDto);
     } catch (error) {
       this.logger.error(`${ManageBonusPriceController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
     }
   }
 
@@ -27,6 +28,7 @@ export class ManageBonusPriceController {
       return await this.manageBonusPriceService.findAll();
     } catch (error) {
       this.logger.error(`${ManageBonusPriceController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
     }
   }
 
@@ -36,6 +38,7 @@ export class ManageBonusPriceController {
       return await this.manageBonusPriceService.findOne(+id);
     } catch (error) {
       this.logger.error(`${ManageBonusPriceController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
     }
   }
 
@@ -45,6 +48,7 @@ export class ManageBonusPriceController {
       return await this.manageBonusPriceService.update(+id, updateManageBonusPriceDto);
     } catch (error) {
       this.logger.error(`${ManageBonusPriceController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
     }
   }
 
@@ -54,6 +58,7 @@ export class ManageBonusPriceController {
       return await this.manageBonusPriceService.remove(+id);
     } catch (error) {
       this.logger.error(`${ManageBonusPriceController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
     }
   }
 }

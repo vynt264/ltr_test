@@ -20,24 +20,21 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Response } from "../../system/interfaces";
-import { JwtAuthGuard } from "../auth/jwt/jwt-auth.guard";
 import { Roles } from "../auth/roles.guard/roles.decorator";
-import { RolesGuard } from "../auth/roles.guard/roles.guard";
 import { BacklistGuard } from "../backlist/backlist.guard";
 import { NewQueryService } from "./new.query.sevice";
 import { PaginationQueryDto } from "./../../common/common.dto/pagination.query.dto";
 import { UserRoles } from "../user/enums/user.enum";
-import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { DataFake } from "./data.fake.entity";
 import { CreateDataFakeRequestDto } from "./dto/create.data.fake.dto";
 import { UpdateDataFakeRequestDto } from "./dto";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { AuthGuard } from "../auth/guards/auth.guard";
 import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
+
 @Controller("/api/v1/newQuery")
 @ApiTags("NewQuery")
 @ApiBearerAuth("Authorization")
-// @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
 export class NewQueryController {
   constructor(private newQueryService: NewQueryService) { }
 
@@ -48,8 +45,6 @@ export class NewQueryController {
   @ApiOkResponse({
     type: Response<any[]>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  // @Roles(UserRoles.SUPPER)
   async UserWin(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.newQueryService.getListUserWin(paginationQuery);
   }
@@ -61,8 +56,6 @@ export class NewQueryController {
   @ApiOkResponse({
     type: Response<any[]>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  // @Roles(UserRoles.SUPPER)
   async UserPlaying(
     @Query() paginationQuery: PaginationQueryDto
   ): Promise<any> {
@@ -76,8 +69,6 @@ export class NewQueryController {
   @ApiOkResponse({
     type: Response<any[]>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
-  // @Roles(UserRoles.SUPPER)
   async FavoriteGame(
     @Query() paginationQuery: PaginationQueryDto
   ): Promise<any> {
@@ -92,7 +83,6 @@ export class NewQueryController {
     type: Response<DataFake[]>,
   })
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async getDataFake(
@@ -110,7 +100,6 @@ export class NewQueryController {
     type: Response<DataFake>,
   })
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @UseGuards(AuthAdminGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async create(@Body() createDto: CreateDataFakeRequestDto): Promise<any> {
@@ -126,7 +115,6 @@ export class NewQueryController {
   })
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async updateGame(
@@ -141,7 +129,6 @@ export class NewQueryController {
     description: "Delete data fake",
   })
   @ApiBearerAuth("Authorization")
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard, RolesGuard)
   @UseGuards(AuthGuard, BacklistGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {

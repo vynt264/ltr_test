@@ -177,27 +177,6 @@ export class NewQueryService {
     const skip = +perPage * +page - +perPage;
     try {
       const listData: any = []
-      // const listDataReal = await this.orderRepository
-      //   .createQueryBuilder("entity")
-      //   .select("entity.type as gameType")
-      //   .addSelect("entity.seconds as seconds")
-      //   .addSelect("COUNT(*) as count")
-      //   .addSelect("SUM(entity.revenue) as totalBet")
-      //   .groupBy("entity.type, entity.seconds")
-      //   .skip(skip)
-      //   .take(perPage)
-      //   .getRawMany();
-
-      // listDataReal?.map((item: any) => {
-      //   const dataCv = {
-      //     gameType: `${item?.gameType}${
-      //       Number(item.seconds) == 0 ? "45" : item.seconds
-      //     }s`,
-      //     count: item?.count,
-      //     totalBet: item?.totalBet
-      //   }
-      //   listData.push(dataCv);
-      // });
 
       const limitDataFake = Number(perPage) - 0;
       if (limitDataFake <= Number(perPage) && limitDataFake > 0) {

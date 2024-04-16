@@ -35,6 +35,7 @@ import { BookMaker } from "./bookmaker.entity";
 import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { AuthGuard } from "../auth/guards/auth.guard";
 import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
+
 @Controller("/api/v1/bookMaker")
 @ApiTags("BookMaker")
 export class BookMakerController {

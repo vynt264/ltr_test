@@ -23,6 +23,8 @@ export class AllExceptionFilter implements ExceptionFilter {
 
     const exceptionRes = exception.getResponse();
 
+    this.handleMessage(exception);
+
     const message =
       Debug.typeOf(exception.message) === "String"
         ? exception.response
@@ -44,5 +46,16 @@ export class AllExceptionFilter implements ExceptionFilter {
     };
 
     response.status(statusCode).json(responseBody);
+  }
+
+  private handleMessage(exception: HttpException | Error): void {
+    let message: any = 'Internal Server Error';
+    if (exception instanceof HttpException) {
+      message = exception.getResponse();
+    } else if (exception instanceof Error) {
+      message = exception.stack.toString();
+    }
+    // TODO: inject DI Logger
+    // this.loggerService.error1(message)
   }
 }

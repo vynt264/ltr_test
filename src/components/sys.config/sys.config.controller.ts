@@ -51,7 +51,6 @@ export class SysConfigsController {
     type: Response<SysConfig>,
   })
   @UsePipes(ValidationPipe)
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
   @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async updateList(
@@ -160,7 +159,6 @@ export class SysConfigsController {
   @ApiOkResponse({
     type: Response<SysConfig>,
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
   @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async createList(
@@ -183,7 +181,6 @@ export class SysConfigsController {
   @ApiOperation({
     description: "Delete SysConfigs",
   })
-  // @UseGuards(JwtAuthGuard, BacklistGuard, RolesGuard)
   @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
   @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async delete(@Param("id") id: number, @Request() res: any): Promise<any> {

@@ -43,43 +43,6 @@ export class LotteryAwardController {
     return this.lotteryAwardService.createLotteryAward(createLotteryAwardDto);
   }
 
-  // @UseGuards(AuthAdminGuard)
-  // @Get("admin-all")
-  // @ApiResponse({
-  //   status: 2000,
-  //   description: "Get list lotteryAward success",
-  // })
-  // @ApiQuery({
-  //   name: "take",
-  //   type: "number",
-  //   description: "enter take (Take is limit in sql) of record",
-  //   required: true,
-  // })
-  // @ApiQuery({
-  //   name: "skip",
-  //   type: "number",
-  //   description: "enter skip (Skip is offset in sql) of record",
-  //   required: true,
-  // })
-  // @ApiQuery({
-  //   name: "order",
-  //   type: "string",
-  //   description:
-  //     "The ORDER BY keyword sorts the records in ascending order by default. To sort the records in descending order, use the DESC|ASC keyword",
-  //   required: true,
-  // })
-  // @ApiOperation({
-  //   description: "Get all lotteryAward",
-  // })
-  // @ApiOkResponse({
-  //   type: Response<LotteryAward[]>,
-  // })
-  // async getAdminAll(
-  //   @Query() paginationQueryDto: PaginationQueryDto,
-  // ): Promise<any> {
-  //   return this.lotteryAwardService.adminGetAll(paginationQueryDto);
-  // }
-
   @Get("allResult")
   @ApiResponse({
     status: 2000,

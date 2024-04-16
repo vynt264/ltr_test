@@ -52,17 +52,20 @@ export class ScheduleService implements OnModuleInit {
     }
 
     async init() {
-        // await this.manageBonusPriceService.remove(null);
-        // create jobs current day
-        await this.createJobs();
-        // create jobs next day
-        this.createJobsNextDay();
-        await this.manageBonusPriceService.initBonusPrice(new Date());
+        try {
+            // create jobs current day
+            await this.createJobs();
+            // create jobs next day
+            this.createJobsNextDay();
+            await this.manageBonusPriceService.initBonusPrice(new Date());
 
-        // create bonus price next day
-        const currentDate = new Date();
-        const nextDate = addDays(currentDate, 1);
-        await this.manageBonusPriceService.initBonusPrice(nextDate);
+            // create bonus price next day
+            const currentDate = new Date();
+            const nextDate = addDays(currentDate, 1);
+            await this.manageBonusPriceService.initBonusPrice(nextDate);
+        } catch (err) {
+            this.logger.error(err);
+        }
     }
 
     async createJobs(startDate?: Date) {
@@ -134,16 +137,18 @@ export class ScheduleService implements OnModuleInit {
     }
 
     async handlerJobs(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number, seconds: number) {
-        let gameType = OrderHelper.getGameTypesBySeconds(seconds);
-        const bookMakers = await this.bookMakerService.getAllBookMaker();
-        let promises = [];
-        for (const type of gameType) {
-            promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, type, bookMakers));
+        try {
+            let gameType = OrderHelper.getGameTypesBySeconds(seconds);
+            const bookMakers = await this.bookMakerService.getAllBookMaker();
+            let promises = [];
+            for (const type of gameType) {
+                promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, type, bookMakers));
+            }
+
+            await Promise.all(promises);
+        } catch (err) {
+            this.logger.error(err);
         }
-
-        await Promise.all(promises);
-
-        // this.finishJob(jobName, time);
     }
 
     async processingData(time: number, turnIndex: string, nextTurnIndex: string, nextTime: number, gameType: string, bookMakers: any) {
@@ -206,7 +211,6 @@ export class ScheduleService implements OnModuleInit {
         const dataTransform = OrderHelper.transformData(dataReal);
         const {
             finalResult,
-            // prizes,
             totalRevenue,
             totalPayout,
             bonusPrice,
@@ -216,7 +220,6 @@ export class ScheduleService implements OnModuleInit {
             data: dataTransform,
             isTestPlayer: false,
         });
-        // const finalResult = OrderHelper.randomPrizes(prizes);
         const eventSendAwards = `${gameType}-receive-prizes`;
         this.socketGateway.sendEventToClient(eventSendAwards, {
             type: gameType,

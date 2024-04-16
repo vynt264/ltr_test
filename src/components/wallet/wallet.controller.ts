@@ -36,7 +36,6 @@ import { AuthGuard } from "../auth/guards/auth.guard";
 @Controller("/api/v1/Wallet")
 @ApiTags("Wallet")
 @ApiBearerAuth("Authorization")
-// @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
 @UseGuards(AuthGuard, BacklistGuard, RateLimitGuard)
 export class WalletController {
   constructor(private walletService: WalletService) {}
