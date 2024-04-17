@@ -8,6 +8,7 @@ import { LotteryAwardModule } from './lottery.award/lottery.award.module';
 import { AdminUserModule } from './admin.user/admin.user.module';
 import { GuardsModule } from './guards/guards.module';
 import { SettingModule } from './setting/setting.module';
+import { AdminKenoModule } from './admin.keno/admin.keno.module';
 
 @Module({
     imports: [
@@ -20,6 +21,7 @@ import { SettingModule } from './setting/setting.module';
         AdminUserModule,
         GuardsModule,
         SettingModule,
+        AdminKenoModule,
     ],
 })
 export class AdminModule {}
