@@ -95,19 +95,7 @@ export class LotteriesService {
       ordersLo2SoGiaiDacBiet,
     });
 
-    // let totalPayout = 0;
-    // for (const item of finalResult) {
-    //   totalPayout += item.payOut;
-    // }
-
     return {
-      // numbers,
-      // percentProfit,
-      // prizes,
-      // whiteList,
-      // mergeNumbers,
-      // prizesFinal,
-      // totalAmount
       totalBetAmount,
       finalResult,
     };
@@ -137,7 +125,6 @@ export class LotteriesService {
     isTestPlayer,
     type,
     data,
-    // bookmakerId,
   }: any) {
     const timeStartDay = startOfDay(new Date());
     const fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
@@ -171,7 +158,6 @@ export class LotteriesService {
 
     await this.manageBonusPriceService.update(dataBonusPrice.id, dataBonusPrice);
     const totalRevenue = _.get(prizes, 'totalBetAmount', 0);
-    // const totalPayout = _.get(prizes, 'finalResult.totalPayout', 0);
 
     return {
       finalResult,
@@ -213,7 +199,7 @@ export class LotteriesService {
     // lo truot
     for (const order of ordersTruot4) {
       const objOrder = order.number.join();
-      const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
+      const { winningAmount } = OrderHelper.calcBalanceEachOrder({
         orders: { [objOrder]: Number(order.score) },
         childBetType: 'Xien_Truot_4',
         prizes,
@@ -226,7 +212,7 @@ export class LotteriesService {
 
     for (const order of ordersTruot8) {
       const objOrder = order.number.join();
-      const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
+      const { winningAmount } = OrderHelper.calcBalanceEachOrder({
         orders: { [objOrder]: Number(order.score) },
         childBetType: 'Xien_Truot_8',
         prizes,
@@ -239,7 +225,7 @@ export class LotteriesService {
 
     for (const order of ordersTruot10) {
       const objOrder = order.number.join();
-      const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
+      const { winningAmount } = OrderHelper.calcBalanceEachOrder({
         orders: { [objOrder]: Number(order.score) },
         childBetType: 'Xien_Truot_10',
         prizes,
@@ -597,7 +583,6 @@ export class LotteriesService {
         }
 
         number = `${number}${order.number}`;
-
         arrayOf9999Numbers[number] += pricePerOrder;
       }
     }
@@ -619,7 +604,6 @@ export class LotteriesService {
         }
 
         number = `${number}${order.number}`;
-
         arrayOf9999Numbers[number] += pricePerOrder;
       }
     }
@@ -641,7 +625,6 @@ export class LotteriesService {
         }
 
         number = `${number}${order.number}`;
-
         arrayOf9999Numbers[number] += pricePerOrder;
       }
     }
@@ -765,7 +748,6 @@ export class LotteriesService {
   }
 
   generatePrizesSpecial({
-    totalBetAmount,
     ordersLo2So,
     ordersLo2So1k,
     ordersLo3So,
@@ -781,7 +763,6 @@ export class LotteriesService {
   }: any) {
 
     let arrayOf9999Numbers = this.generateOf9999Numbers();
-
     arrayOf9999Numbers = this.calcPayoutOrders4So({
       ordersLo4So,
       arrayOf9999Numbers,
@@ -822,7 +803,6 @@ export class LotteriesService {
       arrayOf9999Numbers
     });
 
-
     arrayOf9999Numbers = this.calcPayoutOrders4CangDacBiet({
       ordersBonCangDacBiet,
       arrayOf9999Numbers
@@ -844,29 +824,20 @@ export class LotteriesService {
 
       arrayOf9999Numbers[key] += (payOutLo2SoGiaiDacBiet);
     }
-
-    // Chuyển đối tượng thành Map
     const prizeMap = new Map(Object.entries(arrayOf9999Numbers));
-
-    // Sắp xếp Map theo giá trị
     const sortedPrizeMap = new Map([...prizeMap.entries()].sort((a: any, b: any) => a[1] - b[1]));
-
-    // Chuyển Map về đối tượng
-    // const sortedPrize = Object.fromEntries(sortedPrizeMap);
 
     return sortedPrizeMap;
   }
 
   generatePrizes8({
-    totalBetAmount,
     ordersLo2So,
     ordersLo2So1k,
     ordersDeDau,
     ordersDeDauDuoi
   }: any) {
-    let prizes8 = [];
-    let arrayOf99Numbers = this.generateOf99Numbers();
 
+    let arrayOf99Numbers = this.generateOf99Numbers();
     for (const order of ordersLo2So) {
       const pricePerOrder = (Number(order?.score) || 0) * (OddBet.Lo2So * 1000);
 
@@ -879,7 +850,6 @@ export class LotteriesService {
       arrayOf99Numbers[order.number] += pricePerOrder;
     }
 
-
     for (const order of ordersDeDau) {
       const pricePerOrder = (Number(order?.score) || 0) * (OddBet.DeDau * 1000);
 
@@ -891,21 +861,13 @@ export class LotteriesService {
 
       arrayOf99Numbers[order.number] += pricePerOrder;
     }
-
-    // Chuyển đối tượng thành Map
     const prizeMap = new Map(Object.entries(arrayOf99Numbers));
-
-    // Sắp xếp Map theo giá trị
     const sortedPrizeMap = new Map([...prizeMap.entries()].sort((a: any, b: any) => a[1] - b[1]));
-
-    // Chuyển Map về đối tượng
-    // const sortedPrize = Object.fromEntries(sortedPrizeMap);
 
     return sortedPrizeMap;
   }
 
   generatePrizes7({
-    totalBetAmount,
     ordersLo2So,
     ordersLo2So1k,
     ordersLo3So,
@@ -949,22 +911,13 @@ export class LotteriesService {
 
       arrayOf999Numbers[order?.number] += pricePerOrder;
     }
-
-    // Chuyển đối tượng thành Map
     const prizeMap = new Map(Object.entries(arrayOf999Numbers));
-
-    // Sắp xếp Map theo giá trị
     const sortedPrizeMap = new Map([...prizeMap.entries()].sort((a: any, b: any) => a[1] - b[1]));
-
-    // Chuyển Map về đối tượng
-    // const sortedPrize = Object.fromEntries(sortedPrizeMap);
 
     return sortedPrizeMap;
   }
 
   generateRemainPrizes({
-    finalResult,
-    totalBetAmount,
     ordersLo2So,
     ordersLo2So1k,
     ordersLo3So,
@@ -972,7 +925,6 @@ export class LotteriesService {
   }: any) {
 
     let arrayOf9999Numbers = this.generateOf9999Numbers();
-
     arrayOf9999Numbers = this.calcPayoutOrders4So({
       ordersLo4So,
       arrayOf9999Numbers,
@@ -992,15 +944,8 @@ export class LotteriesService {
       ordersLo2So1k,
       arrayOf9999Numbers,
     });
-
-    // Chuyển đối tượng thành Map
     const prizeMap = new Map(Object.entries(arrayOf9999Numbers));
-
-    // Sắp xếp Map theo giá trị
     const sortedPrizeMap = new Map([...prizeMap.entries()].sort((a: any, b: any) => a[1] - b[1]));
-
-    // Chuyển Map về đối tượng
-    // const sortedPrize = Object.fromEntries(sortedPrizeMap);
 
     return sortedPrizeMap;
   }
@@ -1050,6 +995,7 @@ export class LotteriesService {
       const lastTwoDigits = item.number.slice(-2);
       temFinal.push(lastTwoDigits);
     }
+
     ordersXien3.forEach((orderXien3: any, index: any) => {
       const numberNotExistInXien2 = orderXien3.number.filter((item: any) => temFinal.indexOf(item) === -1);
 
@@ -1106,7 +1052,6 @@ export class LotteriesService {
         }
 
         const existed = xien4Checked.some((item: any) => (item.indexOfXien === index && item.number === key));
-
         if (!existed) {
           let payOut = prizes.get(key);
           payOut += ((Number(orderXien4.score) || 0) * (OddBet.Xien4 * 1000));
@@ -1150,7 +1095,6 @@ export class LotteriesService {
   }: any) {
     let indexOrdersTruotXien4HasCounted: any = [];
     if (totalBetAmount < 0) {
-      // for (const orders of ordersTruotXien4) {
       ordersTruotXien4.forEach((orders: any, index: number) => {
         const firstItem = orders.number[0];
         const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
@@ -1208,25 +1152,20 @@ export class LotteriesService {
           ordersXien2HasCounted.push(currentIndex);
         }
       }
-      // else {
-      //   result.push(currentValue);
-      // }
 
       result.push(currentValue);
 
       return result;
     }, []);
 
-
     let indexOrdersTruotXien8HasCounted: any = [];
     if (totalBetAmount < 0) {
       ordersTruotXien8.forEach((orders: any, index: number) => {
         const firstItem = orders.number[0];
         const hasInFinalResult = finalResult.some((n: any) => n.number.endsWith(firstItem));
-
         const exist = indexOrdersTruotXien8HasCounted.find((i: any) => i == index);
-        let key;
 
+        let key;
         if (type === 'giai-8') {
           key = `${firstItem}`;
         }
@@ -1261,7 +1200,6 @@ export class LotteriesService {
       })
     }
 
-    //
     ordersTruotXien8 = ordersTruotXien8.reduce((result: any, currentValue: any, currentIndex: number) => {
       let exist;
       for (const res of finalResult) {
@@ -1283,7 +1221,6 @@ export class LotteriesService {
 
       return result;
     }, []);
-
 
     let indexOrdersTruotXien10HasCounted: any = [];
     if (totalBetAmount < 0) {
@@ -1328,7 +1265,6 @@ export class LotteriesService {
       })
     }
 
-    //
     ordersTruotXien10 = ordersTruotXien10.reduce((result: any, currentValue: any, currentIndex: number) => {
       let exist;
       for (const res of finalResult) {
@@ -1357,8 +1293,6 @@ export class LotteriesService {
         payOut: value
       });
     });
-
-    // prizes.sort((a: any, b: any) => a.payOut - b.payOut);
 
     return {
       totalBetAmount,

@@ -20,12 +20,9 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Response } from "../../system/interfaces";
-import { JwtAuthGuard } from "../auth/jwt/jwt-auth.guard";
 import { Roles } from "../auth/roles.guard/roles.decorator";
-import { RolesGuard } from "../auth/roles.guard/roles.guard";
 import { BacklistGuard } from "../backlist/backlist.guard";
 import { CoinWalletHistoryService } from "./coin.wallet.history.service";
-import { PaginationQueryDto } from "./../../common/common.dto/pagination.query.dto";
 import {
   CreateCoinWalletHistoryDto,
   UpdateCoinWalletHistoryDto
@@ -33,6 +30,7 @@ import {
 import { UserRoles } from "../user/enums/user.enum";
 import { CoinWalletHistories } from "./coin.wallet.history.entiry";
 import { AuthGuard } from "../auth/guards/auth.guard";
+
 @Controller("/api/v1/coinWalletHistory")
 @ApiTags("CoinWalletHistory")
 export class CoinWalletHistoryController {

@@ -23,7 +23,6 @@ import {
 import { PaginationQueryDto } from "../../common/common.dto";
 import { Response } from "../../system/interfaces";
 import { BacklistGuard } from "../backlist/backlist.guard";
-import { JwtAuthGuard } from "./../auth/jwt/jwt-auth.guard";
 import { Device } from "./device.entity";
 import { DeviceService } from "./device.service";
 import { CreateDeviceDto, UpdateDeviceDto } from "./dto/index";
