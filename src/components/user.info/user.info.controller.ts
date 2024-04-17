@@ -76,8 +76,8 @@ export class UserInfoController {
     type: Response<UserInfo>,
   })
   @UseGuards(AuthGuard, BacklistGuard)
-  async GetOne(@Param("userId", ParseIntPipe) userId: number): Promise<any> {
-    return this.userInfoService.getByUserId(userId);
+  async GetOne(@Param("userId", ParseIntPipe) userId: number, @Request() req: any): Promise<any> {
+    return this.userInfoService.getByUserId(req.user.id);
   }
 
   @Get("originals/:userId")

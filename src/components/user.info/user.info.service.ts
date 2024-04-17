@@ -30,8 +30,6 @@ export class UserInfoService {
     private playHistoryPokerRepository: Repository<PlayHistoryPoker>,
     @Inject("winston")
     private readonly logger: Logger,
-    private userService: UserService,
-    private connectService: ConnectService,
     private uploadS3Service: UploadS3Service,
     private ordersService: OrdersService,
   ) { }
@@ -67,35 +65,28 @@ export class UserInfoService {
       });
 
       let orders: any[] = []
-      const paginationDto: any = {
-        take: 100,
-        skip: 1,
-        order: Order.DESC,
-      }
-      const listOrderRes = await this.ordersService.findAll(paginationDto, {
-        status: ORDER_STATUS.closed,
-        user: { id: userId },
-      });
+      const listOrderRes = await this.ordersService.getOrdersByUserId(userId, ORDER_STATUS.closed, 1);
       if (listOrderRes?.lastPage == 1) {
         orders = listOrderRes.data;
       } else if (listOrderRes?.lastPage > 1) {
         for (let i = 2; i <= listOrderRes?.lastPage; i++) {
-          const pagingDto: any = {
-            take: 100,
-            skip: i,
-            order: Order.DESC,
-          }
-          const listOrderResPage = await this.ordersService.findAll(pagingDto, {
-            status: ORDER_STATUS.closed,
-            user: { id: userId },
-          });
+          // const pagingDto: any = {
+          //   take: 100,
+          //   skip: i,
+          //   order: Order.DESC,
+          // }
+          // const listOrderResPage = await this.ordersService.findAll(pagingDto, {
+          //   status: ORDER_STATUS.closed,
+          //   user: { id: userId },
+          // });
+          const listOrderResPage = await this.ordersService.getOrdersByUserId(userId, ORDER_STATUS.closed, 1);
           orders = orders.concat(listOrderResPage.data);
         }
       } else {
         orders = [];
       }
 
-      if (orders?.length > 0) {
+      // if (orders?.length > 0) {
         let sumBet = 0,
           sumOrder = 0,
           sumOrderWin = 0,
@@ -106,7 +97,7 @@ export class UserInfoService {
         listOrder?.map((order: any) => {
           sumBet += Number(order?.revenue);
           if (order?.paymentWin > 0) {
-            sumOrderWin += 1; 
+            sumOrderWin += 1;
           } else if (order?.paymentWin < 0) {
             sumOrderLose += 1
           }
@@ -137,7 +128,7 @@ export class UserInfoService {
           favoriteGame,
         }
         await this.userInfoRepository.save(userInfo);
-      }
+      // }
 
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
