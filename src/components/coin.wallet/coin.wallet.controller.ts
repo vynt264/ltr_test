@@ -23,14 +23,12 @@ import { Response } from "../../system/interfaces";
 import { Roles } from "../auth/roles.guard/roles.decorator";
 import { BacklistGuard } from "../backlist/backlist.guard";
 import { CoinWalletService } from "./coin.wallet.service";
-import { PaginationQueryDto } from "./../../common/common.dto/pagination.query.dto";
 import {
   CreateCoinWalletDto,
   UpdateCoinWalletDto
 } from "./dto/index";
 import { UserRoles } from "../user/enums/user.enum";
 import { CoinWallet } from "./coin.wallet.entity";
-import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { AuthGuard } from "../auth/guards/auth.guard";
 
 @Controller("/api/v1/coinWallet")

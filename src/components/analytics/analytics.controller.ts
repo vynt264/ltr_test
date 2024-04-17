@@ -35,13 +35,11 @@ import { AuthGuard } from "../auth/guards/auth.guard";
 @Controller("/api/v1/analytics")
 @ApiTags("analytics")
 @ApiBearerAuth("Authorization")
-// @UseGuards(JwtAuthGuard, BacklistGuard, RateLimitGuard)
 @UseGuards(AuthGuard, BacklistGuard)
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) { }
 
   @Post("latest-50rounds")
-  // @Roles(UserRoles.MEMBER)
   async getAnalyticsByType(
     @Body() bodyDto: BodyAnalyticsDto,
     @Request() req: any

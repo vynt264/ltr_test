@@ -1,9 +1,7 @@
 
 import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { endOfDay, format, startOfDay } from "date-fns";
 import { Between, LessThan, Repository } from "typeorm";
-import { LotteryAwardService } from "../lottery.award/lottery.award.service";
 import { LotteryAward } from "../lottery.award/lottery.award.entity";
 import { SuccessResponse } from "src/system/BaseResponse";
 import { MESSAGE, STATUSCODE } from "src/system/constants";
