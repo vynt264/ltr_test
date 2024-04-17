@@ -74,7 +74,7 @@ export class UserInfoService {
       }
       const listOrderRes = await this.ordersService.findAll(paginationDto, {
         status: ORDER_STATUS.closed,
-        id: userId,
+        user: { id: userId },
       });
       if (listOrderRes?.lastPage == 1) {
         orders = listOrderRes.data;
@@ -86,7 +86,8 @@ export class UserInfoService {
             order: Order.DESC,
           }
           const listOrderResPage = await this.ordersService.findAll(pagingDto, {
-            id: userId,
+            status: ORDER_STATUS.closed,
+            user: { id: userId },
           });
           orders = orders.concat(listOrderResPage.data);
         }
