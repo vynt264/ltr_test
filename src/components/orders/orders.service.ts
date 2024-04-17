@@ -1143,7 +1143,7 @@ export class OrdersService {
     const lastPage = Math.ceil(count / 100);
 
     return {
-      data,
+      data: data[0] || [],
       lastPage,
       total: count,
     }
