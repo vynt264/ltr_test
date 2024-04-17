@@ -602,7 +602,7 @@ export class IntegrationService {
 
       const tiemStartCV = moment(getBetInfo.timeStart, "YYYYMMDDHHmmss").format("YYYY-MM-DD HH:mm:ss");
       const timeEndCV = moment(getBetInfo.timeEnd, "YYYYMMDDHHmmss").format("YYYY-MM-DD HH:mm:ss");
-      let condition = "bookmaker.id = :bookmarkerFind AND (entity.created_at BETWEEN :timeStart AND :timeEnd)";
+      let condition = "bookmaker.id = :bookmarkerFind AND (entity.updated_at BETWEEN :timeStart AND :timeEnd)";
       const conditionParams: any = { 
         bookmarkerFind: bookmaker.id,
         timeStart: moment(tiemStartCV).toDate(),
