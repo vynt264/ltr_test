@@ -64,71 +64,73 @@ export class UserInfoService {
         }
       });
 
-      let orders: any[] = []
-      const listOrderRes = await this.ordersService.getOrdersByUserId(userId, ORDER_STATUS.closed, 1);
-      if (listOrderRes?.lastPage == 1) {
-        orders = listOrderRes.data;
-      } else if (listOrderRes?.lastPage > 1) {
-        for (let i = 2; i <= listOrderRes?.lastPage; i++) {
-          // const pagingDto: any = {
-          //   take: 100,
-          //   skip: i,
-          //   order: Order.DESC,
-          // }
-          // const listOrderResPage = await this.ordersService.findAll(pagingDto, {
-          //   status: ORDER_STATUS.closed,
-          //   user: { id: userId },
-          // });
-          const listOrderResPage = await this.ordersService.getOrdersByUserId(userId, ORDER_STATUS.closed, 1);
-          orders = orders.concat(listOrderResPage.data);
+      const data: any = await this.ordersService.getOrdersByUserId(userId, ORDER_STATUS.closed, 1);
+      let orders = data.orders || [];
+      const total = data.total;
+      if (data.lastPage > 1) {
+        for (let i = 2; i <= data?.lastPage; i++) {
+          const res = await this.ordersService.getOrdersByUserId(userId, ORDER_STATUS.closed, i);
+          orders = orders.concat(res.orders);
         }
-      } else {
-        orders = [];
       }
 
-      // if (orders?.length > 0) {
-        let sumBet = 0,
-          sumOrder = 0,
-          sumOrderWin = 0,
-          sumOrderLose = 0,
-          favoriteGame = "";
-        let listFv: any[] = [];
-        const listOrder = orders;
-        listOrder?.map((order: any) => {
-          sumBet += Number(order?.revenue);
-          if (order?.paymentWin > 0) {
-            sumOrderWin += 1;
-          } else if (order?.paymentWin < 0) {
-            sumOrderLose += 1
-          }
-          const itemFv = {
-            type: `${order?.type}${order?.seconds}s`,
-            bet: order?.revenue
-          }
-          listFv.push(itemFv);
-        });
-        sumOrder = listOrderRes?.total;
+      let sumBet = 0;
+      let sumOrder = 0;
+      let sumOrderWin = 0;
+      let sumOrderLose = 0;
+      let favoriteGame = "";
+      let listFv: any[] = [];
+      const listOrder = orders;
 
-        listFv = listFv.reduce((accumulator: any, currentValue: any) => {
-          const { type, bet } = currentValue;
-          if (!accumulator[type]) {
-            accumulator[type] = { type, bet: 0 };
-          }
-          accumulator[type].bet += Number(bet);
-          return accumulator;
-        }, {});
-        favoriteGame = JSON.stringify(Object.values(listFv));
-
-        userInfo = {
-          ...userInfo,
-          sumBet,
-          sumOrder,
-          sumOrderLose,
-          sumOrderWin,
-          favoriteGame,
+      for (const order of listOrder) {
+        sumBet += Number(order?.revenue);
+        if (order?.paymentWin > 0) {
+          sumOrderWin += 1;
+        } else if (order?.paymentWin < 0) {
+          sumOrderLose += 1
         }
-        await this.userInfoRepository.save(userInfo);
-      // }
+        const itemFv = {
+          type: `${order?.type}${order?.seconds}s`,
+          bet: order?.revenue
+        }
+        listFv.push(itemFv);
+      }
+
+      sumOrder = total;
+
+      // listOrder?.map((order: any) => {
+      //   sumBet += Number(order?.revenue);
+      //   if (order?.paymentWin > 0) {
+      //     sumOrderWin += 1;
+      //   } else if (order?.paymentWin < 0) {
+      //     sumOrderLose += 1
+      //   }
+      //   const itemFv = {
+      //     type: `${order?.type}${order?.seconds}s`,
+      //     bet: order?.revenue
+      //   }
+      //   listFv.push(itemFv);
+      // });
+
+      listFv = listFv.reduce((accumulator: any, currentValue: any) => {
+        const { type, bet } = currentValue;
+        if (!accumulator[type]) {
+          accumulator[type] = { type, bet: 0 };
+        }
+        accumulator[type].bet += Number(bet);
+        return accumulator;
+      }, {});
+      favoriteGame = JSON.stringify(Object.values(listFv));
+
+      userInfo = {
+        ...userInfo,
+        sumBet,
+        sumOrder,
+        sumOrderLose,
+        sumOrderWin,
+        favoriteGame,
+      }
+      await this.userInfoRepository.save(userInfo);
 
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
