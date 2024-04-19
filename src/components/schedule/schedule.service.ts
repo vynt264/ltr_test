@@ -73,13 +73,28 @@ export class ScheduleService implements OnModuleInit {
         if (!startDate) {
             startDate = startOfDay(new Date());
         }
+
         this.logger.info("init job start");
-        awardsPromises = awardsPromises.concat(this.createJobsInGame(45, startDate));
-        awardsPromises = awardsPromises.concat(this.createJobsInGame(60, startDate));
-        awardsPromises = awardsPromises.concat(this.createJobsInGame(90, startDate));
-        awardsPromises = awardsPromises.concat(this.createJobsInGame(120, startDate));
-        awardsPromises = awardsPromises.concat(this.createJobsInGame(180, startDate));
-        awardsPromises = awardsPromises.concat(this.createJobsInGame(360, startDate));
+        const promises45s = await this.createJobsInGame(45, startDate);
+        awardsPromises = awardsPromises.concat(promises45s);
+        const promises60s = await this.createJobsInGame(60, startDate);
+        awardsPromises = awardsPromises.concat(promises60s);
+        const promises90s = await this.createJobsInGame(90, startDate);
+        awardsPromises = awardsPromises.concat(promises90s);
+        const promises120s = await this.createJobsInGame(120, startDate);
+        awardsPromises = awardsPromises.concat(promises120s);
+        const promises180s = await this.createJobsInGame(180, startDate);
+        awardsPromises = awardsPromises.concat(promises180s);
+        const promises360s = await this.createJobsInGame(360, startDate);
+        awardsPromises = awardsPromises.concat(promises360s);
+
+        // awardsPromises = awardsPromises.concat(this.createJobsInGame(45, startDate));
+        // awardsPromises = awardsPromises.concat(this.createJobsInGame(60, startDate));
+        // awardsPromises = awardsPromises.concat(this.createJobsInGame(90, startDate));
+        // awardsPromises = awardsPromises.concat(this.createJobsInGame(120, startDate));
+        // awardsPromises = awardsPromises.concat(this.createJobsInGame(180, startDate));
+        // awardsPromises = awardsPromises.concat(this.createJobsInGame(360, startDate));
+
         this.logger.info("init job finished");
 
         this.logger.info("create awards start");
@@ -115,7 +130,9 @@ export class ScheduleService implements OnModuleInit {
                 this.addCronJob(jobName, seconds, timeMillisecondsStartRunJob, turnIndex, nextTurnIndex, nextTime);
             } else {
                 const tempPromises = await this.createLotteryAwardInPastTime(turnIndex, seconds, timeMillisecondsStartRunJob, nextTime);
-                promises = promises.concat(tempPromises);
+                if (tempPromises.length > 0) {
+                    promises = promises.concat(tempPromises);
+                }
             }
         }
 
