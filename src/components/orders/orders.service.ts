@@ -1125,18 +1125,19 @@ export class OrdersService {
   }
 
   async getOrdersByUserId(userId: number, status: string, page: number) {
+    const perPage = 100;
     const [result, total] = await this.orderRequestRepository.findAndCount({
       where: {
         status,
         user: { id: userId },
       },
-      take: 50,
-      skip: (page - 1) * 50,
+      take: perPage,
+      skip: (page - 1) * perPage,
       order: {
         id: "DESC"
       },
     });
-    const lastPage = Math.ceil(total / 50);
+    const lastPage = Math.ceil(total / perPage);
 
     return {
       orders: result || [],
