@@ -505,8 +505,13 @@ export class ScheduleService implements OnModuleInit {
         }
 
         // save winning numbers
-        Promise.all(promisesCreateWinningNumbers);
-        await Promise.all(promises);
+        if (promisesCreateWinningNumbers.length > 0) {
+            Promise.all(promisesCreateWinningNumbers);
+        }
+
+        if (promises.length > 0) {
+            await Promise.all(promises);
+        }
 
         // check nuoi so
         const { refunds } = await this.handlerHoldingNumbers({
@@ -536,9 +541,9 @@ export class ScheduleService implements OnModuleInit {
         }
 
         if (isTestPlayer) {
-            this.logger.info(`userId ${userId} test player send event payment`);
+            this.logger.info(`userId ${userId} test player send event payment :: ${turnIndex}`);
         } else {
-            this.logger.info(`userId ${userId} send event payment`);
+            this.logger.info(`userId ${userId} send event payment :: ${turnIndex}`);
         }
         this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {
             ordersWin,

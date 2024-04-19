@@ -87,11 +87,11 @@ export class UserInfoService {
         if (order?.paymentWin > 0) {
           sumOrderWin += 1;
         } else if (order?.paymentWin < 0) {
-          sumOrderLose += 1
+          sumOrderLose += 1;
         }
         const itemFv = {
           type: `${order?.type}${order?.seconds}s`,
-          bet: order?.revenue
+          bet: order?.revenue,
         }
         listFv.push(itemFv);
       }

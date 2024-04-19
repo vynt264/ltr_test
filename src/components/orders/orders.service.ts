@@ -541,6 +541,8 @@ export class OrdersService {
       },
     });
 
+    if (!order) return;
+
     if (member) {
       const numberRequest = await this.redisService.incr(id.toString());
       if (numberRequest > 1) {
@@ -602,7 +604,7 @@ export class OrdersService {
       await this.walletHistoryRepository.save(createdWalletHis);
     }
 
-    if (order.status !== ORDER_STATUS.pending) return;
+    if (order?.status !== ORDER_STATUS.pending) return;
 
     return this.orderRequestRepository.update(id, updateOrderDto);
   }
@@ -1064,9 +1066,9 @@ export class OrdersService {
     }
 
     if (isTestPlayer) {
-      this.logger.info(`userId ${userId} test player send event payment`);
+      this.logger.info(`userId ${userId} test player send event payment :: ${turnIndex}`);
     } else {
-      this.logger.info(`userId ${userId} send event payment`);
+      this.logger.info(`userId ${userId} send event payment :: ${turnIndex}`);
     }
     this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {
       ordersWin,
