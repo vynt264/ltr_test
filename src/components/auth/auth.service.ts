@@ -440,7 +440,9 @@ export class AuthService {
     //   await this.walletInoutRepository.save(createtedWalletInout);
     // }
 
-    await this.redisService.set(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), (Number(wallet.balance) || 0));
+    if (user && user?.id?.toString()) {
+      await this.redisService.set(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), (Number(wallet.balance) || 0));
+    }
 
     return user;
   }

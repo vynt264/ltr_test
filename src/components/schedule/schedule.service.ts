@@ -12,7 +12,6 @@ import {
     ORDER_STATUS,
     PERIOD_DELAY_TO_HANDLER_ORDERS,
     START_TIME_CREATE_JOB,
-    TypeLottery,
 } from 'src/system/constants';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
@@ -87,14 +86,12 @@ export class ScheduleService implements OnModuleInit {
         awardsPromises = awardsPromises.concat(promises180s);
         const promises360s = await this.createJobsInGame(360, startDate);
         awardsPromises = awardsPromises.concat(promises360s);
-
         // awardsPromises = awardsPromises.concat(this.createJobsInGame(45, startDate));
         // awardsPromises = awardsPromises.concat(this.createJobsInGame(60, startDate));
         // awardsPromises = awardsPromises.concat(this.createJobsInGame(90, startDate));
         // awardsPromises = awardsPromises.concat(this.createJobsInGame(120, startDate));
         // awardsPromises = awardsPromises.concat(this.createJobsInGame(180, startDate));
         // awardsPromises = awardsPromises.concat(this.createJobsInGame(360, startDate));
-
         this.logger.info("init job finished");
 
         this.logger.info("create awards start");
@@ -104,7 +101,7 @@ export class ScheduleService implements OnModuleInit {
 
     async createJobsNextDay() {
         const currentDate = new Date();
-        let timeStartCreateJob = addHours(currentDate, 6);
+        let timeStartCreateJob = addHours(startOfDay(new Date()), 6);
         timeStartCreateJob = addMinutes(timeStartCreateJob, 40);
         if (currentDate > timeStartCreateJob) return;
 
@@ -143,8 +140,11 @@ export class ScheduleService implements OnModuleInit {
         const job = new CronJob(new Date((time)), () => {
             this.callbackFunc(name, seconds, time, turnIndex, nextTurnIndex, nextTime);
         });
-
-        this.schedulerRegistry.addCronJob(name, job);
+        try {
+            this.schedulerRegistry.addCronJob(name, job);
+        } catch (err) {
+            this.logger.error(err);
+        }
         job.start();
     }
 
