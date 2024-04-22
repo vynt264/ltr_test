@@ -457,7 +457,7 @@ export class IntegrationService {
               user: { id: user.id },
               subOrAdd: 0,
               amount: Number(withdrawDto.amount),
-              detail: `Rút tiền vào ví`,
+              detail: `Rút tiền`,
               balance: balanceUp,
               createdBy: user.username
             }

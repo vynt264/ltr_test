@@ -144,7 +144,7 @@ export class LotteriesService {
       profit = Number(PROFIT_PERCENTAGE);
     }
 
-    const prizes = await this.generatePrizes(data, dataBonusPrice.bonusPrice);
+    const prizes = await this.generatePrizes(data, dataBonusPrice?.bonusPrice);
     const finalResult = OrderHelper.randomPrizes(prizes);
     const totalPayout = this.getTotalPayout(data, (prizes?.finalResult?.totalPayout || 0), finalResult);
     const bonusPriceCurrent = dataBonusPrice.bonusPrice;

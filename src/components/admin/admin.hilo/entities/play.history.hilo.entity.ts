@@ -19,7 +19,7 @@ export class PlayHistoryHilo {
 
   @Column({ nullable: false })
   username: string;
-  
+
   @Column({ nullable: true, default: false })
   isUserFake: boolean;
 
@@ -29,16 +29,28 @@ export class PlayHistoryHilo {
   @Column({ nullable: false })
   step: number;
 
-  @Column({ type: "text", nullable: false })
+  @Column({
+    type: "varchar",
+    length: 255,
+    nullable: false
+  })
   cards: string;
 
   @Column({ nullable: false })
   multi: string;
 
-  @Column({ type: "text", nullable: true })
+  @Column({
+    type: "varchar",
+    length: 255,
+    nullable: true
+  })
   hiLo: string;
 
-  @Column({ type: "text", nullable: true })
+  @Column({
+    type: "varchar",
+    length: 255,
+    nullable: true
+  })
   multiHis: string;
 
   @Column({ nullable: false })

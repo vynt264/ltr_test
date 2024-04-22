@@ -36,7 +36,7 @@ export class AdminKenoController {
 
   @Get("all")
   @ApiOperation({
-    description: "Get all hilo history",
+    description: "Get all keno history",
   })
   @ApiOkResponse({
     type: Response<any[]>,
@@ -57,7 +57,7 @@ export class AdminKenoController {
 
   @Get("getConfig")
   @ApiOperation({
-    description: "Get config hilo",
+    description: "Get config keno",
   })
   @ApiOkResponse({
     type: Response<any[]>,
@@ -78,7 +78,7 @@ export class AdminKenoController {
 
   @Patch("updateConfig/:id")
   @ApiOperation({
-    description: "Update config hilo",
+    description: "Update config keno",
   })
   @ApiOkResponse({
     type: Response<any[]>,
