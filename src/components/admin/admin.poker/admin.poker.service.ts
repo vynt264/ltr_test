@@ -298,7 +298,7 @@ export class AdminPokerService {
         }
         dataResul.push(record);
       })
-      const response = Helper.checkAndGroupByTime(dataResul, "hilo");
+      const response = Helper.checkAndGroupByTime(dataResul, "poker");
 
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,

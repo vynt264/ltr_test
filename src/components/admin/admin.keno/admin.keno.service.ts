@@ -265,7 +265,7 @@ export class AdminKenoService {
       }
       dataResul.push(record);
     })
-    const response = Helper.checkAndGroupByTime(dataResul, "hilo");
+    const response = Helper.checkAndGroupByTime(dataResul, "keno");
 
     return new SuccessResponse(
       STATUSCODE.COMMON_SUCCESS,
