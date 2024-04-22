@@ -12,7 +12,6 @@ import {
     ORDER_STATUS,
     PERIOD_DELAY_TO_HANDLER_ORDERS,
     START_TIME_CREATE_JOB,
-    TypeLottery,
 } from 'src/system/constants';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
@@ -73,13 +72,26 @@ export class ScheduleService implements OnModuleInit {
         if (!startDate) {
             startDate = startOfDay(new Date());
         }
+
         this.logger.info("init job start");
-        awardsPromises = awardsPromises.concat(this.createJobsInGame(45, startDate));
-        awardsPromises = awardsPromises.concat(this.createJobsInGame(60, startDate));
-        awardsPromises = awardsPromises.concat(this.createJobsInGame(90, startDate));
-        awardsPromises = awardsPromises.concat(this.createJobsInGame(120, startDate));
-        awardsPromises = awardsPromises.concat(this.createJobsInGame(180, startDate));
-        awardsPromises = awardsPromises.concat(this.createJobsInGame(360, startDate));
+        const promises45s = await this.createJobsInGame(45, startDate);
+        awardsPromises = awardsPromises.concat(promises45s);
+        const promises60s = await this.createJobsInGame(60, startDate);
+        awardsPromises = awardsPromises.concat(promises60s);
+        const promises90s = await this.createJobsInGame(90, startDate);
+        awardsPromises = awardsPromises.concat(promises90s);
+        const promises120s = await this.createJobsInGame(120, startDate);
+        awardsPromises = awardsPromises.concat(promises120s);
+        const promises180s = await this.createJobsInGame(180, startDate);
+        awardsPromises = awardsPromises.concat(promises180s);
+        const promises360s = await this.createJobsInGame(360, startDate);
+        awardsPromises = awardsPromises.concat(promises360s);
+        // awardsPromises = awardsPromises.concat(this.createJobsInGame(45, startDate));
+        // awardsPromises = awardsPromises.concat(this.createJobsInGame(60, startDate));
+        // awardsPromises = awardsPromises.concat(this.createJobsInGame(90, startDate));
+        // awardsPromises = awardsPromises.concat(this.createJobsInGame(120, startDate));
+        // awardsPromises = awardsPromises.concat(this.createJobsInGame(180, startDate));
+        // awardsPromises = awardsPromises.concat(this.createJobsInGame(360, startDate));
         this.logger.info("init job finished");
 
         this.logger.info("create awards start");
@@ -89,7 +101,7 @@ export class ScheduleService implements OnModuleInit {
 
     async createJobsNextDay() {
         const currentDate = new Date();
-        let timeStartCreateJob = addHours(currentDate, 6);
+        let timeStartCreateJob = addHours(startOfDay(new Date()), 6);
         timeStartCreateJob = addMinutes(timeStartCreateJob, 40);
         if (currentDate > timeStartCreateJob) return;
 
@@ -115,7 +127,9 @@ export class ScheduleService implements OnModuleInit {
                 this.addCronJob(jobName, seconds, timeMillisecondsStartRunJob, turnIndex, nextTurnIndex, nextTime);
             } else {
                 const tempPromises = await this.createLotteryAwardInPastTime(turnIndex, seconds, timeMillisecondsStartRunJob, nextTime);
-                promises = promises.concat(tempPromises);
+                if (tempPromises.length > 0) {
+                    promises = promises.concat(tempPromises);
+                }
             }
         }
 
@@ -126,8 +140,11 @@ export class ScheduleService implements OnModuleInit {
         const job = new CronJob(new Date((time)), () => {
             this.callbackFunc(name, seconds, time, turnIndex, nextTurnIndex, nextTime);
         });
-
-        this.schedulerRegistry.addCronJob(name, job);
+        try {
+            this.schedulerRegistry.addCronJob(name, job);
+        } catch (err) {
+            this.logger.error(err);
+        }
         job.start();
     }
 
@@ -505,8 +522,13 @@ export class ScheduleService implements OnModuleInit {
         }
 
         // save winning numbers
-        Promise.all(promisesCreateWinningNumbers);
-        await Promise.all(promises);
+        if (promisesCreateWinningNumbers.length > 0) {
+            Promise.all(promisesCreateWinningNumbers);
+        }
+
+        if (promises.length > 0) {
+            await Promise.all(promises);
+        }
 
         // check nuoi so
         const { refunds } = await this.handlerHoldingNumbers({
@@ -536,9 +558,9 @@ export class ScheduleService implements OnModuleInit {
         }
 
         if (isTestPlayer) {
-            this.logger.info(`userId ${userId} test player send event payment`);
+            this.logger.info(`userId ${userId} test player send event payment :: ${turnIndex}`);
         } else {
-            this.logger.info(`userId ${userId} send event payment`);
+            this.logger.info(`userId ${userId} send event payment :: ${turnIndex}`);
         }
         this.socketGateway.sendEventToClient(`${userId}-receive-payment`, {
             ordersWin,
