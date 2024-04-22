@@ -55,7 +55,7 @@ export class OrdersService {
       isTestPlayer = true;
     }
     const turnIndex = OrderHelper.getTurnIndex(seconds);
-    const ordersBefore = await this.getOrdersBeforeInTurn(data.orders, turnIndex, isTestPlayer);
+    const ordersBefore = await this.getOrdersBeforeInTurn(data.orders, turnIndex, isTestPlayer, member.id);
     await OrderValidate.validateOrders(data?.orders || [], ordersBefore, turnIndex);
 
     const openTime = OrderHelper.getOpenTime(seconds);
@@ -733,7 +733,7 @@ export class OrdersService {
       isTestPlayer = true;
     }
     const turnIndex = OrderHelper.getTurnIndex(seconds);
-    const ordersBefore = await this.getOrdersBeforeInTurn(data.orders, turnIndex, isTestPlayer);
+    const ordersBefore = await this.getOrdersBeforeInTurn(data.orders, turnIndex, isTestPlayer, user.id);
     await OrderValidate.validateOrders(data?.orders || [], ordersBefore, turnIndex);
 
     // check balance
@@ -911,7 +911,7 @@ export class OrdersService {
     return result;
   }
 
-  getNumberOfBetsFromTurnIndex(order: any, turnIndex: string, isTestPlayer: boolean) {
+  getNumberOfBetsFromTurnIndex(order: any, turnIndex: string, isTestPlayer: boolean, userId: number) {
     const seconds = OrderHelper.getPlayingTimeByType(order.type);
     const type = OrderHelper.getTypeLottery(order.type);
     return this.orderRequestRepository.find({
@@ -922,6 +922,7 @@ export class OrdersService {
         seconds,
         status: ORDER_STATUS.pending,
         childBetType: order.childBetType,
+        user: { id: userId },
       },
     });
   }
@@ -937,12 +938,12 @@ export class OrdersService {
     }
   }
 
-  async getOrdersBeforeInTurn(orders: any, turnIndex: string, isTestPlayer: boolean) {
+  async getOrdersBeforeInTurn(orders: any, turnIndex: string, isTestPlayer: boolean, userId: number) {
     if (!orders) return [];
 
     const promises = [];
     for (const order of orders) {
-      promises.push(this.getNumberOfBetsFromTurnIndex(order, turnIndex, isTestPlayer));
+      promises.push(this.getNumberOfBetsFromTurnIndex(order, turnIndex, isTestPlayer, userId));
     }
     const result = await Promise.all(promises);
 
