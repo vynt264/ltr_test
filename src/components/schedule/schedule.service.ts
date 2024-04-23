@@ -52,15 +52,28 @@ export class ScheduleService implements OnModuleInit {
 
     async init() {
         try {
+            const currentDate = new Date();
+            const nextDate = addDays(currentDate, 1);
+
+            // delete job current day
+            await this.deleteJobs(currentDate);
+
+            // delete job before day
+            await this.deleteJobs(nextDate);
+
             // create jobs current day
             await this.createJobs();
+
             // create jobs next day
-            this.createJobsNextDay();
+            await this.createJobsNextDay();
+
+            // create bonus current day
             await this.manageBonusPriceService.initBonusPrice(new Date());
 
             // create bonus price next day
-            const currentDate = new Date();
-            const nextDate = addDays(currentDate, 1);
+            // const currentDate = new Date();
+            // const nextDate = addDays(currentDate, 1);
+            // create bonus next day
             await this.manageBonusPriceService.initBonusPrice(nextDate);
         } catch (err) {
             this.logger.error(err.stack);
@@ -95,15 +108,16 @@ export class ScheduleService implements OnModuleInit {
 
     async createJobsNextDay() {
         const currentDate = new Date();
-        let timeStartCreateJob = addHours(startOfDay(new Date()), 6);
-        timeStartCreateJob = addMinutes(timeStartCreateJob, 40);
-        if (currentDate > timeStartCreateJob) return;
+        // let timeStartCreateJob = addHours(startOfDay(new Date()), 6);
+        // timeStartCreateJob = addMinutes(timeStartCreateJob, 40);
+        // if (currentDate > timeStartCreateJob) return;
 
         const nextDate = addDays(currentDate, 1);
         this.createJobs(startOfDay(nextDate));
     }
 
     async createJobsInGame(seconds: number, startDate: Date) {
+        const dateString = DateTimeHelper.formatDate(startDate);
         let timeMillisecondsStartRunJob = addHours(startDate, START_TIME_CREATE_JOB).getTime();
         const numberOfTurns = OrderHelper.getNumberOfTurnsInDay(seconds);
         let count = 0;
@@ -115,7 +129,7 @@ export class ScheduleService implements OnModuleInit {
             const turnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${turn}`;
             const nextTime = (timeMillisecondsStartRunJob + (seconds * 1000));
             if (timeMillisecondsStartRunJob > (new Date()).getTime()) {
-                const jobName = `${seconds}-${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${turn}`;
+                const jobName = `${seconds}-${dateString}-${turn}`;
                 const nextTurn = OrderHelper.getFullCharOfTurn((count + 1).toString());
                 const nextTurnIndex = `${DateTimeHelper.formatDate((new Date(timeMillisecondsStartRunJob)))}-${nextTurn}`;
                 this.addCronJob(jobName, seconds, timeMillisecondsStartRunJob, turnIndex, nextTurnIndex, nextTime);
@@ -137,7 +151,7 @@ export class ScheduleService implements OnModuleInit {
         try {
             this.schedulerRegistry.addCronJob(name, job);
         } catch (err) {
-            this.logger.error(err.stack);
+            console.log(err);
         }
         job.start();
     }
@@ -510,15 +524,17 @@ export class ScheduleService implements OnModuleInit {
         this.logger.info(`job ${name} finished at ${(new Date(time)).toLocaleTimeString()}`);
     }
 
-    async deleteJobsBeforeDay() {
-        this.logger.info("delete all job.");
+    async deleteJobs(date: Date) {
+        if (!date) return;
+
+        this.logger.info(`delete job - ${new Date(date).toLocaleDateString()}`);
         const jobs = this.schedulerRegistry.getCronJobs();
-        const year = (new Date()).getFullYear();
-        let month = (((new Date()).getMonth()) + 1).toString();
+        const year = (date).getFullYear();
+        let month = (((date).getMonth()) + 1).toString();
         if (month.length === 1) {
             month = `0${month}`;
         }
-        let day = (new Date()).getDate().toString();
+        let day = (date).getDate().toString();
         if (day.length === 1) {
             day = `0${day}`;
         }
@@ -529,7 +545,7 @@ export class ScheduleService implements OnModuleInit {
             const dateString = key.split('-')[1] || '';
             if (
                 new RegExp(regex).test(key)
-                && dateString !== dateCurrentString
+                // && dateString !== dateCurrentString
             ) {
                 this.schedulerRegistry.deleteCronJob(key);
             }
@@ -538,12 +554,21 @@ export class ScheduleService implements OnModuleInit {
 
     @Cron('40 6 * * * ')
     async cronJob() {
-        this.logger.info("cron job.");
-        await this.createJobsNextDay();
+        this.logger.info(`run cron job - ${new Date().toLocaleDateString()}`);
 
-        // create bonus price next day
         const currentDate = new Date();
         const nextDate = addDays(currentDate, 1);
+        const beforeDate = addDays(currentDate, -1);
+
+        // delete job before day
+        await this.deleteJobs(beforeDate);
+        // delete job next day
+        await this.deleteJobs(nextDate);
+
+        // create jobs next day
+        await this.createJobsNextDay();
+
+        // create bonus
         await this.manageBonusPriceService.initBonusPrice(nextDate);
 
         // delete orders of test player
@@ -553,10 +578,13 @@ export class ScheduleService implements OnModuleInit {
         this.lotteryAwardService.deleteLotteryAwardsOfTestPlayer();
     }
 
-    @Cron('10 00 * * *')
-    deleteJobs() {
-        this.deleteJobsBeforeDay();
-    }
+    // @Cron('32 13 * * *')
+    // cronDeleteJobs() {
+    //     // delete job day before
+    //     const currentDate = new Date();
+    //     const nextDate = addDays(currentDate, -1);
+    //     this.deleteJobs(nextDate);
+    // }
 
     async handleBalance({
         turnIndex,
