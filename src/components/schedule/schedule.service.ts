@@ -63,7 +63,7 @@ export class ScheduleService implements OnModuleInit {
             const nextDate = addDays(currentDate, 1);
             await this.manageBonusPriceService.initBonusPrice(nextDate);
         } catch (err) {
-            this.logger.error(err);
+            this.logger.error(err.stack);
         }
     }
 
@@ -86,12 +86,6 @@ export class ScheduleService implements OnModuleInit {
         awardsPromises = awardsPromises.concat(promises180s);
         const promises360s = await this.createJobsInGame(360, startDate);
         awardsPromises = awardsPromises.concat(promises360s);
-        // awardsPromises = awardsPromises.concat(this.createJobsInGame(45, startDate));
-        // awardsPromises = awardsPromises.concat(this.createJobsInGame(60, startDate));
-        // awardsPromises = awardsPromises.concat(this.createJobsInGame(90, startDate));
-        // awardsPromises = awardsPromises.concat(this.createJobsInGame(120, startDate));
-        // awardsPromises = awardsPromises.concat(this.createJobsInGame(180, startDate));
-        // awardsPromises = awardsPromises.concat(this.createJobsInGame(360, startDate));
         this.logger.info("init job finished");
 
         this.logger.info("create awards start");
@@ -143,7 +137,7 @@ export class ScheduleService implements OnModuleInit {
         try {
             this.schedulerRegistry.addCronJob(name, job);
         } catch (err) {
-            this.logger.error(err);
+            this.logger.error(err.stack);
         }
         job.start();
     }
@@ -164,7 +158,7 @@ export class ScheduleService implements OnModuleInit {
 
             await Promise.all(promises);
         } catch (err) {
-            this.logger.error(err);
+            this.logger.error(err.stack);
         }
     }
 
@@ -174,6 +168,15 @@ export class ScheduleService implements OnModuleInit {
             turnIndex,
             nextTurnIndex,
         });
+
+        // return this.handleOrders({
+        //     time,
+        //     turnIndex,
+        //     nextTurnIndex,
+        //     nextTime,
+        //     gameType,
+        //     bookMakers,
+        // });
 
         // real player
         this.handleDataRealPlayer({
@@ -194,6 +197,50 @@ export class ScheduleService implements OnModuleInit {
             gameType,
             bookMakers,
         });
+    }
+
+    async getAwards({
+        gameType,
+        turnIndex,
+        isTestPlayer = false,
+    }: {
+        gameType: string,
+        turnIndex: string,
+        isTestPlayer: boolean,
+    }) {
+        const keyToGetOrdersOfRealUser = OrderHelper.getKeyPrepareOrders(null, gameType, turnIndex);
+        const ordersReal = await this.redisService.hgetall(keyToGetOrdersOfRealUser);
+        const keyCancelOrdersRealUsers = OrderHelper.getKeyCancelOrders(null, gameType, turnIndex);
+        const ordersCancelOfUserReal = await this.redisService.hgetall(keyCancelOrdersRealUsers);
+        let dataReal = OrderHelper.splitOrders(ordersReal);
+        dataReal = OrderHelper.cancelOrders(dataReal, ordersCancelOfUserReal);
+        this.redisService.del(keyToGetOrdersOfRealUser);
+        this.redisService.del(keyCancelOrdersRealUsers);
+
+        if (!dataReal) {
+            dataReal = {};
+        }
+
+        const dataTransform = OrderHelper.transformData(dataReal);
+        const {
+            finalResult,
+            totalRevenue,
+            totalPayout,
+            bonusPrice,
+            totalProfit,
+        } = await this.lotteriesService.handlerPrizes({
+            isTestPlayer,
+            type: gameType,
+            data: dataTransform,
+        });
+
+        return {
+            finalResult,
+            totalRevenue,
+            totalPayout,
+            bonusPrice,
+            totalProfit,
+        };
     }
 
     async handleDataRealPlayer({
@@ -349,6 +396,107 @@ export class ScheduleService implements OnModuleInit {
         }
     }
 
+    async handleOrders({
+        gameType,
+        turnIndex,
+        time,
+        nextTurnIndex,
+        nextTime,
+        bookMakers,
+    }: {
+        gameType: string,
+        turnIndex: string,
+        time: number,
+        nextTurnIndex: string,
+        nextTime: number,
+        bookMakers: any,
+    }) {
+        const {
+            finalResult,
+            totalRevenue,
+            totalPayout,
+            bonusPrice,
+            totalProfit,
+        } = await this.getAwards({
+            gameType,
+            turnIndex,
+            isTestPlayer: false,
+        });
+
+        // real player
+        const eventSendAwards = `${gameType}-receive-prizes`;
+        this.socketGateway.sendEventToClient(eventSendAwards, {
+            type: gameType,
+            turnIndex,
+            nextTime,
+            nextTurnIndex,
+            openTime: time,
+            awardDetail: finalResult,
+            isTestPlayer: false,
+        });
+
+        // test player
+        const eventSendAwardsOfFakeUsers = `${gameType}-test-player-receive-prizes`;
+        this.socketGateway.sendEventToClient(eventSendAwardsOfFakeUsers, {
+            type: gameType,
+            turnIndex,
+            nextTime,
+            nextTurnIndex,
+            openTime: time,
+            awardDetail: finalResult,
+            isTestPlayer: true,
+        });
+
+        const promises = [];
+        for (const bookMaker of bookMakers) {
+            // real player
+            promises.push(this.lotteryAwardService.createLotteryAward({
+                turnIndex,
+                type: gameType,
+                awardDetail: JSON.stringify(finalResult),
+                bookmaker: { id: bookMaker.id } as any,
+                isTestPlayer: false,
+                openTime: new Date(time),
+                createdAt: new Date(time),
+                totalRevenue,
+                totalPayout,
+                bonusPrice,
+                totalProfit,
+            }));
+            promises.push(this.handleBalance({
+                turnIndex,
+                prizes: finalResult,
+                bookmakerId: bookMaker.id,
+                gameType,
+                isTestPlayer: false,
+            }));
+
+            // test player
+            promises.push(this.lotteryAwardService.createLotteryAward({
+                turnIndex,
+                type: gameType,
+                awardDetail: JSON.stringify(finalResult),
+                bookmaker: { id: bookMaker.id } as any,
+                isTestPlayer: true,
+                openTime: new Date(time),
+                createdAt: new Date(time),
+                totalRevenue: 0,
+                totalPayout: 0,
+                bonusPrice: 0,
+                totalProfit: 0,
+            }));
+            promises.push(this.handleBalance({
+                turnIndex,
+                prizes: finalResult,
+                bookmakerId: bookMaker.id,
+                gameType,
+                isTestPlayer: true,
+            }));
+        }
+
+        await Promise.all(promises);
+    }
+
     deleteCron(name: string) {
         this.schedulerRegistry.deleteCronJob(name);
         this.logger.info(`job ${name} deleted!`);
@@ -464,7 +612,6 @@ export class ScheduleService implements OnModuleInit {
         const ordersOfUser = await this.redisService.hgetall(mergeKey);
 
         if (!ordersOfUser || Object.keys(ordersOfUser).length === 0) {
-            // this.logger.info(`orders of userId ${keyOrdersOfBookmakerAndGameType}-${turnIndex} is not found.`);
             return;
         }
 
