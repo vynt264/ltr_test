@@ -548,6 +548,7 @@ export class UserInfoService {
         if (listOrderRes?.lastPage == 1) {
           orders = listOrderRes.data;
         } else if (listOrderRes?.lastPage > 1) {
+          orders = listOrderRes.data;
           for (let i = 2; i <= listOrderRes?.lastPage; i++) {
             const pagingDto: any = {
               take: 100,
