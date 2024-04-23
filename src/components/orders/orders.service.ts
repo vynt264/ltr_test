@@ -1148,4 +1148,13 @@ export class OrdersService {
       total,
     }
   }
+
+  async getNumberOfUserFromTurn(turnIndex: string) {
+    const result =  await this.orderRequestRepository.query(`
+      SELECT userId FROM orders WHERE turnIndex = '${turnIndex}'
+      GROUP BY userId
+    `);
+
+    return result.length;
+  }
 }
