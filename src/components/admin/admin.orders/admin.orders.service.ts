@@ -285,10 +285,12 @@ export class AdminOrdersService {
     if (!page) {
       page = 1;
     }
+    page = Number(page);
 
     if (!perPage) {
       perPage = 10;
     }
+    perPage = Number(perPage);
 
     const allOrders = await this.orderRepository.query(queryOrders);
     const total = allOrders.length;
@@ -297,7 +299,9 @@ export class AdminOrdersService {
     const prevPage = page - 1 < 1 ? null : page - 1;
     const offset = (page - 1) * (perPage || 10);
 
-    queryOrders += `LIMIT ${perPage} OFFSET ${offset}`;
+    queryOrders += `
+      LIMIT ${perPage} OFFSET ${offset}
+    `;
 
     const orders = await this.orderRepository.query(queryOrders);
 
