@@ -1514,8 +1514,7 @@ export class LotteriesService {
 
       const newRemainPrizes = Array.from(remainPrizes);
       let index = (Math.ceil(Math.random() * newRemainPrizes.length));
-      let index1 = (Math.ceil(Math.random() * index));
-      const orderSelected = newRemainPrizes[index1] as any;
+      const orderSelected = newRemainPrizes[index] as any;
 
       if ((totalPayout - (item.payOut || 0) + Number(orderSelected[1])) < (OrderHelper.getPayOut(totalBetAmount, profit))) {
         prizesSpecialAnd8And7 = prizesSpecialAnd8And7.filter((prize: any) => {
