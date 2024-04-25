@@ -1973,7 +1973,7 @@ export class LotteriesService {
 
     // return finalResult;
 
-    let limit = 2;
+    let limit = 4;
     let count = 1;
     let payOut = 0;
     const result: any = [];
@@ -2031,7 +2031,7 @@ export class LotteriesService {
       // }
 
       let temptotalBetAmount = totalBetAmount;
-      if (limit < 2) {
+      if (limit < 4) {
         const percent = (payOut / temptotalBetAmount) * 100;
         if (percent < 20) {
           temptotalBetAmount = totalBetAmount + bonusPrice;
@@ -2053,10 +2053,6 @@ export class LotteriesService {
         ordersXien4: tempOrdersXien4,
       });
 
-      // for (const award of finalResult) {
-      //   payOut += Number(award.payOut || 0);
-      // }
-
       result.push({
         [`time-${count}`]: finalResult,
       });
@@ -2065,10 +2061,10 @@ export class LotteriesService {
       count++;
     }
 
-    let count1 = 1;
-    const result1 = result.reduce((res: any, currentValue: any) => {
+    let numberOfOrder = 1;
+    const res = result.reduce((res: any, currentValue: any) => {
       let totalPayout = 0;
-      for (const value of currentValue[`time-${count1}`]) {
+      for (const value of currentValue[`time-${numberOfOrder}`]) {
         if (value.payOut < 0) continue;
 
         totalPayout += value.payOut;
@@ -2076,14 +2072,16 @@ export class LotteriesService {
 
       res.push({
         totalPayout,
-        values: currentValue[`time-${count1}`],
+        values: currentValue[`time-${numberOfOrder}`],
       })
-      count1++;
+      numberOfOrder++;
 
       return res;
     }, []);
 
-    return result1.sort((a: any, b: any) => b.totalPayout - a.totalPayout)[0];
+    const index = Math.round(Math.random() * res.length);
+    return res[index];
+    // return result1.sort((a: any, b: any) => b.totalPayout - a.totalPayout)[0];
   }
 
   checkXien2(ordersXien2: any, prizesFinal: any, currentNumber: any) {
