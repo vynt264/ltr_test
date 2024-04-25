@@ -1513,7 +1513,7 @@ export class LotteriesService {
       });
 
       const newRemainPrizes = Array.from(remainPrizes);
-      let index = (Math.ceil(Math.random() * newRemainPrizes.length));
+      const index = (Math.floor(Math.random() * newRemainPrizes.length));
       const orderSelected = newRemainPrizes[index] as any;
 
       if ((totalPayout - (item.payOut || 0) + Number(orderSelected[1])) < (OrderHelper.getPayOut(totalBetAmount, profit))) {
