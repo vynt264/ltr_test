@@ -34,6 +34,8 @@ import { MaintenanceModule } from './maintenance/maintenance.module';
 import { SettingsModule } from './settings/settings.module';
 import { TokensModule } from './tokens/tokens.module';
 import { AdminModule } from "./admin/admin.module";
+import { BonusSettingModule } from './bonus-setting/bonus-setting.module';
+
 @Module({
   imports: [
     AuthModule,
@@ -71,7 +73,8 @@ import { AdminModule } from "./admin/admin.module";
     SettingsModule,
     TokensModule,
     MaintenanceModule,
-    AdminModule
+    AdminModule,
+    BonusSettingModule,
   ],
 })
 export class MainModule { }

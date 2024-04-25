@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import * as _ from "lodash";
 import { CreateLotteryDto } from './dto/create-lottery.dto';
 import { UpdateLotteryDto } from './dto/update-lottery.dto';
@@ -27,12 +27,20 @@ import { addHours, startOfDay } from 'date-fns';
 import { OrderHelper } from 'src/common/helper';
 import { PROFIT_PERCENTAGE } from 'src/system/config.system/config.default';
 import { SettingsService } from '../settings/settings.service';
+import { OrdersService } from '../orders/orders.service';
+import { BonusSettingService } from '../bonus-setting/bonus-setting.service';
 
 @Injectable()
 export class LotteriesService {
   constructor(
     private readonly manageBonusPriceService: ManageBonusPriceService,
     private readonly settingsService: SettingsService,
+
+    @Inject(forwardRef(() => OrdersService))
+    private ordersService: OrdersService,
+
+    @Inject(forwardRef(() => BonusSettingService))
+    private bonusSettingService: BonusSettingService,
   ) { }
 
   async generatePrizes(orders: any, bonusPrice?: number) {
@@ -61,9 +69,9 @@ export class LotteriesService {
 
     let totalBetAmount = this.getTotalBetAmount(orders);
     let temptotalBetAmount = totalBetAmount;
-    if (bonusPrice > 0) {
-      temptotalBetAmount = totalBetAmount + bonusPrice;
-    }
+    // if (bonusPrice > 0) {
+    //   temptotalBetAmount = totalBetAmount + bonusPrice;
+    // }
 
     let profit = await this.settingsService.getProfit();
     if (!profit && profit !== 0) {
@@ -93,6 +101,7 @@ export class LotteriesService {
       ordersDau,
       ordersDuoi,
       ordersLo2SoGiaiDacBiet,
+      bonusPrice,
     });
 
     return {
@@ -125,6 +134,7 @@ export class LotteriesService {
     isTestPlayer,
     type,
     data,
+    turnIndex,
   }: any) {
     const timeStartDay = startOfDay(new Date());
     const fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
@@ -139,22 +149,35 @@ export class LotteriesService {
     if (!dataBonusPrice) {
       // TODO: !dataBonusPrice
     }
+
+    const isUseBonus = await this.settingsService.isUseBonus();
+    const typeGame = OrderHelper.getTypeLottery(type);
+    const numberOfUser = await this.ordersService.getNumberOfUserFromTurn(turnIndex, isTestPlayer, typeGame);
+    const bonusSetting = await this.bonusSettingService.findAll();
+    let bonusPriceFinal = 0;
+    if (isUseBonus) {
+      bonusPriceFinal = this.getBonusPriceFromNumerOfUsers(bonusSetting, numberOfUser, dataBonusPrice?.bonusPrice);
+    }
+
+    // profit: loi nhuan nha cai
     let profit = await this.settingsService.getProfit();
     if (!profit && profit !== 0) {
       profit = Number(PROFIT_PERCENTAGE);
     }
 
-    const prizes = await this.generatePrizes(data, dataBonusPrice?.bonusPrice);
+    // const bonusPriceCurrent = dataBonusPrice?.bonusPrice;
+    const prizes = await this.generatePrizes(data, bonusPriceFinal);
     const finalResult = OrderHelper.randomPrizes(prizes);
+
     const totalPayout = this.getTotalPayout(data, (prizes?.finalResult?.totalPayout || 0), finalResult);
-    const bonusPriceCurrent = dataBonusPrice.bonusPrice;
     const totalBet = (dataBonusPrice?.totalBet || 0) + (prizes.totalBetAmount || 0);
+    // lay profit cua tong turn (in day).
     const totalProfit = (dataBonusPrice?.totalProfit || 0) + ((prizes?.totalBetAmount || 0) - totalPayout);
-    const bonusPrice = totalProfit - (totalBet * ((profit / 100)));
+    const amountReturned = totalProfit - (totalBet * ((profit / 100)));
 
     dataBonusPrice.totalBet = totalBet;
     dataBonusPrice.totalProfit = totalProfit;
-    dataBonusPrice.bonusPrice = bonusPrice;
+    dataBonusPrice.bonusPrice = amountReturned;
 
     await this.manageBonusPriceService.update(dataBonusPrice.id, dataBonusPrice);
     const totalRevenue = _.get(prizes, 'totalBetAmount', 0);
@@ -164,9 +187,20 @@ export class LotteriesService {
       prizes,
       totalRevenue,
       totalPayout,
-      bonusPrice: bonusPriceCurrent,
+      bonusPrice: bonusPriceFinal,
       totalProfit: totalRevenue - totalPayout,
     };
+  }
+
+  getBonusPriceFromNumerOfUsers(bonusSetting: any, numberOfUser: number, bonusPrice: number) {
+    if (!bonusSetting) {
+      bonusSetting = [];
+    }
+    const bonusSelected = bonusSetting.find((itemBonus: any) => (Number(itemBonus.from) <= numberOfUser && Number(itemBonus.to) >= numberOfUser));
+
+    if (!bonusSelected) return bonusPrice;
+
+    return ((Number(bonusSelected?.percent || 0) * bonusPrice) / 100);
   }
 
   getTotalPayout(data: any, totalPayout: any, prizes: any) {
@@ -1356,7 +1390,9 @@ export class LotteriesService {
       }
     });
 
-    let mergedMap: Map<string, number> = new Map([...Array.from(map1.entries()), ...Array.from(map2.entries())]);
+    // let mergedMap: Map<string, number> = new Map([...Array.from(map1.entries()), ...Array.from(map2.entries())]);
+    const newArr = this.getRandomArray(Array.from(map1.entries()), Array.from(map2.entries()));
+    let mergedMap: Map<string, number> = new Map(newArr);
 
     const xien2Checked: any = [];
     const xien3Checked: any = [];
@@ -1476,29 +1512,42 @@ export class LotteriesService {
         xien4Checked,
       });
 
-      const prizes: any = [];
+      const newRemainPrizes = Array.from(remainPrizes);
+      let index = (Math.ceil(Math.random() * newRemainPrizes.length));
+      let index1 = (Math.ceil(Math.random() * index));
+      const orderSelected = newRemainPrizes[index1] as any;
 
-      remainPrizes.forEach((value: number, key: string) => {
-        if ((totalPayout - (item.payOut || 0) + value) < (OrderHelper.getPayOut(totalBetAmount, profit))) {
-          prizes.push({
-            number: key,
-            payOut: value,
-          });
-        }
-      });
-
-      let index = (Math.floor(Math.random() * prizes.length)).toString();
-      let order = prizes[index];
-
-      if (order) {
+      if ((totalPayout - (item.payOut || 0) + Number(orderSelected[1])) < (OrderHelper.getPayOut(totalBetAmount, profit))) {
         prizesSpecialAnd8And7 = prizesSpecialAnd8And7.filter((prize: any) => {
           return prize.number !== item.number;
         });
 
-        totalPayout = (totalPayout - item.payOut + order.payOut);
-
-        prizesSpecialAnd8And7 = [...prizesSpecialAnd8And7, ...[order]];
+        totalPayout = (totalPayout - item.payOut + Number(orderSelected[1]));
+        prizesSpecialAnd8And7 = [...prizesSpecialAnd8And7, ...[{ number: orderSelected[0], payOut: Number(orderSelected[1]) }]];
       }
+
+      // const prizes: any = [];
+      // remainPrizes.forEach((value: number, key: string) => {
+      //   if ((totalPayout - (item.payOut || 0) + value) < (OrderHelper.getPayOut(totalBetAmount, profit))) {
+      //     prizes.push({
+      //       number: key,
+      //       payOut: value,
+      //     });
+      //   }
+      // });
+
+      // let index = (Math.floor(Math.random() * prizes.length)).toString();
+      // let order = prizes[index];
+
+      // if (order) {
+      //   prizesSpecialAnd8And7 = prizesSpecialAnd8And7.filter((prize: any) => {
+      //     return prize.number !== item.number;
+      //   });
+
+      //   totalPayout = (totalPayout - item.payOut + order.payOut);
+
+      //   prizesSpecialAnd8And7 = [...prizesSpecialAnd8And7, ...[order]];
+      // }
     }
 
     return {
@@ -1564,7 +1613,10 @@ export class LotteriesService {
       }
     });
 
-    let mergedMap: Map<string, number> = new Map([...Array.from(map1.entries()), ...Array.from(map2.entries())]);
+    // let mergedMap: Map<string, number> = new Map([...Array.from(map1.entries()), ...Array.from(map2.entries())]);
+
+    const newArr = this.getRandomArray(Array.from(map1.entries()), Array.from(map2.entries()));
+    let mergedMap: Map<string, number> = new Map(newArr);
 
     const xien2Checked: any = [];
     const xien3Checked: any = [];
@@ -1631,6 +1683,9 @@ export class LotteriesService {
     let map1: Map<string, number> = new Map();
     let map2: Map<string, number> = new Map();
 
+    // 2 so trung
+    // 6 so k trung
+
     prizesSpecial.forEach((value: number, key: string) => {
       if (!value) {
         map2.set(key, value);
@@ -1641,10 +1696,12 @@ export class LotteriesService {
       }
     });
 
-    let mergedMap: Map<string, number> = new Map([...Array.from(map1.entries()), ...Array.from(map2.entries())]);
+    // let mergedMap: Map<string, number> = new Map([...Array.from(map1.entries()), ...Array.from(map2.entries())]);
 
-    const [firstKey] = mergedMap.keys();
-    const [firstValue] = mergedMap.values();
+    const newArr = this.getRandomArray(Array.from(map1.entries()), Array.from(map2.entries()));
+    const randomElement = newArr[Math.floor(Math.random() * newArr.length)];
+    const firstKey = randomElement[0];
+    const firstValue = Number(randomElement[1]);
 
     return {
       totalBetAmount,
@@ -1657,6 +1714,45 @@ export class LotteriesService {
       }],
     };
   }
+
+  // getRandomArray(arr1: any, arr2: any) {
+  //   if (arr1.length === 0) return arr2;
+
+  //   if (arr2.length === 0) return arr1;
+
+  //   if (arr2.length < (arr1.length * 3)) return [...arr1, ...arr2];
+
+  //   const newArr = [];
+  //   for (let i = 0; i < (arr1.length * 3); i++) {
+  //     const randomIndex = Math.floor(Math.random() * (arr1.length * 3));
+  //     newArr.push(arr2[randomIndex]);
+  //   }
+
+  //   const mergeArr = [...arr1, ...newArr];
+
+  //   return mergeArr.sort(() => Math.random() - 0.5);
+  // }
+
+  getRandomArray(arr1: any, arr2: any) {
+    return [...arr1, ...arr2].sort(() => Math.random() - 0.5);
+    // if (arr1.length === 0) return arr2;
+
+    // if (arr2.length === 0) return arr1;
+
+    // const newLength = arr1.length * 7;
+    // if (arr2.length < (newLength)) return [...arr1, ...arr2].sort(() => Math.random() - 0.5);
+
+    // const newArr = [];
+    // for (let i = 0; i < (newLength); i++) {
+    //   const randomIndex = Math.floor(Math.random() * (newLength));
+    //   newArr.push(arr2[randomIndex]);
+    // }
+
+    // const mergeArr = [...arr1, ...newArr];
+
+    // return mergeArr.sort(() => Math.random() - 0.5);
+  }
+
 
   getFinalPrize({
     profit,
@@ -1790,6 +1886,7 @@ export class LotteriesService {
     ordersDau,
     ordersDuoi,
     ordersLo2SoGiaiDacBiet,
+    bonusPrice,
   }: any) {
     const totalAmountLoXienTruot = this.getTotalAmountLoXienTruot({
       ordersTruotXien4,
@@ -1879,6 +1976,7 @@ export class LotteriesService {
 
     let limit = 2;
     let count = 1;
+    let payOut = 0;
     const result: any = [];
 
     while (true) {
@@ -1932,13 +2030,22 @@ export class LotteriesService {
       const tempRemainPrizes1 = mapArray3.sort(() => Math.random() - 0.5);
       tempRemainPrizes = new Map(tempRemainPrizes1);
       // }
+
+      let temptotalBetAmount = totalBetAmount;
+      if (limit < 2) {
+        const percent = (payOut / temptotalBetAmount) * 100;
+        if (percent < 20) {
+          temptotalBetAmount = totalBetAmount + bonusPrice;
+        }
+      }
+
       const finalResult = this.getFinalPrize({
         profit,
         prizesSpecial: tempPrizesSpecial,
         prizes8: tempPrize8,
         prizes7: tempPrize7,
         remainPrizes: tempRemainPrizes,
-        totalBetAmount,
+        totalBetAmount: temptotalBetAmount,
         ordersTruotXien4: tempOrdersTruotXien4,
         ordersTruotXien8: tempOrdersTruotXien8,
         ordersTruotXien10: tempOrdersTruotXien10,
@@ -1946,6 +2053,10 @@ export class LotteriesService {
         ordersXien3: tempOrdersXien3,
         ordersXien4: tempOrdersXien4,
       });
+
+      // for (const award of finalResult) {
+      //   payOut += Number(award.payOut || 0);
+      // }
 
       result.push({
         [`time-${count}`]: finalResult,

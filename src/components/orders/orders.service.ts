@@ -264,7 +264,7 @@ export class OrdersService {
     const openTime = new Date();
     const seconds = OrderHelper.getPlayingTimeByType(data?.orders?.[0]?.type);
     const turnIndex = OrderHelper.getTurnIndex(seconds);
-    const totalBet = OrderHelper.getBalance(data.orders);
+    // const totalBet = OrderHelper.getBalance(data.orders);
 
     let promises = [];
     for (const order of data.orders) {
@@ -299,17 +299,16 @@ export class OrdersService {
     }
     const {
       finalResult,
-      // prizes,
       totalRevenue,
       totalPayout,
       bonusPrice,
       totalProfit,
     } = await this.lotteriesService.handlerPrizes({
+      turnIndex,
       type: `${data.orders[0].type}${data.orders[0].seconds}s`,
       data: dataTransform,
       isTestPlayer,
     });
-    // const finalResult = OrderHelper.randomPrizes(prizes);
 
     // create lottery award
     this.lotteryAwardService.createLotteryAward({
@@ -1149,9 +1148,14 @@ export class OrdersService {
     }
   }
 
-  async getNumberOfUserFromTurn(turnIndex: string) {
-    const result =  await this.orderRequestRepository.query(`
-      SELECT userId FROM orders WHERE turnIndex = '${turnIndex}'
+  async getNumberOfUserFromTurn(turnIndex: string, isTestPlayer: boolean, type: string) {
+    if (!turnIndex) return 0;
+
+    const result = await this.orderRequestRepository.query(`
+      SELECT userId FROM orders
+      WHERE turnIndex = '${turnIndex}'
+        AND isTestPlayer = '${isTestPlayer}'
+        AND type = '${type}'
       GROUP BY userId
     `);
 

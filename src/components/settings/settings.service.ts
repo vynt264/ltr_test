@@ -67,4 +67,19 @@ export class SettingsService {
 
     return Number(result?.[0]?.profit) || undefined;
   }
+
+  async isUseBonus() {
+    const result = await this.settingRepository.find({
+      where: {
+        isDeleted: false,
+      }
+    });
+
+    return (
+      (
+        result[0]?.isUseBonus === false
+        || result[0]?.isUseBonus === true
+      ) ? result[0]?.isUseBonus : true
+    );
+  }
 }

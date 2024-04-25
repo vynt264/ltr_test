@@ -9,6 +9,7 @@ import { AdminUserModule } from './admin.user/admin.user.module';
 import { GuardsModule } from './guards/guards.module';
 import { SettingModule } from './setting/setting.module';
 import { AdminKenoModule } from './admin.keno/admin.keno.module';
+import { BonusSettingModule } from './bonus-setting/bonus-setting.module';
 
 @Module({
     imports: [
@@ -22,6 +23,7 @@ import { AdminKenoModule } from './admin.keno/admin.keno.module';
         GuardsModule,
         SettingModule,
         AdminKenoModule,
+        BonusSettingModule,
     ],
 })
 export class AdminModule {}

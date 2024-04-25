@@ -68,11 +68,8 @@ export class ScheduleService implements OnModuleInit {
             await this.createJobsNextDay();
 
             // create bonus current day
-            await this.manageBonusPriceService.initBonusPrice(new Date());
+            await this.manageBonusPriceService.initBonusPrice(currentDate);
 
-            // create bonus price next day
-            // const currentDate = new Date();
-            // const nextDate = addDays(currentDate, 1);
             // create bonus next day
             await this.manageBonusPriceService.initBonusPrice(nextDate);
         } catch (err) {
@@ -243,6 +240,7 @@ export class ScheduleService implements OnModuleInit {
             bonusPrice,
             totalProfit,
         } = await this.lotteriesService.handlerPrizes({
+            turnIndex,
             isTestPlayer,
             type: gameType,
             data: dataTransform,
@@ -294,6 +292,7 @@ export class ScheduleService implements OnModuleInit {
             bonusPrice,
             totalProfit,
         } = await this.lotteriesService.handlerPrizes({
+            turnIndex,
             type: gameType,
             data: dataTransform,
             isTestPlayer: false,
@@ -371,6 +370,7 @@ export class ScheduleService implements OnModuleInit {
             bonusPrice: bonusPriceOfTestPlayer,
             totalProfit: totalProfitOfTestPlayer,
         } = await this.lotteriesService.handlerPrizes({
+            turnIndex,
             type: gameType,
             data: dataTransformOfFakeUsers,
             isTestPlayer: true,
@@ -562,13 +562,14 @@ export class ScheduleService implements OnModuleInit {
 
         // delete job before day
         await this.deleteJobs(beforeDate);
+
         // delete job next day
         await this.deleteJobs(nextDate);
 
         // create jobs next day
         await this.createJobsNextDay();
 
-        // create bonus
+        // create bonus next day
         await this.manageBonusPriceService.initBonusPrice(nextDate);
 
         // delete orders of test player
@@ -577,14 +578,6 @@ export class ScheduleService implements OnModuleInit {
         // delete lottery awards of test player
         this.lotteryAwardService.deleteLotteryAwardsOfTestPlayer();
     }
-
-    // @Cron('32 13 * * *')
-    // cronDeleteJobs() {
-    //     // delete job day before
-    //     const currentDate = new Date();
-    //     const nextDate = addDays(currentDate, -1);
-    //     this.deleteJobs(nextDate);
-    // }
 
     async handleBalance({
         turnIndex,
