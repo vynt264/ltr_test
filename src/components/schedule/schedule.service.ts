@@ -83,7 +83,7 @@ export class ScheduleService implements OnModuleInit {
             startDate = startOfDay(new Date());
         }
 
-        this.logger.info("init job start");
+        this.logger.info(`init job start - ${new Date(startDate).toLocaleDateString()}`);
         const promises45s = await this.createJobsInGame(45, startDate);
         awardsPromises = awardsPromises.concat(promises45s);
         const promises60s = await this.createJobsInGame(60, startDate);
@@ -96,19 +96,15 @@ export class ScheduleService implements OnModuleInit {
         awardsPromises = awardsPromises.concat(promises180s);
         const promises360s = await this.createJobsInGame(360, startDate);
         awardsPromises = awardsPromises.concat(promises360s);
-        this.logger.info("init job finished");
+        this.logger.info(`init job finished - ${new Date(startDate).toLocaleDateString()}`);
 
-        this.logger.info("create awards start");
+        this.logger.info(`create awards start - ${new Date(startDate).toLocaleDateString()}`);
         await Promise.all(awardsPromises);
-        this.logger.info("create awards finished");
+        this.logger.info(`create awards finished - ${new Date(startDate).toLocaleDateString()}`);
     }
 
     async createJobsNextDay() {
         const currentDate = new Date();
-        // let timeStartCreateJob = addHours(startOfDay(new Date()), 6);
-        // timeStartCreateJob = addMinutes(timeStartCreateJob, 40);
-        // if (currentDate > timeStartCreateJob) return;
-
         const nextDate = addDays(currentDate, 1);
         this.createJobs(startOfDay(nextDate));
     }
@@ -554,7 +550,7 @@ export class ScheduleService implements OnModuleInit {
 
     @Cron('40 6 * * * ')
     async cronJob() {
-        this.logger.info(`run cron job - ${new Date().toLocaleDateString()}`);
+        this.logger.info(`run cron job at 6:40 AM - ${new Date().toLocaleDateString()}`);
 
         const currentDate = new Date();
         const nextDate = addDays(currentDate, 1);

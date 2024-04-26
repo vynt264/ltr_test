@@ -12,4 +12,7 @@ import {
 export class Setting extends BaseEntity {
     @Column({ type: 'numeric' })
     profit: number;
+
+    @Column({ type: 'boolean', default: true })
+    isUseBonus: boolean;
 }

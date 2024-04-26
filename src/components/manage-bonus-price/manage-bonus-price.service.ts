@@ -70,7 +70,6 @@ export class ManageBonusPriceService {
   }
 
   async initBonusPrice(date: Date) {
-    // const bookMarkers = await this.bookMakerService.getAllBookMaker();
     const gameTypes = [
       TypeLottery.XSMB_1S,
       TypeLottery.XSMT_1S,
@@ -92,7 +91,6 @@ export class ManageBonusPriceService {
     let fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
     const toDate = fromDate + ((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) * 1000;
 
-    // for (const bookmarker of bookMarkers) {
     const promise = [];
     for (const gameType of gameTypes) {
       const bonusPriceOfUserReal = await this.findBonusPriceByType({
@@ -100,7 +98,6 @@ export class ManageBonusPriceService {
         fromDate,
         type: gameType,
         isTestPlayer: false,
-        // bookmakerId: bookmarker.id,
       });
 
       if (bonusPriceOfUserReal) continue;
@@ -114,7 +111,6 @@ export class ManageBonusPriceService {
           bonusPrice: 0,
           type: gameType,
           isTestPlayer: false,
-          // bookMaker: { id: bookmarker.id },
         }),
       );
 
@@ -123,7 +119,6 @@ export class ManageBonusPriceService {
         fromDate,
         type: gameType,
         isTestPlayer: true,
-        // bookmakerId: bookmarker.id,
       });
 
       if (bonusPriceOfUserFake) continue;
@@ -137,10 +132,8 @@ export class ManageBonusPriceService {
           bonusPrice: 0,
           type: gameType,
           isTestPlayer: true,
-          // bookMaker: { id: bookmarker.id },
         }),
       );
-      // }
     }
     await Promise.all(promise);
   }
