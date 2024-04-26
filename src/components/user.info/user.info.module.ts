@@ -17,6 +17,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { MaintenanceModule } from "../maintenance/maintenance.module";
 import { PlayHistoryHilo } from "../admin/admin.hilo/entities/play.history.hilo.entity";
 import { PlayHistoryPoker } from "../admin/admin.poker/entities/play.history.poker.entity";
+import { PlayHistoryKeno } from "../admin/admin.keno/entities/play.history.keno.entity";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { PlayHistoryPoker } from "../admin/admin.poker/entities/play.history.pok
       UserInfo,
       PlayHistoryHilo,
       PlayHistoryPoker,
+      PlayHistoryKeno
     ]),
     BacklistModule,
     UserModule,
