@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { BonusSettingService } from './bonus-setting.service';
 import { CreateBonusSettingDto } from './dto/create-bonus-setting.dto';
 import { UpdateBonusSettingDto } from './dto/update-bonus-setting.dto';
+import { AuthAdminGuard } from 'src/components/auth/guards/auth-admin.guard';
 
 @Controller('api/v1/admin-bonus-setting')
+@UseGuards(AuthAdminGuard)
 export class BonusSettingController {
   constructor(private readonly bonusSettingService: BonusSettingService) {}
 
