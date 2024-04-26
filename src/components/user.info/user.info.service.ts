@@ -18,6 +18,8 @@ import { ConfigSys } from "src/common/helper";
 import { OrdersService } from "../orders/orders.service";
 import { PlayHistoryHilo } from "../admin/admin.hilo/entities/play.history.hilo.entity";
 import { PlayHistoryPoker } from "../admin/admin.poker/entities/play.history.poker.entity";
+import { PlayHistoryKeno } from "../admin/admin.keno/entities/play.history.keno.entity";
+
 @Injectable()
 export class UserInfoService { 
 
@@ -28,6 +30,9 @@ export class UserInfoService {
     private playHistoryHiloRepository: Repository<PlayHistoryHilo>,
     @InjectRepository(PlayHistoryPoker)
     private playHistoryPokerRepository: Repository<PlayHistoryPoker>,
+     // inject keno repo
+     @InjectRepository(PlayHistoryKeno)
+     private playHistoryKenoRepository: Repository<PlayHistoryKeno>,
     @Inject("winston")
     private readonly logger: Logger,
     private uploadS3Service: UploadS3Service,
@@ -280,7 +285,114 @@ export class UserInfoService {
         });
         sumOrder += resultPoker[1];
       }
-
+// get keno
+      orders = [];
+      const resultKeno = await this.playHistoryKenoRepository.findAndCount({
+        where: [
+          {
+            userId: userId,
+          }
+        ],
+        order: { id: paginationDto.order },
+        take: paginationDto.take,
+        skip: skip
+      });
+      const lastPageKeno = Math.ceil(resultKeno[1] / paginationDto.take);
+      if (resultKeno[1] <= paginationDto.take) {
+        orders = resultKeno[0];
+      } else if (resultKeno[1] > paginationDto.take) {
+        for (let i = 1; i <= lastPageKeno; i++) {
+          const pagingDto: any = {
+            take: 100,
+            skip: i,
+            order: Order.DESC,
+          }
+          const skipNext = +pagingDto.take * +pagingDto?.skip - +pagingDto.take;
+          const listOrderResPage =
+            await this.playHistoryKenoRepository.findAndCount({
+              where: [
+                {
+                  userId: userId,
+                }
+              ],
+              order: { id: pagingDto.order },
+              take: pagingDto.take,
+              skip: skipNext
+            });
+          orders = orders.concat(listOrderResPage[0]);
+        }
+      }
+      if (orders?.length > 0) {
+        const listOrder = orders;
+        listOrder?.map((order: any) => {
+          sumBet += Number(order?.revenue);
+          if (order?.paymentWin > 0) {
+            sumOrderWin += 1; 
+          } else {
+            sumOrderLose += 1
+          }
+          const itemFv = {
+            type: `Keno`,
+            bet: order?.revenue
+          }
+          listFv.push(itemFv);
+        });
+        sumOrder += resultKeno[1];
+      }
+      // get keno
+      orders = [];
+      const resultKeno = await this.playHistoryKenoRepository.findAndCount({
+        where: [
+          {
+            userId: userId,
+          }
+        ],
+        order: { id: paginationDto.order },
+        take: paginationDto.take,
+        skip: skip
+      });
+      const lastPageKeno = Math.ceil(resultKeno[1] / paginationDto.take);
+      if (resultKeno[1] <= paginationDto.take) {
+        orders = resultKeno[0];
+      } else if (resultKeno[1] > paginationDto.take) {
+        for (let i = 1; i <= lastPageKeno; i++) {
+          const pagingDto: any = {
+            take: 100,
+            skip: i,
+            order: Order.DESC,
+          }
+          const skipNext = +pagingDto.take * +pagingDto?.skip - +pagingDto.take;
+          const listOrderResPage =
+            await this.playHistoryKenoRepository.findAndCount({
+              where: [
+                {
+                  userId: userId,
+                }
+              ],
+              order: { id: pagingDto.order },
+              take: pagingDto.take,
+              skip: skipNext
+            });
+          orders = orders.concat(listOrderResPage[0]);
+        }
+      }
+      if (orders?.length > 0) {
+        const listOrder = orders;
+        listOrder?.map((order: any) => {
+          sumBet += Number(order?.revenue);
+          if (order?.paymentWin > 0) {
+            sumOrderWin += 1; 
+          } else {
+            sumOrderLose += 1
+          }
+          const itemFv = {
+            type: `Keno`,
+            bet: order?.revenue
+          }
+          listFv.push(itemFv);
+        });
+        sumOrder += resultKeno[1];
+      }
       if (orders?.length > 0) {
         listFv = listFv.reduce((accumulator: any, currentValue: any) => {
           const { type, bet } = currentValue;
