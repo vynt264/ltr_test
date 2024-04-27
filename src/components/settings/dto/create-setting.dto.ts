@@ -1,3 +1,5 @@
 export class CreateSettingDto {
-    profit: number
+    profit: number;
+    isUseBonus: boolean;
+    isMaxPayout: boolean;
 }

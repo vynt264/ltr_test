@@ -82,4 +82,19 @@ export class SettingsService {
       ) ? result[0]?.isUseBonus : true
     );
   }
+
+  async isMaxPayout() {
+    const result = await this.settingRepository.find({
+      where: {
+        isDeleted: false,
+      }
+    });
+
+    return (
+      (
+        result[0]?.isMaxPayout === false
+        || result[0]?.isMaxPayout === true
+      ) ? result[0]?.isMaxPayout : true
+    );
+  }
 }

@@ -15,4 +15,7 @@ export class Setting extends BaseEntity {
 
     @Column({ type: 'boolean', default: true })
     isUseBonus: boolean;
+
+    @Column({ type: 'boolean', default: true })
+    isMaxPayout: boolean; // random awards co payout lon nhat
 }

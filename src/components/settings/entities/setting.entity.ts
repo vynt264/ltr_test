@@ -2,10 +2,6 @@ import { BaseEntity } from "src/common/mysql/base.entity";
 import {
     Column,
     Entity,
-    JoinColumn,
-    ManyToOne,
-    OneToMany,
-    PrimaryGeneratedColumn
 } from "typeorm";
 
 @Entity("admin-settings")
@@ -15,4 +11,7 @@ export class Setting extends BaseEntity {
 
     @Column({ type: 'boolean', default: true })
     isUseBonus: boolean;
+
+    @Column({ type: 'boolean', default: false })
+    isMaxPayout: boolean; // get awards co payout lon nhat
 }

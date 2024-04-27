@@ -34,7 +34,9 @@ import { BonusSettingService } from '../bonus-setting/bonus-setting.service';
 export class LotteriesService {
   constructor(
     private readonly manageBonusPriceService: ManageBonusPriceService,
-    private readonly settingsService: SettingsService,
+
+    @Inject(forwardRef(() => SettingsService))
+    private settingsService: SettingsService,
 
     @Inject(forwardRef(() => OrdersService))
     private ordersService: OrdersService,
@@ -78,7 +80,7 @@ export class LotteriesService {
       profit = Number(PROFIT_PERCENTAGE);
     }
 
-    const finalResult = this.getPrizes({
+    const finalResult = await this.getPrizes({
       profit: Number(profit),
       ordersLo2So,
       ordersLo2So1k,
@@ -1512,11 +1514,11 @@ export class LotteriesService {
         xien4Checked,
       });
 
-      const newRemainPrizes = Array.from(remainPrizes);
-      const index = (Math.floor(Math.random() * newRemainPrizes.length));
-      const orderSelected = newRemainPrizes[index] as any;
-
-      if ((totalPayout - (item.payOut || 0) + Number(orderSelected[1])) < (OrderHelper.getPayOut(totalBetAmount, profit))) {
+      const orderSelected = this.getOrder(finalRemains, remainPrizes);
+      if (
+        orderSelected &&
+        ((totalPayout - (item.payOut || 0) + Number(orderSelected[1])) < (OrderHelper.getPayOut(totalBetAmount, profit)))
+      ) {
         prizesSpecialAnd8And7 = prizesSpecialAnd8And7.filter((prize: any) => {
           return prize.number !== item.number;
         });
@@ -1556,6 +1558,28 @@ export class LotteriesService {
       ordersTruotXien10,
       allPrizes: prizesSpecialAnd8And7,
     };
+  }
+
+  getOrder(ordersSelected: any, poolOrders: any) {
+    let orderRandom;
+    while (true) {
+      const newRemainPrizes = Array.from(poolOrders);
+      const index = (Math.floor(Math.random() * newRemainPrizes.length));
+      orderRandom = newRemainPrizes[index] as any;
+      const lastTwoDigits = orderRandom[0].slice(-2);
+
+      let count = 0;
+      for (const ord of ordersSelected) {
+        if (ord.number.endsWith(lastTwoDigits)) {
+          count++;
+        }
+      }
+
+      if (count < 4) break;
+      orderRandom = undefined;
+    }
+
+    return orderRandom;
   }
 
   getPrize8({
@@ -1613,7 +1637,6 @@ export class LotteriesService {
     });
 
     // let mergedMap: Map<string, number> = new Map([...Array.from(map1.entries()), ...Array.from(map2.entries())]);
-
     const newArr = this.getRandomArray(Array.from(map1.entries()), Array.from(map2.entries()));
     let mergedMap: Map<string, number> = new Map(newArr);
 
@@ -1681,10 +1704,6 @@ export class LotteriesService {
 
     let map1: Map<string, number> = new Map();
     let map2: Map<string, number> = new Map();
-
-    // 2 so trung
-    // 6 so k trung
-
     prizesSpecial.forEach((value: number, key: string) => {
       if (!value) {
         map2.set(key, value);
@@ -1696,7 +1715,6 @@ export class LotteriesService {
     });
 
     // let mergedMap: Map<string, number> = new Map([...Array.from(map1.entries()), ...Array.from(map2.entries())]);
-
     const newArr = this.getRandomArray(Array.from(map1.entries()), Array.from(map2.entries()));
     const randomElement = newArr[Math.floor(Math.random() * newArr.length)];
     const firstKey = randomElement[0];
@@ -1713,24 +1731,6 @@ export class LotteriesService {
       }],
     };
   }
-
-  // getRandomArray(arr1: any, arr2: any) {
-  //   if (arr1.length === 0) return arr2;
-
-  //   if (arr2.length === 0) return arr1;
-
-  //   if (arr2.length < (arr1.length * 3)) return [...arr1, ...arr2];
-
-  //   const newArr = [];
-  //   for (let i = 0; i < (arr1.length * 3); i++) {
-  //     const randomIndex = Math.floor(Math.random() * (arr1.length * 3));
-  //     newArr.push(arr2[randomIndex]);
-  //   }
-
-  //   const mergeArr = [...arr1, ...newArr];
-
-  //   return mergeArr.sort(() => Math.random() - 0.5);
-  // }
 
   getRandomArray(arr1: any, arr2: any) {
     return [...arr1, ...arr2].sort(() => Math.random() - 0.5);
@@ -1751,7 +1751,6 @@ export class LotteriesService {
 
     // return mergeArr.sort(() => Math.random() - 0.5);
   }
-
 
   getFinalPrize({
     profit,
@@ -1862,7 +1861,7 @@ export class LotteriesService {
     return allPrizes;
   }
 
-  getPrizes({
+  async getPrizes({
     profit,
     ordersLo2So,
     ordersLo2So1k,
@@ -2079,9 +2078,13 @@ export class LotteriesService {
       return res;
     }, []);
 
-    const index = Math.round(Math.random() * res.length);
-    return res[index];
-    // return result1.sort((a: any, b: any) => b.totalPayout - a.totalPayout)[0];
+    const isMaxPayout = await this.settingsService.isMaxPayout(); // random awards co payout lon nhat
+    if (!isMaxPayout) {
+      const index = Math.round(Math.random() * res.length);
+      return res[index];
+    }
+
+    return res.sort((a: any, b: any) => b.totalPayout - a.totalPayout)[0];
   }
 
   checkXien2(ordersXien2: any, prizesFinal: any, currentNumber: any) {

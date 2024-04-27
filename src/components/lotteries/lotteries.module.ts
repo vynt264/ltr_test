@@ -9,9 +9,9 @@ import { BonusSettingModule } from '../bonus-setting/bonus-setting.module';
 @Module({
   imports: [
     ManageBonusPriceModule,
-    SettingsModule,
     forwardRef(() => OrdersModule),
     forwardRef(() => BonusSettingModule),
+    forwardRef(() => SettingsModule),
   ],
   controllers: [LotteriesController],
   providers: [LotteriesService],
