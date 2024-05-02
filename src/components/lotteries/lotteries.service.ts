@@ -1474,14 +1474,42 @@ export class LotteriesService {
       let mapArray = Array.from(remainPrizes);
       const tempPrizes: any = mapArray.sort((a: any, b: any) => a[1] - b[1]);
 
+      let j = i;
+      let orderRandom;
+      while (true) {
+        const newRemainPrizes = tempPrizes;
+        orderRandom = newRemainPrizes[j];
+        const lastTwoDigits = orderRandom[0].slice(-2);
+
+        let count = 0;
+        for (const ord of prizesSpecialAnd8And7) {
+          if (ord.number.endsWith(lastTwoDigits)) {
+            count++;
+          }
+        }
+
+        if (count < 4) break;
+        j++;
+      }
+
       prizesSpecialAnd8And7.push({
-        number: tempPrizes[i][0],
-        payOut: tempPrizes[i][1],
+        number: orderRandom[0],
+        payOut: orderRandom[1],
       });
+
       finalRemains.push({
-        number: tempPrizes[i][0],
-        payOut: tempPrizes[i][1],
+        number: orderRandom[0],
+        payOut: orderRandom[1],
       });
+
+      // prizesSpecialAnd8And7.push({
+      //   number: tempPrizes[i][0],
+      //   payOut: tempPrizes[i][1],
+      // });
+      // finalRemains.push({
+      //   number: tempPrizes[i][0],
+      //   payOut: tempPrizes[i][1],
+      // });
     }
 
     let totalPayout = 0;
@@ -1514,7 +1542,7 @@ export class LotteriesService {
         xien4Checked,
       });
 
-      const orderSelected = this.getOrder(finalRemains, remainPrizes);
+      const orderSelected = this.getOrder(finalRemains, Array.from(remainPrizes));
       if (
         orderSelected &&
         ((totalPayout - (item.payOut || 0) + Number(orderSelected[1])) < (OrderHelper.getPayOut(totalBetAmount, profit)))
@@ -1561,9 +1589,10 @@ export class LotteriesService {
   }
 
   getOrder(ordersSelected: any, poolOrders: any) {
+    let limit = 50;
     let orderRandom;
     while (true) {
-      const newRemainPrizes = Array.from(poolOrders);
+      const newRemainPrizes = poolOrders;
       const index = (Math.floor(Math.random() * newRemainPrizes.length));
       orderRandom = newRemainPrizes[index] as any;
       const lastTwoDigits = orderRandom[0].slice(-2);
@@ -1576,7 +1605,10 @@ export class LotteriesService {
       }
 
       if (count < 4) break;
-      orderRandom = undefined;
+
+      if (limit < 1) break;
+
+      limit--;
     }
 
     return orderRandom;

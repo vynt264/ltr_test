@@ -23,4 +23,10 @@ export class BonusSetting extends BaseEntity {
         default: 0,
     })
     percent: number;
+
+    @Column({
+        type: 'numeric',
+        default: 0,
+    })
+    bonusPriceLimit: number;
 }
