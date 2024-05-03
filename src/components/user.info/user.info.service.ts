@@ -617,6 +617,7 @@ export class UserInfoService {
           take: 100,
           skip: 1,
           order: Order.DESC,
+          status: "closed"
         }
         const listOrderRes = await this.ordersService.findAll(paginationDto, {
           id: member?.id,
@@ -630,6 +631,7 @@ export class UserInfoService {
               take: 100,
               skip: i,
               order: Order.DESC,
+              status: "closed"
             }
             const listOrderResPage = await this.ordersService.findAll(
               pagingDto,
