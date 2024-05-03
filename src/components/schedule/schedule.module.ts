@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 import { RedisCacheModule } from 'src/system/redis/redis.module';
 import { LotteriesModule } from 'src/components/lotteries/lotteries.module';
@@ -12,6 +12,7 @@ import { HoldingNumbersModule } from '../holding-numbers/holding-numbers.module'
 import { WalletHistory } from '../wallet/wallet.history.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ManageBonusPriceModule } from '../manage-bonus-price/manage-bonus-price.module';
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
     imports: [
@@ -26,6 +27,7 @@ import { ManageBonusPriceModule } from '../manage-bonus-price/manage-bonus-price
         WinningNumbersModule,
         HoldingNumbersModule,
         ManageBonusPriceModule,
+        forwardRef(() => SettingsModule),
     ],
     providers: [
         ScheduleService,

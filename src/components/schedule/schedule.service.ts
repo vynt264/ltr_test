@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit, forwardRef } from '@nestjs/common';
 import { Cron, SchedulerRegistry } from '@nestjs/schedule';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,9 +9,11 @@ import { RedisCacheService } from 'src/system/redis/redis.service';
 import { SocketGatewayService } from '../gateway/gateway.service';
 import { BookMakerService } from '../bookmaker/bookmaker.service';
 import {
+    MAINTENANCE_PERIOD,
     ORDER_STATUS,
     PERIOD_DELAY_TO_HANDLER_ORDERS,
     START_TIME_CREATE_JOB,
+    TypeLottery,
 } from 'src/system/constants';
 import { OrdersService } from '../orders/orders.service';
 import { WalletHandlerService } from '../wallet-handler/wallet-handler.service';
@@ -23,10 +25,14 @@ import { HoldingNumbersService } from '../holding-numbers/holding-numbers.servic
 import { WalletHistory } from '../wallet/wallet.history.entity';
 import { Logger } from 'winston';
 import { ManageBonusPriceService } from '../manage-bonus-price/manage-bonus-price.service';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
 export class ScheduleService implements OnModuleInit {
     constructor(
+        @Inject(forwardRef(() => SettingsService))
+        private settingsService: SettingsService,
+
         @InjectRepository(WalletHistory)
         private walletHistoryRepository: Repository<WalletHistory>,
         private readonly schedulerRegistry: SchedulerRegistry,
@@ -72,6 +78,18 @@ export class ScheduleService implements OnModuleInit {
 
             // create bonus next day
             await this.manageBonusPriceService.initBonusPrice(nextDate);
+
+            // delete job reset bonus current date
+            await this.deleteJobResetBonus(currentDate);
+
+            // delete job reset bonus next date
+            await this.deleteJobResetBonus(nextDate);
+
+            // create job reset bonus current date
+            await this.generateJobResetBonus(currentDate);
+
+            // create job reset bonus next date
+            await this.generateJobResetBonus(nextDate);
         } catch (err) {
             this.logger.error(err.stack);
         }
@@ -548,7 +566,7 @@ export class ScheduleService implements OnModuleInit {
         });
     }
 
-    @Cron('40 6 * * * ')
+    @Cron('14 12 * * * ')
     async cronJob() {
         this.logger.info(`run cron job at 6:40 AM - ${new Date().toLocaleDateString()}`);
 
@@ -567,6 +585,15 @@ export class ScheduleService implements OnModuleInit {
 
         // create bonus next day
         await this.manageBonusPriceService.initBonusPrice(nextDate);
+
+        // delete job reset bonus before date
+        await this.deleteJobResetBonus(beforeDate);
+
+        // delete job reset bonus next date
+        await this.deleteJobResetBonus(nextDate);
+
+        // create job reset bonus next date
+        await this.generateJobResetBonus(nextDate);
 
         // delete orders of test player
         this.ordersService.deleteOrdersOfTestPlayer();
@@ -835,5 +862,115 @@ export class ScheduleService implements OnModuleInit {
         }
 
         return promises;
+    }
+
+    async generateJobResetBonus(date: Date) {
+        if (!date) return;
+
+        this.logger.info(`generate job reset bonus - ${new Date(date).toLocaleDateString()}`);
+        let timeResetBonus = await this.settingsService.getTimeResetBonus();
+        timeResetBonus = Number(timeResetBonus);
+        if (!timeResetBonus) return;
+
+        const startTime = startOfDay(date);
+        const turns = 24 / timeResetBonus;
+        // const turns = 1440;
+        const fromDate = addHours(startTime, START_TIME_CREATE_JOB).getTime();
+        const toDate = fromDate + ((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) * 1000;
+
+        for (let i = 1; i <= turns; i++) {
+            const timeMillisecondsStartRunJob = addHours(startTime, (timeResetBonus * i)).getTime();
+            // const timeMillisecondsStartRunJob = startTime.getTime() + (i * 1 * 60 * 1000);
+            if (timeMillisecondsStartRunJob < (new Date()).getTime()) continue;
+
+            const key = `reset-bonus-${DateTimeHelper.formatDate((new Date(date)))}-${i}`;
+            this.addCronJobResetBonus({
+                time: timeMillisecondsStartRunJob,
+                name: key,
+                fromDate,
+                toDate,
+            });
+        }
+    }
+
+    addCronJobResetBonus({
+        time,
+        name,
+        fromDate,
+        toDate,
+    }: {
+        time: number,
+        name: string
+        fromDate: number,
+        toDate: number,
+    }) {
+        try {
+            const job = new CronJob(new Date((time)), () => {
+                this.resetBonus({
+                    fromDate,
+                    toDate,
+                });
+            });
+            this.schedulerRegistry.addCronJob(name, job);
+            job.start();
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    deleteJobResetBonus(date: Date) {
+        this.logger.info(`delete job reset bonus - ${new Date(date).toLocaleDateString()}`);
+        const jobs = this.schedulerRegistry.getCronJobs();
+
+        jobs.forEach((value, key, map) => {
+            const regex = `reset-bonus`;
+            if (new RegExp(regex).test(key)) {
+                this.schedulerRegistry.deleteCronJob(key);
+            }
+        });
+    }
+
+    async resetBonus({
+        fromDate,
+        toDate,
+    }: {
+        fromDate: number,
+        toDate: number,
+    }) {
+        const gameTypes = [
+            TypeLottery.XSMB_1S,
+            TypeLottery.XSMT_1S,
+            TypeLottery.XSMN_1S,
+            TypeLottery.XSSPL_1S,
+            TypeLottery.XSMB_45S,
+            TypeLottery.XSMT_45S,
+            TypeLottery.XSMN_45S,
+            TypeLottery.XSSPL_45S,
+            TypeLottery.XSSPL_60S,
+            TypeLottery.XSSPL_90S,
+            TypeLottery.XSSPL_120S,
+            TypeLottery.XSMB_180S,
+            TypeLottery.XSMT_180S,
+            TypeLottery.XSMN_180S,
+            TypeLottery.XSSPL_360S,
+        ];
+        const promises = [];
+        for (const gameType of gameTypes) {
+            promises.push(this.manageBonusPriceService.resetBonus({
+                toDate,
+                fromDate,
+                type: gameType,
+                isTestPlayer: false,
+            }));
+
+            promises.push(this.manageBonusPriceService.resetBonus({
+                toDate,
+                fromDate,
+                type: gameType,
+                isTestPlayer: true,
+            }));
+        }
+
+        return await Promise.all(promises);
     }
 }

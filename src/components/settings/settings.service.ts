@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateSettingDto } from './dto/create-setting.dto';
 import { UpdateSettingDto } from './dto/update-setting.dto';
 import { Repository } from 'typeorm';
@@ -6,6 +6,7 @@ import { Setting } from './entities/setting.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RedisCacheService } from 'src/system/redis/redis.service';
 import { PROFIT_PERCENTAGE_KEY } from 'src/system/config.system/config.default';
+import { Logger } from 'winston';
 
 @Injectable()
 export class SettingsService {
@@ -13,6 +14,9 @@ export class SettingsService {
     @InjectRepository(Setting)
     private settingRepository: Repository<Setting>,
     private redisCacheService: RedisCacheService,
+
+    @Inject("winston")
+    private readonly logger: Logger,
   ) { }
 
   create(createSettingDto: CreateSettingDto) {
@@ -96,5 +100,15 @@ export class SettingsService {
         || result[0]?.isMaxPayout === true
       ) ? result[0]?.isMaxPayout : true
     );
+  }
+
+  async getTimeResetBonus() {
+    const result = await this.settingRepository.find({
+      where: {
+        isDeleted: false,
+      }
+    });
+
+    return result[0]?.timeResetBonus || 0;
   }
 }
