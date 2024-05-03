@@ -137,4 +137,32 @@ export class ManageBonusPriceService {
     }
     await Promise.all(promise);
   }
+
+  async resetBonus({
+    toDate,
+    fromDate,
+    type,
+    isTestPlayer,
+  }: {
+    toDate: number,
+    fromDate: number,
+    type: string,
+    isTestPlayer: boolean,
+  }) {
+    const bonus = await this.findBonusPriceByType({
+      toDate,
+      fromDate,
+      type,
+      isTestPlayer,
+    });
+
+    return this.manageBonusPriceRepository.update(
+      bonus.id,
+      {
+        totalBet: 0,
+        totalProfit: 0,
+        bonusPrice: 0,
+      },
+    );
+  }
 }
