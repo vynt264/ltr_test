@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { endOfDay, startOfDay, addHours } from "date-fns";
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
@@ -28,6 +28,7 @@ import { RedisCacheService } from 'src/system/redis/redis.service';
 import { OrderHelper } from 'src/common/helper';
 import { PlayHistoryHilo } from '../admin/admin.hilo/entities/play.history.hilo.entity';
 import { PlayHistoryPoker } from '../admin/admin.poker/entities/play.history.poker.entity';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class IntegrationService {
@@ -57,6 +58,9 @@ export class IntegrationService {
     @Inject("winston")
     private readonly logger: Logger,
     private readonly redisService: RedisCacheService,
+
+    @Inject(forwardRef(() => AuthService))
+    private authService: AuthService,
   ) { }
 
   async verifyAccount(verifyAccountDto: VerifyAccountDto) {
@@ -186,6 +190,66 @@ export class IntegrationService {
         ERROR.SYSTEM_OCCURRENCE
       );
     }
+  }
+
+  async generateSign(body: any) {
+    const signLocal = Helper.endCodeUsername(
+      `${body.username}|${body.bookmakerId}`
+    );
+
+    return signLocal;
+  }
+
+  async createUsers(body: any) {
+    let prefix = body.username_prefix;
+    const users = [];
+    for (let i = 1; i <= 100; i++) {
+      const username = `${prefix}${i}`;
+
+      const sign = Helper.endCodeUsername(
+        `${username}|${body.bookmakerId}`
+      );
+  
+      const data = await this.verifyAccount({
+        username: username,
+        bookmakerId: body.bookmakerId,
+        sign,
+        typeGame: 0,
+      });
+  
+      const url = data.result.url;
+      const params = url.split('params=')[1].split('&')[0];
+  
+      const token = await this.generateToken({ params });
+
+      users.push({
+        access_token: token.access_token,
+        username,
+        id: token.user.sub,
+        url,
+        params,
+      });
+    }
+
+    return users;
+  }
+
+  async generateToken(body: any) {
+    const deParams = Helper.decryptData(body.params);
+    const findTxt = deParams.indexOf("&");
+    const username = deParams.substring(9, findTxt);
+
+    const user = await this.authService.userLoginNew(username);
+
+    const wallet = await this.walletRepository.findOne({
+      where: {
+        user: { id: user.id }
+      }
+    });
+
+    await this.walletRepository.update(wallet.id, { balance: 1000000000 });
+
+    return this.authService.generateToken(user);
   }
 
   async getRefundableBalance(getRefundableBalanceDto: GetRefundableBalanceDto) {

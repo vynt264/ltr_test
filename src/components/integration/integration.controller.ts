@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Post,
+  Get,
 } from "@nestjs/common";
 import {
   ApiOkResponse,
@@ -31,6 +32,24 @@ export class IntegrationController {
   })
   async veriFyAccount(@Body() verifyAccountDto: VerifyAccountDto): Promise<any> {
     return this.integrationService.verifyAccount(verifyAccountDto);
+  }
+
+  @Post("generate-sign")
+  generateSign(@Body() body: any) {
+    // TODO: remove this router
+    return this.integrationService.generateSign(body);
+  }
+
+  @Post("create-users")
+  async createUsers(@Body() body: any) {
+    // TODO: remove this router
+    return this.integrationService.createUsers(body);
+  }
+
+  @Post("generate-token")
+  async generateToken(@Body() body: any) {
+    // TODO: remove this router
+    return this.integrationService.generateToken(body);
   }
 
   @Post("getRefundableBalance")
