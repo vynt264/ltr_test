@@ -9,8 +9,10 @@ import { ValidationPipe } from './validations/validation.pipe';
 import { ERROR } from "../../system/constants";
 import { Logger } from 'winston';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @Controller('api/v1/orders')
+@ApiBearerAuth("Authorization")
 export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
