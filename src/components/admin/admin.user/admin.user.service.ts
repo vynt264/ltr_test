@@ -30,13 +30,18 @@ export class AdminUserService {
   ) { }
 
   async create(createAdminUserDto: CreateAdminUserDto): Promise<any> {
-    const dataDup = await this.adminUserRepository.findOne({
-      where: {
-        username: createAdminUserDto.username,
-        bookmaker: {
-          id: createAdminUserDto.bookmakerId,
+    const condiction = createAdminUserDto?.bookmakerId
+      ? {
+          username: createAdminUserDto.username,
+          bookmaker: {
+            id: createAdminUserDto.bookmakerId,
+          }
         }
-      }
+      : {
+          username: createAdminUserDto.username,
+        }
+    const dataDup = await this.adminUserRepository.findOne({
+      where: condiction
     });
 
     if (dataDup) {
@@ -50,7 +55,9 @@ export class AdminUserService {
     const createDto = { 
       username: createAdminUserDto.username,
       password: createAdminUserDto.password,
-      bookmaker: { id: createAdminUserDto.bookmakerId }
+      bookmaker: createAdminUserDto?.bookmakerId
+        ? { id: createAdminUserDto.bookmakerId }
+        : null,
     }
     const createdUser = await this.adminUserRepository.create(createDto);
     const user = await this.adminUserRepository.save(createdUser);

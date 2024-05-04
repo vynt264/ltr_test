@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString, Matches, Length, IsNumber } from "class-validator";
+import { IsNotEmpty, IsString, Matches, Length, IsNumber, IsOptional } from "class-validator";
 import { REGEX, MESSAGES } from "../../../../system/config.system/app.utils";
 
 export class CreateAdminUserDto {
@@ -16,7 +16,7 @@ export class CreateAdminUserDto {
     password: string;
   
   
-    @ApiProperty()
+    @IsOptional()
     @IsNumber()
     bookmakerId: number;
 }
