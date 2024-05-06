@@ -167,7 +167,6 @@ export class LotteriesService {
       profit = Number(PROFIT_PERCENTAGE);
     }
 
-    // const bonusPriceCurrent = dataBonusPrice?.bonusPrice;
     const prizes = await this.generatePrizes(data, bonusPriceFinal);
     const finalResult = OrderHelper.randomPrizes(prizes);
 
