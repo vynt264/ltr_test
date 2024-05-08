@@ -37,6 +37,16 @@ export class StatisticService {
     const bookmarkerId = query.bookmarkerId;
     const isTestPlayer = query.isTestPlayer || false;
     const searchBy = query.searchBy;
+
+    if (!searchBy || !bookmarkerId || !game || !gameType) return {
+      total: 0,
+      nextPage: 0,
+      prevPage: 0,
+      lastPage: 0,
+      currentPage: 0,
+      ordersInfo: [],
+    };
+
     let fromDate;
     let toDate;
     let total = 0;
@@ -188,35 +198,6 @@ export class StatisticService {
     return `This action removes a #${id} statistic`;
   }
 
-  getFromAndToDate(query: any) {
-    let fromDate = new Date('2024/05/01');
-    let toDate = new Date('2024/05/30');
-    let fromD;
-    let toD;
-    if (query.searchBy === 'day') {
-      if (fromDate && toDate) {
-        fromD = startOfDay(new Date(fromDate));
-        toD = endOfDay(new Date(toDate));
-      } else if (fromDate) {
-        fromD = startOfDay(new Date(fromDate));
-        toD = endOfDay(new Date(fromDate));
-      } else if (toDate) {
-        fromD = startOfDay(new Date());
-        toD = endOfDay(new Date(fromDate));
-      }
-    } else if (query.searchBy === 'month') {
-
-    }
-
-    fromD = addHours(fromD, 7);
-    toD = addHours(toD, 7);
-
-    return {
-      fromDate: fromD,
-      toDate: toD,
-    };
-  }
-
   async getLotteryOrders(
     {
       isTestPlayer,
@@ -241,13 +222,8 @@ export class StatisticService {
       dates: any,
       types: any,
     }) {
-    // let types: string[] = [];
     let query = '';
     let result = [];
-
-    // if (game === 'xoso') {
-    //   types = gameType.split(',');
-    // }
 
     if (searchBy === 'day') {
       query = `
