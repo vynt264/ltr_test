@@ -11,6 +11,7 @@ const CASINO_GAME_TYPES = {
     HILO: 'hilo',
     VIDEO_POKER: 'video-poker',
     MINES: 'mines',
+    KENO: 'keno',
 };
 
 const ALL_GAME_TYPES = { ...LOTTERIES_GAME_TYPES, ...CASINO_GAME_TYPES };
