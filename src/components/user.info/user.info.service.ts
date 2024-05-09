@@ -433,6 +433,14 @@ export class UserInfoService {
       }
 
       if (updateNicknameDto) {
+        const reg =  /[!@#$%×÷₫€£¥°○○●□■♤♡◇♧☆▪️¤\"《》¡¿₫“’•€¥^&*()_:/,\\.<>\[\]|=`~?;'"{}+-]/;
+        if(updateNicknameDto.nickname.length > 20 || reg.test(updateNicknameDto.nickname)) {
+          return new ErrorResponse(
+            STATUSCODE.COMMON_FAILED,
+            `Nickname can't be longer than 20 characters and must not contain special letters!`,
+            ERROR.NOT_FOUND
+          );
+        }
         foundUserInfo = {
           ...foundUserInfo,
           nickname: updateNicknameDto?.nickname,
