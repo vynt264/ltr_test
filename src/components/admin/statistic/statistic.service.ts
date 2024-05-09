@@ -145,7 +145,7 @@ export class StatisticService {
       hiloOrders,
       pokerOrders,
       kenoOrders,
-      days: dates,
+      dates,
     });
     finalResult = this.fillArraySpace({
       searchBy,
@@ -665,11 +665,11 @@ export class StatisticService {
     kenoOrders,
     pokerOrders,
     hiloOrders,
-    days,
+    dates,
   }: any) {
     const result: any = [];
-    for (let i = 0; i < days.length; i++) {
-      const date = DateTimeHelper.formatDate(new Date(days[i]));
+    for (let i = 0; i < dates.length; i++) {
+      const date = DateTimeHelper.formatDate(new Date(dates[i]));
 
       const lotteryOrder = (lotterryOrders || []).find((item: any) => {
         const dateTemp = DateTimeHelper.formatDate(new Date(item.orderDate));
@@ -698,7 +698,7 @@ export class StatisticService {
         count: (
           (Number(lotteryOrder?.count) || 0) + (Number(kenoOrder?.count) || 0) + (Number(pokerOrder?.count) || 0) + (Number(hiloOrder?.count) || 0)
         ),
-        orderDate: days[i],
+        orderDate: dates[i],
         paymentWin: (
           (Number(lotteryOrder?.paymentWin) || 0) + (Number(kenoOrder?.paymentWin) || 0) + (Number(pokerOrder?.paymentWin) || 0) + (Number(hiloOrder?.paymentWin) || 0)
         ),
