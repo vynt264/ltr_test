@@ -92,7 +92,6 @@ export class StatisticService {
       gameType,
       dates,
     });
-
     const lotterryOrders = await this.getLotteryOrders({
       isTestPlayer,
       bookmarkerId,
@@ -320,7 +319,7 @@ export class StatisticService {
       types: any,
     }
   ) {
-    const hasSearchHilo = (types || []).find((i: string) => i.trim() === CASINO_GAME_TYPES.HILO);
+    const hasSearchHilo = (types || []).some((i: string) => i.trim() === CASINO_GAME_TYPES.HILO);
     if (!hasSearchHilo) return [];
 
     const isGameOver = true;
@@ -337,9 +336,9 @@ export class StatisticService {
         FROM play_history_hilo AS entity
         WHERE entity.isUserFake = ${isTestPlayer}
           AND entity.bookmakerId = '${bookmarkerId}'
-          AND entity.isGameOver = '${isGameOver}'
+          AND entity.isGameOver = ${isGameOver}
           AND entity.createdAt BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}' 
-          GROUP BY CAST(createdAt AS DATE)
+        GROUP BY CAST(createdAt AS DATE)
       `;
       result = await this.playHistoryHiloRepository.query(query);
     } else if (searchBy === 'month') {
@@ -360,7 +359,7 @@ export class StatisticService {
               FROM play_history_hilo AS entity
             WHERE entity.isUserFake = ${isTestPlayer}
               AND entity.bookmakerId = '${bookmarkerId}'
-              AND entity.isGameOver = '${isGameOver}'
+              AND entity.isGameOver = ${isGameOver}
               AND DATE_FORMAT(entity.createdAt, '%Y-%m') = '${searchDate}'
             GROUP BY month
       `;
@@ -404,7 +403,7 @@ export class StatisticService {
       types: any,
     }
   ) {
-    const hasSearchKeno = (types || []).find((i: string) => i.trim() === CASINO_GAME_TYPES.KENO);
+    const hasSearchKeno = (types || []).some((i: string) => i.trim() === CASINO_GAME_TYPES.KENO);
     if (!hasSearchKeno) return [];
 
     const isGameOver = true;
@@ -421,7 +420,7 @@ export class StatisticService {
         FROM play_history_keno AS entity
         WHERE entity.isUserFake = ${isTestPlayer}
           AND entity.bookmakerId = '${bookmarkerId}'
-          AND entity.isGameOver = '${isGameOver}'
+          AND entity.isGameOver = ${isGameOver}
           AND entity.createdAt BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}' 
         GROUP BY CAST(createdAt AS DATE)
       `;
@@ -444,7 +443,7 @@ export class StatisticService {
             FROM play_history_keno AS entity
             WHERE entity.isUserFake = ${isTestPlayer}
               AND entity.bookmakerId = '${bookmarkerId}'
-              AND entity.isGameOver = '${isGameOver}'
+              AND entity.isGameOver = ${isGameOver}
               AND DATE_FORMAT(entity.createdAt, '%Y-%m') = '${searchDate}'
             GROUP BY month
       `;
@@ -488,7 +487,7 @@ export class StatisticService {
       types: any,
     }
   ) {
-    const hasSearchPoker = (types || []).find((i: string) => i.trim() === CASINO_GAME_TYPES.VIDEO_POKER);
+    const hasSearchPoker = (types || []).some((i: string) => i.trim() === CASINO_GAME_TYPES.VIDEO_POKER);
     if (!hasSearchPoker) return [];
 
     const isGameOver = true;
@@ -505,7 +504,7 @@ export class StatisticService {
         FROM play_history_poker AS entity
         WHERE entity.isUserFake = ${isTestPlayer}
           AND entity.bookmakerId = '${bookmarkerId}'
-          AND entity.isGameOver = '${isGameOver}'
+          AND entity.isGameOver = ${isGameOver}
           AND entity.createdAt BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}' 
         GROUP BY CAST(createdAt AS DATE)
     `;
@@ -528,7 +527,7 @@ export class StatisticService {
             FROM play_history_poker AS entity
             WHERE entity.isUserFake = ${isTestPlayer}
               AND entity.bookmakerId = '${bookmarkerId}'
-              AND entity.isGameOver = '${isGameOver}'
+              AND entity.isGameOver = ${isGameOver}
               AND DATE_FORMAT(entity.createdAt, '%Y-%m') = '${searchDate}'
             GROUP BY month
       `;
