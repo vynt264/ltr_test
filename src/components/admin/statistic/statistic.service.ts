@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateStatisticDto } from './dto/create-statistic.dto';
 import { UpdateStatisticDto } from './dto/update-statistic.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,24 +12,32 @@ import { DateTimeHelper } from 'src/helpers/date-time';
 import { OrderHelper } from 'src/common/helper';
 import { User } from 'src/components/user/user.entity';
 import { CASINO_GAME_TYPES } from 'src/system/constants/game';
+import { BookmakerService } from '../bookmaker/bookmaker.service';
 
 @Injectable()
 export class StatisticService {
   constructor(
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
+
     @InjectRepository(PlayHistoryHilo)
     private playHistoryHiloRepository: Repository<PlayHistoryHilo>,
+
     @InjectRepository(PlayHistoryPoker)
     private playHistoryPokerRepository: Repository<PlayHistoryPoker>,
+
     @InjectRepository(PlayHistoryKeno)
     private playHistoryKenoRepository: Repository<PlayHistoryKeno>,
+
     @InjectRepository(User)
     private userRepository: Repository<User>,
+
+    @Inject(forwardRef(() => BookmakerService))
+    private bookmakerService: BookmakerService,
   ) { }
 
   async reportByBookmarker(query: any) {
-    const month = query.month;
+    let month = query.month || '';
     const game = query.game;
     const gameType = query.gameType;
     const limit = Number(query.limit) || 10;
@@ -56,6 +64,9 @@ export class StatisticService {
     let prevPage = 0;
     let types = gameType.split(',');
 
+    const bookmaker = await this.bookmakerService.getById(bookmarkerId);
+    const bookmarkerName = bookmaker?.result?.name || '';
+
     if (searchBy === 'day') {
       dates = this.getNumberOfDay(query.fromDate, query.toDate);
       total = dates.length;
@@ -79,6 +90,16 @@ export class StatisticService {
       toDate = endOfDay(new Date(toDate));
       fromDate = addHours(fromDate, 7);
       toDate = addHours(toDate, 7);
+    } else {
+      dates = this.getNumberOfDay(query.fromDate, query.toDate);
+      const tempMonth: string[] = [];
+      for (const date of dates) {
+        const m = (new Date(date)).getMonth() + 1;
+        const hasMonth = tempMonth.some((i: string) => i === m.toString());
+        if (!hasMonth) tempMonth.push(m.toString());
+      }
+
+      month = tempMonth.join(',');
     }
 
     const { totalUsers, newUsers } = await this.numberOfUsers({
@@ -151,9 +172,10 @@ export class StatisticService {
       searchBy,
       dates,
       ordersResult: finalResult,
-      months: month.split(','),
+      months: (month || '').split(','),
       totalUsers,
       newUsers,
+      bookmarkerName,
     });
 
     // let bookmarkerProfit = 0; //3852000
@@ -246,8 +268,8 @@ export class StatisticService {
           if (count > 0) {
             queryType += ' OR ';
           }
-          const seconds = OrderHelper.getPlayingTimeByType(t);
-          const type = OrderHelper.getTypeLottery(t);
+          const seconds = t.trim().split('-')[0];
+          const type = t.trim().split('-')[1];
           queryType += (`entity.type = '${type}' AND entity.seconds = '${seconds}'`);
           count++;
         }
@@ -718,6 +740,7 @@ export class StatisticService {
     months,
     totalUsers,
     newUsers,
+    bookmarkerName,
   }: {
     searchBy: string,
     dates: any,
@@ -725,6 +748,7 @@ export class StatisticService {
     months: any,
     totalUsers: any,
     newUsers: any,
+    bookmarkerName: string,
   }) {
     const result = [];
     if (searchBy === 'day') {
@@ -753,6 +777,7 @@ export class StatisticService {
           totalBet: lotteryOrder?.totalBet || 0,
           totalUsers: totalUsersByDay?.count || 0,
           newUsers: newUserByDay?.count || 0,
+          bookmarkerName,
         });
       }
     } else if (searchBy === 'month') {
@@ -772,6 +797,7 @@ export class StatisticService {
           totalBet: item?.totalBet || 0,
           totalUsers: totalUsersByMonth?.count || 0,
           newUsers: newUserByMonth?.count || 0,
+          bookmarkerName,
         });
       }
     }
