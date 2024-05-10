@@ -87,10 +87,10 @@ export class IntegrationService {
         );
       }
 
-      const usernameEncrypt = Helper.encryptData(verifyAccountDto.username)
+      // const usernameEncrypt = Helper.encryptData(verifyAccountDto.username)
 
       let user = await this.userRepository.findOneBy({
-        username: usernameEncrypt,
+        username: verifyAccountDto.username,
         bookmaker: {
           id: verifyAccountDto.bookmakerId
         }
@@ -98,7 +98,7 @@ export class IntegrationService {
       if (!user) {
         const userCreateDto = {
           usernameFromAgent: verifyAccountDto.username,
-          username: usernameEncrypt,
+          username: verifyAccountDto.username,
           password: process.env.USER_PASSWORD,
           isAuth: false,
           usernameReal: "",
@@ -109,7 +109,7 @@ export class IntegrationService {
         // create userInfo
         const userInfoDt: any = {
           avatar: null,
-          nickname: usernameEncrypt,
+          nickname: verifyAccountDto.username,
           user: { id: user.id },
           sumBet: 0,
           sumOrder: 0,
@@ -123,7 +123,7 @@ export class IntegrationService {
         const walletDto = {
           walletCode: "",
           user: { id: user.id },
-          createdBy: usernameEncrypt,
+          createdBy: verifyAccountDto.username,
           balance: 0,
         };
         const walletCreate = await this.walletRepository.create(walletDto);
@@ -161,7 +161,7 @@ export class IntegrationService {
       }
 
       const params = Helper.encryptData(
-        `username=${usernameEncrypt}&bookmakerId=${verifyAccountDto.bookmakerId}`
+        `username=${verifyAccountDto.username}&bookmakerId=${verifyAccountDto.bookmakerId}`
       );
       const url = `${FE_URL_1}/?params=${params}&typeGame=${
         verifyAccountDto?.typeGame || "0"
@@ -272,11 +272,11 @@ export class IntegrationService {
         );
       }
 
-      const usernameEncrypt = Helper.encryptData(getRefundableBalanceDto.username)
+      // const usernameEncrypt = Helper.encryptData(getRefundableBalanceDto.username)
 
       // check username có tồn tại
       const user = await this.userRepository.findOneBy({
-        username: usernameEncrypt,
+        username: getRefundableBalanceDto.username,
         bookmaker: {
           id: getRefundableBalanceDto.bookmakerId
         }
@@ -340,10 +340,10 @@ export class IntegrationService {
         );
       }
 
-      const usernameEncrypt = Helper.encryptData(depostDto.username);
+      // const usernameEncrypt = Helper.encryptData(depostDto.username);
 
       const user = await this.userRepository.findOneBy({
-        username: usernameEncrypt,
+        username: depostDto.username,
         bookmaker: {
           id: depostDto.bookmakerId
         }
@@ -459,10 +459,10 @@ export class IntegrationService {
         );
       }
 
-      const usernameEncrypt = Helper.encryptData(withdrawDto.username);
+      // const usernameEncrypt = Helper.encryptData(withdrawDto.username);
 
       const user = await this.userRepository.findOneBy({
-        username: usernameEncrypt,
+        username: withdrawDto.username,
         bookmaker: {
           id: withdrawDto.bookmakerId
         }
@@ -588,10 +588,10 @@ export class IntegrationService {
         );
       }
 
-      const usernameEncrypt = Helper.encryptData(checkStatusTransactionDto.username);
+      // const usernameEncrypt = Helper.encryptData(checkStatusTransactionDto.username);
 
       const user = await this.userRepository.findOneBy({
-        username: usernameEncrypt,
+        username: checkStatusTransactionDto.username,
         bookmaker: {
           id: checkStatusTransactionDto.bookmakerId
         }
@@ -673,9 +673,9 @@ export class IntegrationService {
         timeEnd: moment(timeEndCV).toDate()
       }
       if (getBetInfo.username) {
-        const usernameEncrypt = Helper.encryptData(getBetInfo.username)
+        // const usernameEncrypt = Helper.encryptData(getBetInfo.username)
         const userFind: User = await this.userRepository.findOneBy({
-          username: usernameEncrypt,
+          username: getBetInfo.username,
           bookmaker: {
             id: getBetInfo.bookmakerId
           }
@@ -794,9 +794,9 @@ export class IntegrationService {
         timeEnd: moment(timeEndCV).toDate()
       }
       if (getBetInfo.username) {
-        const usernameEncrypt = Helper.encryptData(getBetInfo.username)
+        // const usernameEncrypt = Helper.encryptData(getBetInfo.username)
         const userFind: User = await this.userRepository.findOneBy({
-          username: usernameEncrypt,
+          username: getBetInfo.username,
           bookmaker: {
             id: getBetInfo.bookmakerId
           }
