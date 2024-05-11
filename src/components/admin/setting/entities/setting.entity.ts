@@ -21,4 +21,7 @@ export class Setting extends BaseEntity {
 
     @Column({ type: 'numeric', default: 3 })
     timeResetBonus: number; // 3h, 6h, 12h
+
+    @Column({ type: 'varchar' })
+    limitBetAmount: string; // all users
 }

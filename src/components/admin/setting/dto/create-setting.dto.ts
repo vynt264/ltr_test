@@ -3,4 +3,5 @@ export class CreateSettingDto {
     isUseBonus: boolean;
     isMaxPayout: boolean;
     timeResetBonus: number;
+    limitBetAmount: string;
 }

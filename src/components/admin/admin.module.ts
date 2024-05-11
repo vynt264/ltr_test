@@ -11,6 +11,7 @@ import { SettingModule } from './setting/setting.module';
 import { AdminKenoModule } from './admin.keno/admin.keno.module';
 import { BonusSettingModule } from './bonus-setting/bonus-setting.module';
 import { StatisticModule } from './statistic/statistic.module';
+import { RanksModule } from './ranks/ranks.module';
 
 @Module({
     imports: [
@@ -26,6 +27,7 @@ import { StatisticModule } from './statistic/statistic.module';
         AdminKenoModule,
         BonusSettingModule,
         StatisticModule,
+        RanksModule,
     ],
 })
 export class AdminModule {}
