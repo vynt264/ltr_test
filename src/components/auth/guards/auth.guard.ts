@@ -62,6 +62,7 @@ export class AuthGuard implements CanActivate {
                 name: payload.username,
                 bookmakerId: payload?.bookmakerId || 1,
                 usernameReal: payload?.usernameReal || '',
+                rankId: payload?.rankId,
             }
 
             request['user'] = user;

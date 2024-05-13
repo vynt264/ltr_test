@@ -19,4 +19,5 @@ export enum ERROR {
   MESSAGE_NOT_ORDER = "Đã quá thời gian đặt cược của kỳ này",
   MESSAGE_NOT_CANCEL = "Không được hủy",
   MESSAGE_MAINTENANCE = "Hệ thống đang bảo trì",
+  MESSAGE_ERROR_BALANCE = "Số tiền đặt cược quá lớn",
 }

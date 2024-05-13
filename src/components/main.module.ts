@@ -35,6 +35,7 @@ import { SettingsModule } from './settings/settings.module';
 import { TokensModule } from './tokens/tokens.module';
 import { AdminModule } from "./admin/admin.module";
 import { BonusSettingModule } from './bonus-setting/bonus-setting.module';
+import { RanksModule } from './ranks/ranks.module';
 
 @Module({
   imports: [
@@ -75,6 +76,7 @@ import { BonusSettingModule } from './bonus-setting/bonus-setting.module';
     MaintenanceModule,
     AdminModule,
     BonusSettingModule,
+    RanksModule,
   ],
 })
 export class MainModule { }

@@ -17,8 +17,9 @@ import { WalletHistory } from "../wallet/wallet.history.entity";
 import { UserRoles } from "./enums/user.enum";
 import { UserInfo } from "../user.info/user.info.entity";
 import { CoinWallet } from "../coin.wallet/coin.wallet.entity";
-// import { OrderRequest } from "../order.request/order.request.entity";
 import { BookMaker } from "../bookmaker/bookmaker.entity";
+import { Rank } from "../ranks/entities/rank.entity";
+
 @Entity({ name: "users" })
 export class User {
   @PrimaryGeneratedColumn()
@@ -53,7 +54,7 @@ export class User {
 
   @Column({ type: "boolean", default: false })
   isAuth: boolean;
-  
+
   @Column({ type: "varchar", length: 255, nullable: true, default: "" })
   usernameReal: string;
 
@@ -96,10 +97,16 @@ export class User {
   })
   public updatedAt!: Date;
 
+  @ManyToOne(() => Rank, (rank) => rank.id, {
+    cascade: true,
+    createForeignKeyConstraints: false,
+  })
+  rank: Rank;
+
   @BeforeInsert()
   async hashPassword() {
     if (!this.password) return;
-    
+
     const salt = await bcrypt.genSalt(BcryptSalt.SALT_ROUND);
     this.password = await bcrypt.hash(this.password, salt);
   }

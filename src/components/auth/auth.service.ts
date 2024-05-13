@@ -15,6 +15,8 @@ import {
   ForbiddenException,
   HttpException,
   HttpStatus,
+  forwardRef,
+  Inject,
 } from "@nestjs/common";
 import { UserService } from "../user/user.service";
 import { BacklistService } from "../backlist/backlist.service";
@@ -34,6 +36,8 @@ import { RedisCacheService } from "src/system/redis/redis.service";
 import { WalletInout } from "../wallet.inout/wallet.inout.entity";
 import { WalletHistory } from "../wallet/wallet.history.entity";
 import { TokensService } from "../tokens/tokens.service";
+import { RanksService } from "../ranks/ranks.service";
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -55,6 +59,9 @@ export class AuthService {
     @InjectRepository(WalletHistory)
     private walletHistoryRepository: Repository<WalletHistory>,
     private readonly tokenService: TokensService,
+
+    @Inject(forwardRef(() => RanksService))
+    private ranksService: RanksService,
   ) { }
 
   async validateUserCreds(username: string, password: string): Promise<any> {
@@ -81,6 +88,7 @@ export class AuthService {
       bookmakerId: user?.bookmakerId || 1,
       usernameReal: user?.usernameReal || '',
       isTestPlayer: user.isTestPlayer,
+      rankId: user?.rankId || '',
     };
 
     let userHistoryDto = new CreateUserHistoryDto();
@@ -250,6 +258,7 @@ export class AuthService {
         bookmakerId: user?.bookmaker?.id || 1,
         usernameReal: user?.usernameReal,
         isTestPlayer: user?.usernameReal ? true : false,
+        rankId: user?.rank?.id,
       },
       username,
     };
@@ -308,9 +317,15 @@ export class AuthService {
       walletInout = await this.walletInoutRepository.findBy({
         user: { id: user.id }
       });
+      let rank: any = user?.rank;
+      if (!rank) {
+        rank = await this.ranksService.getRankDefault();
+      }
+
       const userUp = {
         ...user,
         updatedAt: new Date(),
+        rank: { id: rank?.id },
       };
       await this.userRepository.save(userUp);
       // userInfo = await this.userInfoRepository.findOne({

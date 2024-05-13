@@ -8,4 +8,5 @@ export interface JwtPayload {
   usernameReal?: string;
   id?: string;
   isTestPlayer?: boolean,
+  rankId?: number,
 }

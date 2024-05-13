@@ -2,7 +2,7 @@ import { UserHistoryModule } from "../user.history/user.history.module";
 import { ConnectModule } from "../connect/connect.module";
 import { BacklistModule } from "../backlist/backlist.module";
 import { RtStrategy } from "./rt/rt.strategy";
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { LocalStrategy } from "./local.stratery/local.strategy";
@@ -23,6 +23,7 @@ import { AuthGuard } from "./guards/auth.guard";
 import { TokensModule } from "../tokens/tokens.module";
 import { AuthAdminGuard } from "./guards/auth-admin.guard";
 import { MaintenanceModule } from "../maintenance/maintenance.module";
+import { RanksModule } from "../ranks/ranks.module";
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, UserInfo, CoinWallet, WalletInout, WalletHistory]),
@@ -36,7 +37,8 @@ import { MaintenanceModule } from "../maintenance/maintenance.module";
     RedisCacheModule,
     ScheduleModule.forRoot(),
     TokensModule,
-    MaintenanceModule
+    MaintenanceModule,
+    forwardRef(() => RanksModule),
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy, RtStrategy, AuthGuard, AuthAdminGuard],
   controllers: [AuthController],

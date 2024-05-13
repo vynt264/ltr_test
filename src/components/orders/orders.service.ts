@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { endOfDay, startOfDay, addHours } from "date-fns";
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
@@ -22,6 +22,7 @@ import { LotteriesService } from '../lotteries/lotteries.service';
 import { WinningNumbersService } from '../winning-numbers/winning-numbers.service';
 import { Logger } from 'winston';
 import { SocketGatewayService } from '../gateway/gateway.service';
+import { RanksService } from '../ranks/ranks.service';
 
 @Injectable()
 export class OrdersService {
@@ -39,6 +40,9 @@ export class OrdersService {
     private readonly socketGateway: SocketGatewayService,
     @Inject("winston")
     private readonly logger: Logger,
+
+    @Inject(forwardRef(() => RanksService))
+    private ranksService: RanksService,
   ) { }
 
   async create(data: CreateListOrdersDto, member: any) {
@@ -56,6 +60,11 @@ export class OrdersService {
     }
     const turnIndex = OrderHelper.getTurnIndex(seconds);
     const ordersBefore = await this.getOrdersBeforeInTurn(data.orders, turnIndex, isTestPlayer, member.id);
+    await this.checkMaxBetAmount({
+      currentOrders: data.orders || [],
+      ordersBefore,
+      rankId: member.rankId,
+    });
     await OrderValidate.validateOrders(data?.orders || [], ordersBefore, turnIndex);
 
     const openTime = OrderHelper.getOpenTime(seconds);
@@ -1160,5 +1169,42 @@ export class OrdersService {
     `);
 
     return result.length;
+  }
+
+  async checkMaxBetAmount({
+    currentOrders,
+    ordersBefore,
+    rankId,
+  }: any) {
+    let finalOrders = JSON.parse(JSON.stringify(currentOrders));
+    if (ordersBefore && ordersBefore.length > 0) {
+      for (const ord of ordersBefore) {
+        finalOrders.push({
+          betType: ord.betType,
+          childBetType: ord.childBetType,
+          detail: ord.detail,
+          multiple: ord.multiple,
+          type: `${ord.type}${ord.seconds}s`,
+          turnIndex: ord.turnIndex,
+          revenue: ord.revenue || 0,
+        });
+      }
+    }
+
+    let revenue = 0;
+    for (const item of finalOrders) {
+      revenue += Number(item.revenue);
+    }
+
+    const rank = await this.ranksService.findOne(rankId);
+
+    if (revenue > rank.maxBetAmount) {
+      throw new HttpException(
+        {
+          message: ERROR.MESSAGE_ERROR_BALANCE,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }
