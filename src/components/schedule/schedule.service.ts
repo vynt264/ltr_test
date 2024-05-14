@@ -566,7 +566,7 @@ export class ScheduleService implements OnModuleInit {
         });
     }
 
-    @Cron('14 12 * * * ')
+    @Cron('40 6 * * * ')
     async cronJob() {
         this.logger.info(`run cron job at 6:40 AM - ${new Date().toLocaleDateString()}`);
 

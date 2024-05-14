@@ -167,6 +167,8 @@ export class StatisticService {
       pokerOrders,
       kenoOrders,
       dates,
+      months: (month || '').split(','),
+      searchBy,
     });
     finalResult = this.fillArraySpace({
       searchBy,
@@ -692,46 +694,90 @@ export class StatisticService {
     pokerOrders,
     hiloOrders,
     dates,
+    searchBy,
+    months,
   }: any) {
     const result: any = [];
-    for (let i = 0; i < dates.length; i++) {
-      const date = DateTimeHelper.formatDate(new Date(dates[i]));
+    if (searchBy === 'day') {
+      for (let i = 0; i < dates.length; i++) {
+        const date = DateTimeHelper.formatDate(new Date(dates[i]));
 
-      const lotteryOrder = (lotterryOrders || []).find((item: any) => {
-        const dateTemp = DateTimeHelper.formatDate(new Date(item.orderDate));
-        if (date === dateTemp) return item;
-      });
+        const lotteryOrder = (lotterryOrders || []).find((item: any) => {
+          const dateTemp = DateTimeHelper.formatDate(new Date(item.orderDate));
+          if (date === dateTemp) return item;
+        });
 
-      const kenoOrder = (kenoOrders || []).find((item: any) => {
-        const dateTemp = DateTimeHelper.formatDate(new Date(item.orderDate));
-        if (date === dateTemp) return item;
-      });
+        const kenoOrder = (kenoOrders || []).find((item: any) => {
+          const dateTemp = DateTimeHelper.formatDate(new Date(item.orderDate));
+          if (date === dateTemp) return item;
+        });
 
-      const pokerOrder = (pokerOrders || []).find((item: any) => {
-        const dateTemp = DateTimeHelper.formatDate(new Date(item.orderDate));
-        if (date === dateTemp) return item;
-      });
+        const pokerOrder = (pokerOrders || []).find((item: any) => {
+          const dateTemp = DateTimeHelper.formatDate(new Date(item.orderDate));
+          if (date === dateTemp) return item;
+        });
 
-      const hiloOrder = (hiloOrders || []).find((item: any) => {
-        const dateTemp = DateTimeHelper.formatDate(new Date(item.orderDate));
-        if (date === dateTemp) return item;
-      });
+        const hiloOrder = (hiloOrders || []).find((item: any) => {
+          const dateTemp = DateTimeHelper.formatDate(new Date(item.orderDate));
+          if (date === dateTemp) return item;
+        });
 
-      result.push({
-        bookmarkerProfit: (
-          (Number(lotteryOrder?.bookmarkerProfit) || 0) + (Number(kenoOrder?.bookmarkerProfit) || 0) + (Number(pokerOrder?.bookmarkerProfit) || 0) + (Number(hiloOrder?.bookmarkerProfit) || 0)
-        ),
-        count: (
-          (Number(lotteryOrder?.count) || 0) + (Number(kenoOrder?.count) || 0) + (Number(pokerOrder?.count) || 0) + (Number(hiloOrder?.count) || 0)
-        ),
-        orderDate: dates[i],
-        paymentWin: (
-          (Number(lotteryOrder?.paymentWin) || 0) + (Number(kenoOrder?.paymentWin) || 0) + (Number(pokerOrder?.paymentWin) || 0) + (Number(hiloOrder?.paymentWin) || 0)
-        ),
-        totalBet: (
-          (Number(lotteryOrder?.totalBet) || 0) + (Number(kenoOrder?.totalBet) || 0) + (Number(pokerOrder?.totalBet) || 0) + (Number(hiloOrder?.totalBet) || 0)
-        ),
-      });
+        result.push({
+          bookmarkerProfit: (
+            (Number(lotteryOrder?.bookmarkerProfit) || 0) + (Number(kenoOrder?.bookmarkerProfit) || 0) + (Number(pokerOrder?.bookmarkerProfit) || 0) + (Number(hiloOrder?.bookmarkerProfit) || 0)
+          ),
+          count: (
+            (Number(lotteryOrder?.count) || 0) + (Number(kenoOrder?.count) || 0) + (Number(pokerOrder?.count) || 0) + (Number(hiloOrder?.count) || 0)
+          ),
+          orderDate: dates[i],
+          paymentWin: (
+            (Number(lotteryOrder?.paymentWin) || 0) + (Number(kenoOrder?.paymentWin) || 0) + (Number(pokerOrder?.paymentWin) || 0) + (Number(hiloOrder?.paymentWin) || 0)
+          ),
+          totalBet: (
+            (Number(lotteryOrder?.totalBet) || 0) + (Number(kenoOrder?.totalBet) || 0) + (Number(pokerOrder?.totalBet) || 0) + (Number(hiloOrder?.totalBet) || 0)
+          ),
+        });
+      }
+    } else if (searchBy === 'month') {
+      for (let m of months) {
+        if (m.toString().length === 1) {
+          m = `0${m}`;
+        }
+
+        const year = `2024-${m}`;
+
+        const lotteryOrder = (lotterryOrders || []).find((item: any) => {
+          if (year === item.month) return item;
+        });
+
+        const kenoOrder = (kenoOrders || []).find((item: any) => {
+          if (year === item.month) return item;
+        });
+
+        const pokerOrder = (pokerOrders || []).find((item: any) => {
+          if (year === item.month) return item;
+        });
+
+        const hiloOrder = (hiloOrders || []).find((item: any) => {
+          if (year === item.month) return item;
+        });
+
+        result.push({
+          bookmarkerProfit: (
+            (Number(lotteryOrder?.bookmarkerProfit) || 0) + (Number(kenoOrder?.bookmarkerProfit) || 0) + (Number(pokerOrder?.bookmarkerProfit) || 0) + (Number(hiloOrder?.bookmarkerProfit) || 0)
+          ),
+          count: (
+            (Number(lotteryOrder?.count) || 0) + (Number(kenoOrder?.count) || 0) + (Number(pokerOrder?.count) || 0) + (Number(hiloOrder?.count) || 0)
+          ),
+          month: year,
+          paymentWin: (
+            (Number(lotteryOrder?.paymentWin) || 0) + (Number(kenoOrder?.paymentWin) || 0) + (Number(pokerOrder?.paymentWin) || 0) + (Number(hiloOrder?.paymentWin) || 0)
+          ),
+          totalBet: (
+            (Number(lotteryOrder?.totalBet) || 0) + (Number(kenoOrder?.totalBet) || 0) + (Number(pokerOrder?.totalBet) || 0) + (Number(hiloOrder?.totalBet) || 0)
+          ),
+        });
+      }
     }
 
     return result;
