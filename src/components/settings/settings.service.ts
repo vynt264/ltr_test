@@ -106,9 +106,19 @@ export class SettingsService {
     const result = await this.settingRepository.find({
       where: {
         isDeleted: false,
-      }
+      },
     });
 
     return result[0]?.timeResetBonus || 0;
+  }
+
+  async getLimitPayout() {
+    const result = await this.settingRepository.find({
+      where: {
+        isDeleted: false,
+      },
+    });
+
+    return Number(result[0]?.limitPayOut) || 0;
   }
 }

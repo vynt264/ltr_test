@@ -204,6 +204,8 @@ export class LotteriesService {
     const bonusPriceLimit = Number(bonusSelected?.bonusPriceLimit) || 0;
     const finalBonus = ((Number(bonusSelected?.percent || 0) * bonusPrice) / 100);
 
+    if (!Number(bonusSelected?.bonusPriceLimit)) return finalBonus;
+
     if (finalBonus <= bonusPriceLimit) return finalBonus;
 
     return bonusPriceLimit;
