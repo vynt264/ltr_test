@@ -268,8 +268,8 @@ export class StatisticService {
           if (count > 0) {
             queryType += ' OR ';
           }
-          const seconds = t.trim().split('-')[0];
-          const type = t.trim().split('-')[1];
+          const seconds = t.trim().split('-')[1];
+          const type = t.trim().split('-')[0];
           queryType += (`entity.type = '${type}' AND entity.seconds = '${seconds}'`);
           count++;
         }
@@ -312,6 +312,10 @@ export class StatisticService {
           result.push(item[0]);
         }
       }
+    }
+
+    for (const item of result) {
+      item.bookmarkerProfit = -(item.bookmarkerProfit);
     }
 
     return result;
