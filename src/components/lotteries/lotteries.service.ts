@@ -2092,6 +2092,12 @@ export class LotteriesService {
         ordersXien4: tempOrdersXien4,
       });
 
+      let totalPayoutRoundCurrent = 0;
+      for (const item of finalResult) {
+        totalPayoutRoundCurrent += item.payOut;
+      }
+      payOut = totalPayoutRoundCurrent;
+
       result.push({
         [`time-${count}`]: finalResult,
       });
@@ -2112,7 +2118,7 @@ export class LotteriesService {
       res.push({
         totalPayout,
         values: currentValue[`time-${numberOfOrder}`],
-      })
+      });
       numberOfOrder++;
 
       return res;
