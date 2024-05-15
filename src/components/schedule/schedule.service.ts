@@ -663,7 +663,10 @@ export class ScheduleService implements OnModuleInit {
         const promises = [];
         const promisesCreateWinningNumbers = [];
         const ordersWin = [];
+        const limitPayOut = await this.settingsService.getLimitPayout();
         let totalBalance = 0;
+        let isLimitPayout = false;
+        let finalWinningAmount = 0;
         for (const key in ordersOfUser) {
             if (ordersCancel[key] && Object.keys(ordersCancel[key]).length > 0) continue;
 
@@ -675,16 +678,22 @@ export class ScheduleService implements OnModuleInit {
             });
 
             totalBalance += winningAmount;
+            finalWinningAmount = realWinningAmount;
 
             // user win vs order hien tai
             if (realWinningAmount > 0) {
+                isLimitPayout = (!limitPayOut ? false : (realWinningAmount > limitPayOut));
+                if (isLimitPayout) {
+                    finalWinningAmount = limitPayOut;
+                }
+
                 winningPlayerOrders.push(orderId);
                 ordersWin.push({
                     typeBetName: OrderHelper.getCategoryLotteryTypeName(betType),
                     childBetType: OrderHelper.getChildBetTypeName(childBetType),
                     orderId,
                     type: region,
-                    amount: realWinningAmount,
+                    amount: finalWinningAmount,
                 });
             }
 
@@ -705,8 +714,9 @@ export class ScheduleService implements OnModuleInit {
             promises.push(this.ordersService.update(
                 +orderId,
                 {
-                    paymentWin: realWinningAmount,
+                    paymentWin: finalWinningAmount,
                     status: ORDER_STATUS.closed,
+                    amountExceedsLimit: ((finalWinningAmount <= 0) ? 0 : realWinningAmount - finalWinningAmount),
                 },
                 null,
             ));

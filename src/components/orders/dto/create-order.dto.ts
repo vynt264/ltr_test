@@ -81,4 +81,5 @@ export class CreateOrderDto {
 
     openTime: string;
     closeTime: string;
+    amountExceedsLimit: number;
 }

@@ -23,6 +23,7 @@ import { WinningNumbersService } from '../winning-numbers/winning-numbers.servic
 import { Logger } from 'winston';
 import { SocketGatewayService } from '../gateway/gateway.service';
 import { RanksService } from '../ranks/ranks.service';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
 export class OrdersService {
@@ -43,6 +44,10 @@ export class OrdersService {
 
     @Inject(forwardRef(() => RanksService))
     private ranksService: RanksService,
+
+    @Inject(forwardRef(() => SettingsService))
+    private settingsService: SettingsService,
+
   ) { }
 
   async create(data: CreateListOrdersDto, member: any) {
@@ -339,6 +344,10 @@ export class OrdersService {
     const promisesUpdatedOrders = [];
     let totalBalance = 0;
     const ordersWin = [];
+    const limitPayOut = await this.settingsService.getLimitPayout();
+    let isLimitPayout = false;
+    let finalWinningAmount = 0;
+
     for (const order of result) {
       const objOrder = this.transformOrderToObject(order);
       const { realWinningAmount, winningNumbers, winningAmount } = OrderHelper.calcBalanceEachOrder({
@@ -348,14 +357,20 @@ export class OrdersService {
       });
 
       totalBalance += winningAmount;
+      finalWinningAmount = realWinningAmount;
 
       if (realWinningAmount > 0) {
+        isLimitPayout = (!limitPayOut ? false : (realWinningAmount > limitPayOut));
+        if (isLimitPayout) {
+          finalWinningAmount = limitPayOut;
+        }
+
         ordersWin.push({
           typeBetName: OrderHelper.getCategoryLotteryTypeName(order.betType),
           childBetType: OrderHelper.getChildBetTypeName(order.childBetType),
           orderId: order.id,
           type: `${order.type}${order.seconds}s`,
-          amount: realWinningAmount,
+          amount: finalWinningAmount,
         });
       }
 
@@ -376,8 +391,9 @@ export class OrdersService {
       promisesUpdatedOrders.push(this.update(
         +order.id,
         {
-          paymentWin: realWinningAmount,
+          paymentWin: finalWinningAmount,
           status: ORDER_STATUS.closed,
+          amountExceedsLimit: ((finalWinningAmount <= 0) ? 0 : realWinningAmount - finalWinningAmount),
         },
         null,
       ));

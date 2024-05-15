@@ -204,6 +204,8 @@ export class LotteriesService {
     const bonusPriceLimit = Number(bonusSelected?.bonusPriceLimit) || 0;
     const finalBonus = ((Number(bonusSelected?.percent || 0) * bonusPrice) / 100);
 
+    if (!Number(bonusSelected?.bonusPriceLimit)) return finalBonus;
+
     if (finalBonus <= bonusPriceLimit) return finalBonus;
 
     return bonusPriceLimit;
@@ -2090,6 +2092,12 @@ export class LotteriesService {
         ordersXien4: tempOrdersXien4,
       });
 
+      let totalPayoutRoundCurrent = 0;
+      for (const item of finalResult) {
+        totalPayoutRoundCurrent += item.payOut;
+      }
+      payOut = totalPayoutRoundCurrent;
+
       result.push({
         [`time-${count}`]: finalResult,
       });
@@ -2110,7 +2118,7 @@ export class LotteriesService {
       res.push({
         totalPayout,
         values: currentValue[`time-${numberOfOrder}`],
-      })
+      });
       numberOfOrder++;
 
       return res;

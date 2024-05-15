@@ -106,4 +106,7 @@ export class Order extends BaseEntity {
 
     @Column({ type: 'varchar', nullable: true })
     closeTime: string;
+
+    @Column({ type: 'int', nullable: true })
+    amountExceedsLimit: number;
 }
