@@ -663,10 +663,10 @@ export class ScheduleService implements OnModuleInit {
         const promises = [];
         const promisesCreateWinningNumbers = [];
         const ordersWin = [];
-        const LIMIT_PAYOUT = await this.settingsService.getLimitPayout();
+        const limitPayOut = await this.settingsService.getLimitPayout();
         let totalBalance = 0;
-        let totalPaymentWinOfUser = 0;
         let isLimitPayout = false;
+        let finalWinningAmount = 0;
         for (const key in ordersOfUser) {
             if (ordersCancel[key] && Object.keys(ordersCancel[key]).length > 0) continue;
 
@@ -678,22 +678,23 @@ export class ScheduleService implements OnModuleInit {
             });
 
             totalBalance += winningAmount;
+            finalWinningAmount = realWinningAmount;
 
             // user win vs order hien tai
             if (realWinningAmount > 0) {
-                totalPaymentWinOfUser += realWinningAmount;
-                isLimitPayout = (!LIMIT_PAYOUT ? false : (totalPaymentWinOfUser > LIMIT_PAYOUT));
-
-                if (!isLimitPayout) {
-                    winningPlayerOrders.push(orderId);
-                    ordersWin.push({
-                        typeBetName: OrderHelper.getCategoryLotteryTypeName(betType),
-                        childBetType: OrderHelper.getChildBetTypeName(childBetType),
-                        orderId,
-                        type: region,
-                        amount: realWinningAmount,
-                    });
+                isLimitPayout = (!limitPayOut ? false : (realWinningAmount > limitPayOut));
+                if (isLimitPayout) {
+                    finalWinningAmount = limitPayOut;
                 }
+
+                winningPlayerOrders.push(orderId);
+                ordersWin.push({
+                    typeBetName: OrderHelper.getCategoryLotteryTypeName(betType),
+                    childBetType: OrderHelper.getChildBetTypeName(childBetType),
+                    orderId,
+                    type: region,
+                    amount: finalWinningAmount,
+                });
             }
 
             if (winningNumbers.length > 0) {
@@ -710,27 +711,15 @@ export class ScheduleService implements OnModuleInit {
                 );
             }
 
-            if (!isLimitPayout) {
-                promises.push(this.ordersService.update(
-                    +orderId,
-                    {
-                        paymentWin: realWinningAmount,
-                        status: ORDER_STATUS.closed,
-                        amountExceedsLimit: 0,
-                    },
-                    null,
-                ));
-            } else {
-                promises.push(this.ordersService.update(
-                    +orderId,
-                    {
-                        paymentWin: 0,
-                        status: ORDER_STATUS.closed,
-                        amountExceedsLimit: realWinningAmount,
-                    },
-                    null,
-                ));
-            }
+            promises.push(this.ordersService.update(
+                +orderId,
+                {
+                    paymentWin: finalWinningAmount,
+                    status: ORDER_STATUS.closed,
+                    amountExceedsLimit: realWinningAmount - finalWinningAmount,
+                },
+                null,
+            ));
         }
 
         // save winning numbers
