@@ -24,6 +24,16 @@ export class StatisticController {
     }
   }
 
+  @Get('by-game')
+  reportByGame(@Query() query: any) {
+    try {
+      return this.statisticService.reportByGame(query);
+    } catch (err) {
+      this.logger.error(`${StatisticController.name} is Logging error: ${JSON.stringify(err)}`);
+      throw new BadRequestException(err);
+    }
+  }
+
   @Post()
   create(@Body() createStatisticDto: CreateStatisticDto) {
     try {
