@@ -20,6 +20,7 @@ import { WinningNumbersModule } from '../winning-numbers/winning-numbers.module'
 import { JwtModule } from '@nestjs/jwt';
 import { MaintenanceModule } from '../maintenance/maintenance.module';
 import { RanksModule } from '../ranks/ranks.module';
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { RanksModule } from '../ranks/ranks.module';
     JwtModule.register({}),
     MaintenanceModule,
     forwardRef(() => RanksModule),
+    forwardRef(() => SettingsModule),
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

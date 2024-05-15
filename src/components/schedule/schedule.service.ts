@@ -716,7 +716,7 @@ export class ScheduleService implements OnModuleInit {
                 {
                     paymentWin: finalWinningAmount,
                     status: ORDER_STATUS.closed,
-                    amountExceedsLimit: realWinningAmount - finalWinningAmount,
+                    amountExceedsLimit: ((finalWinningAmount <= 0) ? 0 : realWinningAmount - finalWinningAmount),
                 },
                 null,
             ));
