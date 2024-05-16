@@ -52,7 +52,7 @@ export class AdminUserService {
       );
     }
 
-    const createDto = { 
+    const createDto = {
       username: createAdminUserDto.username,
       password: createAdminUserDto.password,
       bookmaker: createAdminUserDto?.bookmakerId
@@ -258,6 +258,8 @@ export class AdminUserService {
   }
 
   async getByUsername(username: string) {
+    if (!username) return;
+
     return this.adminUserRepository.findOne({
       relations: ['bookmaker'],
       where: {

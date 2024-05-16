@@ -14,10 +14,20 @@ export class StatisticController {
     private readonly logger: Logger,
   ) { }
 
-  @Get('')
-  reportByBookmarker(@Query() query: any) {
+  @Get()
+  async reportByBookmarker(@Query() query: any) {
     try {
-      return this.statisticService.reportByBookmarker(query);
+      return await this.statisticService.reportByBookmarker(query);
+    } catch (err) {
+      this.logger.error(`${StatisticController.name} is Logging error: ${JSON.stringify(err)}`);
+      throw new BadRequestException(err);
+    }
+  }
+
+  @Get('orders')
+  async reportOrdersByUser(@Query() query: any) {
+    try {
+      return await this.statisticService.reportOrdersByUser(query);
     } catch (err) {
       this.logger.error(`${StatisticController.name} is Logging error: ${JSON.stringify(err)}`);
       throw new BadRequestException(err);

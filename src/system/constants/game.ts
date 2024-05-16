@@ -1,7 +1,7 @@
 import { TypeLottery } from "./lotteries";
 
 const GAMES = {
-    XoSo: 'xoso',
+    XoSo: 'lottery',
     Casino: 'casino',
 };
 

@@ -18,6 +18,7 @@ import { WalletCodeQueue } from "../wallet/wallet.code.queue";
 import { PrefixEnum } from "../sys.config/enums/sys.config.enum";
 import { RedisCacheService } from "src/system/redis/redis.service";
 import { OrderHelper } from "src/common/helper";
+
 @Injectable()
 export class UserService {
   private username = "username";
@@ -41,6 +42,8 @@ export class UserService {
   ) { }
 
   async getByUsername(username: string, isAdmin = false) {
+    if (!username) return;
+
     let user = await this.userRepository.findOne({
       relations: ['bookmaker', 'rank'],
       select: {

@@ -15,6 +15,7 @@ import { UserModule } from 'src/components/user/user.module';
     UserModule
   ],
   controllers: [AdminUserController],
-  providers: [AdminUserService]
+  providers: [AdminUserService],
+  exports: [AdminUserService],
 })
 export class AdminUserModule {}
