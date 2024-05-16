@@ -355,6 +355,149 @@ export class StatisticService {
     }
   }
 
+  async reportByUser(query: any) {
+    const game = query.game;
+    const gameType = query.gameType;
+    const limit = Number(query.limit) || 10;
+    const page = Number(query.page) || 1;
+    const bookmarkerId = query.bookmarkerId;
+    const username = query.username;
+    const isTestPlayer = query.isTestPlayer || false;
+    const searchBy = query.searchBy;
+
+    if (!searchBy || !bookmarkerId || !game || !gameType || !username) return {
+      total: 0,
+      nextPage: 0,
+      prevPage: 0,
+      lastPage: 0,
+      currentPage: 0,
+      ordersInfo: [],
+    };
+
+    let fromDate;
+    let toDate;
+    let total = 0;
+    let dates: any = [];
+    let lastPage = 0;
+    let nextPage = 0;
+    let prevPage = 0;
+    let types = gameType.split(',');
+
+    const bookmaker = await this.bookmakerService.getById(bookmarkerId);
+    const bookmarkerName = bookmaker?.result?.name || '';
+
+    const user = await this.userRepository.findOneBy({ username });
+    if (!user) {
+      return {
+        total: 0,
+        nextPage: 0,
+        prevPage: 0,
+        lastPage: 0,
+        currentPage: 0,
+        ordersInfo: [],
+      };
+    }
+
+    const userId = user.id;
+    const userCreateAt = user.createdAt;
+
+    // if (searchBy === 'day') {
+    //   dates = this.getNumberOfDay(query.fromDate, query.toDate);
+    //   total = dates.length;
+    //   lastPage = Math.ceil(total / limit);
+    //   nextPage = page + 1 > lastPage ? null : page + 1;
+    //   prevPage = page - 1 < 1 ? null : page - 1;
+    //   dates = dates.slice(((page - 1) * limit), page * limit);
+
+    //   if (!dates || dates.length === 0) return {
+    //     total: 0,
+    //     nextPage: 0,
+    //     prevPage: 0,
+    //     lastPage: 0,
+    //     currentPage: 0,
+    //     ordersInfo: [],
+    //   };
+
+    //   fromDate = dates[0];
+    //   toDate = dates[dates.length - 1];
+    //   console.log("toDate1: ", toDate)
+    //   fromDate = startOfDay(new Date(fromDate));
+    //   toDate = endOfDay(new Date(toDate));
+    //   console.log("toDate2: ", toDate)
+    //   fromDate = addHours(fromDate, 7);
+    //   toDate = addHours(toDate, 7);
+    //   console.log("toDate3: ", toDate)
+    // }
+
+    fromDate = startOfDay(new Date(query.fromDate));
+    fromDate = addHours(fromDate, 7);
+    toDate = endOfDay(new Date(query.toDate));
+    toDate = addHours(toDate, 7);
+
+    const lotterryOrders = await this.getLotteryOrdersByUser({
+      userId,
+      isTestPlayer,
+      bookmarkerId,
+      fromDate,
+      toDate,
+      game,
+      gameType,
+      dates,
+      types,
+    });
+    const hiloOrders = await this.getHiloOrdersByUser({
+      userId,
+      isTestPlayer,
+      bookmarkerId,
+      fromDate,
+      toDate,
+      game,
+      gameType,
+      dates,
+      types,
+    });
+    const kenoOrders = await this.getKenoOrdersByUser({
+      userId,
+      isTestPlayer,
+      bookmarkerId,
+      fromDate,
+      toDate,
+      game,
+      gameType,
+      dates,
+      types,
+    });
+    const pokerOrders = await this.getPokerOrdersByUser({
+      userId,
+      isTestPlayer,
+      bookmarkerId,
+      fromDate,
+      toDate,
+      game,
+      gameType,
+      dates,
+      types,
+    });
+    const finalResult = this.mergeOrdersByUser({
+      lotterryOrders,
+      hiloOrders,
+      pokerOrders,
+      kenoOrders,
+      username,
+      userCreateAt,
+      bookmarkerName,
+    });
+
+    return {
+      total,
+      nextPage,
+      prevPage,
+      lastPage,
+      currentPage: page,
+      ordersInfo: finalResult,
+    }
+  }
+
   create(createStatisticDto: CreateStatisticDto) {
     return 'This action adds a new statistic';
   }
@@ -1358,7 +1501,7 @@ export class StatisticService {
 
         result.push({
           bookmarkerProfit: lotteryOrder?.bookmarkerProfit || 0,
-          time: (new Date(date)).toLocaleDateString(),
+          time: (new Date(date)).toLocaleDateString('en-GB'),
           count: lotteryOrder?.count || 0,
           paymentWin: lotteryOrder?.paymentWin || 0,
           totalBet: lotteryOrder?.totalBet || 0,
@@ -1379,7 +1522,7 @@ export class StatisticService {
         result.push({
           bookmarkerProfit: item?.bookmarkerProfit || 0,
           count: item?.count || 0,
-          time: tempMonth,
+          time: (new Date(tempMonth)).toLocaleDateString('en-GB').substring(3),
           paymentWin: item?.paymentWin || 0,
           totalBet: item?.totalBet || 0,
           totalUsers: totalUsersByMonth?.count || 0,
@@ -1426,13 +1569,15 @@ export class StatisticService {
           typeGame: item?.typeGame,
           bookmarkerProfit: item?.bookmarkerProfit || 0,
           count: item?.count || 0,
-          time: (new Date(item?.orderDate)).toLocaleDateString(),
+          time: (new Date(item?.orderDate)).toLocaleDateString('en-GB'),
+          timeSort: new Date(item?.orderDate).toLocaleDateString(),
           paymentWin: item?.paymentWin || 0,
           totalBet: item?.totalBet || 0,
           totalUsers: totalUsersByDay?.count || 0,
           newUsers: newUserByDay?.count || 0,
           bookmarkerName,
-        });      });
+        });      
+      });
       // for (const date of dates) {
       //   const dateFormat = DateTimeHelper.formatDate(new Date(date));
       //   const dataItem = (dataTmp || []).find((item: any) => {
@@ -1460,7 +1605,8 @@ export class StatisticService {
           typeGame: item?.typeGame,
           bookmarkerProfit: item?.bookmarkerProfit || 0,
           count: item?.count || 0,
-          time: item?.month,
+          time: (new Date(item?.month)).toLocaleDateString('en-GB').substring(3),
+          timeSort: item?.month,
           paymentWin: item?.paymentWin || 0,
           totalBet: item?.totalBet || 0,
           totalUsers: totalUsersByMonth?.count || 0,
@@ -1489,11 +1635,282 @@ export class StatisticService {
       // }
     }
     result = result.sort((a, b) => {
-      const timeA = new Date(a.time).getTime();
-      const timeB = new Date(b.time).getTime();
+      const timeA = new Date(a.timeSort).getTime();
+      const timeB = new Date(b.timeSort).getTime();
       return timeA - timeB;
     });
 
+    return result;
+  }
+
+  // report by user 
+  async getLotteryOrdersByUser(
+    {
+      userId,
+      isTestPlayer,
+      bookmarkerId,
+      fromDate,
+      toDate,
+      game,
+      gameType,
+      dates,
+      types,
+    }: {
+      userId: number,
+      isTestPlayer: boolean,
+      bookmarkerId: number,
+      fromDate: Date,
+      toDate: Date,
+      game: string,
+      gameType: string,
+      dates: any,
+      types: any,
+    }) {
+    
+    const hasSearchLottery = (types || []).some((i: string) => i.trim().indexOf("xs") > -1);
+    if (!hasSearchLottery) return [];
+    
+    let query = '';
+    let result = [];
+
+    query = `
+        SELECT
+          userId AS userId,
+          CAST(created_at AS DATE) AS orderDate,
+          SUM(paymentWin) as paymentWin,
+          SUM(entity.revenue) as totalBet,
+          SUM(paymentWin) as bookmarkerProfit,
+          COUNT(*) as count
+        FROM orders AS entity
+        WHERE entity.isTestPlayer = ${isTestPlayer} 
+          AND entity.bookMakerId = '${bookmarkerId}'
+          AND entity.userId = '${userId}' 
+          AND entity.status = 'closed' 
+          AND entity.created_at BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}' 
+      `;
+
+    if (types.length > 0) {
+      let queryType = 'AND (';
+      let count = 0;
+      for (const t of types) {
+        if (count > 0) {
+          queryType += ' OR ';
+        }
+        const seconds = t.trim().split('-')[1];
+        const type = t.trim().split('-')[0];
+        queryType += (`entity.type = '${type}' AND entity.seconds = '${seconds}'`);
+        count++;
+      }
+      queryType += ')';
+      query += queryType;
+    }
+
+    query += `
+        GROUP BY CAST(created_at AS DATE), userId
+      `;
+    result = await this.orderRepository.query(query);
+
+    for (const item of result) {
+      item.bookmarkerProfit = -(item.bookmarkerProfit);
+    }
+
+    return result;
+  }
+
+  async getHiloOrdersByUser(
+    {
+      userId,
+      isTestPlayer,
+      bookmarkerId,
+      fromDate,
+      toDate,
+      game,
+      gameType,
+      types,
+    }: {
+      userId: number,
+      isTestPlayer: boolean,
+      bookmarkerId: number,
+      fromDate: Date,
+      toDate: Date,
+      game: string,
+      gameType: string,
+      dates: any,
+      types: any,
+    }
+  ) {
+    const hasSearchHilo = (types || []).some((i: string) => i.trim() === CASINO_GAME_TYPES.HILO);
+    if (!hasSearchHilo) return [];
+
+    const isGameOver = true;
+    const query = `
+        SELECT
+          userId AS userId,
+          CAST(createdAt AS DATE) AS orderDate,
+          SUM(totalPaymentWin) - SUM(entity.revenue) as paymentWin,
+          SUM(entity.revenue) as totalBet,
+          SUM(entity.revenue) - SUM(totalPaymentWin) as bookmarkerProfit,
+          COUNT(*) as count
+        FROM play_history_hilo AS entity
+        WHERE entity.isUserFake = ${isTestPlayer}
+          AND entity.bookmakerId = '${bookmarkerId}'
+          AND entity.userId = '${userId}'
+          AND entity.isGameOver = ${isGameOver}
+          AND entity.createdAt BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}' 
+        GROUP BY CAST(createdAt AS DATE), userId
+      `;
+    const result = await this.playHistoryHiloRepository.query(query);
+
+    return result;
+  }
+
+  async getKenoOrdersByUser(
+    {
+      userId,
+      isTestPlayer,
+      bookmarkerId,
+      fromDate,
+      toDate,
+      game,
+      gameType,
+      dates,
+      types,
+    }: {
+      userId: number,
+      isTestPlayer: boolean,
+      bookmarkerId: number,
+      fromDate: Date,
+      toDate: Date,
+      game: string,
+      gameType: string,
+      dates: any,
+      types: any,
+    }
+  ) {
+    const hasSearchKeno = (types || []).some((i: string) => i.trim() === CASINO_GAME_TYPES.KENO);
+    if (!hasSearchKeno) return [];
+
+    const isGameOver = true;
+    const query = `
+        SELECT
+          userId AS userId,
+          CAST(createdAt AS DATE) AS orderDate,
+          SUM(totalPaymentWin) - SUM(entity.revenue) as paymentWin,
+          SUM(entity.revenue) as totalBet,
+          SUM(entity.revenue) - SUM(totalPaymentWin) as bookmarkerProfit,
+          COUNT(*) as count
+        FROM play_history_keno AS entity
+        WHERE entity.isUserFake = ${isTestPlayer}
+          AND entity.bookmakerId = '${bookmarkerId}'
+          AND entity.userId = '${userId}'
+          AND entity.isGameOver = ${isGameOver}
+          AND entity.createdAt BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}' 
+        GROUP BY CAST(createdAt AS DATE), userId
+      `;
+    const result = await this.playHistoryKenoRepository.query(query);
+
+    return result;
+  }
+
+  async getPokerOrdersByUser(
+    {
+      userId,
+      isTestPlayer,
+      bookmarkerId,
+      fromDate,
+      toDate,
+      game,
+      gameType,
+      dates,
+      types,
+    }: {
+      userId: number,
+      isTestPlayer: boolean,
+      bookmarkerId: number,
+      fromDate: Date,
+      toDate: Date,
+      game: string,
+      gameType: string,
+      dates: any,
+      types: any,
+    }
+  ) {
+    const hasSearchPoker = (types || []).some((i: string) => i.trim() === CASINO_GAME_TYPES.VIDEO_POKER);
+    if (!hasSearchPoker) return [];
+
+    const isGameOver = true;
+    const query = `
+        SELECT
+          userId AS userId,
+          CAST(createdAt AS DATE) AS orderDate,
+          SUM(paymentWin) - SUM(entity.revenue) as paymentWin,
+          SUM(entity.revenue) as totalBet,
+          SUM(entity.revenue) - SUM(paymentWin) as bookmarkerProfit,
+          COUNT(*) as count
+        FROM play_history_poker AS entity
+        WHERE entity.isUserFake = ${isTestPlayer}
+          AND entity.bookmakerId = '${bookmarkerId}'
+          AND entity.userId = '${userId}'
+          AND entity.isGameOver = ${isGameOver}
+          AND entity.createdAt BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}' 
+        GROUP BY CAST(createdAt AS DATE), userId
+    `;
+    const result = await this.playHistoryPokerRepository.query(query);
+
+    return result;
+  }
+
+  mergeOrdersByUser({
+    lotterryOrders,
+    hiloOrders,
+    pokerOrders,
+    kenoOrders,
+    username,
+    userCreateAt,
+    bookmarkerName,
+  }: {
+    lotterryOrders: any,
+    hiloOrders: any,
+    pokerOrders: any,
+    kenoOrders: any,
+    username: string,
+    userCreateAt: any,
+    bookmarkerName: string,
+  }) {
+    const dataMerge = lotterryOrders.concat(hiloOrders).concat(pokerOrders).concat(kenoOrders);
+    const timeMap: any = {};
+
+    dataMerge.forEach((item: any) => {
+      if (!timeMap[item?.orderDate]) {
+        timeMap[item?.orderDate] = {
+          ...item,
+          username: username,
+          userCreateAt: (new Date(userCreateAt)).toLocaleDateString('en-GB'),
+          bookmarkerName: bookmarkerName,
+          time: (new Date(item?.orderDate)).toLocaleDateString('en-GB'),
+          count: Number(item?.count),
+          totalBet: Number(item?.totalBet),
+          paymentWin: Number(item?.paymentWin),
+          bookmarkerProfit: Number(item?.bookmarkerProfit),
+        };
+      } else {
+        timeMap[item?.orderDate].count =
+          Number(timeMap[item?.orderDate]?.count) + Number(item?.count);
+        timeMap[item?.orderDate].totalBet =
+          Number(timeMap[item?.orderDate]?.totalBet) + Number(item?.totalBet);
+        timeMap[item?.orderDate].paymentWin =
+          Number(timeMap[item?.orderDate]?.paymentWin) + Number(item?.paymentWin);
+        timeMap[item?.orderDate].bookmarkerProfit =
+          Number(timeMap[item?.orderDate]?.bookmarkerProfit) + Number(item?.bookmarkerProfit);
+      }
+    });
+
+    let result : any[] = Object.values(timeMap);
+    result = result.sort((a, b) => {
+      const timeA = a.orderDate.getTime();
+      const timeB = b.orderDate.getTime();
+      return timeA - timeB;
+    });
     return result;
   }
 }
