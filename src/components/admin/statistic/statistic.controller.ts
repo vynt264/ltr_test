@@ -34,6 +34,16 @@ export class StatisticController {
     }
   }
 
+  @Get('by-user')
+  reportByUser(@Query() query: any) {
+    try {
+      return this.statisticService.reportByUser(query);
+    } catch (err) {
+      this.logger.error(`${StatisticController.name} is Logging error: ${JSON.stringify(err)}`);
+      throw new BadRequestException(err);
+    }
+  }
+
   @Post()
   create(@Body() createStatisticDto: CreateStatisticDto) {
     try {
