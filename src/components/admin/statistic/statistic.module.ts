@@ -9,12 +9,15 @@ import { PlayHistoryPoker } from '../admin.poker/entities/play.history.poker.ent
 import { PlayHistoryKeno } from '../admin.keno/entities/play.history.keno.entity';
 import { User } from 'src/components/user/user.entity';
 import { BookmakerModule } from '../bookmaker/bookmaker.module';
+import { AdminUserModule } from '../admin.user/admin.user.module';
+import { UserModule } from 'src/components/user/user.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, PlayHistoryHilo, PlayHistoryPoker, PlayHistoryKeno, User]),
     JwtModule.register({}),
     forwardRef(() => BookmakerModule),
+    forwardRef(() => UserModule),
   ],
   controllers: [StatisticController],
   providers: [StatisticService]

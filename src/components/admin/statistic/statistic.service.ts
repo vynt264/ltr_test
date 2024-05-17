@@ -11,8 +11,9 @@ import { PlayHistoryKeno } from '../admin.keno/entities/play.history.keno.entity
 import { DateTimeHelper } from 'src/helpers/date-time';
 import { OrderHelper } from 'src/common/helper';
 import { User } from 'src/components/user/user.entity';
-import { CASINO_GAME_TYPES } from 'src/system/constants/game';
+import { ALL_GAME_TYPES, CASINO_GAME_TYPES, GAMES } from 'src/system/constants/game';
 import { BookmakerService } from '../bookmaker/bookmaker.service';
+import { UserService } from 'src/components/user/user.service';
 
 @Injectable()
 export class StatisticService {
@@ -34,6 +35,9 @@ export class StatisticService {
 
     @Inject(forwardRef(() => BookmakerService))
     private bookmakerService: BookmakerService,
+
+    @Inject(forwardRef(() => UserService))
+    private userService: UserService,
   ) { }
 
   async reportByBookmarker(query: any) {
@@ -1912,5 +1916,444 @@ export class StatisticService {
       return timeA - timeB;
     });
     return result;
+  }
+
+  async reportOrdersByUser(query: any) {
+    const game = query.game;
+    const gameType = query.gameType;
+    const limit = Number(query.limit) || 10;
+    const page = Number(query.page) || 1;
+    const bookmarkerId = query.bookmarkerId;
+    const isTestPlayer = query.isTestPlayer || false;
+    const status = query.status;
+    const username = query.username;
+    const bookmaker = await this.bookmakerService.getById(bookmarkerId);
+    const bookmarkerName = bookmaker?.result?.name || '';
+    let fromDate = query.fromDate;
+    let toDate = query.toDate;
+    fromDate = startOfDay(new Date(fromDate));
+    toDate = endOfDay(new Date(toDate));
+    fromDate = addHours(fromDate, 7);
+    toDate = addHours(toDate, 7);
+    const offset = (page - 1) * limit;
+    let isGameOver: boolean;
+    const user = await this.userService.getByUsername(username);
+
+    if (username && !user) {
+      return {
+        orders: [],
+        prevPage: 0,
+        nextPage: 0,
+        lastPage: 0,
+        total: 0,
+      };
+    }
+
+    if (status === 'closed') {
+      isGameOver = true;
+    } else if (status === 'pending') {
+      isGameOver = false;
+    }
+
+    let userId;
+    if (user) {
+      userId = user.id;
+    }
+
+    let data: any =[];
+    if (gameType === ALL_GAME_TYPES.HILO) {
+      data = await this.reportByHiloOrders({
+        gameType,
+        limit,
+        page,
+        bookmarkerId,
+        isTestPlayer,
+        status,
+        fromDate,
+        toDate,
+        isGameOver,
+        userId,
+        offset,
+      });
+    } else if (gameType === ALL_GAME_TYPES.KENO) {
+      data = await this.reportByKenoOrders({
+        gameType,
+        limit,
+        page,
+        bookmarkerId,
+        isTestPlayer,
+        status,
+        fromDate,
+        toDate,
+        isGameOver,
+        userId,
+        offset,
+      });
+    } else if (gameType === ALL_GAME_TYPES.VIDEO_POKER) {
+      data = await this.reportByPokerOrders({
+        gameType,
+        limit,
+        page,
+        bookmarkerId,
+        isTestPlayer,
+        status,
+        fromDate,
+        toDate,
+        isGameOver,
+        userId,
+        offset,
+      });
+    } else {
+      data = await this.reportByLotteryOrders({
+        gameType,
+        limit,
+        page,
+        bookmarkerId,
+        isTestPlayer,
+        status,
+        fromDate,
+        toDate,
+        offset,
+        userId,
+      });
+    }
+
+    for (const item of (data?.orders || [])) {
+      item.bookmarkerName = bookmarkerName;
+      item.username = username || '';
+      item.gameType = gameType;
+      item.openTime = (new Date(item.openTime))
+      item.closeTime = (new Date(item.closeTime))
+
+      if (
+        gameType === CASINO_GAME_TYPES.HILO
+        || gameType === CASINO_GAME_TYPES.KENO
+        || gameType === CASINO_GAME_TYPES.MINES
+        || gameType === CASINO_GAME_TYPES.VIDEO_POKER
+      ) {
+        item.game = GAMES.Casino;
+        if (item.status === 1) {
+          item.status = 'closed';
+        } else {
+          item.status = 'pending';
+        }
+      } else {
+        const seconds = gameType.split('-')[1];
+        if (seconds == 1) {
+          item.openTime = item.createdAt;
+          item.closeTime = item.updatedAt;
+        }
+
+        item.profit = -(item.totalPaymentWin);
+        item.game = GAMES.XoSo;
+      }
+    }
+
+    return data;
+  }
+
+
+  async reportByLotteryOrders({
+    gameType,
+    limit,
+    bookmarkerId,
+    isTestPlayer,
+    status,
+    fromDate,
+    toDate,
+    offset,
+    page,
+    userId,
+  }: any) {
+    const seconds = gameType.trim().split('-')[1];
+    const type = gameType.trim().split('-')[0];
+    let queryCount = `
+      SELECT COUNT(*) as count
+      FROM orders AS entity
+      WHERE entity.isTestPlayer = ${isTestPlayer}
+        AND entity.bookMakerId = '${bookmarkerId}'
+    `;
+
+    if (status) {
+      queryCount += `
+        AND entity.status = '${status}'
+      `
+    }
+    if (userId) {
+      queryCount += `
+        AND entity.userId = '${userId}'
+      `;
+    }
+    queryCount += `
+      AND entity.created_at BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}'
+      AND entity.type = '${type}'
+      AND entity.seconds = '${seconds}'
+    `;
+    const resultCount = await this.orderRepository.query(queryCount);
+
+    let query = `
+      SELECT id as id, openTime as openTime, closeTime as closeTime, paymentWin as totalPaymentWin, revenue as revenue, status as status, created_at as createdAt, updated_at as updatedAt
+      FROM orders AS entity
+      WHERE entity.isTestPlayer = ${isTestPlayer}
+        AND entity.bookMakerId = '${bookmarkerId}'
+    `;
+
+    if (status) {
+      query += `
+        AND entity.status = '${status}'
+      `;
+    }
+    if (userId) {
+      query += `
+        AND entity.userId = '${userId}'
+      `;
+    }
+    query += `
+      AND entity.created_at BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}'
+      AND entity.type = '${type}'
+      AND entity.seconds = '${seconds}'
+      ORDER BY id asc
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    const total = Number(resultCount[0].count);
+    const lastPage = Math.ceil(total / limit);
+    const nextPage = page + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+    const orders = await this.orderRepository.query(query);
+
+    return {
+      orders,
+      prevPage,
+      nextPage,
+      lastPage,
+      total,
+    };
+  }
+
+  async reportByKenoOrders({
+    limit,
+    page,
+    bookmarkerId,
+    isTestPlayer,
+    fromDate,
+    toDate,
+    userId,
+    offset,
+    isGameOver,
+  }: any) {
+    let queryCount = `
+      SELECT COUNT(*) as count
+      FROM play_history_keno AS entity
+      WHERE entity.isUserFake = ${isTestPlayer}
+        AND entity.bookmakerId = '${bookmarkerId}'
+    `;
+
+    if (isGameOver === false || isGameOver === true) {
+      queryCount += `
+        AND entity.isGameOver = ${isGameOver}
+      `;
+    }
+
+    queryCount += `
+      AND entity.createdAt BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}'
+    `;
+
+    if (userId) {
+      queryCount += `
+      AND entity.userId = '${userId}'
+    `;
+    }
+    const resultCount = await this.playHistoryKenoRepository.query(queryCount);
+
+    let query = `
+      SELECT id as id, createdAt as openTime,updatedAt as closeTime, totalPaymentWin as totalPaymentWin, revenue as revenue, isGameOver as status, (revenue - totalPaymentWin) as profit
+      FROM play_history_keno AS entity
+      WHERE entity.isUserFake = ${isTestPlayer}
+        AND entity.bookmakerId = '${bookmarkerId}'
+    `;
+
+    if (isGameOver === false || isGameOver === true) {
+      query += `
+        AND entity.isGameOver = ${isGameOver}
+      `;
+    }
+
+    query += `
+      AND entity.createdAt BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}'
+    `;
+
+    if (userId) {
+      query += `
+        AND entity.userId = '${userId}'
+      `;
+    }
+    query += `
+      ORDER BY id asc
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    const orders = await this.playHistoryKenoRepository.query(query);
+    const total = Number(resultCount[0].count);
+    const lastPage = Math.ceil(total / limit);
+    const nextPage = page + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+
+    return {
+      orders,
+      prevPage,
+      nextPage,
+      lastPage,
+      total,
+    };
+  }
+
+  async reportByHiloOrders({
+    limit,
+    page,
+    bookmarkerId,
+    isTestPlayer,
+    fromDate,
+    toDate,
+    userId,
+    offset,
+    isGameOver,
+  }: any) {
+    let queryCount = `
+      SELECT COUNT(*) as count
+      FROM play_history_hilo AS entity
+      WHERE entity.isUserFake = ${isTestPlayer}
+        AND entity.bookmakerId = '${bookmarkerId}'
+    `;
+
+    if (isGameOver === false || isGameOver === true) {
+      queryCount += `
+        AND entity.isGameOver = ${isGameOver}
+      `;
+    }
+
+    queryCount += `AND entity.createdAt BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}'`;
+
+    if (userId) {
+      queryCount += `
+        AND entity.userId = '${userId}'
+      `;
+    }
+    const resultCount = await this.orderRepository.query(queryCount);
+
+    let query = `
+      SELECT id as id, createdAt as openTime,updatedAt as closeTime, totalPaymentWin as totalPaymentWin, revenue as revenue, isGameOver as status, (revenue - totalPaymentWin) as profit
+      FROM play_history_hilo AS entity
+      WHERE entity.isUserFake = ${isTestPlayer}
+        AND entity.bookmakerId = '${bookmarkerId}'
+    `;
+
+    if (isGameOver === false || isGameOver === true) {
+      query += `
+        AND entity.isGameOver = ${isGameOver}
+      `;
+    }
+
+    query += `AND entity.createdAt BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}' `;
+
+    if (userId) {
+      query += `
+        AND entity.userId = '${userId}'
+      `;
+    }
+    query += `
+      ORDER BY id asc
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    const total = Number(resultCount[0].count);
+    const lastPage = Math.ceil(total / limit);
+    const nextPage = page + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+    const orders = await this.orderRepository.query(query);
+
+    return {
+      orders,
+      prevPage,
+      nextPage,
+      lastPage,
+      total,
+    };
+  }
+
+  async reportByPokerOrders({
+    limit,
+    page,
+    bookmarkerId,
+    isTestPlayer,
+    fromDate,
+    toDate,
+    userId,
+    offset,
+    isGameOver,
+  }: any) {
+    let queryCount = `
+      SELECT COUNT(*) as count
+      FROM play_history_poker AS entity
+      WHERE entity.isUserFake = ${isTestPlayer}
+        AND entity.bookmakerId = '${bookmarkerId}'
+    `;
+
+    if (isGameOver === false || isGameOver === true) {
+      queryCount += `
+        AND entity.isGameOver = ${isGameOver}
+      `;
+    }
+    queryCount += `
+      AND entity.createdAt BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}'
+    `;
+
+    if (userId) {
+      queryCount += `
+        AND entity.userId = '${userId}'
+      `;
+    }
+    const resultCount = await this.orderRepository.query(queryCount);
+
+    let query = `
+      SELECT id as id, createdAt as openTime,updatedAt as closeTime, paymentWin as totalPaymentWin, revenue as revenue, isGameOver as status, (revenue - paymentWin) as profit
+      FROM play_history_poker AS entity
+      WHERE entity.isUserFake = ${isTestPlayer}
+          AND entity.bookmakerId = '${bookmarkerId}'
+    `;
+
+    if (isGameOver === false || isGameOver === true) {
+      query += `
+        AND entity.isGameOver = ${isGameOver}
+      `;
+    }
+
+    query += `
+      AND entity.createdAt BETWEEN '${fromDate.toISOString()}' AND '${toDate.toISOString()}'
+    `;
+
+    if (userId) {
+      query += `
+        AND entity.userId = '${userId}'
+      `;
+    }
+    query += `
+      ORDER BY id asc
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    const total = Number(resultCount[0].count);
+    const lastPage = Math.ceil(total / limit);
+    const nextPage = page + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+    const orders = await this.orderRepository.query(query);
+
+    return {
+      orders,
+      prevPage,
+      nextPage,
+      lastPage,
+      total,
+    };
   }
 }
