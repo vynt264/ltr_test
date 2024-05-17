@@ -68,6 +68,21 @@ export class UserInfoController {
     return this.userInfoService.create(userDto);
   }
 
+  @Get("admin/:userId")
+  @ApiOperation({
+    description: "Get user info by userId",
+  })
+  @ApiOkResponse({
+    type: Response<UserInfo>,
+  })
+  @UseGuards(AuthGuard, BacklistGuard)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
+  async GetOneForAdmin(
+    @Param("userId", ParseIntPipe) userId: number
+  ): Promise<any> {
+    return this.userInfoService.getByOnlyUserId(userId);
+  }
+
   @Get("lottery/:userId")
   @ApiOperation({
     description: "Get user info by userId",
