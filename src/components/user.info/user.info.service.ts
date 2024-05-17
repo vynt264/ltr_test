@@ -59,6 +59,33 @@ export class UserInfoService {
     }
   }
 
+  async getByOnlyUserId(userId: number): Promise<any> {
+    try {
+      const userInfo = await this.userInfoRepository.findOne({
+        where: {
+          user: {
+            id: userId
+          }
+        }
+      });
+
+      return new SuccessResponse(
+        STATUSCODE.COMMON_SUCCESS,
+        userInfo,
+        MESSAGE.LIST_SUCCESS
+      );
+    } catch (error) {
+      this.logger.debug(
+        `${UserInfoService.name} is Logging error: ${JSON.stringify(error)}`
+      );
+      return new ErrorResponse(
+        STATUSCODE.COMMON_FAILED,
+        error,
+        MESSAGE.LIST_FAILED
+      );
+    }
+  }
+
   async getByUserId(userId: number): Promise<any> {
     try {
       let userInfo = await this.userInfoRepository.findOne({
