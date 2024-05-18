@@ -191,6 +191,7 @@ export class UserInfoService {
         }
       });
 
+
       let orders: any[] = [];
       let listFv: any[] = [];
       let sumBet = 0,
@@ -368,23 +369,6 @@ export class UserInfoService {
       }
       
       if (orders?.length > 0) {
-        const listOrder = orders;
-        listOrder?.map((order: any) => {
-          sumBet += Number(order?.revenue);
-          if (order?.paymentWin > 0) {
-            sumOrderWin += 1; 
-          } else {
-            sumOrderLose += 1
-          }
-          const itemFv = {
-            type: `Keno`,
-            bet: order?.revenue
-          }
-          listFv.push(itemFv);
-        });
-        sumOrder += resultKeno[1];
-      }
-      if (orders?.length > 0) {
         listFv = listFv.reduce((accumulator: any, currentValue: any) => {
           const { type, bet } = currentValue;
           if (!accumulator[type]) {
@@ -394,6 +378,7 @@ export class UserInfoService {
           return accumulator;
         }, {});
         favoriteGame = JSON.stringify(Object.values(listFv));
+      }
 
         userInfo = {
           ...userInfo,
@@ -404,7 +389,6 @@ export class UserInfoService {
           favoriteGame,
         }
         await this.userInfoRepository.save(userInfo);
-      }
 
       return new SuccessResponse(
         STATUSCODE.COMMON_SUCCESS,
