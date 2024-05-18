@@ -12,6 +12,7 @@ import { AdminKenoModule } from './admin.keno/admin.keno.module';
 import { BonusSettingModule } from './bonus-setting/bonus-setting.module';
 import { StatisticModule } from './statistic/statistic.module';
 import { RanksModule } from './ranks/ranks.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
     imports: [
@@ -28,6 +29,7 @@ import { RanksModule } from './ranks/ranks.module';
         BonusSettingModule,
         StatisticModule,
         RanksModule,
+        RolesModule,
     ],
 })
 export class AdminModule {}

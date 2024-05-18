@@ -58,9 +58,6 @@ export class User {
   @Column({ type: "varchar", length: 255, nullable: true, default: "" })
   usernameReal: string;
 
-  // @OneToMany((type) => Collection, (collection) => collection.user)
-  // collections: Collection[];
-
   @OneToMany(() => UserHistory, (userHistory) => userHistory.user)
   histories: UserHistory[];
 
