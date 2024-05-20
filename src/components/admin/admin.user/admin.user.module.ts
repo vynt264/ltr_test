@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AdminUserService } from './admin.user.service';
 import { AdminUserController } from './admin.user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminUser } from './entities/admin.user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from 'src/components/user/user.module';
+import { RolesModule } from '../roles/roles.module';
 
 @Module({
   imports:[
@@ -12,7 +13,8 @@ import { UserModule } from 'src/components/user/user.module';
       AdminUser,
     ]),
     JwtModule.register({}),
-    UserModule
+    UserModule,
+    forwardRef(() => RolesModule),
   ],
   controllers: [AdminUserController],
   providers: [AdminUserService],

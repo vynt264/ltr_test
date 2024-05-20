@@ -1,16 +1,32 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { Role } from './entities/role.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
-export class RolesService {
+export class RolesService implements OnModuleInit {
   constructor(
     @InjectRepository(Role)
     private roleRepository: Repository<Role>,
   ) { }
+
+  async onModuleInit() {
+    // create defaul role Super
+    const role = await this.roleRepository.findOne({
+      where: {
+        name: "Super",
+      },
+    });
+
+    if (role) return;
+
+    await this.roleRepository.save({
+      name: "Super",
+      permissions: "super",
+    });
+  }
 
   create(createRoleDto: CreateRoleDto) {
     return this.roleRepository.save(createRoleDto);
@@ -26,6 +42,7 @@ export class RolesService {
     const [roles, total] = await this.roleRepository.findAndCount({
       where: {
         isDeleted: false,
+        name: Not('Super'),
       },
       take: limit,
       skip: (page - 1) * limit,
@@ -48,6 +65,14 @@ export class RolesService {
     return this.roleRepository.findOne({
       where: {
         id,
+      },
+    });
+  }
+
+  findRoleByName(name: string) {
+    return this.roleRepository.findOne({
+      where: {
+        name,
       },
     });
   }

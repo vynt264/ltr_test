@@ -9,4 +9,5 @@ export interface JwtPayload {
   id?: string;
   isTestPlayer?: boolean,
   rankId?: number,
+  permissions?: string,
 }
