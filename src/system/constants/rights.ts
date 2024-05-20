@@ -128,6 +128,31 @@ const RIGHTS = {
         Description: 'export_excel_report_orders_by_user',
         App: 'lottery',
     },
+    // report orders
+    ShowReportOrders: {
+        Code: 16,
+        Name: 'show_report_by_orders',
+        Module: 'report_by_orders',
+        Title: 'Show orders',
+        Description: 'show_report_by_orders',
+        App: 'lottery',
+    },
+    SearchReportOrders: {
+        Code: 17,
+        Name: 'search_report_orders',
+        Module: 'report_by_orders',
+        Title: 'Search orders',
+        Description: 'search_report_orders',
+        App: 'lottery',
+    },
+    ExportExcelReportOrders: {
+        Code: 18,
+        Name: 'export_excel_report_orders',
+        Module: 'report_by_orders',
+        Title: 'Export excel orders',
+        Description: 'export_excel_report_orders',
+        App: 'lottery',
+    },
 };
 
 const RIGHTS_DEFAULT = ['basic'];
