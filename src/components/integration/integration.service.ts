@@ -137,6 +137,9 @@ export class IntegrationService {
         const walletHis = {
           ...walletCreate,
           detail: "Tạo mới ví",
+          typeTransaction: "Tạo ví",
+          nccNote: createdUser?.bookmaker?.name,
+          code: "",
         }
         await this.walletHistoryRepository.save(walletHis);
         // create coin wallet
@@ -392,7 +395,10 @@ export class IntegrationService {
               user: { id: user.id },
               subOrAdd: 1,
               amount: Number(depostDto.amount),
-              detail: `Chuyển tiền vào ví`,
+              detail: `Chuyển vào`,
+              typeTransaction: `Chuyển tiền`,
+              nccNote: bookmaker?.name,
+              code: depostDto.orderKey,
               balance: balanceUp,
               createdBy: user.username
             }
@@ -521,7 +527,10 @@ export class IntegrationService {
               user: { id: user.id },
               subOrAdd: 0,
               amount: Number(withdrawDto.amount),
-              detail: `Rút tiền`,
+              detail: `Chuyển ra`,
+              typeTransaction: `Chuyển tiền`,
+              code: withdrawDto.orderKey,
+              nccNote: bookmaker?.name,
               balance: balanceUp,
               createdBy: user.username
             }

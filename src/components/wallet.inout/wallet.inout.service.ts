@@ -158,6 +158,18 @@ export class WalletInoutService {
           usernameReal: object.isTestPlayer == "true" ? Not("") : "",
         }
       }
+
+      if (key === "orderId") {
+        data.code = Like(`%${object.orderId}%`);
+      }
+
+      if (key === "typeTransaction") {
+        data.typeTransaction = Like(`%${object.typeTransaction}%`);
+      }
+
+      if (key === "nccNote") {
+        data.nccNote = Like(`%${object.nccNote}%`);
+      }
     }
 
     return [data];

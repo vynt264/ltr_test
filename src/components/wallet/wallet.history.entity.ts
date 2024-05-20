@@ -31,7 +31,16 @@ export class WalletHistory {
   subOrAdd: number;
 
   @Column({ nullable: true })
+  typeTransaction: string;
+
+  @Column({ nullable: true })
   detail: string;
+
+  @Column({ nullable: true })
+  nccNote: string;
+
+  @Column({ nullable: true })
+  code: string;
 
   @Column({
     type: "decimal",
