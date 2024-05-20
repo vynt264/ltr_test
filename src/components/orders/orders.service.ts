@@ -117,18 +117,25 @@ export class OrdersService {
     const totalBetRemain = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(member.id.toString()), -(Number(totalBet)));
     await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
 
-    // save wallet history
-    const createWalletHis: any = {
-      id: wallet.id,
-      user: { id: member.id },
-      subOrAdd: 0,
-      amount: totalBet,
-      detail: `Xổ số nhanh - Trừ tiền cược`,
-      balance: totalBetRemain,
-      createdBy: member.name,
+    for (let i = result.length - 1; i >= 0; i--) {
+      const order = result[i];
+      // save wallet history
+      const balanceActual = Number(wallet.balance) + i * order?.revenue;
+      const createWalletHis: any = {
+        id: wallet.id,
+        user: { id: member.id },
+        subOrAdd: 0,
+        amount: order?.revenue,
+        detail: `${order?.type}${order?.seconds} - Trừ tiền cược`,
+        typeTransaction: `Chơi game`,
+        code: order?.numericalOrder,
+        nccNote: "VNTOP",
+        balance: balanceActual,
+        createdBy: member.name,
+      }
+      const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+      this.walletHistoryRepository.save(createdWalletHis);
     }
-    const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
-    await this.walletHistoryRepository.save(createdWalletHis);
 
     return result;
   }
@@ -254,19 +261,6 @@ export class OrdersService {
     // update balance
     const { balance: totalBetRemain } = await this.walletHandlerService.updateBalance(user.id, -Number(totalBet));
 
-    // save wallet history
-    const createWalletHis: any = {
-      id: wallet.id,
-      user: { id: user.id },
-      subOrAdd: 0,
-      amount: totalBet,
-      detail: `Xổ số nhanh - Trừ tiền cược`,
-      balance: (totalBetRemain),
-      createdBy: user.name,
-    }
-    const createdWalletHis = this.walletHistoryRepository.create(createWalletHis);
-    this.walletHistoryRepository.save(createdWalletHis);
-
     return {
       balance: (totalBetRemain),
     };
@@ -371,6 +365,8 @@ export class OrdersService {
           orderId: order.id,
           type: `${order.type}${order.seconds}s`,
           amount: finalWinningAmount,
+          numericalOrder: order?.numericalOrder,
+          revenue: order?.revenue,
         });
       }
 
@@ -406,18 +402,48 @@ export class OrdersService {
     const wallet = await this.walletHandlerService.findWalletByUserIdFromRedis(user.id);
     const { balance: remainBalance } = await this.walletHandlerService.updateBalance(user.id, Number(totalBalance));
 
-    // save wallet history
-    const createWalletHisWin: any = {
-      id: wallet.id,
-      user: { id: user.id },
-      subOrAdd: 1,
-      amount: totalBalance,
-      detail: `Xổ số nhanh - Cộng tiền thắng`,
-      balance: remainBalance,
-      createdBy: user.name
+    for (let i = result.length - 1; i >= 0; i--) {
+      const order = result[i];
+      // save wallet history
+      const balanceActual = Number(wallet.balance) + i * order?.revenue;
+      const createWalletHis: any = {
+        id: wallet.id,
+        user: { id: user.id },
+        subOrAdd: 0,
+        amount: order?.revenue,
+        detail: `${order?.type}${order?.seconds} - Trừ tiền cược`,
+        typeTransaction: `Chơi game`,
+        code: order?.numericalOrder,
+        nccNote: "VNTOP",
+        balance: balanceActual,
+        createdBy: user.name,
+      }
+      const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+      await this.walletHistoryRepository.save(createdWalletHis);
     }
-    const createdWalletHisWin = await this.walletHistoryRepository.create(createWalletHisWin);
-    this.walletHistoryRepository.save(createdWalletHisWin);
+
+    if (ordersWin?.length > 0) {
+      for (let i = 0; i < ordersWin.length; i++) {
+        const order = ordersWin[i];
+        // save wallet history
+        const amountActual = order?.amount + order?.revenue;
+        const balanceActual = Number(wallet.balance) + amountActual;
+        const createWalletHisWin: any = {
+          id: wallet.id,
+          user: { id: user.id },
+          subOrAdd: 1,
+          amount: amountActual,
+          detail: `${data.orders[0].type}${seconds} - Cộng tiền thắng`,
+          typeTransaction: `Chơi game`,
+          code: order?.numericalOrder,
+          nccNote: "VNTOP",
+          balance: balanceActual,
+          createdBy: user.name
+        }
+        const createdWalletHisWin = await this.walletHistoryRepository.create(createWalletHisWin);
+        this.walletHistoryRepository.save(createdWalletHisWin);
+      }
+    }
 
     return {
       ordersWin,
@@ -620,7 +646,10 @@ export class OrdersService {
         user: { id: member.id },
         subOrAdd: 1,
         amount: +order.revenue,
-        detail: `Xổ số nhanh - Hoàn tiền cược`,
+        detail: `${order?.type}${order?.seconds} - Hoàn tiền cược`,
+        typeTransaction: `Chơi game`,
+        code: order?.numericalOrder,
+        nccNote: "VNTOP",
         balance: remainBalance,
         createdBy: member.name
       }
@@ -799,23 +828,31 @@ export class OrdersService {
 
     await Promise.all(promisesPrepareDataToGenerateAward);
     await this.saveOrdersOfUserToRedis(result, user.bookmakerId, user.id, user.usernameReal);
+    
+    let balanceActual = Number(wallet.balance)
+    for (let i = 0; i < result.length; i++) {
+      const order = result[i];
+      balanceActual -= order?.revenue;
+      // save wallet history
+      const createWalletHis: any = {
+        id: wallet.id,
+        user: { id: user.id },
+        subOrAdd: 0,
+        amount: order?.revenue,
+        detail: `${order?.type}${order?.seconds} - Trừ tiền cược`,
+        typeTransaction: `Chơi game`,
+        code: order?.numericalOrder,
+        nccNote: "VNTOP",
+        balance: balanceActual,
+        createdBy: user.name,
+      }
+      const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+      this.walletHistoryRepository.save(createdWalletHis);
+    }
 
     // update balance
     const totalBetRemain = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(user.id.toString()), -Number(totalBet));
     await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
-
-    // save wallet history
-    const createWalletHis: any = {
-      id: wallet.id,
-      user: { id: user.id },
-      subOrAdd: 0,
-      amount: totalBet,
-      detail: `Xổ số nhanh - Trừ tiền cược`,
-      balance: totalBetRemain,
-      createdBy: user.name,
-    }
-    const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
-    this.walletHistoryRepository.save(createdWalletHis);
 
     return result;
   }

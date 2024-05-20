@@ -732,7 +732,7 @@ export class ScheduleService implements OnModuleInit {
         }
 
         // check nuoi so
-        const { refunds } = await this.handlerHoldingNumbers({
+        const { refunds, dataOrderRefunds } = await this.handlerHoldingNumbers({
             winningPlayerOrders,
             bookmakerId,
             userId,
@@ -743,19 +743,50 @@ export class ScheduleService implements OnModuleInit {
         const { balance: remainBalance } = await this.walletHandlerService.updateBalance(+userId, Number(totalBalance + refunds));
 
         if ((totalBalance + refunds) > 0) {
-            // save wallet history
-            const createWalletHis: any = {
-                id: wallet.id,
-                user: { id: Number(userId) },
-                subOrAdd: 1,
-                amount: totalBalance + refunds,
-                detail: `Xổ số nhanh - Cộng tiền thắng`,
-                balance: remainBalance,
-                createdBy: ""
+            for (let i = 0; i < ordersWin.length; i++) {
+                const order = await this.ordersService.findOne(Number(ordersWin[i]?.orderId));
+                const amountActual = Number(order?.paymentWin) +  Number(order?.revenue);
+                const balanceActual = Number(wallet.balance) + amountActual;
+                // save wallet history
+                const createWalletHis: any = {
+                    id: wallet.id,
+                    user: { id: Number(userId) },
+                    subOrAdd: 1,
+                    amount: amountActual,
+                    detail: `${order.type}${order.seconds} - Cộng tiền thắng`,
+                    typeTransaction: `Chơi game`,
+                    balance: balanceActual,
+                    code: order?.numericalOrder,
+                    nccNote: "VNTOP",
+                    createdBy: ""
+                }
+
+                const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+                await this.walletHistoryRepository.save(createdWalletHis);
             }
 
-            const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
-            await this.walletHistoryRepository.save(createdWalletHis);
+            if (dataOrderRefunds.length > 0) {
+                let balanceActual = Number(remainBalance) - refunds;
+                for (const order of dataOrderRefunds) {
+                    balanceActual += Number(order?.revenue);
+                    // save wallet history
+                    const createWalletHis: any = {
+                        id: wallet.id,
+                        user: { id: Number(userId) },
+                        subOrAdd: 1,
+                        amount: Number(order?.revenue),
+                        detail: `${order.type}${order.seconds} - Hoàn tiền cược`,
+                        typeTransaction: `Chơi game`,
+                        balance: balanceActual,
+                        code: order?.numericalOrder,
+                        nccNote: "VNTOP",
+                        createdBy: ""
+                    }
+
+                    const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+                    await this.walletHistoryRepository.save(createdWalletHis);
+                }
+            }
         }
 
         if (isTestPlayer) {
@@ -779,6 +810,7 @@ export class ScheduleService implements OnModuleInit {
         usernameReal,
     }: any) {
         let refunds = 0;
+        const dataOrderRefunds: any[] = []
 
         if (!winningPlayerOrders || winningPlayerOrders.length === 0) return {
             refunds,
@@ -803,6 +835,7 @@ export class ScheduleService implements OnModuleInit {
                 if (tempOrder.status === ORDER_STATUS.canceled || tempOrder.status === ORDER_STATUS.closed) continue;
 
                 refunds += Number(tempOrder.revenue);
+                dataOrderRefunds.push(order)
 
                 await this.ordersService.removeOrderFromRedis({
                     order,
@@ -820,6 +853,7 @@ export class ScheduleService implements OnModuleInit {
 
         return {
             refunds,
+            dataOrderRefunds,
         }
     }
 
