@@ -261,7 +261,7 @@ export class AdminUserService {
     if (!username) return;
 
     return this.adminUserRepository.findOne({
-      relations: ['bookmaker'],
+      relations: ['bookmaker', 'roleAdminUser'],
       where: {
         username,
       },
@@ -279,6 +279,7 @@ export class AdminUserService {
       nickname: user.username,
       bookmakerId: user?.bookmakerId || 1,
       usernameReal: user?.usernameReal || '',
+      permissions: user?.roleAdminUser?.permissions || '',
     };
 
     const [at, rt] = await Promise.all([
