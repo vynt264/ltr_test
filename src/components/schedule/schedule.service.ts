@@ -696,7 +696,7 @@ export class ScheduleService implements OnModuleInit {
                     type: region,
                     amount: finalWinningAmount,
                 });
-            } else {
+            } else if (realWinningAmount < 0) {
                 ordersWinOther.push({
                     typeBetName: OrderHelper.getCategoryLotteryTypeName(betType),
                     childBetType: OrderHelper.getChildBetTypeName(childBetType),
