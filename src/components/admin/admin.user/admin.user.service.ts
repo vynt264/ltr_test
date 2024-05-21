@@ -161,12 +161,58 @@ export class AdminUserService {
     return [data];
   }
 
-  findAll() {
-    return `This action returns all adminUser`;
+  async findAll({
+    page,
+    limit,
+    username,
+    bookmarkerId,
+    fromDate,
+    toDate,
+  }: any) {
+    limit = Number(limit || 10);
+    page = Number(page || 1);
+
+    const condition: any = {
+      isDeleted: false,
+    };
+    if (username) {
+      condition.username = Like(`%${username}%`);
+    }
+    if (bookmarkerId) {
+      condition.bookmaker = { id: bookmarkerId };
+    }
+    if (fromDate && toDate) {
+      const startDate = new Date(fromDate);
+      const endDate = new Date(toDate);
+      condition.createdAt = Between(startOfDay(startDate), endOfDay(endDate));
+    }
+
+    const [users, total] = await this.adminUserRepository.findAndCount({
+      relations: ["roleAdminUser"],
+      where: condition,
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+    const lastPage = Math.ceil(total / limit);
+    const nextPage = page + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+
+    return {
+      users,
+      prevPage,
+      nextPage,
+      lastPage,
+      total,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} adminUser`;
+  async findOne(id: number) {
+    return this.adminUserRepository.findOne({
+      relations: ['bookmaker', 'roleAdminUser'],
+      where: {
+        id,
+      },
+    });
   }
 
   async update(
@@ -256,7 +302,7 @@ export class AdminUserService {
     if (user.username === 'super9999') {
       const role = await this.rolesService.findRoleByName('Super');
 
-      if (role.id !== user.roleAdminUser.id) {
+      if (role?.id !== user?.roleAdminUser?.id) {
         user.roleAdminUser = { id: role.id } as any;
         await this.adminUserRepository.save(user);
 
