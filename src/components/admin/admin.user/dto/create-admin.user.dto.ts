@@ -15,8 +15,10 @@ export class CreateAdminUserDto {
     @Matches(REGEX.PASSWORD_RULE, { message: MESSAGES.PASSWORD_RULE_MESSAGE })
     password: string;
   
-  
     @IsOptional()
     @IsNumber()
     bookmakerId: number;
+
+    @IsOptional()
+    roleAdminUserId: number;
 }

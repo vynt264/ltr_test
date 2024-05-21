@@ -80,8 +80,8 @@ export class AdminUserController {
   }
 
   @Get()
-  findAll() {
-    return this.adminUserService.findAll();
+  findAll(@Query() paginationQuery: any) {
+    return this.adminUserService.findAll(paginationQuery);
   }
 
   @Get(':id')
