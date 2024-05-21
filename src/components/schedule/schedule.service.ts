@@ -667,6 +667,7 @@ export class ScheduleService implements OnModuleInit {
         let totalBalance = 0;
         let isLimitPayout = false;
         let finalWinningAmount = 0;
+        const ordersWinOther = [];
         for (const key in ordersOfUser) {
             if (ordersCancel[key] && Object.keys(ordersCancel[key]).length > 0) continue;
 
@@ -695,6 +696,14 @@ export class ScheduleService implements OnModuleInit {
                     type: region,
                     amount: finalWinningAmount,
                 });
+            } else {
+                ordersWinOther.push({
+                    typeBetName: OrderHelper.getCategoryLotteryTypeName(betType),
+                    childBetType: OrderHelper.getChildBetTypeName(childBetType),
+                    orderId,
+                    type: region,
+                    amount: finalWinningAmount,
+                })
             }
 
             if (winningNumbers.length > 0) {
@@ -742,7 +751,7 @@ export class ScheduleService implements OnModuleInit {
         const wallet = await this.walletHandlerService.findWalletByUserIdFromRedis(+userId);
         const { balance: remainBalance } = await this.walletHandlerService.updateBalance(+userId, Number(totalBalance + refunds));
 
-        if ((totalBalance + refunds) > 0) {
+        if (ordersWin?.length > 0) {
             for (let i = 0; i < ordersWin.length; i++) {
                 const order = await this.ordersService.findOne(Number(ordersWin[i]?.orderId));
                 const amountActual = Number(order?.paymentWin) +  Number(order?.revenue);
@@ -760,32 +769,54 @@ export class ScheduleService implements OnModuleInit {
                     nccNote: "VNTOP",
                     createdBy: ""
                 }
+    
+                const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+                await this.walletHistoryRepository.save(createdWalletHis);
+            }
+        }
+        if (dataOrderRefunds?.length > 0) {
+            let balanceActual = Number(remainBalance) - refunds;
+            for (const order of dataOrderRefunds) {
+                balanceActual += Number(order?.revenue);
+                // save wallet history
+                const createWalletHis: any = {
+                    id: wallet.id,
+                    user: { id: Number(userId) },
+                    subOrAdd: 1,
+                    amount: Number(order?.revenue),
+                    detail: `${order.type}${order.seconds} - Hoàn tiền cược`,
+                    typeTransaction: `Chơi game`,
+                    balance: balanceActual,
+                    code: order?.numericalOrder,
+                    nccNote: "VNTOP",
+                    createdBy: ""
+                }
 
                 const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
                 await this.walletHistoryRepository.save(createdWalletHis);
             }
-
-            if (dataOrderRefunds.length > 0) {
-                let balanceActual = Number(remainBalance) - refunds;
-                for (const order of dataOrderRefunds) {
-                    balanceActual += Number(order?.revenue);
-                    // save wallet history
-                    const createWalletHis: any = {
-                        id: wallet.id,
-                        user: { id: Number(userId) },
-                        subOrAdd: 1,
-                        amount: Number(order?.revenue),
-                        detail: `${order.type}${order.seconds} - Hoàn tiền cược`,
-                        typeTransaction: `Chơi game`,
-                        balance: balanceActual,
-                        code: order?.numericalOrder,
-                        nccNote: "VNTOP",
-                        createdBy: ""
-                    }
-
-                    const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
-                    await this.walletHistoryRepository.save(createdWalletHis);
+        }
+        if (ordersWinOther?.length > 0) {
+            for (let i = 0; i < ordersWinOther.length; i++) {
+                const order = await this.ordersService.findOne(Number(ordersWinOther[i]?.orderId));
+                const amountActual = Number(order?.paymentWin) + Number(order?.revenue);
+                const balanceActual = Number(wallet.balance) + amountActual;
+                // save wallet history
+                const createWalletHis: any = {
+                    id: wallet.id,
+                    user: { id: Number(userId) },
+                    subOrAdd: 1,
+                    amount: amountActual,
+                    detail: `${order.type}${order.seconds} - Cộng tiền thắng`,
+                    typeTransaction: `Chơi game`,
+                    balance: balanceActual,
+                    code: order?.numericalOrder,
+                    nccNote: "VNTOP",
+                    createdBy: ""
                 }
+
+                const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+                await this.walletHistoryRepository.save(createdWalletHis);
             }
         }
 
