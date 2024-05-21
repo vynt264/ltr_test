@@ -752,10 +752,11 @@ export class ScheduleService implements OnModuleInit {
         const { balance: remainBalance } = await this.walletHandlerService.updateBalance(+userId, Number(totalBalance + refunds));
 
         if (ordersWin?.length > 0) {
+            let balanceActual = Number(wallet?.balance);
             for (let i = 0; i < ordersWin.length; i++) {
                 const order = await this.ordersService.findOne(Number(ordersWin[i]?.orderId));
-                const amountActual = Number(order?.paymentWin) +  Number(order?.revenue);
-                const balanceActual = Number(wallet.balance) + amountActual;
+                const amountActual = Number(order?.paymentWin) + Number(order?.revenue);
+                balanceActual += amountActual;
                 // save wallet history
                 const createWalletHis: any = {
                     id: wallet.id,
