@@ -113,14 +113,11 @@ export class OrdersService {
     await this.prepareDataToGeneratePrizes(result, bookmakerId, turnIndex, member.usernameReal);
     await this.saveOrdersOfUserToRedis(result, bookmakerId, member.id, member.usernameReal);
 
-    // update balance
-    const totalBetRemain = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(member.id.toString()), -(Number(totalBet)));
-    await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
-
-    for (let i = result.length - 1; i >= 0; i--) {
+    let balanceActual = Number(balance);
+    for (let i = 0; i < result.length; i++) {
       const order = result[i];
       // save wallet history
-      const balanceActual = Number(wallet.balance) + i * order?.revenue;
+      balanceActual -= order?.revenue;
       const createWalletHis: any = {
         id: wallet.id,
         user: { id: member.id },
@@ -134,8 +131,12 @@ export class OrdersService {
         createdBy: member.name,
       }
       const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
-      this.walletHistoryRepository.save(createdWalletHis);
+      await this.walletHistoryRepository.save(createdWalletHis);
     }
+
+    // update balance
+    const totalBetRemain = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(member.id.toString()), -(Number(totalBet)));
+    await this.walletHandlerService.update(wallet.id, { balance: totalBetRemain });
 
     return result;
   }
@@ -441,7 +442,7 @@ export class OrdersService {
           createdBy: user.name
         }
         const createdWalletHisWin = await this.walletHistoryRepository.create(createWalletHisWin);
-        this.walletHistoryRepository.save(createdWalletHisWin);
+        await this.walletHistoryRepository.save(createdWalletHisWin);
       }
     }
 
@@ -847,7 +848,7 @@ export class OrdersService {
         createdBy: user.name,
       }
       const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
-      this.walletHistoryRepository.save(createdWalletHis);
+      await this.walletHistoryRepository.save(createdWalletHis);
     }
 
     // update balance
