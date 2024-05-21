@@ -696,7 +696,7 @@ export class ScheduleService implements OnModuleInit {
                     type: region,
                     amount: finalWinningAmount,
                 });
-            } else if (realWinningAmount < 0) {
+            } else {
                 ordersWinOther.push({
                     typeBetName: OrderHelper.getCategoryLotteryTypeName(betType),
                     childBetType: OrderHelper.getChildBetTypeName(childBetType),
@@ -797,26 +797,29 @@ export class ScheduleService implements OnModuleInit {
             }
         }
         if (ordersWinOther?.length > 0) {
+            let balanceActual = Number(wallet.balance);
             for (let i = 0; i < ordersWinOther.length; i++) {
                 const order = await this.ordersService.findOne(Number(ordersWinOther[i]?.orderId));
-                const amountActual = Number(order?.paymentWin) + Number(order?.revenue);
-                const balanceActual = Number(wallet.balance) + amountActual;
-                // save wallet history
-                const createWalletHis: any = {
-                    id: wallet.id,
-                    user: { id: Number(userId) },
-                    subOrAdd: 1,
-                    amount: amountActual,
-                    detail: `${order.type}${order.seconds} - Cộng tiền thắng`,
-                    typeTransaction: `Chơi game`,
-                    balance: balanceActual,
-                    code: order?.numericalOrder,
-                    nccNote: "VNTOP",
-                    createdBy: ""
-                }
+                const amountActual = Number(order?.revenue) + Number(order?.paymentWin);
+                if (amountActual > 0) {
+                    balanceActual += amountActual;
+                    // save wallet history
+                    const createWalletHis: any = {
+                        id: wallet.id,
+                        user: { id: Number(userId) },
+                        subOrAdd: 1,
+                        amount: amountActual,
+                        detail: `${order.type}${order.seconds} - Cộng tiền thắng`,
+                        typeTransaction: `Chơi game`,
+                        balance: balanceActual,
+                        code: order?.numericalOrder,
+                        nccNote: "VNTOP",
+                        createdBy: ""
+                    }
 
-                const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
-                await this.walletHistoryRepository.save(createdWalletHis);
+                    const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+                    await this.walletHistoryRepository.save(createdWalletHis);
+                }
             }
         }
 
