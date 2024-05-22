@@ -33,19 +33,23 @@ export class AdminUserService {
     private rolesService: RolesService,
   ) { }
 
-  async create(createAdminUserDto: CreateAdminUserDto): Promise<any> {
-    const condiction = createAdminUserDto?.bookmakerId
-      ? {
-        username: createAdminUserDto.username,
-        bookmaker: {
-          id: createAdminUserDto.bookmakerId,
-        }
+  async create(createAdminUserDto: CreateAdminUserDto, user: any): Promise<any> {
+    const where: any = {
+      username: createAdminUserDto.username,
+    };
+
+    if (createAdminUserDto?.bookmakerId) {
+      where.bookmaker = {
+        id: createAdminUserDto.bookmakerId,
       }
-      : {
-        username: createAdminUserDto.username,
+    } else {
+      where.bookmaker = {
+        id: user.bookmakerId,
       }
+    }
+
     const dataDup = await this.adminUserRepository.findOne({
-      where: condiction
+      where: where
     });
 
     if (dataDup) {
@@ -57,19 +61,18 @@ export class AdminUserService {
     }
 
     const defaultPassword = 'User123!@#';
-    const createDto = {
+    const createDto: any = {
       username: createAdminUserDto.username,
       password: defaultPassword,
-      bookmaker: createAdminUserDto?.bookmakerId
-        ? { id: createAdminUserDto.bookmakerId }
-        : null,
+      bookmaker: createAdminUserDto?.bookmakerId ? { id: createAdminUserDto.bookmakerId } : { id: user.bookmakerId },
       roleAdminUser: { id: createAdminUserDto.roleAdminUserId },
-    }
+    };
+
     const createdUser = await this.adminUserRepository.create(createDto);
-    const user = await this.adminUserRepository.save(createdUser);
+    const adminUser = await this.adminUserRepository.save(createdUser);
     return new ErrorResponse(
       STATUSCODE.COMMON_SUCCESS,
-      user,
+      adminUser,
       MESSAGE.CREATE_SUCCESS
     );
   }

@@ -17,11 +17,12 @@ export class AdminUserController {
   constructor(private readonly adminUserService: AdminUserService) { }
 
   @Post('register')
-  async register(@Body() createAdminUserDto: CreateAdminUserDto) {
+  @UseGuards(AuthAdminGuard)
+  async register(@Body() createAdminUserDto: CreateAdminUserDto, @Request() req: any,) {
     // const createdUser = await this.adminUserService.create(createAdminUserDto);
     // const { password, ...rest } = createdUser;
 
-    return this.adminUserService.create(createAdminUserDto);
+    return this.adminUserService.create(createAdminUserDto, req.user);
   }
 
   @Post('login')
