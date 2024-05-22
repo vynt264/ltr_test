@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, UnauthorizedException, forward
 import { CreateAdminUserDto } from './dto/create-admin.user.dto';
 import { UpdateAdminUserDto } from './dto/update-admin.user.dto';
 import { AdminUser } from './entities/admin.user.entity';
-import { Between, Like, Not, Repository } from 'typeorm';
+import { Between, Like, Not, Repository, IsNull } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JWTResult, JwtPayload } from 'src/system/interfaces';
 import { JwtService } from "@nestjs/jwt";
@@ -36,14 +36,14 @@ export class AdminUserService {
   async create(createAdminUserDto: CreateAdminUserDto): Promise<any> {
     const condiction = createAdminUserDto?.bookmakerId
       ? {
-          username: createAdminUserDto.username,
-          bookmaker: {
-            id: createAdminUserDto.bookmakerId,
-          }
+        username: createAdminUserDto.username,
+        bookmaker: {
+          id: createAdminUserDto.bookmakerId,
         }
+      }
       : {
-          username: createAdminUserDto.username,
-        }
+        username: createAdminUserDto.username,
+      }
     const dataDup = await this.adminUserRepository.findOne({
       where: condiction
     });
@@ -56,12 +56,14 @@ export class AdminUserService {
       );
     }
 
+    const defaultPassword = 'User123!@#';
     const createDto = {
       username: createAdminUserDto.username,
-      password: createAdminUserDto.password,
+      password: defaultPassword,
       bookmaker: createAdminUserDto?.bookmakerId
         ? { id: createAdminUserDto.bookmakerId }
         : null,
+      roleAdminUser: { id: createAdminUserDto.roleAdminUserId },
     }
     const createdUser = await this.adminUserRepository.create(createDto);
     const user = await this.adminUserRepository.save(createdUser);
@@ -171,7 +173,6 @@ export class AdminUserService {
   }: any) {
     limit = Number(limit || 10);
     page = Number(page || 1);
-
     const condition: any = {
       isDeleted: false,
     };
@@ -186,9 +187,13 @@ export class AdminUserService {
       const endDate = new Date(toDate);
       condition.createdAt = Between(startOfDay(startDate), endOfDay(endDate));
     }
+    const role = await this.rolesService.findRoleByName('Super');
+    if (role) {
+      condition.roleAdminUser = Not(role.id);
+    }
 
     const [users, total] = await this.adminUserRepository.findAndCount({
-      relations: ["roleAdminUser"],
+      relations: ["roleAdminUser", "bookmaker"],
       where: condition,
       take: limit,
       skip: (page - 1) * limit,
@@ -395,5 +400,14 @@ export class AdminUserService {
         ERROR.NOT_FOUND
       );
     }
+  }
+
+  isRoleSuper(permissions: string) {
+    if (!permissions) return false;
+
+    const rights = permissions.split(',');
+    if (!rights || rights.length === 0) return false;
+
+    return rights.some((r: string) => r === 'super');
   }
 }
