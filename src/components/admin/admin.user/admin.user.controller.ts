@@ -42,8 +42,9 @@ export class AdminUserController {
   @ApiOperation({
     description: "Get all user",
   })
-  @UseGuards(AuthAdminGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
+  // @UseGuards(AuthAdminGuard, RolesGuard)
+  @UseGuards(AuthAdminGuard)
+  // @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.adminUserService.getAll(paginationQuery);
   }
@@ -56,8 +57,9 @@ export class AdminUserController {
   //   type: Response<User>,
   // })
   @UsePipes(ValidationPipe)
-  @UseGuards(AuthAdminGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
+  // @UseGuards(AuthAdminGuard, RolesGuard)
+  @UseGuards(AuthAdminGuard)
+  // @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async updateRole(
     @Param("id", ParseIntPipe) id: number,
     @Body() roleDto: any
@@ -70,8 +72,9 @@ export class AdminUserController {
     description: "Block user",
   })
   @UsePipes(ValidationPipe)
-  @UseGuards(AuthAdminGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
+  @UseGuards(AuthAdminGuard)
+  // @UseGuards(AuthAdminGuard, RolesGuard)
+  // @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async blockUser(
     @Param("id", ParseIntPipe) id: number,
     @Body() blockDto: BlockUserDto
