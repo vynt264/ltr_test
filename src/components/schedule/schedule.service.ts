@@ -751,8 +751,8 @@ export class ScheduleService implements OnModuleInit {
         const wallet = await this.walletHandlerService.findWalletByUserIdFromRedis(+userId);
         const { balance: remainBalance } = await this.walletHandlerService.updateBalance(+userId, Number(totalBalance + refunds));
 
+        let balanceActual = Number(wallet?.balance);
         if (ordersWin?.length > 0) {
-            let balanceActual = Number(wallet?.balance);
             for (let i = 0; i < ordersWin.length; i++) {
                 const order = await this.ordersService.findOne(Number(ordersWin[i]?.orderId));
                 const amountActual = Number(order?.paymentWin) + Number(order?.revenue);
@@ -798,7 +798,6 @@ export class ScheduleService implements OnModuleInit {
             }
         }
         if (ordersWinOther?.length > 0) {
-            let balanceActual = Number(wallet.balance);
             for (let i = 0; i < ordersWinOther.length; i++) {
                 const order = await this.ordersService.findOne(Number(ordersWinOther[i]?.orderId));
                 const amountActual = Number(order?.revenue) + Number(order?.paymentWin);
