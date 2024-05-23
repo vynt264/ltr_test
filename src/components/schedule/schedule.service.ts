@@ -767,7 +767,7 @@ export class ScheduleService implements OnModuleInit {
                     typeTransaction: `Chơi game`,
                     balance: balanceActual,
                     code: order?.numericalOrder,
-                    nccNote: "VNTOP",
+                    nccNote: "Xổ Số",
                     createdBy: ""
                 }
     
@@ -789,7 +789,7 @@ export class ScheduleService implements OnModuleInit {
                     typeTransaction: `Chơi game`,
                     balance: balanceActual,
                     code: order?.numericalOrder,
-                    nccNote: "VNTOP",
+                    nccNote: "Xổ Số",
                     createdBy: ""
                 }
 
@@ -813,7 +813,7 @@ export class ScheduleService implements OnModuleInit {
                         typeTransaction: `Chơi game`,
                         balance: balanceActual,
                         code: order?.numericalOrder,
-                        nccNote: "VNTOP",
+                        nccNote: "Xổ Số",
                         createdBy: ""
                     }
 

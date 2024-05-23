@@ -126,7 +126,7 @@ export class OrdersService {
         detail: `${order?.type}${order?.seconds} - Trừ tiền cược`,
         typeTransaction: `Chơi game`,
         code: order?.numericalOrder,
-        nccNote: "VNTOP",
+        nccNote: "Xổ Số",
         balance: balanceActual,
         createdBy: member.name,
       }
@@ -415,7 +415,7 @@ export class OrdersService {
         detail: `${order?.type}${order?.seconds} - Trừ tiền cược`,
         typeTransaction: `Chơi game`,
         code: order?.numericalOrder,
-        nccNote: "VNTOP",
+        nccNote: "Xổ Số",
         balance: balanceActual,
         createdBy: user.name,
       }
@@ -437,7 +437,7 @@ export class OrdersService {
           detail: `${data.orders[0].type}${seconds} - Cộng tiền thắng`,
           typeTransaction: `Chơi game`,
           code: order?.numericalOrder,
-          nccNote: "VNTOP",
+          nccNote: "Xổ Số",
           balance: balanceActual,
           createdBy: user.name
         }
@@ -650,7 +650,7 @@ export class OrdersService {
         detail: `${order?.type}${order?.seconds} - Hoàn tiền cược`,
         typeTransaction: `Chơi game`,
         code: order?.numericalOrder,
-        nccNote: "VNTOP",
+        nccNote: "Xổ Số",
         balance: remainBalance,
         createdBy: member.name
       }
@@ -843,7 +843,7 @@ export class OrdersService {
         detail: `${order?.type}${order?.seconds} - Trừ tiền cược`,
         typeTransaction: `Chơi game`,
         code: order?.numericalOrder,
-        nccNote: "VNTOP",
+        nccNote: "Xổ Số",
         balance: balanceActual,
         createdBy: user.name,
       }

@@ -138,7 +138,7 @@ export class IntegrationService {
           ...walletCreate,
           detail: "Tạo mới ví",
           typeTransaction: "Tạo ví",
-          nccNote: createdUser?.bookmaker?.name,
+          nccNote: "VNTOP",
           code: "",
         }
         await this.walletHistoryRepository.save(walletHis);
