@@ -342,6 +342,7 @@ export class OrdersService {
     const limitPayOut = await this.settingsService.getLimitPayout();
     let isLimitPayout = false;
     let finalWinningAmount = 0;
+    const ordersWinOther = [];
 
     for (const order of result) {
       const objOrder = this.transformOrderToObject(order);
@@ -361,6 +362,16 @@ export class OrdersService {
         }
 
         ordersWin.push({
+          typeBetName: OrderHelper.getCategoryLotteryTypeName(order.betType),
+          childBetType: OrderHelper.getChildBetTypeName(order.childBetType),
+          orderId: order.id,
+          type: `${order.type}${order.seconds}s`,
+          amount: finalWinningAmount,
+          numericalOrder: order?.numericalOrder,
+          revenue: order?.revenue,
+        });
+      } else {
+        ordersWinOther.push({
           typeBetName: OrderHelper.getCategoryLotteryTypeName(order.betType),
           childBetType: OrderHelper.getChildBetTypeName(order.childBetType),
           orderId: order.id,
@@ -443,6 +454,33 @@ export class OrdersService {
         }
         const createdWalletHisWin = await this.walletHistoryRepository.create(createWalletHisWin);
         await this.walletHistoryRepository.save(createdWalletHisWin);
+      }
+    }
+
+    if (ordersWinOther?.length > 0) {
+      let balanceActual = Number(wallet?.balance);
+      for (let i = 0; i < ordersWinOther.length; i++) {
+        const order = ordersWinOther[i];
+        const amountActual = order?.revenue + order?.amount;
+        if (amountActual > 0) {
+          balanceActual += amountActual;
+          // save wallet history
+          const createWalletHis: any = {
+            id: wallet.id,
+            user: { id: user.id },
+            subOrAdd: 1,
+            amount: amountActual,
+            detail: `${data.orders[0].type}${seconds} - Cộng tiền thắng`,
+            typeTransaction: `Chơi game`,
+            balance: balanceActual,
+            code: order?.numericalOrder,
+            nccNote: "Xổ Số",
+            createdBy: ""
+          }
+
+          const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
+          await this.walletHistoryRepository.save(createdWalletHis);
+        }
       }
     }
 
