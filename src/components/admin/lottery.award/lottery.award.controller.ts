@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Request } from '@nestjs/common';
 import { LotteryAwardService } from './lottery.award.service';
 import { CreateLotteryAwardDto } from './dto/create-lottery.award.dto';
 import { UpdateLotteryAwardDto } from './dto/update-lottery.award.dto';
@@ -16,8 +16,8 @@ export class LotteryAwardController {
   }
 
   @Get()
-  findAll(@Query() paginationQueryDto: PaginationQueryDto) {
-    return this.lotteryAwardService.findAll(paginationQueryDto);
+  findAll(@Query() paginationQueryDto: PaginationQueryDto, @Request() req: any) {
+    return this.lotteryAwardService.findAll(paginationQueryDto, req.user);
   }
 
   @Get('report')

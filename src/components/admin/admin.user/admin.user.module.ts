@@ -6,6 +6,7 @@ import { AdminUser } from './entities/admin.user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from 'src/components/user/user.module';
 import { RolesModule } from '../roles/roles.module';
+import { ValidateRightsModule } from '../validate-rights/validate-rights.module';
 
 @Module({
   imports:[
@@ -15,6 +16,7 @@ import { RolesModule } from '../roles/roles.module';
     JwtModule.register({}),
     UserModule,
     forwardRef(() => RolesModule),
+    forwardRef(() => ValidateRightsModule),
   ],
   controllers: [AdminUserController],
   providers: [AdminUserService],

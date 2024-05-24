@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateLotteryAwardDto } from './dto/create-lottery.award.dto';
 import { UpdateLotteryAwardDto } from './dto/update-lottery.award.dto';
 import { PaginationQueryDto } from 'src/common/common.dto';
@@ -9,6 +9,8 @@ import { Between, Repository } from 'typeorm';
 import { MESSAGE, STATUSCODE } from 'src/system/constants';
 import { endOfDay, startOfDay, addHours, addDays } from 'date-fns';
 import { Order } from 'src/components/orders/entities/order.entity';
+import { ValidateRightsService } from '../validate-rights/validate-rights.service';
+import { RIGHTS } from 'src/system/constants/rights';
 
 
 @Injectable()
@@ -18,19 +20,30 @@ export class LotteryAwardService {
     private lotteryAwardRepository: Repository<LotteryAward>,
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
+
+    @Inject(forwardRef(() => ValidateRightsService))
+    private validateRightsService: ValidateRightsService,
   ) { }
 
   create(createLotteryAwardDto: CreateLotteryAwardDto) {
     return 'This action adds a new lotteryAward';
   }
 
-  async findAll(paginationQueryDto: PaginationQueryDto): Promise<BaseResponse> {
+  async findAll(paginationQueryDto: PaginationQueryDto, user: any): Promise<BaseResponse> {
     try {
+      const hasRight = await this.validateRightsService.hasRight({
+        userId: user.id,
+        rightNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
+      });
+
       const object: any = JSON.parse(paginationQueryDto.keyword);
+      if (!hasRight) {
+        object.bookmarkerId = user.bookmakerId;
+      }
 
       const lotteryAwards = await this.searchAdminGetAll(
         paginationQueryDto,
-        object
+        object,
       );
 
       return new SuccessResponse(

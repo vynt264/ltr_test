@@ -1,24 +1,42 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards, Query, ParseIntPipe, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Request,
+  UseGuards,
+  Query,
+  ParseIntPipe,
+  UsePipes,
+  ValidationPipe,
+  Inject,
+  BadRequestException,
+} from '@nestjs/common';
 import { AdminUserService } from './admin.user.service';
 import { CreateAdminUserDto } from './dto/create-admin.user.dto';
 import { UpdateAdminUserDto } from './dto/update-admin.user.dto';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
-import { AdminUser } from './entities/admin.user.entity';
 import { JWTResult } from 'src/system/interfaces';
 import { AuthAdminGuard } from 'src/components/auth/guards/auth-admin.guard';
-import { RolesGuard } from '../guards/roles.guard';
-import { Roles } from '../guards/roles.decorator';
-import { UserRoles } from 'src/components/user/enums/user.enum';
 import { PaginationQueryDto } from 'src/common/common.dto';
 import BlockUserDto from './dto/block.dto';
+import { Logger } from 'winston';
 
 @Controller('api/v1/admin-users')
 export class AdminUserController {
-  constructor(private readonly adminUserService: AdminUserService) { }
+  constructor(
+    private readonly adminUserService: AdminUserService,
+
+    @Inject("winston")
+    private readonly logger: Logger,
+  ) { }
 
   @Post('register')
   @UseGuards(AuthAdminGuard)
-  async register(@Body() createAdminUserDto: CreateAdminUserDto, @Request() req: any,) {
+  async register(@Body() createAdminUserDto: CreateAdminUserDto, @Request() req: any) {
     // const createdUser = await this.adminUserService.create(createAdminUserDto);
     // const { password, ...rest } = createdUser;
 
@@ -43,11 +61,14 @@ export class AdminUserController {
   @ApiOperation({
     description: "Get all user",
   })
-  // @UseGuards(AuthAdminGuard, RolesGuard)
   @UseGuards(AuthAdminGuard)
-  // @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
-  async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
-    return this.adminUserService.getAll(paginationQuery);
+  async GetAll(@Query() paginationQuery: PaginationQueryDto, @Request() req: any): Promise<any> {
+    try {
+      return this.adminUserService.getAll(paginationQuery, req.user);
+    } catch (error) {
+      this.logger.error(`${AdminUserController.name} is Logging error: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
+    }
   }
 
   @Patch(":id/role")
@@ -58,9 +79,7 @@ export class AdminUserController {
   //   type: Response<User>,
   // })
   @UsePipes(ValidationPipe)
-  // @UseGuards(AuthAdminGuard, RolesGuard)
   @UseGuards(AuthAdminGuard)
-  // @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async updateRole(
     @Param("id", ParseIntPipe) id: number,
     @Body() roleDto: any
@@ -74,8 +93,6 @@ export class AdminUserController {
   })
   @UsePipes(ValidationPipe)
   @UseGuards(AuthAdminGuard)
-  // @UseGuards(AuthAdminGuard, RolesGuard)
-  // @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async blockUser(
     @Param("id", ParseIntPipe) id: number,
     @Body() blockDto: BlockUserDto

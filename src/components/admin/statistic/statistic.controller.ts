@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, BadRequestException, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Inject,
+  BadRequestException,
+  Query,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { StatisticService } from './statistic.service';
 import { CreateStatisticDto } from './dto/create-statistic.dto';
 import { UpdateStatisticDto } from './dto/update-statistic.dto';
@@ -15,9 +28,9 @@ export class StatisticController {
   ) { }
 
   @Get()
-  async reportByBookmarker(@Query() query: any) {
+  async reportByBookmarker(@Query() query: any, @Request() req: any) {
     try {
-      return await this.statisticService.reportByBookmarker(query);
+      return await this.statisticService.reportByBookmarker(query, req.user);
     } catch (err) {
       this.logger.error(`${StatisticController.name} is Logging error: ${JSON.stringify(err)}`);
       throw new BadRequestException(err);
@@ -25,9 +38,9 @@ export class StatisticController {
   }
 
   @Get('orders')
-  async reportOrdersByUser(@Query() query: any) {
+  async reportOrdersByUser(@Query() query: any, @Request() req: any) {
     try {
-      return await this.statisticService.reportOrdersByUser(query);
+      return await this.statisticService.reportOrdersByUser(query, req.user);
     } catch (err) {
       this.logger.error(`${StatisticController.name} is Logging error: ${JSON.stringify(err)}`);
       throw new BadRequestException(err);
@@ -35,9 +48,9 @@ export class StatisticController {
   }
 
   @Get('by-game')
-  reportByGame(@Query() query: any) {
+  reportByGame(@Query() query: any, @Request() req: any) {
     try {
-      return this.statisticService.reportByGame(query);
+      return this.statisticService.reportByGame(query, req.user);
     } catch (err) {
       this.logger.error(`${StatisticController.name} is Logging error: ${JSON.stringify(err)}`);
       throw new BadRequestException(err);
@@ -45,9 +58,9 @@ export class StatisticController {
   }
 
   @Get('by-user')
-  reportByUser(@Query() query: any) {
+  reportByUser(@Query() query: any, @Request() req: any) {
     try {
-      return this.statisticService.reportByUser(query);
+      return this.statisticService.reportByUser(query, req.user);
     } catch (err) {
       this.logger.error(`${StatisticController.name} is Logging error: ${JSON.stringify(err)}`);
       throw new BadRequestException(err);

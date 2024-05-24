@@ -14,6 +14,8 @@ import { User } from 'src/components/user/user.entity';
 import { ALL_GAME_TYPES, CASINO_GAME_TYPES, GAMES } from 'src/system/constants/game';
 import { BookmakerService } from '../bookmaker/bookmaker.service';
 import { UserService } from 'src/components/user/user.service';
+import { ValidateRightsService } from '../validate-rights/validate-rights.service';
+import { RIGHTS } from 'src/system/constants/rights';
 
 @Injectable()
 export class StatisticService {
@@ -38,15 +40,25 @@ export class StatisticService {
 
     @Inject(forwardRef(() => UserService))
     private userService: UserService,
+
+    @Inject(forwardRef(() => ValidateRightsService))
+    private validateRightsService: ValidateRightsService,
   ) { }
 
-  async reportByBookmarker(query: any) {
+  async reportByBookmarker(query: any, user: any) {
     let month = query.month || '';
     const game = query.game;
     const gameType = query.gameType;
     const limit = Number(query.limit) || 10;
     const page = Number(query.page) || 1;
-    const bookmarkerId = query.bookmarkerId;
+    let bookmarkerId = query.bookmarkerId;
+    const hasRight = await this.validateRightsService.hasRight({
+      userId: user.id,
+      rightNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
+    });
+    if (!hasRight) {
+      bookmarkerId = user.bookmakerId;
+    }
     const isTestPlayer = query.isTestPlayer || false;
     const searchBy = query.searchBy;
 
@@ -205,13 +217,20 @@ export class StatisticService {
     }
   }
 
-  async reportByGame(query: any) {
+  async reportByGame(query: any, user: any) {
     let month = query.month || '';
     const game = query.game;
     const gameType = query.gameType;
     const limit = Number(query.limit) || 10;
     const page = Number(query.page) || 1;
-    const bookmarkerId = query.bookmarkerId;
+    let bookmarkerId = query.bookmarkerId;
+    const hasRight = await this.validateRightsService.hasRight({
+      userId: user.id,
+      rightNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
+    });
+    if (!hasRight) {
+      bookmarkerId = user.bookmakerId;
+    }
     const isTestPlayer = query.isTestPlayer || false;
     const searchBy = query.searchBy;
 
@@ -359,12 +378,19 @@ export class StatisticService {
     }
   }
 
-  async reportByUser(query: any) {
+  async reportByUser(query: any, member: any) {
     const game = query.game;
     const gameType = query.gameType;
     const limit = Number(query.limit) || 10;
     const page = Number(query.page) || 1;
-    const bookmarkerId = query.bookmarkerId;
+    let bookmarkerId = query.bookmarkerId;
+    const hasRight = await this.validateRightsService.hasRight({
+      userId: member.id,
+      rightNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
+    });
+    if (!hasRight) {
+      bookmarkerId = member.bookmakerId;
+    }
     const username = query.username;
     const isTestPlayer = query.isTestPlayer || false;
     const searchBy = query.searchBy;
@@ -1918,12 +1944,19 @@ export class StatisticService {
     return result;
   }
 
-  async reportOrdersByUser(query: any) {
+  async reportOrdersByUser(query: any, member: any) {
     const game = query.game;
     const gameType = query.gameType;
     const limit = Number(query.limit) || 10;
     const page = Number(query.page) || 1;
-    const bookmarkerId = query.bookmarkerId;
+    let bookmarkerId = query.bookmarkerId;
+    const hasRight = await this.validateRightsService.hasRight({
+      userId: member.id,
+      rightNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
+    });
+    if (!hasRight) {
+      bookmarkerId = member.bookmakerId;
+    }
     const isTestPlayer = query.isTestPlayer || false;
     const status = query.status;
     const username = query.username;

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, forwardRef } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { endOfDay, startOfDay } from "date-fns";
 import { PaginationQueryDto } from "../../common/common.dto";
@@ -12,6 +12,9 @@ import { Logger } from "winston";
 import { CreateWalletInoutDto, UpdateWalletInoutDto } from "./dto/index";
 import { WalletInout } from "./wallet.inout.entity";
 import { WalletHistory } from "../wallet/wallet.history.entity";
+import { RIGHTS } from "src/system/constants/rights";
+import { ValidateRightsService } from "../admin/validate-rights/validate-rights.service";
+
 @Injectable()
 export class WalletInoutService {
 
@@ -20,8 +23,12 @@ export class WalletInoutService {
     private walletInoutRepository: Repository<WalletInout>,
     @InjectRepository(WalletHistory)
     private walletHistoryRepository: Repository<WalletHistory>,
+
+    @Inject(forwardRef(() => ValidateRightsService))
+    private validateRightsService: ValidateRightsService,
+
     @Inject("winston")
-    private readonly logger: Logger
+    private readonly logger: Logger,
   ) { }
 
   async getAll(paginationQuery: PaginationQueryDto): Promise<any> {
@@ -68,13 +75,23 @@ export class WalletInoutService {
     }
   }
 
-  async getWalletHistory(paginationQuery: PaginationQueryDto): Promise<any> {
+  async getWalletHistory(paginationQuery: PaginationQueryDto, user: any): Promise<any> {
     const { take: perPage, skip: page } = paginationQuery;
     if (page <= 0) {
       return "The skip must be more than 0";
     }
     const skip = +perPage * +page - +perPage;
+    // const object: any = JSON.parse(paginationQuery.keyword);
+
+    const hasRight = await this.validateRightsService.hasRight({
+      userId: user.id,
+      rightNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
+    });
+
     const object: any = JSON.parse(paginationQuery.keyword);
+    if (!hasRight) {
+      object.bookmakerId = user.bookmakerId;
+    }
     try {
       const listData = await this.walletHistoryRepository.findAndCount({
         relations: ["user", "user.bookmaker", "user.userInfo"],
