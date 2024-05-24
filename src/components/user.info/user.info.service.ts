@@ -822,6 +822,59 @@ export class UserInfoService {
             listFv.push(itemFv);
           });
         }
+        // get keno
+        orders = [];
+        const resultKeno = await this.playHistoryKenoRepository.findAndCount({
+          where: [
+            {
+              userId: member?.id,
+              bookmakerId: member?.bookmakerId
+            }
+          ],
+          order: { id: paginationDto.order },
+          take: paginationDto.take,
+          skip: skip
+        });
+        const lastPageKeno = Math.ceil(resultKeno[1] / paginationDto.take);
+        if (resultKeno[1] <= paginationDto.take) {
+          orders = resultKeno[0];
+        } else if (resultKeno[1] > paginationDto.take) {
+          for (let i = 1; i <= lastPageKeno; i++) {
+            const pagingDto: any = {
+              take: 100,
+              skip: i,
+              order: Order.DESC,
+            }
+            const skipNext = 
+              +pagingDto.take * +pagingDto?.skip - +pagingDto.take;
+            const listOrderResPage =
+              await this.playHistoryKenoRepository.findAndCount({
+                where: [
+                  {
+                    userId: member?.id,
+                    bookmakerId: member?.bookmakerId
+                  }
+                ],
+                order: { id: pagingDto.order },
+                take: pagingDto.take,
+                skip: skipNext
+              });
+            orders = orders.concat(listOrderResPage[0]);
+          }
+        }
+        if (orders?.length > 0) {
+          const listOrder = orders;
+          listOrder?.map((order: any) => {
+            const itemFv = {
+              type: `Keno`,
+              bet: Number(order?.revenue),
+              orderWin: Number(order?.paymentWin) > 0 ? 1 : 0,
+              sumOrder: 1,
+            }
+            listFv.push(itemFv);
+          });
+        }
+        
       } else if (category == "hilo") {
         const paginationDto: any = {
           take: 100,
@@ -933,6 +986,65 @@ export class UserInfoService {
           listOrder?.map((order: any) => {
             const itemFv = {
               type: `Poker`,
+              bet: Number(order?.revenue),
+              orderWin: Number(order?.paymentWin) > 0 ? 1 : 0,
+              sumOrder: 1,
+            }
+            listFv.push(itemFv);
+          });
+        }
+      } else if (category == "keno") {
+        const paginationDto: any = {
+          take: 100,
+          skip: 1,
+          order: Order.DESC,
+        }
+        const skip =
+          +paginationDto.take * +paginationDto?.skip - +paginationDto.take;
+        
+        const resultKeno = await this.playHistoryKenoRepository.findAndCount({
+          where: [
+            {
+              userId: member?.id,
+              bookmakerId: member?.bookmakerId
+            }
+          ],
+          order: { id: paginationDto.order },
+          take: paginationDto.take,
+          skip: skip
+        });
+        const lastPageKeno = Math.ceil(resultKeno[1] / paginationDto.take);
+        if (resultKeno[1] <= paginationDto.take) {
+          orders = resultKeno[0];
+        } else if (resultKeno[1] > paginationDto.take) {
+          for (let i = 1; i <= lastPageKeno; i++) {
+            const pagingDto: any = {
+              take: 100,
+              skip: i,
+              order: Order.DESC,
+            }
+            const skipNext = 
+              +pagingDto.take * +pagingDto?.skip - +pagingDto.take;
+            const listOrderResPage =
+              await this.playHistoryKenoRepository.findAndCount({
+                where: [
+                  {
+                    userId: member?.id,
+                    bookmakerId: member?.bookmakerId
+                  }
+                ],
+                order: { id: pagingDto.order },
+                take: pagingDto.take,
+                skip: skipNext
+              });
+            orders = orders.concat(listOrderResPage[0]);
+          }
+        }
+        if (orders?.length > 0) {
+          const listOrder = orders;
+          listOrder?.map((order: any) => {
+            const itemFv = {
+              type: `Keno`,
               bet: Number(order?.revenue),
               orderWin: Number(order?.paymentWin) > 0 ? 1 : 0,
               sumOrder: 1,

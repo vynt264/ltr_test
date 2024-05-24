@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { WalletInout } from "./wallet.inout.entity";
 import { BacklistModule } from "../backlist/backlist.module";
@@ -11,6 +11,7 @@ import { ConnectModule } from "../connect/connect.module";
 import { WalletHistory } from "../wallet/wallet.history.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { MaintenanceModule } from "../maintenance/maintenance.module";
+import { ValidateRightsModule } from "../admin/validate-rights/validate-rights.module";
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { MaintenanceModule } from "../maintenance/maintenance.module";
     SysConfigsModule,
     ConnectModule,
     JwtModule.register({}),
-    MaintenanceModule
+    MaintenanceModule,
+    forwardRef(() => ValidateRightsModule),
   ],
   controllers: [WalletInoutController],
   providers: [WalletInoutService],

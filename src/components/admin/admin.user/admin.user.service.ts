@@ -14,6 +14,8 @@ import { endOfDay, startOfDay } from 'date-fns';
 import { UserService } from 'src/components/user/user.service';
 import * as bcrypt from "bcrypt";
 import { RolesService } from '../roles/roles.service';
+import { RIGHTS, SUPPER_ROLE } from '../../../system/constants/rights';
+import { ValidateRightsService } from '../validate-rights/validate-rights.service';
 
 @Injectable()
 export class AdminUserService {
@@ -31,6 +33,9 @@ export class AdminUserService {
 
     @Inject(forwardRef(() => RolesService))
     private rolesService: RolesService,
+
+    @Inject(forwardRef(() => ValidateRightsService))
+    private validateRightsService: ValidateRightsService,
   ) { }
 
   async create(createAdminUserDto: CreateAdminUserDto, user: any): Promise<any> {
@@ -77,26 +82,19 @@ export class AdminUserService {
     );
   }
 
-  async getAll(paginationQuery: PaginationQueryDto): Promise<any> {
-    try {
-      const object: any = JSON.parse(paginationQuery.keyword);
-      if (object.role === "member") {
-        return this.userService.getAll(paginationQuery);
-      }
+  async getAll(paginationQuery: PaginationQueryDto, user: any): Promise<any> {
+    const hasRight = await this.validateRightsService.hasRight({
+      userId: user.id,
+      rightNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
+    });
 
-      const users = await this.searchByUser(paginationQuery, object);
-      return new SuccessResponse(
-        STATUSCODE.COMMON_SUCCESS,
-        users,
-        MESSAGE.LIST_SUCCESS
-      );
-    } catch (error) {
-      return new ErrorResponse(
-        STATUSCODE.COMMON_NOT_FOUND,
-        error,
-        ERROR.NOT_FOUND
-      );
+    const object: any = JSON.parse(paginationQuery.keyword);
+    if (!hasRight) {
+      object.bookmakerId = user.bookmakerId;
     }
+    paginationQuery.keyword = JSON.stringify(object);
+
+    return this.userService.getAll(paginationQuery);
   }
 
   async searchByUser(paginationQuery: PaginationQueryDto, user: any) {
@@ -412,5 +410,16 @@ export class AdminUserService {
     if (!rights || rights.length === 0) return false;
 
     return rights.some((r: string) => r === 'super');
+  }
+
+  async getRightsByUserId(userId: number) {
+    const user = await this.adminUserRepository.findOne({
+      relations: ["roleAdminUser"],
+      where: {
+        id: userId,
+      },
+    });
+
+    return user?.roleAdminUser?.permissions || '';
   }
 }

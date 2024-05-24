@@ -11,6 +11,7 @@ import { User } from 'src/components/user/user.entity';
 import { BookmakerModule } from '../bookmaker/bookmaker.module';
 import { AdminUserModule } from '../admin.user/admin.user.module';
 import { UserModule } from 'src/components/user/user.module';
+import { ValidateRightsModule } from '../validate-rights/validate-rights.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UserModule } from 'src/components/user/user.module';
     JwtModule.register({}),
     forwardRef(() => BookmakerModule),
     forwardRef(() => UserModule),
+    forwardRef(() => ValidateRightsModule),
   ],
   controllers: [StatisticController],
   providers: [StatisticService]

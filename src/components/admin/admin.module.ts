@@ -13,6 +13,7 @@ import { BonusSettingModule } from './bonus-setting/bonus-setting.module';
 import { StatisticModule } from './statistic/statistic.module';
 import { RanksModule } from './ranks/ranks.module';
 import { RolesModule } from './roles/roles.module';
+import { ValidateRightsModule } from './validate-rights/validate-rights.module';
 
 @Module({
     imports: [
@@ -30,6 +31,7 @@ import { RolesModule } from './roles/roles.module';
         StatisticModule,
         RanksModule,
         RolesModule,
+        ValidateRightsModule,
     ],
 })
 export class AdminModule {}

@@ -31,10 +31,12 @@ import {
 } from "./dto/index";
 import { UserRoles } from "../user/enums/user.enum";
 import { WalletInout } from "./wallet.inout.entity";
-import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { AuthGuard } from "../auth/guards/auth.guard";
+import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
+
 @Controller("/api/v1/walletInout")
 @ApiTags("WalletInout")
+@UseGuards(AuthAdminGuard)
 export class WalletInoutController {
   constructor(private walletInoutService: WalletInoutService) { }
 
@@ -56,8 +58,8 @@ export class WalletInoutController {
   @ApiOkResponse({
     type: Response<WalletInout[]>,
   })
-  async GetWalletHistory(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
-    return this.walletInoutService.getWalletHistory(paginationQuery);
+  async GetWalletHistory(@Query() paginationQuery: PaginationQueryDto, @Request() req: any): Promise<any> {
+    return this.walletInoutService.getWalletHistory(paginationQuery, req.user);
   }
 
   @Post("create")
