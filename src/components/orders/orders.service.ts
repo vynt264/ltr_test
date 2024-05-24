@@ -414,10 +414,11 @@ export class OrdersService {
     const wallet = await this.walletHandlerService.findWalletByUserIdFromRedis(user.id);
     const { balance: remainBalance } = await this.walletHandlerService.updateBalance(user.id, Number(totalBalance));
 
-    for (let i = result.length - 1; i >= 0; i--) {
+    let balanceActual = Number(wallet.balance) + totalRevenue;
+    for (let i = 0; i < result.length; i++) {
       const order = result[i];
+      balanceActual -= order?.revenue;
       // save wallet history
-      const balanceActual = Number(wallet.balance) + i * order?.revenue;
       const createWalletHis: any = {
         id: wallet.id,
         user: { id: user.id },
@@ -434,12 +435,13 @@ export class OrdersService {
       await this.walletHistoryRepository.save(createdWalletHis);
     }
 
+    let balanceActualWin = Number(wallet?.balance);
     if (ordersWin?.length > 0) {
       for (let i = 0; i < ordersWin.length; i++) {
         const order = ordersWin[i];
         // save wallet history
         const amountActual = order?.amount + order?.revenue;
-        const balanceActual = Number(wallet.balance) + amountActual;
+        balanceActualWin += amountActual;
         const createWalletHisWin: any = {
           id: wallet.id,
           user: { id: user.id },
@@ -449,7 +451,7 @@ export class OrdersService {
           typeTransaction: `Chơi game`,
           code: order?.numericalOrder,
           nccNote: "Xổ Số",
-          balance: balanceActual,
+          balance: balanceActualWin,
           createdBy: user.name
         }
         const createdWalletHisWin = await this.walletHistoryRepository.create(createWalletHisWin);
@@ -458,12 +460,11 @@ export class OrdersService {
     }
 
     if (ordersWinOther?.length > 0) {
-      let balanceActual = Number(wallet?.balance);
       for (let i = 0; i < ordersWinOther.length; i++) {
         const order = ordersWinOther[i];
         const amountActual = order?.revenue + order?.amount;
         if (amountActual > 0) {
-          balanceActual += amountActual;
+          balanceActualWin += amountActual;
           // save wallet history
           const createWalletHis: any = {
             id: wallet.id,
@@ -472,7 +473,7 @@ export class OrdersService {
             amount: amountActual,
             detail: `${data.orders[0].type}${seconds} - Cộng tiền thắng`,
             typeTransaction: `Chơi game`,
-            balance: balanceActual,
+            balance: balanceActualWin,
             code: order?.numericalOrder,
             nccNote: "Xổ Số",
             createdBy: ""
