@@ -85,7 +85,7 @@ export class WalletInoutService {
 
     const hasRight = await this.validateRightsService.hasRight({
       userId: user.id,
-      rightNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
+      rightsNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
     });
 
     const object: any = JSON.parse(paginationQuery.keyword);

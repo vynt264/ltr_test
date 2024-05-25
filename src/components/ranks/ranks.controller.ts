@@ -1,9 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { RanksService } from './ranks.service';
 import { CreateRankDto } from './dto/create-rank.dto';
 import { UpdateRankDto } from './dto/update-rank.dto';
+import { AuthAdminGuard } from '../auth/guards/auth-admin.guard';
+import { Roles } from '../auth/roles.guard/roles.decorator';
+import { RIGHTS } from 'src/system/constants/rights';
+import { RolesGuard } from '../admin/guards/roles.guard';
 
 @Controller('ranks')
+@UseGuards(AuthAdminGuard)
 export class RanksController {
   constructor(private readonly ranksService: RanksService) {}
 

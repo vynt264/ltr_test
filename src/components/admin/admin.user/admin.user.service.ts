@@ -83,13 +83,13 @@ export class AdminUserService {
   }
 
   async getAll(paginationQuery: PaginationQueryDto, user: any): Promise<any> {
-    const hasRight = await this.validateRightsService.hasRight({
+    const existRight = await this.validateRightsService.hasRight({
+      rightsNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
       userId: user.id,
-      rightNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
     });
 
     const object: any = JSON.parse(paginationQuery.keyword);
-    if (!hasRight) {
+    if (!existRight) {
       object.bookmakerId = user.bookmakerId;
     }
     paginationQuery.keyword = JSON.stringify(object);
@@ -171,23 +171,37 @@ export class AdminUserService {
     bookmarkerId,
     fromDate,
     toDate,
-  }: any) {
+  }: any, user: any) {
     limit = Number(limit || 10);
     page = Number(page || 1);
+
     const condition: any = {
       isDeleted: false,
     };
+
     if (username) {
       condition.username = Like(`%${username}%`);
     }
-    if (bookmarkerId) {
-      condition.bookmaker = { id: bookmarkerId };
+
+    // check right
+    const existRight = await this.validateRightsService.hasRight({
+      rightsNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
+      userId: user.id,
+    });
+    if (!existRight) {
+      condition.bookmaker = { id: user.bookmakerId };
+    } else {
+      if (bookmarkerId) {
+        condition.bookmaker = { id: bookmarkerId };
+      }
     }
+
     if (fromDate && toDate) {
       const startDate = new Date(fromDate);
       const endDate = new Date(toDate);
       condition.createdAt = Between(startOfDay(startDate), endOfDay(endDate));
     }
+
     const role = await this.rolesService.findRoleByName('Super');
     if (role) {
       condition.roleAdminUser = Not(role.id);

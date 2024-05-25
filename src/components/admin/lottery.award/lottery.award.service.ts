@@ -33,7 +33,7 @@ export class LotteryAwardService {
     try {
       const hasRight = await this.validateRightsService.hasRight({
         userId: user.id,
-        rightNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
+        rightsNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
       });
 
       const object: any = JSON.parse(paginationQueryDto.keyword);

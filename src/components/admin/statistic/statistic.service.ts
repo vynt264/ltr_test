@@ -54,7 +54,7 @@ export class StatisticService {
     let bookmarkerId = query.bookmarkerId;
     const hasRight = await this.validateRightsService.hasRight({
       userId: user.id,
-      rightNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
+      rightsNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
     });
     if (!hasRight) {
       bookmarkerId = user.bookmakerId;
@@ -226,7 +226,7 @@ export class StatisticService {
     let bookmarkerId = query.bookmarkerId;
     const hasRight = await this.validateRightsService.hasRight({
       userId: user.id,
-      rightNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
+      rightsNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
     });
     if (!hasRight) {
       bookmarkerId = user.bookmakerId;
@@ -386,7 +386,7 @@ export class StatisticService {
     let bookmarkerId = query.bookmarkerId;
     const hasRight = await this.validateRightsService.hasRight({
       userId: member.id,
-      rightNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
+      rightsNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
     });
     if (!hasRight) {
       bookmarkerId = member.bookmakerId;
@@ -1952,7 +1952,7 @@ export class StatisticService {
     let bookmarkerId = query.bookmarkerId;
     const hasRight = await this.validateRightsService.hasRight({
       userId: member.id,
-      rightNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
+      rightsNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
     });
     if (!hasRight) {
       bookmarkerId = member.bookmakerId;

@@ -3,6 +3,7 @@ import { CreateValidateRightDto } from './dto/create-validate-right.dto';
 import { UpdateValidateRightDto } from './dto/update-validate-right.dto';
 import { AdminUserService } from '../admin.user/admin.user.service';
 import { SUPPER_ROLE } from 'src/system/constants/rights';
+import { checkRight } from 'src/helpers/right';
 
 @Injectable()
 export class ValidateRightsService {
@@ -18,37 +19,17 @@ export class ValidateRightsService {
   }
 
   async hasRight({
-    rightNeedCheck,
+    rightsNeedCheck,
     userId,
   }: {
-    rightNeedCheck: Array<any>,
+    rightsNeedCheck: Array<any>,
     userId: number,
   }): Promise<boolean> {
-
     const rightsOfUser = await this.getRightsByUserId(userId);
-    if (!rightNeedCheck || rightNeedCheck.length === 0 || !rightsOfUser) return false;
 
-    let rights: any = [];
-    try {
-      rights = rightsOfUser.split(',');
-    } catch (err) {
-      rights = [];
-    }
-
-    if (rights.length === 0) return false;
-
-    let hasRight = false;
-    const superRole = SUPPER_ROLE;
-    for (const rOfUser of rightNeedCheck) {
-      hasRight = rights.some((r: any) => {
-        return (r === rOfUser.Name || r === superRole);
-      });
-
-      if (hasRight) break;
-    }
-
-    // TODO: throw error
-
-    return hasRight;
+    return checkRight({
+      rightsNeedCheck,
+      rightsOfUser,
+    });
   }
 }

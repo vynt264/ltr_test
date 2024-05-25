@@ -40,7 +40,7 @@ import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
 @ApiTags("user")
 @ApiBearerAuth("Authorization")
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService) { }
 
   @Get("user-info")
   @ApiOperation({
@@ -78,7 +78,7 @@ export class UserController {
     type: Response<User>,
   })
   @UseGuards(AuthAdminGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER)
   async create(@Body() userDto: CreateUserDto): Promise<any> {
     return this.userService.create(userDto);
   }
@@ -91,7 +91,7 @@ export class UserController {
     type: Response<User[]>,
   })
   @UseGuards(AuthAdminGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.userService.getAll(paginationQuery);
   }
@@ -104,7 +104,7 @@ export class UserController {
     type: Response<User>,
   })
   @UseGuards(AuthAdminGuard, RolesGuard)
-    @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
+  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async GetOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
     return this.userService.getOneById(id);
   }

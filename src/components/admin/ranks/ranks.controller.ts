@@ -3,9 +3,12 @@ import { RanksService } from './ranks.service';
 import { CreateRankDto } from './dto/create-rank.dto';
 import { UpdateRankDto } from './dto/update-rank.dto';
 import { AuthAdminGuard } from 'src/components/auth/guards/auth-admin.guard';
+import { RIGHTS } from 'src/system/constants/rights';
+import { RolesGuard } from '../guards/roles.guard';
+import { Roles } from 'src/components/auth/roles.guard/roles.decorator';
 
 @Controller('api/v1/admin-ranks')
-@UseGuards(AuthAdminGuard)
+@UseGuards(AuthAdminGuard, RolesGuard)
 export class RanksController {
   constructor(private readonly ranksService: RanksService) {}
 
@@ -15,6 +18,7 @@ export class RanksController {
   }
 
   @Get()
+  @Roles(RIGHTS.Basic)
   findAll() {
     return this.ranksService.findAll();
   }
