@@ -31,10 +31,13 @@ import { UpdateDataFakeRequestDto } from "./dto";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { AuthGuard } from "../auth/guards/auth.guard";
 import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
+import { RolesGuard } from "../admin/guards/roles.guard";
+import { RIGHTS } from "src/system/constants/rights";
 
 @Controller("/api/v1/newQuery")
 @ApiTags("NewQuery")
 @ApiBearerAuth("Authorization")
+@UseGuards(AuthAdminGuard, RolesGuard)
 export class NewQueryController {
   constructor(private newQueryService: NewQueryService) { }
 
@@ -45,6 +48,7 @@ export class NewQueryController {
   @ApiOkResponse({
     type: Response<any[]>,
   })
+  @Roles(RIGHTS.ShowSettingRankFake)
   async UserWin(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.newQueryService.getListUserWin(paginationQuery);
   }
@@ -56,6 +60,7 @@ export class NewQueryController {
   @ApiOkResponse({
     type: Response<any[]>,
   })
+  @Roles(RIGHTS.ShowSettingRankFake)
   async UserPlaying(
     @Query() paginationQuery: PaginationQueryDto
   ): Promise<any> {
@@ -69,6 +74,7 @@ export class NewQueryController {
   @ApiOkResponse({
     type: Response<any[]>,
   })
+  @Roles(RIGHTS.ShowSettingRankFake)
   async FavoriteGame(
     @Query() paginationQuery: PaginationQueryDto
   ): Promise<any> {
@@ -83,8 +89,7 @@ export class NewQueryController {
     type: Response<DataFake[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
+  @Roles(RIGHTS.ShowSettingRankFake)
   async getDataFake(
     @Param("key") key: string,
     @Query() paginationQuery: PaginationQueryDto
@@ -100,8 +105,7 @@ export class NewQueryController {
     type: Response<DataFake>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
+  @Roles(RIGHTS.CreateSettingRankFake)
   async create(@Body() createDto: CreateDataFakeRequestDto): Promise<any> {
     return this.newQueryService.createDataFake(createDto);
   }
@@ -115,8 +119,6 @@ export class NewQueryController {
   })
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthGuard, BacklistGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async updateGame(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateDto: UpdateDataFakeRequestDto
@@ -129,8 +131,6 @@ export class NewQueryController {
     description: "Delete data fake",
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthGuard, BacklistGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.newQueryService.deleteDataFake(id);
   }

@@ -19,11 +19,14 @@ import { Response } from "../../../system/interfaces";
 import { Roles } from "../../auth/roles.guard/roles.decorator";
 import { AdminPokerService } from "./admin.poker.service";
 import { PaginationQueryDto } from "./../../../common/common.dto/pagination.query.dto";
-import { UserRoles } from "../../user/enums/user.enum";
 import UpdateSysConfigPokerDto from "./dto/update.dto";
 import { AuthAdminGuard } from "../../auth/guards/auth-admin.guard";
+import { RolesGuard } from "../guards/roles.guard";
+import { RIGHTS } from "src/system/constants/rights";
+
 @Controller("/api/v1/adminPoker")
 @ApiTags("AdminPoker")
+@UseGuards(AuthAdminGuard, RolesGuard)
 export class AdminPokerController {
   constructor(private adminPokerService: AdminPokerService) {}
 
@@ -35,8 +38,6 @@ export class AdminPokerController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async GetAll(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.adminPokerService.getHistory(paginationQuery);
   }
@@ -49,8 +50,7 @@ export class AdminPokerController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
+  @Roles(RIGHTS.ShowSettingOriginals)
   async GetConfig(): Promise<any> {
     return this.adminPokerService.getConfig();
   }
@@ -63,8 +63,7 @@ export class AdminPokerController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
+  @Roles(RIGHTS.EditSettingOriginals)
   async UpdateConfig(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateDto: UpdateSysConfigPokerDto,
@@ -81,8 +80,6 @@ export class AdminPokerController {
     type: Response<any[]>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
   async GetReport(@Query() paginationQuery: PaginationQueryDto): Promise<any> {
     return this.adminPokerService.report(paginationQuery);
   }

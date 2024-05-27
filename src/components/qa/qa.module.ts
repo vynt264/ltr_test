@@ -10,6 +10,7 @@ import { SysConfigsModule } from "../sys.config/sys.config.module";
 import { ConnectModule } from "../connect/connect.module";
 import { JwtModule } from "@nestjs/jwt";
 import { MaintenanceModule } from "../maintenance/maintenance.module";
+import { ValidateRightsModule } from "../admin/validate-rights/validate-rights.module";
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { MaintenanceModule } from "../maintenance/maintenance.module";
     SysConfigsModule,
     ConnectModule,
     JwtModule.register({}),
-    MaintenanceModule
+    MaintenanceModule,
+    ValidateRightsModule,
   ],
   controllers: [QaController],
   providers: [QaService],

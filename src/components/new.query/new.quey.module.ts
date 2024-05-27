@@ -11,6 +11,7 @@ import { DataFake } from "./data.fake.entity";
 import { ScheduleModule } from "@nestjs/schedule";
 import { JwtModule } from "@nestjs/jwt";
 import { MaintenanceModule } from "../maintenance/maintenance.module";
+import { ValidateRightsModule } from "../admin/validate-rights/validate-rights.module";
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { MaintenanceModule } from "../maintenance/maintenance.module";
     ConnectModule,
     ScheduleModule.forRoot(),
     JwtModule.register({}),
-    MaintenanceModule
+    MaintenanceModule,
+    ValidateRightsModule,
   ],
   controllers: [NewQueryController],
   providers: [NewQueryService],

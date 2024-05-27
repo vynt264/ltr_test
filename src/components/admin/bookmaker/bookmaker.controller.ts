@@ -3,18 +3,23 @@ import { BookmakerService } from './bookmaker.service';
 import { CreateBookmakerDto } from './dto/create-bookmaker.dto';
 import { UpdateBookmakerDto } from './dto/update-bookmaker.dto';
 import { AuthAdminGuard } from 'src/components/auth/guards/auth-admin.guard';
+import { RolesGuard } from '../guards/roles.guard';
+import { Roles } from 'src/components/auth/roles.guard/roles.decorator';
+import { RIGHTS } from 'src/system/constants/rights';
 
 @Controller('api/v1/admin-bookmaker')
-@UseGuards(AuthAdminGuard)
+@UseGuards(AuthAdminGuard, RolesGuard)
 export class BookmakerController {
   constructor(private readonly bookmakerService: BookmakerService) {}
 
   @Post("create")
+  @Roles(RIGHTS.CreateBookmarker)
   create(@Body() createBookmakerDto: CreateBookmakerDto, @Request() req: any) {
     return this.bookmakerService.create(createBookmakerDto, req.user);
   }
 
   @Get("all")
+  @Roles(RIGHTS.ShowListBookmarkers)
   findAll() {
     return this.bookmakerService.getAll();
   }
@@ -25,11 +30,13 @@ export class BookmakerController {
   }
 
   @Patch(':id')
+  @Roles(RIGHTS.EditBookmarker)
   update(@Param('id') id: string, @Body() updateBookmakerDto: UpdateBookmakerDto, @Request() req: any) {
     return this.bookmakerService.update(+id, updateBookmakerDto, req.user);
   }
 
   @Delete(':id')
+  @Roles(RIGHTS.DeleteBookmarker)
   remove(@Param('id') id: string) {
     return this.bookmakerService.delete(+id);
   }

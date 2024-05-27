@@ -33,8 +33,8 @@ import {
 } from "./dto/index";
 import { UserRoles } from "../user/enums/user.enum";
 import { UserInfo } from "./user.info.entity";
-import { RateLimitGuard } from "../auth/rate.guard/rate.limit.guard";
 import { AuthGuard } from "../auth/guards/auth.guard";
+
 @Controller("/api/v1/userInfo")
 @ApiTags("userInfo")
 @ApiBearerAuth("Authorization")

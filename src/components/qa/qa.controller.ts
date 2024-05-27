@@ -23,12 +23,14 @@ import { Response } from "../../system/interfaces";
 import { Roles } from "../auth/roles.guard/roles.decorator";
 import { QaService } from "./qa.service";
 import { CreateQaDto, UpdateQaDto } from "./dto/index";
-import { UserRoles } from "../user/enums/user.enum";
 import { Qa } from "./qa.entity";
 import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
+import { RolesGuard } from "../admin/guards/roles.guard";
+import { RIGHTS } from "src/system/constants/rights";
 
 @Controller("/api/v1/qa")
 @ApiTags("Qa")
+@UseGuards(AuthAdminGuard, RolesGuard)
 export class QaController {
   constructor(private qaService: QaService) {}
 
@@ -39,6 +41,7 @@ export class QaController {
   @ApiOkResponse({
     type: Response<Qa[]>,
   })
+  @Roles(RIGHTS.ShowSettingQA)
   async GetAll(): Promise<any> {
     return this.qaService.getAll();
   }
@@ -51,8 +54,7 @@ export class QaController {
     type: Response<Qa>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
+  @Roles(RIGHTS.CreateSettingQA)
   async create(@Body() userDto: CreateQaDto): Promise<any> {
     return this.qaService.create(userDto);
   }
@@ -66,8 +68,7 @@ export class QaController {
   })
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
+  @Roles(RIGHTS.EditSettingQA)
   async updateCommon(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateDto: UpdateQaDto,
@@ -81,8 +82,7 @@ export class QaController {
     description: "Delete Qa",
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
+  @Roles(RIGHTS.DeleteSettingQA)
   async delete(@Param("id") id: number): Promise<any> {
     return this.qaService.delete(id);
   }

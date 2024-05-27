@@ -66,7 +66,8 @@ export class AdminUserController {
   @ApiOperation({
     description: "Get all user",
   })
-  @UseGuards(AuthAdminGuard)
+  @UseGuards(AuthAdminGuard, RolesGuard)
+  @Roles(RIGHTS.ShowListUsersPlayGame)
   async GetAll(@Query() paginationQuery: PaginationQueryDto, @Request() req: any): Promise<any> {
     try {
       return this.adminUserService.getAll(paginationQuery, req.user);
@@ -97,7 +98,8 @@ export class AdminUserController {
     description: "Block user",
   })
   @UsePipes(ValidationPipe)
-  @UseGuards(AuthAdminGuard)
+  @UseGuards(AuthAdminGuard, RolesGuard)
+  @Roles(RIGHTS.BlockUserPlayGame)
   async blockUser(
     @Param("id", ParseIntPipe) id: number,
     @Body() blockDto: BlockUserDto

@@ -8,6 +8,7 @@ import { BacklistModule } from "../../backlist/backlist.module";
 import { UserModule } from "../../user/user.module";
 import { JwtModule } from "@nestjs/jwt";
 import { MaintenanceModule } from "../../maintenance/maintenance.module";
+import { ValidateRightsModule } from "../validate-rights/validate-rights.module";
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { MaintenanceModule } from "../../maintenance/maintenance.module";
     BacklistModule,
     UserModule,
     JwtModule.register({}),
-    MaintenanceModule
+    MaintenanceModule,
+    ValidateRightsModule,
   ],
   controllers: [AdminPokerController],
   providers: [AdminPokerService],

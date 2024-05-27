@@ -4,9 +4,12 @@ import { CreateLotteryAwardDto } from './dto/create-lottery.award.dto';
 import { UpdateLotteryAwardDto } from './dto/update-lottery.award.dto';
 import { AuthAdminGuard } from 'src/components/auth/guards/auth-admin.guard';
 import { PaginationQueryDto } from 'src/common/common.dto';
+import { RolesGuard } from '../guards/roles.guard';
+import { Roles } from 'src/components/auth/roles.guard/roles.decorator';
+import { RIGHTS } from 'src/system/constants/rights';
 
 @Controller('/api/v1/admin-lottery-awards')
-@UseGuards(AuthAdminGuard)
+@UseGuards(AuthAdminGuard, RolesGuard)
 export class LotteryAwardController {
   constructor(private readonly lotteryAwardService: LotteryAwardService) {}
 
@@ -16,6 +19,7 @@ export class LotteryAwardController {
   }
 
   @Get()
+  @Roles(RIGHTS.ShowLotteryAwardXNS)
   findAll(@Query() paginationQueryDto: PaginationQueryDto, @Request() req: any) {
     return this.lotteryAwardService.findAll(paginationQueryDto, req.user);
   }

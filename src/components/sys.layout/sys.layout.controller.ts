@@ -25,9 +25,12 @@ import { Response } from "../../system/interfaces";
 import { Roles } from "../auth/roles.guard/roles.decorator";
 import { SysLayoutService } from "./sys.layout.service";
 import { CreateSysLayoutDto, UpdateSysLayoutDto } from "./dto/index";
-import { UserRoles } from "../user/enums/user.enum";
 import { SysLayout } from "./sys.layout.entity";
 import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
+import { RolesGuard } from "../admin/guards/roles.guard";
+import { RIGHTS } from "src/system/constants/rights";
+
+@UseGuards(AuthAdminGuard, RolesGuard)
 @Controller("/api/v1/sysLayout")
 @ApiTags("SysLayout")
 export class SysLayoutController {
@@ -40,6 +43,7 @@ export class SysLayoutController {
   @ApiOkResponse({
     type: Response<SysLayout[]>,
   })
+  @Roles(RIGHTS.ShowSettingLayout)
   async GetAll(): Promise<any> {
     return this.sysLayoutService.getAll();
   }
@@ -52,8 +56,7 @@ export class SysLayoutController {
     type: Response<SysLayout>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
+  @Roles(RIGHTS.EditSettingLayout)
   async create(
     @Body() userDto: CreateSysLayoutDto,
     @Request() req: any
@@ -70,8 +73,7 @@ export class SysLayoutController {
   })
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
+  @Roles(RIGHTS.EditSettingLayout)
   async updateSysLayout(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateDto: UpdateSysLayoutDto,
@@ -85,8 +87,6 @@ export class SysLayoutController {
     description: "Delete SysLayout",
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMIN_BOOKMAKER, UserRoles.ADMINISTRATORS, UserRoles.ADMINISTRATORS_BOOKMAKER)
   async delete(@Param("id") id: number): Promise<any> {
     return this.sysLayoutService.delete(id);
   }
@@ -98,6 +98,7 @@ export class SysLayoutController {
   @ApiOkResponse({
     type: Response<unknown>,
   })
+  @Roles(RIGHTS.EditSettingLayout)
   @UseInterceptors(FileInterceptor("image"))
   async uploadFile(@UploadedFile() image: Express.Multer.File): Promise<any> {
     return this.sysLayoutService.uploadImage(image);

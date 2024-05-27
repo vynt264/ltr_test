@@ -26,11 +26,14 @@ import {
   CreateGameTextDto,
   UpdateGameTextDto
 } from "./dto/index";
-import { UserRoles } from "../user/enums/user.enum";
 import { GameText } from "./game.text.entity";
 import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
+import { RolesGuard } from "../admin/guards/roles.guard";
+import { RIGHTS } from "src/system/constants/rights";
+
 @Controller("/api/v1/gameText")
 @ApiTags("GameText")
+@UseGuards(AuthAdminGuard, RolesGuard)
 export class GameTextController {
   constructor(private gameTextService: GameTextService) { }
 
@@ -41,6 +44,7 @@ export class GameTextController {
   @ApiOkResponse({
     type: Response<GameText[]>,
   })
+  @Roles(RIGHTS.ShowSettingGameText)
   async GetAll(): Promise<any> {
     return this.gameTextService.getAll();
   }
@@ -75,8 +79,6 @@ export class GameTextController {
     type: Response<GameText>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async create(@Body() userDto: CreateGameTextDto): Promise<any> {
     return this.gameTextService.create(userDto);
   }
@@ -90,8 +92,7 @@ export class GameTextController {
   })
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
+  @Roles(RIGHTS.EditSettingGameText)
   async updateGameText(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateDto: UpdateGameTextDto
@@ -104,8 +105,6 @@ export class GameTextController {
     description: "Delete GameText",
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async delete(@Param("id") id: number): Promise<any> {
     return this.gameTextService.delete(id);
   }

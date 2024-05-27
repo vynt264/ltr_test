@@ -29,8 +29,12 @@ import {
 import { UserRoles } from "../user/enums/user.enum";
 import { Game } from "./game.entity";
 import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
+import { RolesGuard } from "../admin/guards/roles.guard";
+import { RIGHTS } from "src/system/constants/rights";
+
 @Controller("/api/v1/game")
 @ApiTags("Game")
+@UseGuards(AuthAdminGuard, RolesGuard)
 export class GameController {
   constructor(private gameService: GameService) { }
 
@@ -41,6 +45,7 @@ export class GameController {
   @ApiOkResponse({
     type: Response<Game[]>,
   })
+  @Roles(RIGHTS.ShowSettingLayout)
   async GetAll(): Promise<any> {
     return this.gameService.getAll();
   }
@@ -53,8 +58,7 @@ export class GameController {
     type: Response<Game>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER)
+  @Roles(RIGHTS.EditSettingLayout)
   async create(@Body() userDto: CreateGameDto): Promise<any> {
     return this.gameService.create(userDto);
   }
@@ -68,8 +72,7 @@ export class GameController {
   })
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
+  @Roles(RIGHTS.EditSettingLayout)
   async updateGame(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateDto: UpdateGameDto
@@ -82,8 +85,6 @@ export class GameController {
     description: "Delete game",
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthAdminGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async delete(@Param("id") id: number): Promise<any> {
     return this.gameService.delete(id);
   }

@@ -239,7 +239,7 @@ const RIGHTS = {
         Description: 'show_setting_rank_fake',
         App: 'common',
     },
-    CreateSettingLayout: {
+    CreateSettingRankFake: {
         Code: 29,
         Name: 'create_setting_rank_fake',
         Module: 'setting_rank_fake',
@@ -449,6 +449,39 @@ const RIGHTS = {
         Module: 'management_bookmarkers',
         Title: 'Show bookmarkers',
         Description: 'management_bookmarkers',
+        App: 'lottery',
+    },
+    // management users play game
+    ShowListUsersPlayGame: {
+        Code: 56,
+        Name: 'show_list_users_play_game',
+        Module: 'management_users_play_game',
+        Title: 'Show users play game',
+        Description: 'management_users_play_game',
+        App: 'lottery',
+    },
+    ExportExcelListUsersPlayGame: {
+        Code: 57,
+        Name: 'export_excel_list_users_play_game',
+        Module: 'management_users_play_game',
+        Title: 'Export excel users play game',
+        Description: 'management_users_play_game',
+        App: 'lottery',
+    },
+    BlockUserPlayGame: {
+        Code: 58,
+        Name: 'block_user_play_game',
+        Module: 'management_users_play_game',
+        Title: 'Block user play game',
+        Description: 'management_users_play_game',
+        App: 'lottery',
+    },
+    ChangeNickNameUserPlayGame: {
+        Code: 59,
+        Name: 'change_nick_name_user_play_game',
+        Module: 'management_users_play_game',
+        Title: 'Change nickname user play game',
+        Description: 'management_users_play_game',
         App: 'lottery',
     },
 };
