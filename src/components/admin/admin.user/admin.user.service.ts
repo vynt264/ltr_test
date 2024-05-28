@@ -83,18 +83,17 @@ export class AdminUserService {
   }
 
   async getAll(paginationQuery: PaginationQueryDto, user: any): Promise<any> {
+    const params: any = { ...paginationQuery };
     const existRight = await this.validateRightsService.hasRight({
       rightsNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
       userId: user.id,
     });
 
-    const object: any = JSON.parse(paginationQuery.keyword);
     if (!existRight) {
-      object.bookmakerId = user.bookmakerId;
+      params.bookmakerId = user.bookmakerId;
     }
-    paginationQuery.keyword = JSON.stringify(object);
 
-    return this.userService.getAll(paginationQuery);
+    return this.userService.getUsers(params);
   }
 
   async searchByUser(paginationQuery: PaginationQueryDto, user: any) {

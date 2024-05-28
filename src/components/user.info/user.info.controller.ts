@@ -63,7 +63,7 @@ export class UserInfoController {
     type: Response<UserInfo>,
   })
   @UseGuards(AuthGuard, BacklistGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
+  // @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async create(@Body() userDto: CreateUserInfoDto): Promise<any> {
     return this.userInfoService.create(userDto);
   }
@@ -76,7 +76,7 @@ export class UserInfoController {
     type: Response<UserInfo>,
   })
   @UseGuards(AuthGuard, BacklistGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
+  // @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async GetOneForAdmin(
     @Param("userId", ParseIntPipe) userId: number
   ): Promise<any> {
@@ -117,8 +117,8 @@ export class UserInfoController {
     type: Response<UserInfo>,
   })
   @UsePipes(ValidationPipe)
-  @UseGuards(RolesGuard)
-  @Roles(UserRoles.SUPPER)
+  // @UseGuards(RolesGuard)
+  // @Roles(UserRoles.SUPPER)
   async updateUserInfo(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateDto: UpdateUserInfoDto
@@ -146,7 +146,7 @@ export class UserInfoController {
     description: "Delete user info",
   })
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
+  // @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS)
   async delete(@Param("id") id: number): Promise<any> {
     return this.userInfoService.delete(id);
   }

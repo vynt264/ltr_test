@@ -174,6 +174,62 @@ export class UserService {
     }
   }
 
+  async getUsers(paginationQuery: any): Promise<any> {
+    let { take: perPage, skip: page } = paginationQuery;
+    if (!page || page <= 0) page = 1;
+    if (!perPage) {
+      perPage = 10;
+    }
+    const skip = +perPage * +page - +perPage;
+
+    const condition = {} as any;
+    if (paginationQuery.bookmakerId) {
+      condition.bookmaker = { id: paginationQuery.bookmakerId };
+    }
+    if (paginationQuery.username) {
+      condition.username = Like(`%${paginationQuery.username}%`);
+    }
+    if (paginationQuery.nickname) {
+      condition.userInfo = { nickname: Like(`%${paginationQuery.nickname}%`) }
+    }
+    if (paginationQuery.fromDate && paginationQuery.toDate) {
+      const startDate = new Date(paginationQuery.fromDate);
+      const endDate = new Date(paginationQuery.toDate);
+      condition.createdAt = Between(startOfDay(startDate), endOfDay(endDate));
+    }
+    if (paginationQuery.isTestPlayer) {
+      condition.usernameReal = paginationQuery.isTestPlayer == "true" ? Not("") : "";
+    }
+
+    const users = await this.userRepository.findAndCount({
+      relations: ["bookmaker", "userInfo"],
+      select: {
+        id: true,
+        username: true,
+        usernameFromAgent: true,
+        usernameReal: true,
+        createdAt: true,
+        role: true,
+        password: true,
+        hashedRt: true,
+        isBlocked: true,
+        bookmaker: {
+          id: true,
+          name: true,
+        },
+        userInfo: {
+          nickname: true
+        }
+      },
+      where: condition,
+      take: +perPage,
+      skip,
+      order: { createdAt: (paginationQuery.order || 'DESC') },
+    });
+
+    return users;
+  }
+
   async searchByUser(paginationQuery: PaginationQueryDto, user: any) {
     const { take: perPage, skip: page } = paginationQuery;
     if (page <= 0) {

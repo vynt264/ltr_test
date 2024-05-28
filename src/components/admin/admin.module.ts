@@ -14,6 +14,7 @@ import { StatisticModule } from './statistic/statistic.module';
 import { RanksModule } from './ranks/ranks.module';
 import { RolesModule } from './roles/roles.module';
 import { ValidateRightsModule } from './validate-rights/validate-rights.module';
+import { UserInfoModule } from './user-info/user-info.module';
 
 @Module({
     imports: [
@@ -32,6 +33,7 @@ import { ValidateRightsModule } from './validate-rights/validate-rights.module';
         RanksModule,
         RolesModule,
         ValidateRightsModule,
+        UserInfoModule,
     ],
 })
 export class AdminModule {}
