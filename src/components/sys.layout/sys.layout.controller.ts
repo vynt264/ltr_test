@@ -43,7 +43,7 @@ export class SysLayoutController {
   @ApiOkResponse({
     type: Response<SysLayout[]>,
   })
-  @Roles(RIGHTS.ShowSettingLayout)
+  // @Roles(RIGHTS.ShowSettingLayout)
   async GetAll(): Promise<any> {
     return this.sysLayoutService.getAll();
   }
