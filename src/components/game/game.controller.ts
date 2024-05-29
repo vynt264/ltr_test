@@ -45,7 +45,7 @@ export class GameController {
   @ApiOkResponse({
     type: Response<Game[]>,
   })
-  @Roles(RIGHTS.ShowSettingLayout)
+  // @Roles(RIGHTS.ShowSettingLayout)
   async GetAll(): Promise<any> {
     return this.gameService.getAll();
   }
