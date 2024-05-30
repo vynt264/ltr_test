@@ -12,9 +12,9 @@ const options: DataSourceOptions = {
   username: configService.get("DB_USER"),
   password: configService.get("DB_PASSWORD"),
   database: configService.get("DB_NAME"),
-  migrationsTableName: "migrations",
+  // migrationsTableName: "migrations",
   entities: ["../../components/**/*.entity.{js,ts}"],
-  migrations: ["../../migrations/migration/*.{js,ts}"],
+  // migrations: ["../../migrations/migration/*.{js,ts}"],
   extra: {
     charset: "utf8mb4_unicode_ci",
   },
