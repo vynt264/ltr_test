@@ -5,7 +5,6 @@ import { BacklistModule } from "../backlist/backlist.module";
 import { UserModule } from "../user/user.module";
 import { UserInfoController } from "./user.info.controller";
 import { UserInfoService } from "./user.info.service";
-import { SysConfig } from "../sys.config/sys.config.entity";
 import { SysConfigsModule } from "../sys.config/sys.config.module";
 import { ConnectModule } from "../connect/connect.module";
 import { User } from "../user/user.entity";
@@ -42,5 +41,6 @@ import { PlayHistoryKeno } from "../admin/admin.keno/entities/play.history.keno.
   ],
   controllers: [UserInfoController],
   providers: [UserInfoService],
+  exports: [UserInfoService]
 })
 export class UserInfoModule {}

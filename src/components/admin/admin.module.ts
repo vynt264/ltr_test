@@ -14,7 +14,7 @@ import { StatisticModule } from './statistic/statistic.module';
 import { RanksModule } from './ranks/ranks.module';
 import { RolesModule } from './roles/roles.module';
 import { ValidateRightsModule } from './validate-rights/validate-rights.module';
-import { UserInfoModule } from './user-info/user-info.module';
+import { ManagementUserInfoModule } from './management-user-info/management-user-info.module';
 
 @Module({
     imports: [
@@ -33,7 +33,7 @@ import { UserInfoModule } from './user-info/user-info.module';
         RanksModule,
         RolesModule,
         ValidateRightsModule,
-        UserInfoModule,
+        ManagementUserInfoModule,
     ],
 })
-export class AdminModule {}
+export class AdminModule { }

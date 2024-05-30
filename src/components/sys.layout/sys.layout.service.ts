@@ -14,6 +14,7 @@ import { SysLayout } from "./sys.layout.entity";
 import { User } from "../user/user.entity";
 import { UploadS3Service } from "../upload.s3/upload.s3.service";
 import { ConfigSys } from "src/common/helper";
+
 @Injectable()
 export class SysLayoutService {
   constructor(

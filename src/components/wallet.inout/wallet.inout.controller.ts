@@ -22,17 +22,16 @@ import {
 import { Response } from "../../system/interfaces";
 import { Roles } from "../auth/roles.guard/roles.decorator";
 import { RolesGuard } from "../auth/roles.guard/roles.guard";
-import { BacklistGuard } from "../backlist/backlist.guard";
 import { WalletInoutService } from "./wallet.inout.service";
 import { PaginationQueryDto } from "./../../common/common.dto/pagination.query.dto";
 import {
   CreateWalletInoutDto,
   UpdateWalletInoutDto
 } from "./dto/index";
-import { UserRoles } from "../user/enums/user.enum";
 import { WalletInout } from "./wallet.inout.entity";
 import { AuthGuard } from "../auth/guards/auth.guard";
 import { AuthAdminGuard } from "../auth/guards/auth-admin.guard";
+import { RIGHTS } from "src/system/constants/rights";
 
 @Controller("/api/v1/walletInout")
 @ApiTags("WalletInout")
@@ -58,6 +57,7 @@ export class WalletInoutController {
   @ApiOkResponse({
     type: Response<WalletInout[]>,
   })
+  @Roles(RIGHTS.ShowWalletHistory)
   async GetWalletHistory(@Query() paginationQuery: PaginationQueryDto, @Request() req: any): Promise<any> {
     return this.walletInoutService.getWalletHistory(paginationQuery, req.user);
   }
@@ -70,8 +70,7 @@ export class WalletInoutController {
     type: Response<WalletInout>,
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
+  @UseGuards(AuthGuard, RolesGuard)
   async create(@Body() userDto: CreateWalletInoutDto, @Request() req: any): Promise<any> {
     return this.walletInoutService.create(userDto, req.user);
   }
@@ -85,8 +84,7 @@ export class WalletInoutController {
   })
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
+  @UseGuards(AuthGuard, RolesGuard)
   async updateWalletInout(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateDto: UpdateWalletInoutDto,
@@ -100,8 +98,7 @@ export class WalletInoutController {
     description: "Delete WalletInout",
   })
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthGuard, BacklistGuard, RolesGuard)
-  @Roles(UserRoles.SUPPER, UserRoles.ADMINISTRATORS, UserRoles.ADMIN_BOOKMAKER)
+  @UseGuards(AuthGuard, RolesGuard)
   async delete(@Param("id") id: number): Promise<any> {
     return this.walletInoutService.delete(id);
   }

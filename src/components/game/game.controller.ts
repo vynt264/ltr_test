@@ -58,6 +58,7 @@ export class GameController {
     type: Response<Game>,
   })
   @ApiBearerAuth("Authorization")
+  @UseGuards(AuthAdminGuard, RolesGuard)
   @Roles(RIGHTS.EditSettingLayout)
   async create(@Body() userDto: CreateGameDto): Promise<any> {
     return this.gameService.create(userDto);
@@ -72,6 +73,7 @@ export class GameController {
   })
   @UsePipes(ValidationPipe)
   @ApiBearerAuth("Authorization")
+  @UseGuards(AuthAdminGuard, RolesGuard)
   @Roles(RIGHTS.EditSettingLayout)
   async updateGame(
     @Param("id", ParseIntPipe) id: number,
