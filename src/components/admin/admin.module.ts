@@ -15,6 +15,8 @@ import { RanksModule } from './ranks/ranks.module';
 import { RolesModule } from './roles/roles.module';
 import { ValidateRightsModule } from './validate-rights/validate-rights.module';
 import { ManagementUserInfoModule } from './management-user-info/management-user-info.module';
+import { AdminSysLayoutModule } from './admin.sys.layout/admin.sys.layout.module';
+import { AdminGameModule } from './admin.game/admin.game.module';
 
 @Module({
     imports: [
@@ -34,6 +36,8 @@ import { ManagementUserInfoModule } from './management-user-info/management-user
         RolesModule,
         ValidateRightsModule,
         ManagementUserInfoModule,
+        AdminSysLayoutModule,
+        AdminGameModule
     ],
 })
 export class AdminModule { }
