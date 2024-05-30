@@ -88,11 +88,16 @@ export class WalletInoutService {
       rightsNeedCheck: [RIGHTS.AllowSearchFromBookmarker],
     });
 
-    const object: any = JSON.parse(paginationQuery.keyword);
+    const object: any = paginationQuery.keyword ? JSON.parse(paginationQuery.keyword) : {};
     if (!hasRight) {
       object.bookmakerId = user.bookmakerId;
     }
     try {
+      let where = {};
+      if (Object.keys(object).length > 0) {
+        where = this.getCondition(object, true);
+      }
+
       const listData = await this.walletHistoryRepository.findAndCount({
         relations: ["user", "user.bookmaker", "user.userInfo"],
         select: {
@@ -109,7 +114,7 @@ export class WalletInoutService {
             }
           }
         },
-        where: this.getCondition(object, true),
+        where,
         take: +perPage,
         skip,
         order: {

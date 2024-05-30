@@ -6,6 +6,7 @@ import { AuthAdminGuard } from 'src/components/auth/guards/auth-admin.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from 'src/components/auth/roles.guard/roles.decorator';
 import { RIGHTS } from 'src/system/constants/rights';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('api/v1/admin-bookmaker')
 @UseGuards(AuthAdminGuard, RolesGuard)
@@ -18,8 +19,19 @@ export class BookmakerController {
     return this.bookmakerService.create(createBookmakerDto, req.user);
   }
 
-  @Get("all")
+  @Get()
+  @ApiOperation({
+    description: "Get all bookmarkers to manage (crud)",
+  })
   @Roles(RIGHTS.ShowListBookmarkers)
+  getAll() {
+    return this.bookmakerService.getAll();
+  }
+
+  @Get("all")
+  @ApiOperation({
+    description: "Get all bookmarkers to search",
+  })
   findAll() {
     return this.bookmakerService.getAll();
   }
