@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { Setting } from './entities/setting.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RedisCacheService } from 'src/system/redis/redis.service';
-import { PROFIT_PERCENTAGE_KEY } from 'src/system/config.system/config.default';
+import { IS_BONUS_KEY, IS_MAX_PAYOUT, PROFIT_PERCENTAGE_KEY } from 'src/system/config.system/config.default';
 import { Logger } from 'winston';
 
 @Injectable()
@@ -50,13 +50,13 @@ export class SettingsService {
   }
 
   async getProfit() {
-    const profit = await this.redisCacheService.get(`${PROFIT_PERCENTAGE_KEY}`);
+    const profit = await this.redisCacheService.get(PROFIT_PERCENTAGE_KEY);
 
     if (
       profit ||
       profit === 0
     ) {
-      return Number(profit);
+      return profit;
     }
 
     const result = await this.settingRepository.find({
@@ -73,33 +73,52 @@ export class SettingsService {
   }
 
   async isUseBonus() {
+    let bonus = await this.redisCacheService.get(`${IS_BONUS_KEY}`);
+
+    if (bonus === false || bonus === true) {
+      return bonus;
+    }
+
     const result = await this.settingRepository.find({
       where: {
         isDeleted: false,
       }
     });
 
-    return (
+    bonus = (
       (
         result[0]?.isUseBonus === false
         || result[0]?.isUseBonus === true
-      ) ? result[0]?.isUseBonus : true
+      ) ? result[0]?.isUseBonus : false
     );
+
+    await this.redisCacheService.set(`${IS_BONUS_KEY}`, bonus);
+
+    return bonus;
   }
 
   async isMaxPayout() {
+    let isMaxPayout = await this.redisCacheService.get(IS_MAX_PAYOUT);
+    if (isMaxPayout === false || isMaxPayout === true) {
+      return isMaxPayout;
+    }
+
     const result = await this.settingRepository.find({
       where: {
         isDeleted: false,
       }
     });
 
-    return (
+    isMaxPayout = (
       (
         result[0]?.isMaxPayout === false
         || result[0]?.isMaxPayout === true
-      ) ? result[0]?.isMaxPayout : true
+      ) ? result[0]?.isMaxPayout : false
     );
+
+    await this.redisCacheService.set(`${IS_MAX_PAYOUT}`, isMaxPayout);
+
+    return isMaxPayout;
   }
 
   async getTimeResetBonus() {

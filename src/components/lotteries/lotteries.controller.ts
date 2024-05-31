@@ -10,7 +10,7 @@ export class LotteriesController {
 
   @Post("generate-prizes")
   generatePrizes(@Body("orders") orders: any) {
-    const result = this.lotteriesService.generatePrizes(orders);
+    const result = this.lotteriesService.generatePrizes(orders, 0);
 
     return result;
   }

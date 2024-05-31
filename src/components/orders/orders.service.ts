@@ -24,6 +24,7 @@ import { Logger } from 'winston';
 import { SocketGatewayService } from '../gateway/gateway.service';
 import { RanksService } from '../ranks/ranks.service';
 import { SettingsService } from '../settings/settings.service';
+import { NUMBER_OF_PLAYERS_PLACING_ORDERS, PROFIT_PERCENTAGE } from 'src/system/config.system/config.default';
 
 @Injectable()
 export class OrdersService {
@@ -133,6 +134,16 @@ export class OrdersService {
       const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
       await this.walletHistoryRepository.save(createdWalletHis);
     }
+
+    // save number of users placing orders
+    const number = await this.getNumberOfUserFromTurn(turnIndex, isTestPlayer, data.orders[0].type, seconds);
+    const key = OrderHelper.getKeySaveNumberOfUsersPlacing({
+      turnIndex,
+      isTestPlayer,
+      type: data.orders[0].type,
+      seconds,
+    });
+    await this.redisService.set(key, number);
 
     // update balance
     const totalBetRemain = await this.redisService.incrby(OrderHelper.getKeySaveBalanceOfUser(member.id.toString()), -(Number(totalBet)));
@@ -306,6 +317,19 @@ export class OrdersService {
     if (user.usernameReal) {
       isTestPlayer = true;
     }
+    let profit = await this.settingsService.getProfit();
+    if (!profit && profit != 0) {
+      profit = Number(PROFIT_PERCENTAGE);
+    }
+
+    const key = OrderHelper.getKeySaveNumberOfUsersPlacing({
+      turnIndex,
+      isTestPlayer,
+      type: data.orders[0].type,
+      seconds,
+    });
+    await this.redisService.set(key, 1);
+
     const {
       finalResult,
       totalRevenue,
@@ -317,6 +341,8 @@ export class OrdersService {
       type: `${data.orders[0].type}${data.orders[0].seconds}s`,
       data: dataTransform,
       isTestPlayer,
+      profit: Number(profit),
+      seconds: 1,
     });
 
     // create lottery award
@@ -862,13 +888,21 @@ export class OrdersService {
       }
 
       const resultEachOrder = await this.orderRequestRepository.save(order);
+      const number = await this.getNumberOfUserFromTurn(order.turnIndex, isTestPlayer, resultEachOrder.type, seconds);
+      const key = OrderHelper.getKeySaveNumberOfUsersPlacing({
+        turnIndex: order.turnIndex,
+        isTestPlayer,
+        type: resultEachOrder.type,
+        seconds,
+      });
+      await this.redisService.set(key, number);
       promisesPrepareDataToGenerateAward.push(this.prepareDataToGeneratePrizes([resultEachOrder], user.bookmakerId, order.turnIndex, user.usernameReal));
       result.push(resultEachOrder);
     }
 
     await Promise.all(promisesPrepareDataToGenerateAward);
     await this.saveOrdersOfUserToRedis(result, user.bookmakerId, user.id, user.usernameReal);
-    
+
     let balanceActual = Number(wallet.balance)
     for (let i = 0; i < result.length; i++) {
       const order = result[i];
@@ -1250,13 +1284,14 @@ export class OrdersService {
     }
   }
 
-  async getNumberOfUserFromTurn(turnIndex: string, isTestPlayer: boolean, type: string) {
+  async getNumberOfUserFromTurn(turnIndex: string, isTestPlayer: boolean, type: string, seconds: number) {
     if (!turnIndex) return 0;
 
     const result = await this.orderRequestRepository.query(`
       SELECT userId FROM orders
       WHERE turnIndex = '${turnIndex}'
         AND isTestPlayer = '${isTestPlayer}'
+        AND seconds = '${seconds}'
         AND type = '${type}'
       GROUP BY userId
     `);

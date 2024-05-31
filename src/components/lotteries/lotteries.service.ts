@@ -25,10 +25,12 @@ import {
 import { ManageBonusPriceService } from '../manage-bonus-price/manage-bonus-price.service';
 import { addHours, startOfDay } from 'date-fns';
 import { OrderHelper } from 'src/common/helper';
-import { PROFIT_PERCENTAGE } from 'src/system/config.system/config.default';
+import { NUMBER_OF_PLAYERS_PLACING_ORDERS, PROFIT_PERCENTAGE } from 'src/system/config.system/config.default';
 import { SettingsService } from '../settings/settings.service';
 import { OrdersService } from '../orders/orders.service';
 import { BonusSettingService } from '../bonus-setting/bonus-setting.service';
+import { RedisCacheService } from 'src/system/redis/redis.service';
+import { Logger } from 'winston';
 
 @Injectable()
 export class LotteriesService {
@@ -43,9 +45,15 @@ export class LotteriesService {
 
     @Inject(forwardRef(() => BonusSettingService))
     private bonusSettingService: BonusSettingService,
+
+    @Inject(forwardRef(() => RedisCacheService))
+    private redisCacheService: RedisCacheService,
+
+    @Inject("winston")
+    private readonly logger: Logger,
   ) { }
 
-  async generatePrizes(orders: any, bonusPrice?: number) {
+  async generatePrizes(orders: any, bonusPrice?: number, profit?: number) {
     const {
       ordersLo2So,
       ordersLo2So1k,
@@ -71,14 +79,11 @@ export class LotteriesService {
 
     let totalBetAmount = this.getTotalBetAmount(orders);
     let temptotalBetAmount = totalBetAmount;
-    // if (bonusPrice > 0) {
-    //   temptotalBetAmount = totalBetAmount + bonusPrice;
+    // let profit = await this.settingsService.getProfit();
+    // const tim4 = (new Date()).getTime();
+    // if (!profit && profit !== 0) {
+    //   profit = Number(PROFIT_PERCENTAGE);
     // }
-
-    let profit = await this.settingsService.getProfit();
-    if (!profit && profit !== 0) {
-      profit = Number(PROFIT_PERCENTAGE);
-    }
 
     const finalResult = await this.getPrizes({
       profit: Number(profit),
@@ -137,7 +142,16 @@ export class LotteriesService {
     type,
     data,
     turnIndex,
-  }: any) {
+    seconds,
+    profit,
+  }: {
+    isTestPlayer: boolean,
+    type: string,
+    data: any,
+    turnIndex: string,
+    seconds: number,
+    profit: number,
+  }) {
     const timeStartDay = startOfDay(new Date());
     const fromDate = addHours(timeStartDay, START_TIME_CREATE_JOB).getTime();
     const toDate = fromDate + ((24 * 60 * 60) - (MAINTENANCE_PERIOD * 60)) * 1000;
@@ -154,33 +168,44 @@ export class LotteriesService {
 
     const isUseBonus = await this.settingsService.isUseBonus();
     const typeGame = OrderHelper.getTypeLottery(type);
-    const numberOfUser = await this.ordersService.getNumberOfUserFromTurn(turnIndex, isTestPlayer, typeGame);
+    const keySaveNumberOfUsersPlacing = OrderHelper.getKeySaveNumberOfUsersPlacing({
+      turnIndex,
+      type: typeGame,
+      seconds,
+      isTestPlayer,
+    });
+    let numberOfUser = await this.redisCacheService.get(keySaveNumberOfUsersPlacing);
+    this.redisCacheService.del(keySaveNumberOfUsersPlacing);
+
+    if (numberOfUser === null) {
+      numberOfUser = 0;
+    }
+
     const bonusSetting = await this.bonusSettingService.findAll();
     let bonusPriceFinal = 0;
     if (isUseBonus) {
-      bonusPriceFinal = this.getBonusPriceFromNumerOfUsers(bonusSetting, numberOfUser, dataBonusPrice?.bonusPrice);
+      bonusPriceFinal = this.getBonusPriceFromNumerOfUsers(bonusSetting, Number(numberOfUser), dataBonusPrice?.bonusPrice);
     }
-
     // profit: loi nhuan nha cai
-    let profit = await this.settingsService.getProfit();
-    if (!profit && profit !== 0) {
-      profit = Number(PROFIT_PERCENTAGE);
-    }
-
-    const prizes = await this.generatePrizes(data, bonusPriceFinal);
+    // let profit = await this.settingsService.getProfit();
+    // if (!profit && profit !== 0) {
+    //   profit = Number(PROFIT_PERCENTAGE);
+    // }
+    const prizes = await this.generatePrizes(data, bonusPriceFinal, profit);
     const finalResult = OrderHelper.randomPrizes(prizes);
-
     const totalPayout = this.getTotalPayout(data, (prizes?.finalResult?.totalPayout || 0), finalResult);
     const totalBet = (dataBonusPrice?.totalBet || 0) + (prizes.totalBetAmount || 0);
     // lay profit cua tong turn (in day).
     const totalProfit = (dataBonusPrice?.totalProfit || 0) + ((prizes?.totalBetAmount || 0) - totalPayout);
-    const amountReturned = totalProfit - (totalBet * ((profit / 100)));
+    const amountReturned = totalProfit - (totalBet * ((Number(profit) / 100)));
 
     dataBonusPrice.totalBet = totalBet;
     dataBonusPrice.totalProfit = totalProfit;
     dataBonusPrice.bonusPrice = amountReturned;
-
-    await this.manageBonusPriceService.update(dataBonusPrice.id, dataBonusPrice);
+    const startTime = (new Date()).getTime();
+    this.manageBonusPriceService.update(dataBonusPrice.id, dataBonusPrice);
+    const endTime = (new Date()).getTime();
+    // this.logger.info(`Time update bonus ${endTime - startTime}`);
     const totalRevenue = _.get(prizes, 'totalBetAmount', 0);
 
     return {

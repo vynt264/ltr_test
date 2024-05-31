@@ -26,6 +26,7 @@ import { WalletHistory } from '../wallet/wallet.history.entity';
 import { Logger } from 'winston';
 import { ManageBonusPriceService } from '../manage-bonus-price/manage-bonus-price.service';
 import { SettingsService } from '../settings/settings.service';
+import { PROFIT_PERCENTAGE } from 'src/system/config.system/config.default';
 
 @Injectable()
 export class ScheduleService implements OnModuleInit {
@@ -174,11 +175,15 @@ export class ScheduleService implements OnModuleInit {
 
     async handlerJobs(jobName: string, time: number, turnIndex: string, nextTurnIndex: string, nextTime: number, seconds: number) {
         try {
+            let profit = await this.settingsService.getProfit();
+            if (!profit && profit != 0) {
+                profit = Number(PROFIT_PERCENTAGE);
+            }
             let gameType = OrderHelper.getGameTypesBySeconds(seconds);
             const bookMakers = await this.bookMakerService.getAllBookMaker();
             let promises = [];
             for (const type of gameType) {
-                promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, type, bookMakers));
+                promises.push(this.processingData(time, turnIndex, nextTurnIndex, nextTime, type, bookMakers, seconds, Number(profit)));
             }
 
             await Promise.all(promises);
@@ -187,7 +192,7 @@ export class ScheduleService implements OnModuleInit {
         }
     }
 
-    async processingData(time: number, turnIndex: string, nextTurnIndex: string, nextTime: number, gameType: string, bookMakers: any) {
+    async processingData(time: number, turnIndex: string, nextTurnIndex: string, nextTime: number, gameType: string, bookMakers: any, seconds: number, profit: number) {
         // event reload tao ke hoach theo doi so
         this.socketGateway.sendEventToClient(`${gameType}-reload-list-tracked-number`, {
             turnIndex,
@@ -211,6 +216,8 @@ export class ScheduleService implements OnModuleInit {
             nextTime,
             gameType,
             bookMakers,
+            seconds,
+            profit,
         });
 
         // test player
@@ -221,53 +228,55 @@ export class ScheduleService implements OnModuleInit {
             nextTime,
             gameType,
             bookMakers,
+            seconds,
+            profit,
         });
     }
 
-    async getAwards({
-        gameType,
-        turnIndex,
-        isTestPlayer = false,
-    }: {
-        gameType: string,
-        turnIndex: string,
-        isTestPlayer: boolean,
-    }) {
-        const keyToGetOrdersOfRealUser = OrderHelper.getKeyPrepareOrders(null, gameType, turnIndex);
-        const ordersReal = await this.redisService.hgetall(keyToGetOrdersOfRealUser);
-        const keyCancelOrdersRealUsers = OrderHelper.getKeyCancelOrders(null, gameType, turnIndex);
-        const ordersCancelOfUserReal = await this.redisService.hgetall(keyCancelOrdersRealUsers);
-        let dataReal = OrderHelper.splitOrders(ordersReal);
-        dataReal = OrderHelper.cancelOrders(dataReal, ordersCancelOfUserReal);
-        this.redisService.del(keyToGetOrdersOfRealUser);
-        this.redisService.del(keyCancelOrdersRealUsers);
+    // async getAwards({
+    //     gameType,
+    //     turnIndex,
+    //     isTestPlayer = false,
+    // }: {
+    //     gameType: string,
+    //     turnIndex: string,
+    //     isTestPlayer: boolean,
+    // }) {
+    //     const keyToGetOrdersOfRealUser = OrderHelper.getKeyPrepareOrders(null, gameType, turnIndex);
+    //     const ordersReal = await this.redisService.hgetall(keyToGetOrdersOfRealUser);
+    //     const keyCancelOrdersRealUsers = OrderHelper.getKeyCancelOrders(null, gameType, turnIndex);
+    //     const ordersCancelOfUserReal = await this.redisService.hgetall(keyCancelOrdersRealUsers);
+    //     let dataReal = OrderHelper.splitOrders(ordersReal);
+    //     dataReal = OrderHelper.cancelOrders(dataReal, ordersCancelOfUserReal);
+    //     this.redisService.del(keyToGetOrdersOfRealUser);
+    //     this.redisService.del(keyCancelOrdersRealUsers);
 
-        if (!dataReal) {
-            dataReal = {};
-        }
+    //     if (!dataReal) {
+    //         dataReal = {};
+    //     }
 
-        const dataTransform = OrderHelper.transformData(dataReal);
-        const {
-            finalResult,
-            totalRevenue,
-            totalPayout,
-            bonusPrice,
-            totalProfit,
-        } = await this.lotteriesService.handlerPrizes({
-            turnIndex,
-            isTestPlayer,
-            type: gameType,
-            data: dataTransform,
-        });
+    //     const dataTransform = OrderHelper.transformData(dataReal);
+    //     const {
+    //         finalResult,
+    //         totalRevenue,
+    //         totalPayout,
+    //         bonusPrice,
+    //         totalProfit,
+    //     } = await this.lotteriesService.handlerPrizes({
+    //         turnIndex,
+    //         isTestPlayer,
+    //         type: gameType,
+    //         data: dataTransform,
+    //     });
 
-        return {
-            finalResult,
-            totalRevenue,
-            totalPayout,
-            bonusPrice,
-            totalProfit,
-        };
-    }
+    //     return {
+    //         finalResult,
+    //         totalRevenue,
+    //         totalPayout,
+    //         bonusPrice,
+    //         totalProfit,
+    //     };
+    // }
 
     async handleDataRealPlayer({
         gameType,
@@ -276,6 +285,8 @@ export class ScheduleService implements OnModuleInit {
         nextTurnIndex,
         nextTime,
         bookMakers,
+        seconds,
+        profit,
     }: {
         gameType: string,
         turnIndex: string,
@@ -283,6 +294,8 @@ export class ScheduleService implements OnModuleInit {
         nextTurnIndex: string,
         nextTime: number,
         bookMakers: any,
+        seconds: number,
+        profit: number,
     }) {
         // real player
         const keyToGetOrdersOfRealUser = OrderHelper.getKeyPrepareOrders(null, gameType, turnIndex);
@@ -299,6 +312,7 @@ export class ScheduleService implements OnModuleInit {
         }
 
         const dataTransform = OrderHelper.transformData(dataReal);
+        const startTime = (new Date()).getTime();
         const {
             finalResult,
             totalRevenue,
@@ -306,11 +320,16 @@ export class ScheduleService implements OnModuleInit {
             bonusPrice,
             totalProfit,
         } = await this.lotteriesService.handlerPrizes({
+            seconds,
             turnIndex,
+            profit,
             type: gameType,
             data: dataTransform,
             isTestPlayer: false,
         });
+        const endTime = (new Date()).getTime();
+        // this.logger.info(`Time get prizes-${turnIndex}-${seconds}:: ${endTime - startTime}`);
+
         const eventSendAwards = `${gameType}-receive-prizes`;
         this.socketGateway.sendEventToClient(eventSendAwards, {
             type: gameType,
@@ -354,6 +373,8 @@ export class ScheduleService implements OnModuleInit {
         nextTurnIndex,
         nextTime,
         bookMakers,
+        seconds,
+        profit,
     }: {
         gameType: string,
         turnIndex: string,
@@ -361,6 +382,8 @@ export class ScheduleService implements OnModuleInit {
         nextTurnIndex: string,
         nextTime: number,
         bookMakers: any,
+        seconds: number,
+        profit: number,
     }) {
         const keyToGetOrdersOfTestPlayer = OrderHelper.getKeyPrepareOrdersOfTestPlayer(null, gameType, turnIndex);
         const ordersTestPlayer = await this.redisService.hgetall(keyToGetOrdersOfTestPlayer);
@@ -384,10 +407,12 @@ export class ScheduleService implements OnModuleInit {
             bonusPrice: bonusPriceOfTestPlayer,
             totalProfit: totalProfitOfTestPlayer,
         } = await this.lotteriesService.handlerPrizes({
+            seconds,
             turnIndex,
             type: gameType,
             data: dataTransformOfFakeUsers,
             isTestPlayer: true,
+            profit,
         });
         // const finalResultOfFakeUsers = OrderHelper.randomPrizes(prizesOfTestPlayer);
         const eventSendAwardsOfFakeUsers = `${gameType}-test-player-receive-prizes`;
@@ -424,106 +449,106 @@ export class ScheduleService implements OnModuleInit {
         }
     }
 
-    async handleOrders({
-        gameType,
-        turnIndex,
-        time,
-        nextTurnIndex,
-        nextTime,
-        bookMakers,
-    }: {
-        gameType: string,
-        turnIndex: string,
-        time: number,
-        nextTurnIndex: string,
-        nextTime: number,
-        bookMakers: any,
-    }) {
-        const {
-            finalResult,
-            totalRevenue,
-            totalPayout,
-            bonusPrice,
-            totalProfit,
-        } = await this.getAwards({
-            gameType,
-            turnIndex,
-            isTestPlayer: false,
-        });
+    // async handleOrders({
+    //     gameType,
+    //     turnIndex,
+    //     time,
+    //     nextTurnIndex,
+    //     nextTime,
+    //     bookMakers,
+    // }: {
+    //     gameType: string,
+    //     turnIndex: string,
+    //     time: number,
+    //     nextTurnIndex: string,
+    //     nextTime: number,
+    //     bookMakers: any,
+    // }) {
+    //     const {
+    //         finalResult,
+    //         totalRevenue,
+    //         totalPayout,
+    //         bonusPrice,
+    //         totalProfit,
+    //     } = await this.getAwards({
+    //         gameType,
+    //         turnIndex,
+    //         isTestPlayer: false,
+    //     });
 
-        // real player
-        const eventSendAwards = `${gameType}-receive-prizes`;
-        this.socketGateway.sendEventToClient(eventSendAwards, {
-            type: gameType,
-            turnIndex,
-            nextTime,
-            nextTurnIndex,
-            openTime: time,
-            awardDetail: finalResult,
-            isTestPlayer: false,
-        });
+    //     // real player
+    //     const eventSendAwards = `${gameType}-receive-prizes`;
+    //     this.socketGateway.sendEventToClient(eventSendAwards, {
+    //         type: gameType,
+    //         turnIndex,
+    //         nextTime,
+    //         nextTurnIndex,
+    //         openTime: time,
+    //         awardDetail: finalResult,
+    //         isTestPlayer: false,
+    //     });
 
-        // test player
-        const eventSendAwardsOfFakeUsers = `${gameType}-test-player-receive-prizes`;
-        this.socketGateway.sendEventToClient(eventSendAwardsOfFakeUsers, {
-            type: gameType,
-            turnIndex,
-            nextTime,
-            nextTurnIndex,
-            openTime: time,
-            awardDetail: finalResult,
-            isTestPlayer: true,
-        });
+    //     // test player
+    //     const eventSendAwardsOfFakeUsers = `${gameType}-test-player-receive-prizes`;
+    //     this.socketGateway.sendEventToClient(eventSendAwardsOfFakeUsers, {
+    //         type: gameType,
+    //         turnIndex,
+    //         nextTime,
+    //         nextTurnIndex,
+    //         openTime: time,
+    //         awardDetail: finalResult,
+    //         isTestPlayer: true,
+    //     });
 
-        const promises = [];
-        for (const bookMaker of bookMakers) {
-            // real player
-            promises.push(this.lotteryAwardService.createLotteryAward({
-                turnIndex,
-                type: gameType,
-                awardDetail: JSON.stringify(finalResult),
-                bookmaker: { id: bookMaker.id } as any,
-                isTestPlayer: false,
-                openTime: new Date(time),
-                createdAt: new Date(time),
-                totalRevenue,
-                totalPayout,
-                bonusPrice,
-                totalProfit,
-            }));
-            promises.push(this.handleBalance({
-                turnIndex,
-                prizes: finalResult,
-                bookmakerId: bookMaker.id,
-                gameType,
-                isTestPlayer: false,
-            }));
+    //     const promises = [];
+    //     for (const bookMaker of bookMakers) {
+    //         // real player
+    //         promises.push(this.lotteryAwardService.createLotteryAward({
+    //             turnIndex,
+    //             type: gameType,
+    //             awardDetail: JSON.stringify(finalResult),
+    //             bookmaker: { id: bookMaker.id } as any,
+    //             isTestPlayer: false,
+    //             openTime: new Date(time),
+    //             createdAt: new Date(time),
+    //             totalRevenue,
+    //             totalPayout,
+    //             bonusPrice,
+    //             totalProfit,
+    //         }));
+    //         promises.push(this.handleBalance({
+    //             turnIndex,
+    //             prizes: finalResult,
+    //             bookmakerId: bookMaker.id,
+    //             gameType,
+    //             isTestPlayer: false,
+    //         }));
 
-            // test player
-            promises.push(this.lotteryAwardService.createLotteryAward({
-                turnIndex,
-                type: gameType,
-                awardDetail: JSON.stringify(finalResult),
-                bookmaker: { id: bookMaker.id } as any,
-                isTestPlayer: true,
-                openTime: new Date(time),
-                createdAt: new Date(time),
-                totalRevenue: 0,
-                totalPayout: 0,
-                bonusPrice: 0,
-                totalProfit: 0,
-            }));
-            promises.push(this.handleBalance({
-                turnIndex,
-                prizes: finalResult,
-                bookmakerId: bookMaker.id,
-                gameType,
-                isTestPlayer: true,
-            }));
-        }
+    //         // test player
+    //         promises.push(this.lotteryAwardService.createLotteryAward({
+    //             turnIndex,
+    //             type: gameType,
+    //             awardDetail: JSON.stringify(finalResult),
+    //             bookmaker: { id: bookMaker.id } as any,
+    //             isTestPlayer: true,
+    //             openTime: new Date(time),
+    //             createdAt: new Date(time),
+    //             totalRevenue: 0,
+    //             totalPayout: 0,
+    //             bonusPrice: 0,
+    //             totalProfit: 0,
+    //         }));
+    //         promises.push(this.handleBalance({
+    //             turnIndex,
+    //             prizes: finalResult,
+    //             bookmakerId: bookMaker.id,
+    //             gameType,
+    //             isTestPlayer: true,
+    //         }));
+    //     }
 
-        await Promise.all(promises);
-    }
+    //     await Promise.all(promises);
+    // }
 
     deleteCron(name: string) {
         this.schedulerRegistry.deleteCronJob(name);
@@ -770,7 +795,7 @@ export class ScheduleService implements OnModuleInit {
                     nccNote: "Xổ Số",
                     createdBy: ""
                 }
-    
+
                 const createdWalletHis = await this.walletHistoryRepository.create(createWalletHis);
                 await this.walletHistoryRepository.save(createdWalletHis);
             }
