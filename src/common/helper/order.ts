@@ -3,8 +3,8 @@ import { addHours, startOfDay } from "date-fns";
 import * as _ from "lodash";
 
 import { DateTimeHelper } from "src/helpers/date-time";
-import { PROFIT_PERCENTAGE } from "src/system/config.system/config.default";
-import { ERROR, INIT_TIME_CREATE_JOB, MAINTENANCE_PERIOD, PERIOD_CANNOT_ORDER, PRIZES, START_TIME_CREATE_JOB, TypeLottery } from "src/system/constants";
+import { NUMBER_OF_PLAYERS_PLACING_ORDERS } from "src/system/config.system/config.default";
+import { ERROR, MAINTENANCE_PERIOD, PERIOD_CANNOT_ORDER, PRIZES, START_TIME_CREATE_JOB, TypeLottery } from "src/system/constants";
 import { BaCangType, BaoLoType, BetTypeName, BonCangType, CategoryLotteryType, CategoryLotteryTypeName, DanhDeType, DauDuoiType, Lo2SoGiaiDacBietType, LoTruocType, LoXienType, OddBet, PricePerScore, TroChoiThuViType } from "src/system/enums/lotteries";
 
 export class OrderHelper {
@@ -1864,5 +1864,23 @@ export class OrderHelper {
 
     static getKeySaveBalanceOfUser(id: string) {
         return `balace::${id}`;
+    }
+
+    static getKeySaveNumberOfUsersPlacing({
+        turnIndex,
+        type,
+        seconds,
+        isTestPlayer,
+    }: {
+        turnIndex: string,
+        type: string,
+        seconds: number,
+        isTestPlayer: boolean,
+    }) {
+        if (isTestPlayer) {
+            return `${NUMBER_OF_PLAYERS_PLACING_ORDERS}_test_player::${turnIndex}::${type}::${seconds}`;
+        }
+
+        return `${NUMBER_OF_PLAYERS_PLACING_ORDERS}::${turnIndex}::${type}::${seconds}`;
     }
 }

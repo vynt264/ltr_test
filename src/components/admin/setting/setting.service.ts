@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Setting } from './entities/setting.entity';
 import { Repository } from 'typeorm';
 import { RedisCacheService } from 'src/system/redis/redis.service';
-import { PROFIT_PERCENTAGE_KEY } from 'src/system/config.system/config.default';
+import { IS_MAX_PAYOUT, IS_BONUS_KEY, PROFIT_PERCENTAGE_KEY } from 'src/system/config.system/config.default';
 import { ScheduleService } from 'src/components/schedule/schedule.service';
 import { addDays } from 'date-fns';
 import { Logger } from 'winston';
@@ -61,6 +61,14 @@ export class SettingService {
       Number(updateSettingDto.profit) === 0
     ) {
       await this.redisCacheService.set(`${PROFIT_PERCENTAGE_KEY}`, Number(updateSettingDto.profit));
+    }
+
+    if (updateSettingDto.isUseBonus === true || updateSettingDto.isUseBonus === false) {
+      await this.redisCacheService.set(`${IS_BONUS_KEY}`, Boolean(updateSettingDto.isUseBonus));
+    }
+
+    if (updateSettingDto.isMaxPayout === true || updateSettingDto.isMaxPayout === false) {
+      await this.redisCacheService.set(`${IS_MAX_PAYOUT}`, Boolean(updateSettingDto.isMaxPayout));
     }
 
     const setting = await this.settingRepository.update(id, updateSettingDto);
