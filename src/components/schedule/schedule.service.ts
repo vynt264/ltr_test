@@ -312,6 +312,7 @@ export class ScheduleService implements OnModuleInit {
         }
 
         const dataTransform = OrderHelper.transformData(dataReal);
+        const startTime = (new Date()).getTime();
         const {
             finalResult,
             totalRevenue,
@@ -326,6 +327,9 @@ export class ScheduleService implements OnModuleInit {
             data: dataTransform,
             isTestPlayer: false,
         });
+        const endTime = (new Date()).getTime();
+        this.logger.info(`Time get prizes-${turnIndex}-${seconds}:: ${endTime - startTime}`);
+
         const eventSendAwards = `${gameType}-receive-prizes`;
         this.socketGateway.sendEventToClient(eventSendAwards, {
             type: gameType,
