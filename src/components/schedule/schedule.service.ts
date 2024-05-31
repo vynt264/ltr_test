@@ -328,7 +328,7 @@ export class ScheduleService implements OnModuleInit {
             isTestPlayer: false,
         });
         const endTime = (new Date()).getTime();
-        this.logger.info(`Time get prizes-${turnIndex}-${seconds}:: ${endTime - startTime}`);
+        // this.logger.info(`Time get prizes-${turnIndex}-${seconds}:: ${endTime - startTime}`);
 
         const eventSendAwards = `${gameType}-receive-prizes`;
         this.socketGateway.sendEventToClient(eventSendAwards, {

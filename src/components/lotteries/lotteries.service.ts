@@ -203,7 +203,7 @@ export class LotteriesService {
     dataBonusPrice.totalProfit = totalProfit;
     dataBonusPrice.bonusPrice = amountReturned;
     const startTime = (new Date()).getTime();
-    await this.manageBonusPriceService.update(dataBonusPrice.id, dataBonusPrice);
+    this.manageBonusPriceService.update(dataBonusPrice.id, dataBonusPrice);
     const endTime = (new Date()).getTime();
     // this.logger.info(`Time update bonus ${endTime - startTime}`);
     const totalRevenue = _.get(prizes, 'totalBetAmount', 0);
